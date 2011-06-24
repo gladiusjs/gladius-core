@@ -7,38 +7,42 @@
         <script type="text/javascript">
         
 /*
- *	This is a prototype game intended to help us develop the API for paladin. It is unlikely to run. If it does
+ *  This is a prototype game intended to help us develop the API for paladin. It is unlikely to run. If it does
  *  run, it is even more unlikely to do anything useful or interesting.        
  */
 
 var Game = function() {
 
-	this.displayRegion = new paladin.DisplayRegion();						// Create a new display region.
-	this.camera = new paladin.NodePath( new paladin.Camera( 'Camera' ) );	// Create a new node path for the camera node.
-	this.lens = new paladin.PerspectiveLens();								// Create a new lens.
-	this.camera.node().setLens( this.lens );								// Attach the lens to the camera.
-	this.render = new paladin.NodePath( 'Render' );							// Create a scene graph root node path.
-	this.camera.setParent( self.render );									// Attach the camera to the root node path.
-	this.displayRegion.setCamera( self.camera );							// Associate the camera with the display region.
-	this.camera.node().setActive( false );									// Camera is inactive by default.
-	
-	this.tasks = new Array();												// Create an array to store task identifiers.
-	this.tasks.push( paladin.tasker.add( 'showDt', function( task ) {		// Create a new task.
-		dt = task.time - task.last;
-		sys.puts( dt );
-		return task.continue;												// Return task.continue to re-run the task, or task.complete to finish.
-	} ) );
-	
-	this.run = function() {
-		paladin.run();														// Start paladin's event loop and begin processing tasks.
-	};
+    this.displayRegion = new paladin.DisplayRegion();                       // Create a new display region.
+    this.camera = new paladin.NodePath( new paladin.Camera( 'Camera' ) );   // Create a new node path for the camera node.
+    this.lens = new paladin.PerspectiveLens();                              // Create a new lens.
+    this.camera.node().setLens( this.lens );                                // Attach the lens to the camera.
+    this.render = new paladin.NodePath( 'Render' );                         // Create a scene graph root node path.
+    this.camera.setParent( self.render );                                   // Attach the camera to the root node path.
+    this.displayRegion.setCamera( self.camera );                            // Associate the camera with the display region.
+    this.camera.node().setActive( false );                                  // Camera is inactive by default.
+    
+    this.tasks = new Array();                                               // Create an array to store task identifiers.
+    this.tasks.push( paladin.tasker.do( 'showDt', function( task ) {        // Create a new task.
+        dt = task.time - task.last;
+        sys.puts( dt );
+        return task.continue;                                               // Return task.continue to re-run the task, or task.complete to finish.
+    } ) );
+    this.tasks.push( paladin.tasker.doLater( 'tick', 1.0, function( task ) {    // This task happens every second instead of every frame.
+        sys.puts( 'tick' );
+        return task.repeat;                                                 // Could return task.done to de-schedule this task.
+    } ) );
+    
+    this.run = function() {
+        paladin.run();                                                      // Start paladin's event loop and begin processing tasks.
+    };
 
 };
         
         </script>
     </head>
     
-    <body onLoad="Game.run();">												// Run the game.
+    <body onLoad="Game.run();">                                             // Run the game.
     </body>
     
 </html>
