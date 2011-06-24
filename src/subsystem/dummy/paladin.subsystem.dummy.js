@@ -1,14 +1,21 @@
 (function (window, document, Paladin) {
 
-  Paladin.Subsystem.create( "dummy", function () {
+  Paladin.Subsystem.register( "dummy", (function () {
+
+    var init = false;
 
     return {
-      setup: function () {
+      start: function () {
+        init = true;
       },
-      destroy: function () {
+      stop: function () {
+        init = false;
+      },
+      dummy: function () {
+        return init;
       },
     };
 
-  });
+  })());
 
 })(window, document, Paladin);
