@@ -13,7 +13,7 @@
       },
       dummy: function () {
         return init;
-      },
+      }
     };
 
   })());

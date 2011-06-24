@@ -7,7 +7,7 @@
     },
     teardown: function () {
       delete paladin;
-    },
+    }
   });
 
   test("dummy subsystem exists", function () {

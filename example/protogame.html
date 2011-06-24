@@ -18,8 +18,8 @@ var Game = function() {
     this.lens = new paladin.PerspectiveLens();                              // Create a new lens.
     this.camera.node().setLens( this.lens );                                // Attach the lens to the camera.
     this.render = new paladin.NodePath( 'Render' );                         // Create a scene graph root node path.
-    this.camera.setParent( self.render );                                   // Attach the camera to the root node path.
-    this.displayRegion.setCamera( self.camera );                            // Associate the camera with the display region.
+    this.camera.setParent( this.render );                                   // Attach the camera to the root node path.
+    this.displayRegion.setCamera( this.camera );                            // Associate the camera with the display region.
     this.camera.node().setActive( false );                                  // Camera is inactive by default.
     
     this.tasks = new Array();                                               // Create an array to store task identifiers.
