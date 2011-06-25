@@ -58,7 +58,7 @@ function Tasker() {
         
         tasksById[id] = task;
         if( task.name )
-            tasksByName[name] = task;
+            tasksByName[task.name] = task;
         return task;
     }; //add
 
