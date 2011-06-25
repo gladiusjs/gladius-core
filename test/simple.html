@@ -7,19 +7,29 @@
         <script type="text/javascript">
         
 function Game() {
-    this.paladin = new Paladin();
-    task = tasker.add( function( task ) {        
-        console.log( task.counter ++ );
-        if( task.counter > 10 )
-            return task.DONE;
-        else
-            return task.CONT;
-    } );
-    task.counter = 0;
-    console.log( task );    
-};
-Game.prototype.run = function() {
-    this.paladin.run();
+    var paladin = this.paladin = new Paladin();
+
+    (function () {
+      var counter = 0,
+          task = Paladin.tasker.add( {
+              callback: function( ) {        
+                  console.log( counter ++ );
+                  if( counter > 10 ) {
+                      return task.DONE;
+                  }
+                  else {
+                      return task.CONT;
+                  }
+              },
+              name: 'Counter'
+          } );
+      counter = 0;
+      console.log( task );    
+    })();
+
+    this.run = function () {
+      paladin.run();
+    };
 };
 var game = new Game();
 

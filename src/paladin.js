@@ -5,53 +5,73 @@ function Paladin() {
         throw new Error( 'Must instantiate Paladin with "new".' );
     }
 };
+
 window.Paladin = Paladin;
+
 Paladin.prototype.run = function() {    
-    tasker.run();    
+    Paladin.tasker.run();    
 };
 
 function Tasker() {
-    this._nextId = 0;
-    this._tasksById = {};
-    this._tasksByName = {};
-    this._terminate = false;
-};
-window.tasker = new Tasker();
-Tasker.prototype.run = function() {
-    for( var id in this._tasksById ) {
-        var task = this._tasksById[id];
-        task.time = Date.now();
-        if( task.DONE == task._callback( task ) )
-            this.remove( task );
-    }
+
+    // enumerations
+    this.CONT = 0;
+    this.DONE = 1;
+    this.AGAIN = 2;
+
+    // private vars
+    var nextId = 0,
+        tasksById = {},
+        tasksByName = {},
+        terminate = false,
+        that = this;
     
-    if( !this._terminate )
-        setTimeout( this.run.bind( this ), 0 );
-};
-Tasker.prototype.terminate = function() {
-    this._terminate = true;
-};
-Tasker.prototype.add = function( callback ) {
-    var id = this._nextId ++;
-    var task = {
-        _callback: callback,            
-        _id: id,
-        name: null,
-        time: Date.now(),
-        CONT: 0,
-        DONE: 1,
-        AGAIN: 2
+    this.run = function() {
+        for( var id in tasksById ) {
+            var task = tasksById[id];
+            task.time = Date.now();
+            if( task.DONE === task._callback( task ) ) {
+                that.remove( task );
+            }
+        }
+        
+        if( !terminate ) {
+            setTimeout( that.run, 0 );
+        }
+    }; //run
+
+    this.terminate = function() {
+        terminate = true;
+    }; //terminate
+
+    this.add = function( options ) {
+        var id = nextId++;
+        var task = {
+            _callback: options.callback || function () {},            
+            _id: id,
+            name: options.name || "task" + id,
+            time: Date.now(),
+            CONT: 0,
+            DONE: 1,
+            AGAIN: 2,
+        };
+        
+        tasksById[id] = task;
+        return task;
+    }; //add
+
+    this.remove = function( task ) {
+        if( task._id in tasksById ) {
+            delete tasksById[task._id];
+        }
+        if ( task.name in tasksByName ) {
+            delete tasksByName[task.name];
+        }
     };
-    
-    this._tasksById[id] = task;
-    return task;
-};
-Tasker.prototype.remove = function( task ) {
-    if( task._id in this._tasksById ) {
-        delete this._tasksById[task._id];
-    }
-    // FIXME(alan.kligman): Also remove the task from the named index.
-};
+
+}; //Tasker
+
+Paladin.tasker = new Tasker();
 
 /*
 Tasker.prototype.add = function( name, callback ) {
