@@ -45,18 +45,20 @@ function Tasker() {
     }; //terminate
 
     this.add = function( options ) {
-        var id = nextId++;
+        var id = nextId ++;
         var task = {
             _callback: options.callback || function () {},            
             _id: id,
-            name: options.name || "task" + id,
+            name: options.name || undefined,
             time: Date.now(),
             CONT: 0,
             DONE: 1,
-            AGAIN: 2,
+            AGAIN: 2
         };
         
         tasksById[id] = task;
+        if( task.name )
+            tasksByName[name] = task;
         return task;
     }; //add
 
@@ -64,7 +66,7 @@ function Tasker() {
         if( task._id in tasksById ) {
             delete tasksById[task._id];
         }
-        if ( task.name in tasksByName ) {
+        if ( task.name && task.name in tasksByName ) {
             delete tasksByName[task.name];
         }
     };
