@@ -145,28 +145,37 @@ function Messenger() {
         var code = event.keyCode;
         
         var components = [];
-        if( event.shiftKey )
+        if( event.shiftKey || code == 16 )
             components.push( 'shift' );
-        if( event.ctrlKey )
+        if( event.ctrlKey || code == 17 )
             components.push( 'control' );
-        if( event.altKey )
+        if( event.altKey || code == 18 )
             components.push( 'alt' );
-        if( event.metaKey )
+        if( event.metaKey || code == 0 )
             components.push( 'meta' );
 
-        if( code == 0 ) {
-            
+        if( code == 0 || (code >= 16 && code <= 18) || code == 224 ) {
+            // These are modifier keys, do nothing.
         }
-        else if( code == 27 ) {
+        else if( code == 27 )
             components.push( 'escape' );
-        }
-        else if( (code >= 48 && code <= 90) ) {         
-            components.push( String.fromCharCode( code ).toLocaleLowerCase() );        
-        }
+        else if( code == 37 )
+            components.push( 'larrow' );
+        else if( code == 38 )
+            components.push( 'uarrow' );
+        else if( code == 39 )
+            components.push( 'rarrow' );
+        else if( code == 40 )
+            components.push( 'darrow' );
+        else if( (code >= 48 && code <= 90) )         
+            components.push( String.fromCharCode( code ).toLocaleLowerCase() );
+        else
+            components.push( '<' + code + '>' );
         
         components.push( direction );
         
-        return components.join( '-' );
+        result = components.join( '-' );
+        return result;
     };
     
     window.onkeydown = this._keyDown;
