@@ -33,6 +33,29 @@ var Game = function() {
         return task.repeat;                                                 // Could return task.done to de-schedule this task.
     } ) );
     
+    var entity1 = new Paladin.Entity();
+    entity1.listen( {
+        event: 'my_event',
+        callback: function( parameters ) {
+            sys.puts( 'my_event triggered for entity1!', parameters );
+        },
+        parameters: ['hello', 'world']
+    } );
+    var entity2 = new Paladin.Entity();
+    entity2.listen( {
+        event: 'my_event',
+        callback: function( parameters ) {
+            sys.puts( 'my_event triggered for entity2!', parameters );
+        },
+        parameters: ['foo', 'bar']
+    } );
+    entity1.ignore( {
+        event: 'my_event'
+    } );
+    entity2.ignore( {
+        event: 'my_event'
+    } );
+    
     this.run = function() {
         paladin.run();                                                      // Start paladin's event loop and begin processing tasks.
     };
