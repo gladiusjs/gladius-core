@@ -98,18 +98,34 @@ function Messenger() {
     };
     
     this.ignore = function( options ) {
-        if( callbacks.hasOwnProperty( options.event ) &&
-                callbacks[options.event].hasOwnProperty( options.entity.getId() ) )
-            delete callbacks[options.event][options.entity.getId()];
-        if( 0 == Object.keys( callbacks[options.event] ).length )
-            delete callbacks[options.event];
+        if( callbacks.hasOwnProperty( options.event ) ) {
+            if( callbacks[options.event].hasOwnProperty( options.entity.getId() ) )
+                delete callbacks[options.event][options.entity.getId()];
+            if( 0 == Object.keys( callbacks[options.event] ).length )
+                delete callbacks[options.event];
+        }
     };
     
     this.ignoreAll = function( options ) {
         
     };
     
-    this.send = function( options ) {        
+    this.send = function( options ) {
+        if( callbacks.hasOwnProperty( options.event ) ) {
+            listeners = callbacks[options.event];
+            for( var id in listeners ) {
+                var callback = listeners[id].callback,
+                    parameters = listeners[id].parameters,
+                    persistent = listeners[id].persistent;
+                
+                // Call the handler.
+                callback( parameters.concat( options.parameters ) );
+            }
+        }
+    };
+    
+    this._dispatch = function( options ) {
+        
     };
     
 };
@@ -140,6 +156,13 @@ function Entity() {
         Paladin.messenger.ignore( {
             entity: that,
             event: options.event
+        } );
+    };
+    
+    this.send = function( options ) {
+        Paladin.messenger.send( {
+            event: options.event,
+            parameters: options.parameters || []
         } );
     };
     
