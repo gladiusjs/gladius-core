@@ -80,14 +80,14 @@ function Tasker() {
 function Messenger() {
     
     var callbacks = {},
-        entities = {},
         that = this;
     
     this.listen = function( options ) {
+        var id = options.entity.getId();
         if( !callbacks.hasOwnProperty( options.event ) )
-            callbacks[options.event] = {};
-        callbacks[options.event][options.entity.getId()] = {
-            callback: options.callback,
+            callbacks[options.event] = {};        
+        callbacks[options.event][id] = {
+            callback: options.callback.bind( options.entity ),
             parameters: options.parameters,
             persistent: options.persistent
         };
