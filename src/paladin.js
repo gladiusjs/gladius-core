@@ -8,11 +8,6 @@ function Paladin() {
         throw new Error( 'Must instantiate Paladin with "new".' );
     }
     
-    this.onMouseDown = function () { return function (ev)
-    {
-        alert( '!' );
-    }; }();
-    
 };
 
 window.Paladin = Paladin;
@@ -85,6 +80,7 @@ function Tasker() {
 function Messenger() {
     
     var callbacks = {},
+        entities = {},
         that = this;
     
     this.listen = function( options ) {
@@ -118,15 +114,63 @@ function Messenger() {
                     parameters = listeners[id].parameters,
                     persistent = listeners[id].persistent;
                 
+                
                 // Call the handler.
                 callback( parameters.concat( options.parameters ) );
+                if( !persistent )
+                    delete callbacks[options.event][id];
             }
         }
     };
+
+    // Handle Javascript events.
     
-    this._dispatch = function( options ) {
-        
+    this._keyDown = function( event ) {
+        // console.log( 'down', event.keyCode, String.fromCharCode( event.keyCode ), event.timeStamp );
+        that.send( {
+            event: that._convertKeyEvent( event, 'down' ),
+            parameters: []
+        } );
     };
+    
+    this._keyUp = function( event ) {
+        // console.log( 'up', event.keyCode, String.fromCharCode( event.keyCode ), event.timeStamp );
+        that.send( {
+            event: that._convertKeyEvent( event, 'up' ),
+            parameters: []
+        } );        
+    };
+    
+    this._convertKeyEvent = function( event, direction ) {
+        var code = event.keyCode;
+        
+        var components = [];
+        if( event.shiftKey )
+            components.push( 'shift' );
+        if( event.ctrlKey )
+            components.push( 'control' );
+        if( event.altKey )
+            components.push( 'alt' );
+        if( event.metaKey )
+            components.push( 'meta' );
+
+        if( code == 0 ) {
+            
+        }
+        else if( code == 27 ) {
+            components.push( 'escape' );
+        }
+        else if( (code >= 48 && code <= 90) ) {         
+            components.push( String.fromCharCode( code ).toLocaleLowerCase() );        
+        }
+        
+        components.push( direction );
+        
+        return components.join( '-' );
+    };
+    
+    window.onkeydown = this._keyDown;
+    window.onkeyup = this._keyUp;
     
 };
 
@@ -147,7 +191,7 @@ function Entity() {
             entity: that,
             event: options.event,
             callback: options.callback,
-            parameters: options.parameters || undefined,
+            parameters: options.parameters || [],
             persistent: options.persistent || true
         } );
     };
