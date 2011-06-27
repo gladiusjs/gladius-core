@@ -152,6 +152,13 @@ function Messenger() {
             parameters: []
         } );        
     };
+
+    this._mouseWheelScroll = function( event ) {
+        that.send( {
+            event: that._convertMouseWheelEvent( event ),
+            parameters: []
+        } );        
+    };
     
     this._convertKeyEvent = function( event, mode ) {
         var code = event.keyCode;
@@ -217,12 +224,34 @@ function Messenger() {
         result = components.join( '-' );
         return result;
     };
+
+    this._convertMouseWheelEvent = function( event ) {
+        var code = event.detail;
+
+        var components = []
+        if( event.shiftKey )
+            components.push( 'shift' );
+        if( event.ctrlKey )
+            components.push( 'control' );
+        if( event.altKey )
+            components.push( 'alt' );
+        if( event.metaKey )
+            components.push( 'meta' );
+
+        if( code < 0 )
+            components.push( 'wheel-up' )
+        else if( code > 0 )
+            components.push( 'wheel-down' )
+
+        result = components.join( '-' );
+        return result;
+    };
     
-    window.onkeydown = this._keyDown;
-    window.onkeyup = this._keyUp;
-    window.onmousedown = this._mouseButtonDown;
-    window.onmouseup = this._mouseButtonUp;
-    
+    window.addEventListener( 'keydown', this._keyDown, true );
+    window.addEventListener( 'keyup', this._keyUp, true );
+    window.addEventListener( 'mousedown', this._mouseButtonDown, true );
+    window.addEventListener( 'mouseup', this._mouseButtonUp, true );
+    window.addEventListener( 'DOMMouseScroll', this._mouseWheelScroll, true );
 };
 
 // FIXME(alan.kligman@gmail.com): This is a hack.
