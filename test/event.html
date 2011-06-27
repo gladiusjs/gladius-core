@@ -20,7 +20,7 @@ function Game() {
     entity1.listen( {
         event: 'mouse1-up',
         callback: function( parameters ) {
-            console.log( 'mouse1 up!', this.count ++ );
+            console.log( 'mouse1 up!', Paladin.mouseWatcher.getX(), Paladin.mouseWatcher.getY(), this.count ++ );
         }
     } );
          

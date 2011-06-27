@@ -77,6 +77,31 @@ function Tasker() {
 
 }; //Tasker
 
+function MouseWatcher( tasker ) {
+
+    var mousePosition = {
+            x: undefined,
+            y: undefined
+        },
+        that = this;    
+
+    this.getX = function() {
+        return mousePosition['x'];
+    };
+
+    this.getY = function() {
+        return mousePosition['y'];
+    };
+
+    this._mouseMove = function( event ) {
+        mousePosition['x'] = event.pageX;
+        mousePosition['y'] = event.pageY;
+    };
+
+    window.addEventListener( 'mousemove', this._mouseMove, true );
+    window.addEventListener( 'mouseover', this._mouseMove, true );
+};
+
 function Messenger() {
     
     var callbacks = {},
@@ -295,6 +320,7 @@ function Entity() {
 // Attach core instances to Paladin.
 Paladin.tasker = new Tasker();
 Paladin.messenger = new Messenger();
+Paladin.mouseWatcher = new MouseWatcher();
 
 // Attach prototypes to Paladin.
 Paladin.Entity = Entity;
