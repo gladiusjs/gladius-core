@@ -126,7 +126,6 @@ function Messenger() {
     // Handle Javascript events.
     
     this._keyDown = function( event ) {
-        // console.log( 'down', event.keyCode, String.fromCharCode( event.keyCode ), event.timeStamp );
         that.send( {
             event: that._convertKeyEvent( event, 'down' ),
             parameters: []
@@ -134,14 +133,27 @@ function Messenger() {
     };
     
     this._keyUp = function( event ) {
-        // console.log( 'up', event.keyCode, String.fromCharCode( event.keyCode ), event.timeStamp );
         that.send( {
             event: that._convertKeyEvent( event, 'up' ),
             parameters: []
         } );        
     };
+
+    this._mouseButtonDown = function( event ) {
+        that.send( {
+            event: that._convertMouseButtonEvent( event, 'down' ),
+            parameters: []
+        } );        
+    };
+
+    this._mouseButtonUp = function( event ) {
+        that.send( {
+            event: that._convertMouseButtonEvent( event, 'up' ),
+            parameters: []
+        } );        
+    };
     
-    this._convertKeyEvent = function( event, direction ) {
+    this._convertKeyEvent = function( event, mode ) {
         var code = event.keyCode;
         
         var components = [];
@@ -172,14 +184,44 @@ function Messenger() {
         else
             components.push( '<' + code + '>' );
         
-        components.push( direction );
+        components.push( mode );
         
+        result = components.join( '-' );
+        return result;
+    };
+
+    this._convertMouseButtonEvent = function( event, mode ) {
+        var code = event.button;
+
+        var components = [];
+        if( event.shiftKey )
+            components.push( 'shift' );
+        if( event.ctrlKey )
+            components.push( 'control' );
+        if( event.altKey )
+            components.push( 'alt' );
+        if( event.metaKey )
+            components.push( 'meta' );
+
+        if( code == 0 )
+            components.push( 'mouse1' );
+        else if( code == 2 )
+            components.push( 'mouse2' );
+        else if( code == 1 )
+            components.push( 'mouse3' );
+        else
+            components.push( '<' + code + '>' );
+
+        components.push( mode );
+
         result = components.join( '-' );
         return result;
     };
     
     window.onkeydown = this._keyDown;
     window.onkeyup = this._keyUp;
+    window.onmousedown = this._mouseButtonDown;
+    window.onmouseup = this._mouseButtonUp;
     
 };
 

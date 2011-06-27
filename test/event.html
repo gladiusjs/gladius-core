@@ -17,6 +17,12 @@ function Game() {
             console.log( 'escape pressed!', this.count ++ );
         }
     } );
+    entity1.listen( {
+        event: 'mouse1-up',
+        callback: function( parameters ) {
+            console.log( 'mouse1 up!', this.count ++ );
+        }
+    } );
          
     this.run = function () {
       paladin.run();
