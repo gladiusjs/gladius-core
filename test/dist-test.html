@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+    
+    <head>
+        <script src="../dist/paladin.complete.js" type="text/javascript"></script>
+        <script type="text/javascript">
+     
+function Game() {
+    var paladin = this.paladin = new Paladin();
+
+    this.run = function () {
+      paladin.run();
+    };
+};
+var game = new Game();
+
+        </script>
+    </head>   
+    
+    <body onLoad="game.run();">
+    </body>
+    
+</html>

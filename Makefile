@@ -2,12 +2,16 @@
 PALADIN := paladin
 SRC_DIR := ./src
 DIST_DIR := ./dist
+LIB_DIR := ./lib
 PALADIN_SRC := $(SRC_DIR)/$(PALADIN).js
 PALADIN_DIST := $(DIST_DIR)/$(PALADIN).js
 PALADIN_MIN := $(DIST_DIR)/$(PALADIN).min.js
+PALADIN_COMPLETE := $(DIST_DIR)/$(PALADIN).complete.js
 SUBSYS_DIR := $(SRC_DIR)/subsystem
 TOOLS_DIR := ./tools
 TESTS_DIR := $(DIST_DIR)/test
+
+CUBICVR_LIB := $(LIB_DIR)/CubicVR.min.js
 
 CORE_FILES := $(SRC_DIR)/paladin.js
 SUBSYSTEM_FILES := $(SUBSYS_DIR)/paladin.subsystem.js $(SUBSYS_DIR)/dummy/paladin.subsystem.dummy.js
@@ -21,7 +25,9 @@ compile = java -jar $(TOOLS_DIR)/closure/compiler.jar \
 
 concat = cat $(CONCAT_LIST) > $(1)
 
-all: $(DIST_DIR) $(PALADIN_DIST) $(PALADIN_MIN)
+complete = cat $(PALADIN_MIN) $(CUBICVR_LIB) > $(1)
+
+all: $(DIST_DIR) $(PALADIN_DIST) $(PALADIN_MIN) $(PALADIN_COMPLETE)
 	@@echo "Finished, see $(DIST_DIR)"
 
 $(DIST_DIR):
@@ -32,9 +38,13 @@ $(PALADIN_DIST): $(DIST_DIR) $(PALADIN_SRC)
 	@@echo "Building $(PALADIN_DIST)"
 	@@$(call concat,$(PALADIN_DIST))
 
-$(PALADIN_MIN): $(DIST_DIR) $(PALADIN_SRC) $(PALADIN_DIST)
+$(PALADIN_MIN): $(DIST_DIR) $(PALADIN_SRC)
 	@@echo "Building $(PALADIN_MIN)"
 	@@$(call compile,$(PALADIN_MIN))
+
+$(PALADIN_COMPLETE): $(DIST_DIR) $(PALADIN_MIN)
+	@@echo "Building $(PALADIN_COMPLETE)"
+	@@$(call complete,$(PALADIN_COMPLETE))
 
 tests: $(DIST_DIR) $(PALADIN_MIN)
 	@@echo "Creating tests in $(TESTS_DIR)"
