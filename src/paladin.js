@@ -285,11 +285,15 @@ var nextEntityId = 0;
 function Entity() {
     
     var id = nextEntityId ++,
+        componentsByType = {},
+        componentsByName = {},
         that = this;
     
     this.getId = function() {
         return id;
     };
+
+    // Messenger functions.
     
     this.listen = function( options ) {
         Paladin.messenger.listen( {
@@ -315,24 +319,46 @@ function Entity() {
         } );
     };
     
+    // Component functions.
+
+    /* Options
+     * component: The component we want to add.
+     * name: A name for the component. Need not be unique.
+     */
     this.addComponent( options ) {
-        
+        var componentType = options.component.getType();
+        if( !that.componentsByType.hasOwnProperty( componentType ) ) {
+            that.components[componentType] = []
+        }
+        that.componentsByType[componentType].push( options.component );
+
+        if( options.name ) {
+            if( !that.componentsByName.hasOwnProperty( options.name ) ) {
+                that.componentsByName[options.name] = []
+            }
+            that.componentsByName[options.name].push( options.component );
+        }
     };
     
+    /* Options
+     * component: The component we want to remove.
+     * name: Specify a name to remove all components with that name.
+     * type: Specify a type to remove all components with that type.
+     */
     this.removeComponent( options ) {
-        
+
     };
     
-    this.findComponentByType( options ) {
+    /* Options
+     * type: Find all components with this type.
+     * name: Find all components with this name.
+     */
+    this.findComponents( options ) {
         
     };
-    
-    this.findComponentByName( options ) {
-        
-    };
-    
 };
 
+// Placeholder prototypes for a few things we'll need.
 function Point3() {
     this.x = undefined;
     this.y = undefined;
@@ -345,20 +371,11 @@ function Vector3() {
     this.z = undefined;
 }
 
-function Component() {
-    this.type = undefined;
-};
-Component.prototype.getType = function() {
-    return this.type;
+function SpatialComponent() {
+    this.type = 'spatial';
+    this.position = new Point3();   // X, y, z.
+    this.rotation = new Vector3();  // Rotation, pitch, yaw.
 }
-
-function PositionComponent3() {
-    this.type = 'position';
-    this.position = new Point3();
-    this.rpy = new Vector3();
-}
-PositionComponent3.prototype = new Component();
-PositionComponent3.prototype.constructor = PositionComponent;
 
 // Attach core instances to Paladin.
 Paladin.tasker = new Tasker();
