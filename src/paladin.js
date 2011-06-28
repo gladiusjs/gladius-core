@@ -253,7 +253,7 @@ function Messenger() {
     this._convertMouseWheelEvent = function( event ) {
         var code = event.detail;
 
-        var components = []
+        var components = [];
         if( event.shiftKey )
             components.push( 'shift' );
         if( event.ctrlKey )
@@ -264,9 +264,9 @@ function Messenger() {
             components.push( 'meta' );
 
         if( code < 0 )
-            components.push( 'wheel-up' )
+            components.push( 'wheel-up' );
         else if( code > 0 )
-            components.push( 'wheel-down' )
+            components.push( 'wheel-down' );
 
         result = components.join( '-' );
         return result;
@@ -315,7 +315,50 @@ function Entity() {
         } );
     };
     
+    this.addComponent( options ) {
+        
+    };
+    
+    this.removeComponent( options ) {
+        
+    };
+    
+    this.findComponentByType( options ) {
+        
+    };
+    
+    this.findComponentByName( options ) {
+        
+    };
+    
 };
+
+function Point3() {
+    this.x = undefined;
+    this.y = undefined;
+    this.z = undefined;
+}
+
+function Vector3() {
+    this.x = undefined;
+    this.y = undefined;
+    this.z = undefined;
+}
+
+function Component() {
+    this.type = undefined;
+};
+Component.prototype.getType = function() {
+    return this.type;
+}
+
+function PositionComponent3() {
+    this.type = 'position';
+    this.position = new Point3();
+    this.rpy = new Vector3();
+}
+PositionComponent3.prototype = new Component();
+PositionComponent3.prototype.constructor = PositionComponent;
 
 // Attach core instances to Paladin.
 Paladin.tasker = new Tasker();
@@ -324,17 +367,5 @@ Paladin.mouseWatcher = new MouseWatcher();
 
 // Attach prototypes to Paladin.
 Paladin.Entity = Entity;
-
-/*
-Tasker.prototype.add = function( name, callback ) {
-};
-Tasker.prototype.removeByName = function( name ) {    
-};
-*/
-/*
-Tasker.prototype.addDeferred = function( name, delay, callback ) {
-    console.log( 'Task.addDeferred' );
-};
-*/
 
 })( window, document );
