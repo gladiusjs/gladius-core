@@ -9,7 +9,6 @@
 function Game() {
     var paladin = this.paladin = new Paladin();
 
-/*
     (function () {    
       var counter = 0,
       task = Paladin.tasker.add( {
@@ -26,36 +25,7 @@ function Game() {
       } );
       counter = 0;  
     })();
-*/
     
-    var entity1 = new Paladin.Entity();
-    entity1.listen( {
-        event: 'my_event1',
-        callback: function() {},
-        parameters: ['hello', 'world']
-    } );
-    var entity2 = new Paladin.Entity();
-    entity2.listen( {
-        event: 'my_event2',
-        callback: function( parameters ) {
-            console.log( parameters );
-        },
-        parameters: ['foo', 'bar']
-    } );
-    
-    entity1.send( {
-        event: 'my_event2',
-        parameters: ['love', 'entity1']
-    } );
-
-    
-    entity1.ignore( {
-        event: 'my_event1'
-    } );
-    entity2.ignore( {
-        event: 'my_event2'
-    } );
-      
     this.run = function () {
       paladin.run();
     };
