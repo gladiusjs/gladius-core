@@ -7,11 +7,13 @@
         <script type="text/javascript">
      
 function Game() {
-    var paladin = this.paladin = new Paladin();
-
-    (function () {    
+};
+Game.prototype = new Paladin();
+Game.prototype.constructor = Game;
+Game.prototype.parent = Paladin.prototype;
+Game.prototype.initialize = function() {
       var counter = 0,
-      task = Paladin.tasker.add( {
+      task = this.tasker.add( {
           callback: function() {        
               console.log( counter ++ );
               if( counter > 10 ) {
@@ -24,13 +26,10 @@ function Game() {
           name: 'Counter'
       } );
       counter = 0;  
-    })();
-    
-    this.run = function () {
-      paladin.run();
-    };
 };
+
 var game = new Game();
+game.initialize();
 
         </script>
     </head>   

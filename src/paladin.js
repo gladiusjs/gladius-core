@@ -2,19 +2,16 @@
 
 function Paladin() {
     
-    var that = this;
-    
-    if( this === window ) {
-        throw new Error( 'Must instantiate Paladin with "new".' );
-    }
+    this.tasker = new Tasker();
+    this.messenger = new Messenger();
+    this.mouseWatcher = new MouseWatcher();
     
 };
-
-window.Paladin = Paladin;
-
+Paladin.prototype.constructor = Paladin;
 Paladin.prototype.run = function() {    
-    Paladin.tasker.run();    
+    this.tasker.run(); 
 };
+window.Paladin = Paladin;
 
 function Tasker() {
 
@@ -281,7 +278,7 @@ function Messenger() {
 
 // FIXME(alan.kligman@gmail.com): This is a hack.
 var nextEntityId = 0;
-
+/*
 function Entity() {
     
     var id = nextEntityId ++,
@@ -319,12 +316,6 @@ function Entity() {
         } );
     };
     
-    // Component functions.
-
-    /* Options
-     * component: The component we want to add.
-     * name: A name for the component. Need not be unique.
-     */
     this.addComponent( options ) {
         var componentType = options.component.getType();
         if( !that.componentsByType.hasOwnProperty( componentType ) ) {
@@ -340,19 +331,10 @@ function Entity() {
         }
     };
     
-    /* Options
-     * component: The component we want to remove.
-     * name: Specify a name to remove all components with that name.
-     * type: Specify a type to remove all components with that type.
-     */
     this.removeComponent( options ) {
 
     };
     
-    /* Options
-     * type: Find all components with this type.
-     * name: Find all components with this name.
-     */
     this.findComponents( options ) {
         
     };
@@ -363,24 +345,20 @@ function Point3() {
     this.x = undefined;
     this.y = undefined;
     this.z = undefined;
-}
+};
 
 function Vector3() {
     this.x = undefined;
     this.y = undefined;
     this.z = undefined;
-}
+};
 
 function SpatialComponent() {
     this.type = 'spatial';
     this.position = new Point3();   // X, y, z.
     this.rotation = new Vector3();  // Rotation, pitch, yaw.
-}
-
-// Attach core instances to Paladin.
-Paladin.tasker = new Tasker();
-Paladin.messenger = new Messenger();
-Paladin.mouseWatcher = new MouseWatcher();
+};
+*/
 
 // Attach prototypes to Paladin.
 Paladin.Entity = Entity;
