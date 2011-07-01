@@ -392,12 +392,14 @@ ModelComponent.prototype = new Component( {
 // Attach core instances to Paladin.
 Paladin.tasker = new Tasker();
 Paladin.messenger = new Messenger();
-Paladin.loader = undefined;
+Paladin.loader = undefined;     // Not implemented yet.
 Paladin.mouseWatcher = new MouseWatcher();
+Paladin.component = {};
+
+// These are registration points for external implementations. They should be instances.
 Paladin.graphics = undefined;
 Paladin.physics = undefined;
 Paladin.sound = undefined;
-Paladin.component = {};
 
 // Attach prototypes to Paladin.
 Paladin.Entity = Entity;
