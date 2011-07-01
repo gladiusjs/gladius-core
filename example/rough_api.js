@@ -1,12 +1,10 @@
 function Game() {
 
-    var paladin = this.paladin = new Paladin();
-
     var render = new Paladin.Scene();
 
     var camera = new Paladin.Entity();
     camera.addComponent( new Paladin.components.Spatial() );
-    camera.addComponent( new Paladin.graphics.Camera() );
+    camera.addComponent( new Paladin.components.Camera() );
     camera.setParent( render );
 
     var mesh = new Paladin.graphics.Mesh();     // graphics.Mesh is not a component
