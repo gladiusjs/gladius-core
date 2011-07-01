@@ -285,12 +285,14 @@ var nextEntityId = 0;
 function Entity() {
     
     var id = nextEntityId ++,
+        componentsByType = {},
+        componentsByName = {},
         that = this;
     
     this.getId = function() {
         return id;
     };
-    
+
     this.listen = function( options ) {
         Paladin.messenger.listen( {
             entity: that,
@@ -315,22 +317,28 @@ function Entity() {
         } );
     };
     
-    this.addComponent( options ) {
-        
+    this.addComponent = function( options ) {
+        var componentType = options.component.getType();
+        if( !that.componentsByType.hasOwnProperty( componentType ) ) {
+            that.components[componentType] = [];
+        }
+        that.componentsByType[componentType].push( options.component );
+
+        if( options.name ) {
+            if( !that.componentsByName.hasOwnProperty( options.name ) ) {
+                that.componentsByName[options.name] = [];
+            }
+            that.componentsByName[options.name].push( options.component );
+        }
     };
     
-    this.removeComponent( options ) {
-        
+    this.removeComponent = function( options ) {
+
     };
     
-    this.findComponentByType( options ) {
+    this.findComponents = function( options ) {
         
     };
-    
-    this.findComponentByName( options ) {
-        
-    };
-    
 };
 
 function Point3() {
@@ -345,27 +353,58 @@ function Vector3() {
     this.z = undefined;
 }
 
-function Component() {
-    this.type = undefined;
+function Component( options ) {
+    this.type = options.type || undefined;
+    this.subtype = options.subtype || [];
 };
 Component.prototype.getType = function() {
     return this.type;
-}
+};
+Component.prototype.getSubtype = function() {
+    return this.subtype;
+};
 
-function PositionComponent3() {
-    this.type = 'position';
-    this.position = new Point3();
-    this.rpy = new Vector3();
+function SpatialComponent() {
+    this.position = new Point3();   // X, Y, Z
+    this.rotation = new Vector3();  // Roll, pitch, yaw
 }
-PositionComponent3.prototype = new Component();
-PositionComponent3.prototype.constructor = PositionComponent;
+SpatialComponent.prototype = new Component( { 
+    type: 'spatial' 
+} );
+SpatialComponent.prototype.constructor = SpatialComponent;
+
+function CameraComponent( options ) {
+    this.camera = options.camera || new Paladin.graphics.Camera();
+}
+CameraComponent.prototype = new Component( {
+    type: 'graphics',
+    subtype: [ 'camera' ]
+} );
+
+function ModelComponent( options ) {
+    this.mesh = options.mesh || undefined;
+    this.object = new Paladin.graphics.SceneObject();
+};
+ModelComponent.prototype = new Component( {
+    type: 'graphics',
+    subtype: [ 'model' ]
+} );
+
 
 // Attach core instances to Paladin.
 Paladin.tasker = new Tasker();
 Paladin.messenger = new Messenger();
+Paladin.loader = undefined;
 Paladin.mouseWatcher = new MouseWatcher();
+Paladin.graphics = undefined;
+Paladin.physics = undefined;
+Paladin.sound = undefined;
+Paladin.component = {};
 
 // Attach prototypes to Paladin.
 Paladin.Entity = Entity;
+Paladin.component.Spatial = SpatialComponent;
+Paladin.component.Camera = CameraComponent;
+Paladin.component.Model = ModelComponent;
 
 })( window, document );
