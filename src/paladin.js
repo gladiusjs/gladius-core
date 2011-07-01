@@ -2,19 +2,16 @@
 
 function Paladin() {
     
-    var that = this;
-    
-    if( this === window ) {
-        throw new Error( 'Must instantiate Paladin with "new".' );
-    }
+    this.tasker = new Tasker();
+    this.messenger = new Messenger();
+    this.mouseWatcher = new MouseWatcher();
     
 };
-
-window.Paladin = Paladin;
-
+Paladin.prototype.constructor = Paladin;
 Paladin.prototype.run = function() {    
-    Paladin.tasker.run();    
+    this.tasker.run(); 
 };
+window.Paladin = Paladin;
 
 function Tasker() {
 
@@ -341,17 +338,18 @@ function Entity() {
     };
 };
 
+// Placeholder prototypes for a few things we'll need.
 function Point3() {
     this.x = undefined;
     this.y = undefined;
     this.z = undefined;
-}
+};
 
 function Vector3() {
     this.x = undefined;
     this.y = undefined;
     this.z = undefined;
-}
+};
 
 function Component( options ) {
     this.type = options.type || undefined;
