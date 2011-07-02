@@ -13,14 +13,17 @@ Paladin.prototype.run = function() {
 };
 window.Paladin = Paladin;
 
+/***
+ * Tasker
+ * 
+ * Provides a mechanism for scheduling callbacks to run each frame.
+ */
 function Tasker() {
 
-    // enumerations
     this.CONT = 0;
     this.DONE = 1;
     this.AGAIN = 2;
 
-    // private vars
     var nextId = 0,
         tasksById = {},
         tasksByName = {},
@@ -39,11 +42,11 @@ function Tasker() {
         if( !terminate ) {
             setTimeout( that.run, 0 );
         }
-    }; //run
+    };
 
     this.terminate = function() {
         terminate = true;
-    }; //terminate
+    };
 
     this.add = function( options ) {
         var id = nextId ++;
@@ -61,7 +64,7 @@ function Tasker() {
         if( task.name )
             tasksByName[task.name] = task;
         return task;
-    }; //add
+    };
 
     this.remove = function( task ) {
         if( task._id in tasksById ) {
@@ -72,9 +75,25 @@ function Tasker() {
         }
     };
 
-}; //Tasker
+};
 
-function MouseWatcher( tasker ) {
+/***
+ * Loader
+ * 
+ * Provide resource loaders for game assets like models, textures and sounds.
+ */
+function Loader() {
+  
+    var that = this;
+
+};
+
+/***
+ * MouseWatcher
+ * 
+ * Caches the current mouse position and provides access to the coordinates.
+ */
+function MouseWatcher() {
 
     var mousePosition = {
             x: undefined,
@@ -99,6 +118,14 @@ function MouseWatcher( tasker ) {
     window.addEventListener( 'mouseover', this._mouseMove, true );
 };
 
+/***
+ * Messenger
+ * 
+ * Provide a mechanism for game entities to listen for events and to send
+ * events. An event is an arbitrary string. Some Javascript events are
+ * handled here and converted to game engine events so that entities can
+ * listen for them.
+ */
 function Messenger() {
     
     var callbacks = {},
@@ -136,8 +163,6 @@ function Messenger() {
                     parameters = listeners[id].parameters,
                     persistent = listeners[id].persistent;
                 
-                
-                // Call the handler.
                 callback( parameters.concat( options.parameters ) );
                 if( !persistent )
                     delete callbacks[options.event][id];
@@ -145,8 +170,6 @@ function Messenger() {
         }
     };
 
-    // Handle Javascript events.
-    
     this._keyDown = function( event ) {
         that.send( {
             event: that._convertKeyEvent( event, 'down' ),
@@ -276,9 +299,13 @@ function Messenger() {
     window.addEventListener( 'DOMMouseScroll', this._mouseWheelScroll, true );
 };
 
-// FIXME(alan.kligman@gmail.com): This is a hack.
-var nextEntityId = 0;
-
+/***
+ * Entity
+ * 
+ * An entity is a basic game object. It is a container object for components. Each
+ * entity has a unique identifier.
+ */
+var nextEntityId = 0;   // FIXME(alan.kligman@gmail.com): This is a hack.
 function Entity() {
     
     var id = nextEntityId ++,
@@ -351,6 +378,12 @@ function Vector3() {
     this.z = undefined;
 };
 
+/***
+ * Component (prototype interface)
+ * 
+ * A component is a basic unit of game functionality. Components are narrow in scope and are composed
+ * together by entities to form game objects.
+ */
 function Component( options ) {
     this.type = options.type || undefined;
     this.subtype = options.subtype || [];
@@ -361,6 +394,12 @@ Component.prototype.getType = function() {
 Component.prototype.getSubtype = function() {
     return this.subtype;
 };
+Component.prototype.onAdd = function() {    
+};
+Component.prototype.onRemove = function() {    
+};
+Component.prototype.onReset = function() {    
+};
 
 function SpatialComponent() {
     this.position = new Point3();   // X, Y, Z
@@ -370,6 +409,7 @@ SpatialComponent.prototype = new Component( {
     type: 'spatial' 
 } );
 SpatialComponent.prototype.constructor = SpatialComponent;
+SpatialComponent.parent = Component;
 
 function CameraComponent( options ) {
     this.camera = options.camera || new Paladin.graphics.Camera();
@@ -378,6 +418,8 @@ CameraComponent.prototype = new Component( {
     type: 'graphics',
     subtype: [ 'camera' ]
 } );
+CameraComponent.prototype.constructor = CameraComponent;
+CameraComponent.parent = Component;
 
 function ModelComponent( options ) {
     this.mesh = options.mesh || undefined;
@@ -392,7 +434,7 @@ ModelComponent.prototype = new Component( {
 // Attach core instances to Paladin.
 Paladin.tasker = new Tasker();
 Paladin.messenger = new Messenger();
-Paladin.loader = undefined;     // Not implemented yet.
+Paladin.loader = new Loader();
 Paladin.mouseWatcher = new MouseWatcher();
 Paladin.component = {};
 
