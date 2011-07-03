@@ -5,7 +5,8 @@ function Paladin() {
     this.tasker = new Tasker();
     this.messenger = new Messenger();
     this.mouseWatcher = new MouseWatcher();
-    
+    Paladin.subsystem.init();
+
 };
 Paladin.prototype.constructor = Paladin;
 Paladin.prototype.run = function() {    
@@ -305,12 +306,13 @@ function Messenger() {
 function Scene() {
   
     var that = this;
-        scene = null;
-/*
         scene = new Paladin.graphics.Scene( {
             fov: 60
         } );
-*/
+
+    this.addChild = function () {
+      
+    };
         
 };
 
@@ -356,18 +358,22 @@ function Entity() {
         } );
     };
     
-    this.addComponent = function( options ) {
-        var componentType = options.component.getType();
-        if( !that.componentsByType.hasOwnProperty( componentType ) ) {
-            that.components[componentType] = [];
-        }
-        that.componentsByType[componentType].push( options.component );
+    this.addComponent = function( componentType, component, options ) {
+        if ( typeof(componentType) !== "string" ) {
+            component = componentType;
+            componentType = component.getType();
+        } //if
 
-        if( options.name ) {
-            if( !that.componentsByName.hasOwnProperty( options.name ) ) {
-                that.componentsByName[options.name] = [];
+        if( !componentsByType.hasOwnProperty( componentType ) ) {
+            componentsByType[componentType] = [];
+        }
+        componentsByType[componentType].push( component );
+
+        if( options && options.name ) {
+            if( !componentsByName.hasOwnProperty( options.name ) ) {
+                componentsByName[options.name] = [];
             }
-            that.componentsByName[options.name].push( options.component );
+            componentsByName[options.name].push( component );
         }
     };
     
@@ -381,6 +387,10 @@ function Entity() {
     
     this.getNamedComponent = function( name ) {
         
+    };
+
+    this.setParent = function ( scene ) {
+      scene.addChild(this);
     };
 };
 
@@ -433,7 +443,7 @@ SpatialComponent.prototype.constructor = SpatialComponent;
 SpatialComponent.parent = Component;
 
 function CameraComponent( options ) {
-    this.camera = options.camera || new Paladin.graphics.Camera();
+    this.camera = (options && options.camera) ? options.camera : new Paladin.graphics.Camera();
 }
 CameraComponent.prototype = new Component( {
     type: 'graphics',
@@ -456,7 +466,7 @@ CameraComponent.prototype.setParent = function( parent ) {
 
 function ModelComponent( options ) {
     this.mesh = options.mesh || undefined;
-    this.object = new Paladin.graphics.SceneObject();
+    this.object = new Paladin.graphics.SceneObject( { mesh: options.mesh, name: options.name } );
 };
 ModelComponent.prototype = new Component( {
     type: 'graphics',

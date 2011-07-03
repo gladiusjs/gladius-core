@@ -2,38 +2,25 @@
 
   var subsystems = {};
 
-  var Subsystem = Paladin.Subsystem = Paladin.prototype.Subsystem = new (function () {
+  Paladin.subsystem = Paladin.prototype.subsystem = {
 
-    var that = this;
-
-    this.register = function ( name, subsystem ) {
+    register: function ( name, subsystem ) {
       subsystems[name] = subsystem;
-    };
+      Paladin[name] = Paladin.prototype[name] = subsystem;
+    },
 
-    this.unregister = function ( name ) {
-      delete subsystems[name];
-    };
+    init: function () {
+      for ( var name in subsystems ) {
+        if ( subsystems.hasOwnProperty(name) ) {
+          subsystems[name].start && subsystems[name].start();
+        } //if
+      } //for
+    },
 
-    this.get = function ( name ) {
+    get: function ( name ) {
       return subsystems[name];
-    };
+    },
 
-    this.start = function ( name ) {
-      var ss = that.get(name);
-      if (ss) {
-        return ss.start();
-      } //if
-      return undefined;
-    };
-
-    this.stop = function ( name ) {
-      var ss = that.get(name);
-      if (ss) {
-        return ss.stop();
-      } //if
-      return undefined;
-    };
-
-  })();
+  };
 
 })(window, document, undefined, Paladin);

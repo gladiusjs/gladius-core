@@ -1,10 +1,12 @@
 function Game() {
 
+    var paladin = new Paladin();
+
     var render = new Paladin.Scene();
 
     var camera = new Paladin.Entity();
-    camera.addComponent( new Paladin.components.Spatial() );
-    camera.addComponent( new Paladin.components.Camera() );
+    camera.addComponent( new Paladin.component.Spatial() );
+    camera.addComponent( new Paladin.component.Camera() );
     camera.setParent( render );
 
     var mesh = new Paladin.graphics.Mesh();     // graphics.Mesh is not a component
@@ -21,7 +23,7 @@ function Game() {
 
     Paladin.tasker.add( {
         callback: function( task ) {
-            obj1.getComponent( 'spatial' ).setRotation();            
+            obj1.getComponent( 'spatial' ).setRotation(); 
             return task.CONT;
         },
         name: 'rotateObject1'
@@ -33,5 +35,9 @@ function Game() {
         },
         name: 'moveObject2'
     } );
+
+    this.run = function () {
+      paladin.run();
+    };
 
 };
