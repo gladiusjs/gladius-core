@@ -5,6 +5,7 @@ function Paladin() {
     this.tasker = new Tasker();
     this.messenger = new Messenger();
     this.mouseWatcher = new MouseWatcher();
+    this.loader = new Loader();
     Paladin.subsystem.init();
 
 };
@@ -12,6 +13,7 @@ Paladin.prototype.constructor = Paladin;
 Paladin.prototype.run = function() {    
     this.tasker.run(); 
 };
+Paladin.component = {};
 window.Paladin = Paladin;
 
 /***
@@ -490,13 +492,6 @@ ModelComponent.prototype.setParent = function( parent ) {
     parent.bindSceneObject( this.object );
 };
 
-
-// Attach core instances to Paladin.
-Paladin.tasker = new Tasker();
-Paladin.messenger = new Messenger();
-Paladin.loader = new Loader();
-Paladin.mouseWatcher = new MouseWatcher();
-Paladin.component = {};
 
 // These are registration points for external implementations. They should be instances.
 Paladin.graphics = undefined;
