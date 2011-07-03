@@ -300,6 +300,21 @@ function Messenger() {
 };
 
 /***
+ * Scene
+ */
+function Scene() {
+  
+    var that = this;
+        scene = null;
+/*
+        scene = new Paladin.graphics.Scene( {
+            fov: 60
+        } );
+*/
+        
+};
+
+/***
  * Entity
  * 
  * An entity is a basic game object. It is a container object for components. Each
@@ -360,7 +375,11 @@ function Entity() {
 
     };
     
-    this.findComponents = function( options ) {
+    this.getComponent = function( type ) {
+       
+    };
+    
+    this.getNamedComponent = function( name ) {
         
     };
 };
@@ -394,11 +413,13 @@ Component.prototype.getType = function() {
 Component.prototype.getSubtype = function() {
     return this.subtype;
 };
-Component.prototype.onAdd = function() {    
+Component.prototype.onAdd = function( options ) {
+    this.entity = options.entity || null;
 };
-Component.prototype.onRemove = function() {    
+Component.prototype.onRemove = function( options ) {
+    this.entity = null;
 };
-Component.prototype.onReset = function() {    
+Component.prototype.onReset = function( options ) {
 };
 
 function SpatialComponent() {
@@ -420,6 +441,18 @@ CameraComponent.prototype = new Component( {
 } );
 CameraComponent.prototype.constructor = CameraComponent;
 CameraComponent.parent = Component;
+CameraComponent.onAdd = function( options ) {
+    this.parent.onAdd( options );
+};
+CameraComponent.onRemove = function( options ) {
+    this.parent.onRemove( options );
+};
+CameraComponent.onReset = function( options ) {
+    this.parent.onReset( options );
+};
+CameraComponent.prototype.setParent = function( parent ) {
+    parent.bindCameraObject( this.camera );
+};
 
 function ModelComponent( options ) {
     this.mesh = options.mesh || undefined;
@@ -429,6 +462,23 @@ ModelComponent.prototype = new Component( {
     type: 'graphics',
     subtype: [ 'model' ]
 } );
+ModelComponent.prototype.constructor = ModelComponent;
+ModelComponent.parent = Component;
+ModelComponent.onAdd = function( options ) {
+    this.parent.onAdd( options );
+};
+ModelComponent.onRemove = function( options ) {
+    this.parent.onRemove( options );
+};
+ModelComponent.onReset = function( options ) {
+    this.parent.onReset( options );
+};
+ModelComponent.prototype.setParent = function( parent ) {
+    parent.bindCameraObject( this.camera );
+};
+ModelComponent.prototype.setParent = function( parent ) {
+    parent.bindSceneObject( this.object );
+};
 
 
 // Attach core instances to Paladin.
@@ -444,9 +494,11 @@ Paladin.physics = undefined;
 Paladin.sound = undefined;
 
 // Attach prototypes to Paladin.
+Paladin.Scene = Scene;
 Paladin.Entity = Entity;
 Paladin.component.Spatial = SpatialComponent;
 Paladin.component.Camera = CameraComponent;
 Paladin.component.Model = ModelComponent;
+Paladin.component.Light = null;
 
 })( window, document );
