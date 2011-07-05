@@ -1,6 +1,6 @@
 (function (window, document, Paladin) {
 
-  Paladin.Subsystem.register( "dummy", (function () {
+  Paladin.subsystem.register( "dummy", (function () {
 
     var init = false;
 
