@@ -2,11 +2,11 @@
 
   var subsystems = {};
 
-  Paladin.subsystem = Paladin.prototype.subsystem = {
+  Paladin.subsystem = {
 
     register: function ( name, subsystem ) {
       subsystems[name] = subsystem;
-      Paladin[name] = Paladin.prototype[name] = subsystem;
+      Paladin[name] = subsystem;
     },
 
     init: function () {

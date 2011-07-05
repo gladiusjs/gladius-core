@@ -1,9 +1,10 @@
 function Game() {
 
-    var paladin = new Paladin();
+    Paladin.init();
 
     var render = new Paladin.Scene();
 
+/*    
     var camera = new Paladin.Entity();
     camera.addComponent( new Paladin.component.Spatial() );
     camera.addComponent( new Paladin.component.Camera() );
@@ -35,9 +36,10 @@ function Game() {
         },
         name: 'moveObject2'
     } );
+*/
 
     this.run = function () {
-      paladin.run();
+      Paladin.run();
     };
 
 };

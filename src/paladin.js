@@ -1,19 +1,13 @@
 (function (window, document) {
 
-function Paladin() {
-    
-    this.tasker = new Tasker();
-    this.messenger = new Messenger();
-    this.mouseWatcher = new MouseWatcher();
-    this.loader = new Loader();
-    Paladin.subsystem.init();
-
-};
-Paladin.prototype.constructor = Paladin;
-Paladin.prototype.run = function() {    
-    this.tasker.run(); 
-};
+Paladin = {};
 Paladin.component = {};
+Paladin.init = function() {
+    Paladin.subsystem.init();
+};
+Paladin.run = function() {
+    Paladin.tasker.run();
+};
 window.Paladin = Paladin;
 
 /***
@@ -492,6 +486,10 @@ ModelComponent.prototype.setParent = function( parent ) {
     parent.bindSceneObject( this.object );
 };
 
+Paladin.tasker = new Tasker();
+Paladin.messenger = new Messenger();
+Paladin.mouseWatcher = new MouseWatcher();
+Paladin.loader = new Loader();
 
 // These are registration points for external implementations. They should be instances.
 Paladin.graphics = undefined;
