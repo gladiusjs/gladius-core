@@ -19,7 +19,7 @@
 
     get: function ( name ) {
       return subsystems[name];
-    },
+    }
 
   };
 
