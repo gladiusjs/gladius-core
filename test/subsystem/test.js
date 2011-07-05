@@ -17,10 +17,17 @@
     ok(dummy.start instanceof Function);
   });
 
-  test("stop function exists", function () {
+  test("dummy function exists", function () {
     expect(1);
     var dummy = Paladin.subsystem.get('dummy');
-    ok(dummy.stop instanceof Function);
+    ok(dummy.dummy instanceof Function);
+  });
+
+  test("dummy subsystem was initialized after init", function () {
+    expect(1);
+    Paladin.init();
+    var dummy = Paladin.subsystem.get('dummy');
+    ok(dummy.dummy() === true);
   });
 
 })(window, document, undefined, Paladin);

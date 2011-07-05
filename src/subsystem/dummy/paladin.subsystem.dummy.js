@@ -8,9 +8,6 @@
       start: function () {
         init = true;
       },
-      stop: function () {
-        init = false;
-      },
       dummy: function () {
         return init;
       }
