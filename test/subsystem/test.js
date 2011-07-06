@@ -1,49 +1,33 @@
 (function (window, document, undefined, Paladin) {
-  var paladin;
-
   module("Paladin dummy subsystem", {
     setup: function () {
-      paladin = new Paladin();
     },
     teardown: function () {
-      delete paladin;
     }
   });
 
   test("dummy subsystem exists", function () {
     expect(1);
-    notEqual(paladin.Subsystem.get('dummy'), undefined);
+    notEqual(Paladin.subsystem.get('dummy'), undefined);
   });
 
   test("start function exists", function () {
-    expect(2);
-    var dummy = paladin.Subsystem.get('dummy');
-    notEqual(dummy.start, undefined);
-    equal(typeof(dummy.start), "function");
-  });
-
-  test("stop function exists", function () {
-    expect(2);
-    var dummy = paladin.Subsystem.get('dummy');
-    notEqual(dummy.stop, undefined);
-    equal(typeof(dummy.stop), "function");
-  });
-
-  test("Accessible from Paladin class and paladin object", function () {
     expect(1);
-    equal(paladin.Subsystem.get('dummy'), Paladin.Subsystem.get('dummy')); 
+    var dummy = Paladin.subsystem.get('dummy');
+    ok(dummy.start instanceof Function);
   });
 
-  test("Initialization is successful", function () {
+  test("dummy function exists", function () {
     expect(1);
-    paladin.Subsystem.start('dummy');
-    equal(paladin.Subsystem.get('dummy').dummy(), true);
+    var dummy = Paladin.subsystem.get('dummy');
+    ok(dummy.dummy instanceof Function);
   });
 
-  test("Destruction is successful", function () {
+  test("dummy subsystem was initialized after init", function () {
     expect(1);
-    paladin.Subsystem.stop('dummy');
-    equal(paladin.Subsystem.get('dummy').dummy(), false);
+    Paladin.init();
+    var dummy = Paladin.subsystem.get('dummy');
+    ok(dummy.dummy() === true);
   });
 
 })(window, document, undefined, Paladin);
