@@ -387,7 +387,6 @@ function Entity() {
         }
         
         component.onAdd( this );
-        console.log( componentsByType, componentsByName );
     };
     
     this.removeComponent = function( componentType, options ) {
@@ -420,10 +419,10 @@ function Entity() {
         return previousComponents;
     };
     
-    this.getComponents = function( componentType, componentName ) {
-        var components = []; 
+    this.getComponents = function( componentType, componentName, limit ) {
+        var components = [];
         if( componentName && componentsByName.hasOwnProperty( componentName ) ) {
-            for( var i = 0; i < componentsByName[componentName].length; ++ i ) {
+            for( var i = 0; i < componentsByName[componentName].length || limit ? i >= limit : true; ++ i ) {
                 if( !componentType || componentType == componentsByName[componentName][i].getType() )
                     components.push( componentsByName[componentName][i] );
             }
@@ -433,8 +432,25 @@ function Entity() {
         return components;
     };
     
-    this.setParent = function ( scene ) {
-      scene.addChild( this );
+    this.hasComponent = function( componentType ) {
+        return componentType && componentsByType.hasOwnProperty( componentType );
+    };
+    
+    this.addChild = function( child ) {
+        if( child.hasComponent( 'graphics' ) ) {
+            /* Note:
+             * If there is also no spatial component, we assume 0 for both position and rotation.
+             */
+            if( !hasComponent( 'graphics' ) )
+                addComponent( new Paladin.component.GraphicsNode() );
+            
+            graphicsComponent = getComponents( 'graphics', null, 1 );            
+            graphicsComponent.addChild( child.getComponents( 'graphics', null, 1 ) );
+        }
+    };
+    
+    this.setParent = function( parent ) {
+      parent.addChild( this );
     };
 };
 
