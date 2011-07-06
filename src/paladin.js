@@ -1,4 +1,18 @@
 (function (window, document) {
+    
+// Array Remove - By John Resig (MIT Licensed)
+Array.prototype.remove = function(from, to) {
+    var rest = this.slice( (to || from) + 1 || this.length );
+    this.length = from < 0 ? this.length + from : from;
+    return this.push.apply(this, rest);
+};
+    
+/***
+ * Paladin
+ * 
+ * This is where we put all of our goodies. Some are instances, like the subsystems,
+ * and others are prototypes to be used and extended.
+ */
 
 Paladin = {};
 Paladin.component = {};
@@ -81,7 +95,10 @@ function Tasker() {
  */
 function Loader() {
   
-    var that = this;
+    var that = this,
+        graphics = undefined,
+        physics = undefined,
+        sound = undefined;
 
 };
 
@@ -354,16 +371,13 @@ function Entity() {
         } );
     };
     
-    this.addComponent = function( componentType, component, options ) {
-        if ( typeof(componentType) !== "string" ) {
-            component = componentType;
-            componentType = component.getType();
-        } //if
-
-        if( !componentsByType.hasOwnProperty( componentType ) ) {
-            componentsByType[componentType] = [];
+    this.addComponent = function( component, options ) {
+        var componentType = component.getType();
+        var previousComponent = null;
+        if( componentsByType.hasOwnProperty( componentType ) ) {
+            currentComponent = componentsByType[componentType];
         }
-        componentsByType[componentType].push( component );
+        componentsByType[componentType] = component;
 
         if( options && options.name ) {
             if( !componentsByName.hasOwnProperty( options.name ) ) {
@@ -371,22 +385,56 @@ function Entity() {
             }
             componentsByName[options.name].push( component );
         }
-    };
-    
-    this.removeComponent = function( options ) {
-
-    };
-    
-    this.getComponent = function( type ) {
-       
-    };
-    
-    this.getNamedComponent = function( name ) {
         
+        component.onAdd( this );
+        console.log( componentsByType, componentsByName );
     };
-
+    
+    this.removeComponent = function( componentType, options ) {
+        var previousComponents = [];
+        if( componentType && componentsByType.hasOwnProperty( componentType ) ) {
+            previousComponent = componentsByType[componentType];
+            delete componentsByType[componentType];
+        }
+        
+        if( options && options.name ) {
+            if( componentsByName.hasOwnProperty( options.name ) ) {
+                for( var i = 0; i < componentsByName[options.name].length; ++ i ) {
+                    if( !componentType || componentType == componentsByName[options.name][i].getType() ) {
+                        previousComponents.push( componentsByName[options.name][i] );
+                        delete componentsByName[options.name][i];
+                    }                    
+                }
+                /* Note:
+                 * At this point, we have an array of the same length, but with undefined array
+                 * elements where removed components once lived.
+                 */
+                for( var i = 0; i < componentsByName[options.name].length; ) {
+                    if( !componentsByName[options.name][i] )
+                        componentsByName.remove( i );
+                    else
+                        ++ i;
+                }
+            }
+        }       
+        return previousComponents;
+    };
+    
+    this.getComponents = function( componentType, componentName ) {
+        var components = []; 
+        if( componentName && componentsByName.hasOwnProperty( componentName ) ) {
+            for( var i = 0; i < componentsByName[componentName].length; ++ i ) {
+                if( !componentType || componentType == componentsByName[componentName][i].getType() )
+                    components.push( componentsByName[componentName][i] );
+            }
+        } else if( componentType && componentsByType.hasOwnProperty( componentType ) )
+            components.push( componentsByType[componentType] );
+        
+        return components;
+    };
+    
     this.setParent = function ( scene ) {
-      scene.addChild(this);
+      scene.addChild( this );
     };
 };
 
@@ -419,13 +467,13 @@ Component.prototype.getType = function() {
 Component.prototype.getSubtype = function() {
     return this.subtype;
 };
-Component.prototype.onAdd = function( options ) {
-    this.entity = options.entity || null;
+Component.prototype.onAdd = function( entity ) {
+    this.entity = entity;
 };
-Component.prototype.onRemove = function( options ) {
+Component.prototype.onRemove = function( entity ) {
     this.entity = null;
 };
-Component.prototype.onReset = function( options ) {
+Component.prototype.onReset = function( entity) {
 };
 
 function SpatialComponent() {
@@ -447,14 +495,14 @@ CameraComponent.prototype = new Component( {
 } );
 CameraComponent.prototype.constructor = CameraComponent;
 CameraComponent.parent = Component;
-CameraComponent.onAdd = function( options ) {
-    this.parent.onAdd( options );
+CameraComponent.onAdd = function( entity ) {
+    this.parent.onAdd( entity );
 };
-CameraComponent.onRemove = function( options ) {
-    this.parent.onRemove( options );
+CameraComponent.onRemove = function( entity ) {
+    this.parent.onRemove( entity );
 };
-CameraComponent.onReset = function( options ) {
-    this.parent.onReset( options );
+CameraComponent.onReset = function( entity ) {
+    this.parent.onReset( entity );
 };
 CameraComponent.prototype.setParent = function( parent ) {
     parent.bindCameraObject( this.camera );
@@ -470,14 +518,14 @@ ModelComponent.prototype = new Component( {
 } );
 ModelComponent.prototype.constructor = ModelComponent;
 ModelComponent.parent = Component;
-ModelComponent.onAdd = function( options ) {
-    this.parent.onAdd( options );
+ModelComponent.onAdd = function( entity ) {
+    this.parent.onAdd( entity );
 };
-ModelComponent.onRemove = function( options ) {
-    this.parent.onRemove( options );
+ModelComponent.onRemove = function( entity ) {
+    this.parent.onRemove( entity );
 };
-ModelComponent.onReset = function( options ) {
-    this.parent.onReset( options );
+ModelComponent.onReset = function( entity ) {
+    this.parent.onReset( entity );
 };
 ModelComponent.prototype.setParent = function( parent ) {
     parent.bindCameraObject( this.camera );
