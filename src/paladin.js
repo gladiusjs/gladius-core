@@ -520,8 +520,11 @@ CameraComponent.onRemove = function( entity ) {
 CameraComponent.onReset = function( entity ) {
     this.parent.onReset( entity );
 };
+CameraComponent.prototype.addChild = function( child ) {
+    this.camera.addChild( child );
+};
 CameraComponent.prototype.setParent = function( parent ) {
-    parent.bindCameraObject( this.camera );
+    parent.addChild( this );
 };
 
 function ModelComponent( options ) {
@@ -543,11 +546,11 @@ ModelComponent.onRemove = function( entity ) {
 ModelComponent.onReset = function( entity ) {
     this.parent.onReset( entity );
 };
-ModelComponent.prototype.setParent = function( parent ) {
-    parent.bindCameraObject( this.camera );
+ModelComponent.prototype.addChild = function( child ) {
+    this.object.addChild( child );
 };
 ModelComponent.prototype.setParent = function( parent ) {
-    parent.bindSceneObject( this.object );
+    parent.addChild( this );
 };
 
 Paladin.tasker = new Tasker();
