@@ -521,7 +521,7 @@ CameraComponent.onReset = function( entity ) {
     this.parent.onReset( entity );
 };
 CameraComponent.prototype.addChild = function( child ) {
-    this.camera.addChild( child );
+    this.camera.bindChild( child );
 };
 CameraComponent.prototype.setParent = function( parent ) {
     parent.addChild( this );
@@ -547,7 +547,7 @@ ModelComponent.onReset = function( entity ) {
     this.parent.onReset( entity );
 };
 ModelComponent.prototype.addChild = function( child ) {
-    this.object.addChild( child );
+    this.object.bindChild( child );
 };
 ModelComponent.prototype.setParent = function( parent ) {
     parent.addChild( this );
