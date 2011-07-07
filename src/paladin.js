@@ -13,7 +13,6 @@ Array.prototype.remove = function(from, to) {
  * This is where we put all of our goodies. Some are instances, like the subsystems,
  * and others are prototypes to be used and extended.
  */
-
 Paladin = {};
 Paladin.component = {};
 Paladin.init = function() {
@@ -323,7 +322,7 @@ function Scene() {
             fov: 60
         } );
 
-    this.addChild = function () {
+    this.addChild = function( child ) {
       
     };
         
@@ -340,7 +339,6 @@ function Entity() {
     
     var id = nextEntityId ++,
         componentsByType = {},
-        componentsByName = {},
         that = this;
     
     this.getId = function() {
@@ -373,63 +371,34 @@ function Entity() {
     
     this.addComponent = function( component, options ) {
         var componentType = component.getType();
-        var previousComponent = null;
-        if( componentsByType.hasOwnProperty( componentType ) ) {
-            currentComponent = componentsByType[componentType];
-        }
+        /* Note(alan.kligman@gmail.com):
+         * We don't allow more than one component of the same type. This
+         * might change in the future, so this step could be removed.
+         */
+        var previousComponents = removeComponent( componentType, {} );
         componentsByType[componentType] = component;
 
-        if( options && options.name ) {
-            if( !componentsByName.hasOwnProperty( options.name ) ) {
-                componentsByName[options.name] = [];
-            }
-            componentsByName[options.name].push( component );
-        }
         
         component.onAdd( this );
-    };
-    
-    this.removeComponent = function( componentType, options ) {
-        var previousComponents = [];
-        if( componentType && componentsByType.hasOwnProperty( componentType ) ) {
-            previousComponent = componentsByType[componentType];
-            delete componentsByType[componentType];
-        }
-        
-        if( options && options.name ) {
-            if( componentsByName.hasOwnProperty( options.name ) ) {
-                for( var i = 0; i < componentsByName[options.name].length; ++ i ) {
-                    if( !componentType || componentType == componentsByName[options.name][i].getType() ) {
-                        previousComponents.push( componentsByName[options.name][i] );
-                        delete componentsByName[options.name][i];
-                    }                    
-                }
-                /* Note:
-                 * At this point, we have an array of the same length, but with undefined array
-                 * elements where removed components once lived.
-                 */
-                for( var i = 0; i < componentsByName[options.name].length; ) {
-                    if( !componentsByName[options.name][i] )
-                        componentsByName.remove( i );
-                    else
-                        ++ i;
-                }
-            }
-        }       
         return previousComponents;
     };
     
-    this.getComponents = function( componentType, componentName, limit ) {
-        var components = [];
-        if( componentName && componentsByName.hasOwnProperty( componentName ) ) {
-            for( var i = 0; i < componentsByName[componentName].length || limit ? i >= limit : true; ++ i ) {
-                if( !componentType || componentType == componentsByName[componentName][i].getType() )
-                    components.push( componentsByName[componentName][i] );
+    this.removeComponent = function( component ) {
+        var componentType = component.getType();
+        for( var i = 0; i < componentsByType[componentType].length; ++ i ) {
+            if( componentsByType[componentType][i] == component ) {
+                componentsByType[componentType][i].onRemove( this );
+                componentsByType[componentType].remove( i );
+                break;
             }
-        } else if( componentType && componentsByType.hasOwnProperty( componentType ) )
-            components.push( componentsByType[componentType] );
+        }        
+    };
+    
+    this.getComponents = function( componentType ) {
+        if( componentType && componentsByType.hasOwnProperty( componentType ) )
+            return componentsByType[componentType];        
         
-        return components;
+        return [];
     };
     
     this.hasComponent = function( componentType ) {
@@ -521,7 +490,7 @@ CameraComponent.onReset = function( entity ) {
     this.parent.onReset( entity );
 };
 CameraComponent.prototype.addChild = function( child ) {
-    this.camera.bindChild( child );
+    this.camera.addChild( child );
 };
 CameraComponent.prototype.setParent = function( parent ) {
     parent.addChild( this );
