@@ -30,11 +30,11 @@
           transform: options.transform,
           uvmapper: options.uvmapper || {
             projectionMode: CubicVR.enums.uv.projection.CUBIC,
-            scale: [1, 1, 1],
+            scale: [1, 1, 1]
           },
-          size: options.size,
+          size: options.size
         });
-      },
+      }
     };
 
     this.addPrimitive = function ( options ) {
@@ -75,7 +75,7 @@
   function Camera ( options ) {
     var cameraOptions = {
       width: options ? options.width : mainCanvas.width,
-      height: options ? options.height : mainCanvas.height,
+      height: options ? options.height : mainCanvas.height
     };
 
     extend(cameraOptions, options);
@@ -113,9 +113,9 @@
             scene.updateShadows();
           },
           enable: options.enable,
-          disable: options.disable,
+          disable: options.disable
         };
-      },
+      }
     };
 
     CubicVR.Scene.call(this, sceneOptions);
@@ -190,7 +190,7 @@
         scenes: [scene],
         start: options.start,
         stop: options.stop,
-        update: options.update,
+        update: options.update
       });
     },
 
@@ -205,7 +205,7 @@
         scenes: scenes,
         start: options.start,
         stop: options.stop,
-        update: options.update,
+        update: options.update
       });
     },
 
@@ -218,7 +218,7 @@
     Scene: Scene,
     Camera: Camera,
     Mesh: Mesh,
-    SceneObject: SceneObject,
+    SceneObject: SceneObject
   }; //system
 
   Paladin.subsystem.register( "graphics", system );
