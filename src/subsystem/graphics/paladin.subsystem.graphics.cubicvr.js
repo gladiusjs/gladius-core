@@ -13,7 +13,7 @@
     } //for
   } //extend
 
-  /*************************************************************
+  /***
    * Mesh
    */
   function Mesh ( options ) {
@@ -57,19 +57,20 @@
     } //if
 
   } //Mesh
-  Mesh.prototype = CubicVR.Mesh.prototype;
+  Mesh.prototype = new CubicVR.Mesh();
   Mesh.prototype.constructor = Mesh;
 
-  /*************************************************************
+  /***
    * SceneObject
    */
   function SceneObject ( options ) {
+    options = options || {};
     CubicVR.SceneObject.call(this, options.mesh, options.name);
   } //ScenObject
-  SceneObject.prototype = CubicVR.SceneObject.prototype;
+  SceneObject.prototype = new CubicVR.SceneObject();
   SceneObject.prototype.constructor = SceneObject;
 
-  /*************************************************************
+  /***
    * Scene
    */
   function Camera ( options ) {
@@ -90,10 +91,10 @@
       return "Camera";
     };
   } //Camera
-  Camera.prototype = CubicVR.Camera.prototype;
+  Camera.prototype = new CubicVR.Camera();
   Camera.prototype.constructor = Camera;
 
-  /*************************************************************
+  /***
    * Scene
    */
   function Scene ( options ) {
@@ -141,10 +142,10 @@
     options.resizable !== false && CubicVR.addResizeable(this);
 
   } //Scene
-  Scene.prototype = CubicVR.Scene.prototype;
+  Scene.prototype = new CubicVR.Scene();
   Scene.prototype.constructor = Scene;
 
-  /*************************************************************
+  /***
    * subsystem api object
    */
   var system = {
