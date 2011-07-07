@@ -1,3 +1,4 @@
+/*global text,expect,ok,module,notEqual,Paladin,test,window*/
 (function (window, document, undefined, Paladin) {
   module("Paladin dummy subsystem", {
     setup: function () {
