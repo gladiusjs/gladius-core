@@ -339,6 +339,7 @@ function Entity() {
     
     var id = nextEntityId ++,
         componentsByType = {},
+        children = [],
         that = this;
     
     this.getId = function() {
@@ -368,6 +369,20 @@ function Entity() {
             parameters: options.parameters || []
         } );
     };
+
+    this.getChildren = function () {
+        return children;
+    };
+
+    this.injectComponent = function( component, skipMe ) {
+        if ( !skipMe && this.hasComponent( component.getType() ) ) {
+            component.addChild( this.getComponents( component.getType() ) );
+        } //if
+
+        for ( var i=0, l=children.length; i<l; ++i ) {
+            children[i].injectComponent( component );
+        } //for
+    };
     
     this.addComponent = function( component, options ) {
         var componentType = component.getType();
@@ -378,11 +393,16 @@ function Entity() {
         var previousComponents = this.removeComponent( componentType, {} );
         componentsByType[componentType] = component;
 
-        
+        var parentEntity = this.findComponentInParents( componentType );
+        parentEntity && parentEntity.getComponents( componentType ).addChild( component );
+
+        this.injectComponent( component, true );
+
         component.onAdd( this );
+
         return previousComponents;
     };
-    
+
     this.removeComponent = function( component ) {
         var componentType = typeof(component) ==="string" ? component : component.getType();
         if ( componentsByType[componentType] ) {
@@ -406,25 +426,32 @@ function Entity() {
     this.hasComponent = function( componentType ) {
         return componentType && componentsByType.hasOwnProperty( componentType );
     };
+
+    this.findComponentInParents = function ( componentType ) {
+        var parentEntity = this.parent;
+        while ( parentEntity && !parentEntity.hasComponent( 'spatial' ) ) {
+            parentEntity = parentEntity.parent;
+        }
+        return parentEntity;
+    };
     
     this.addChild = function( child ) {
         child.parent = this;
 
-        if( child.hasComponent( 'spacial' ) ) {
+        if( child.hasComponent( 'spatial' ) ) {
+            // Add spatial component to closes parent if
+            var parentEntity = this.findComponentInParents( 'spatial' );
 
-          // Add spatial component to closes parent if
-          var parentEntity = this;
-          while ( parentEntity && !parentEntity.hasComponent( 'spatial' ) ) {
-            parentEntity = parentEntity.parent;
-          }
-          
-          // If there's no parent entity with a spatial component, add one to self
-          if (!parentEntity) {
-            this.addComponent( new Paladin.component.Spatial() );
-          }
+            // If there's no parent entity with a spatial component, add one to self
+            if (!parentEntity) {
+              parentEntity = this;
+              if ( !this.hasComponent( 'spatial' ) ) {
+                this.addComponent( new Paladin.component.Spatial() );
+              }
+            }
 
-          // Hook up spatial components
-          parentEntity.getComponents( 'spatial' ).addChild( child.getComponents( 'spatial' ) );
+            // Hook up spatial components
+            parentEntity.getComponents( 'spatial' ).addChild( child.getComponents( 'spatial' ) );
         } //if
 
         if( child.hasComponent( 'graphics' ) ) {
@@ -437,6 +464,8 @@ function Entity() {
             var graphicsComponent = this.getComponents( 'graphics' );            
             graphicsComponent.addChild( child.getComponents( 'graphics' ) );
         }
+
+        children.push( child );
     };
     
     this.setParent = function( parent ) {
@@ -466,6 +495,7 @@ function Vector3() {
 function Component( options ) {
     this.type = options.type || undefined;
     this.subtype = options.subtype || [];
+    this.children = [];
 };
 Component.prototype.getType = function() {
     return this.type;
