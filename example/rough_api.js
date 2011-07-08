@@ -3,6 +3,10 @@ function Game() {
     Paladin.init();
 
     var render = new Paladin.Scene();
+    var mesh = new Paladin.graphics.Mesh();
+    var entity = new Paladin.Entity();
+    entity.addComponent( new Paladin.component.Spatial(), { name: 'spatial' } );
+    entity.removeComponent( 'spatial' );
 
 /*    
     var camera = new Paladin.Entity();

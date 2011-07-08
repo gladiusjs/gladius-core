@@ -1,5 +1,18 @@
 (function (window, document) {
-
+    
+// Array Remove - By John Resig (MIT Licensed)
+Array.prototype.remove = function(from, to) {
+    var rest = this.slice( (to || from) + 1 || this.length );
+    this.length = from < 0 ? this.length + from : from;
+    return this.push.apply(this, rest);
+};
+    
+/***
+ * Paladin
+ * 
+ * This is where we put all of our goodies. Some are instances, like the subsystems,
+ * and others are prototypes to be used and extended.
+ */
 Paladin = {};
 Paladin.component = {};
 Paladin.init = function() {
@@ -84,7 +97,10 @@ function Tasker() {
  */
 function Loader() {
   
-    var that = this;
+    var that = this,
+        graphics = undefined,
+        physics = undefined,
+        sound = undefined;
 
 };
 
@@ -309,7 +325,7 @@ function Scene() {
             fov: 60
         } );
 
-    this.addChild = function () {
+    this.addChild = function( child ) {
       
     };
         
@@ -326,7 +342,6 @@ function Entity() {
     
     var id = nextEntityId ++,
         componentsByType = {},
-        componentsByName = {},
         that = this;
     
     this.getId = function() {
@@ -357,39 +372,57 @@ function Entity() {
         } );
     };
     
-    this.addComponent = function( componentType, component, options ) {
-        if ( typeof(componentType) !== "string" ) {
-            component = componentType;
-            componentType = component.getType();
-        } //if
+    this.addComponent = function( component, options ) {
+        var componentType = component.getType();
+        /* Note(alan.kligman@gmail.com):
+         * We don't allow more than one component of the same type. This
+         * might change in the future, so this step could be removed.
+         */
+        var previousComponents = removeComponent( componentType, {} );
+        componentsByType[componentType] = component;
 
-        if( !componentsByType.hasOwnProperty( componentType ) ) {
-            componentsByType[componentType] = [];
-        }
-        componentsByType[componentType].push( component );
-
-        if( options && options.name ) {
-            if( !componentsByName.hasOwnProperty( options.name ) ) {
-                componentsByName[options.name] = [];
-            }
-            componentsByName[options.name].push( component );
-        }
-    };
-    
-    this.removeComponent = function( options ) {
-
-    };
-    
-    this.getComponent = function( type ) {
-       
-    };
-    
-    this.getNamedComponent = function( name ) {
         
+        component.onAdd( this );
+        return previousComponents;
     };
-
-    this.setParent = function ( scene ) {
-      scene.addChild(this);
+    
+    this.removeComponent = function( component ) {
+        var componentType = component.getType();
+        for( var i = 0; i < componentsByType[componentType].length; ++ i ) {
+            if( componentsByType[componentType][i] == component ) {
+                componentsByType[componentType][i].onRemove( this );
+                componentsByType[componentType].remove( i );
+                break;
+            }
+        }        
+    };
+    
+    this.getComponents = function( componentType ) {
+        if( componentType && componentsByType.hasOwnProperty( componentType ) )
+            return componentsByType[componentType];        
+        
+        return [];
+    };
+    
+    this.hasComponent = function( componentType ) {
+        return componentType && componentsByType.hasOwnProperty( componentType );
+    };
+    
+    this.addChild = function( child ) {
+        if( child.hasComponent( 'graphics' ) ) {
+            /* Note:
+             * If there is also no spatial component, we assume 0 for both position and rotation.
+             */
+            if( !hasComponent( 'graphics' ) )
+                addComponent( new Paladin.component.GraphicsNode() );
+            
+            graphicsComponent = getComponents( 'graphics', null, 1 );            
+            graphicsComponent.addChild( child.getComponents( 'graphics', null, 1 ) );
+        }
+    };
+    
+    this.setParent = function( parent ) {
+      parent.addChild( this );
     };
 };
 
@@ -422,13 +455,13 @@ Component.prototype.getType = function() {
 Component.prototype.getSubtype = function() {
     return this.subtype;
 };
-Component.prototype.onAdd = function( options ) {
-    this.entity = options.entity || null;
+Component.prototype.onAdd = function( entity ) {
+    this.entity = entity;
 };
-Component.prototype.onRemove = function( options ) {
+Component.prototype.onRemove = function( entity ) {
     this.entity = null;
 };
-Component.prototype.onReset = function( options ) {
+Component.prototype.onReset = function( entity) {
 };
 
 function SpatialComponent() {
@@ -450,17 +483,20 @@ CameraComponent.prototype = new Component( {
 } );
 CameraComponent.prototype.constructor = CameraComponent;
 CameraComponent.parent = Component;
-CameraComponent.onAdd = function( options ) {
-    this.parent.onAdd( options );
+CameraComponent.onAdd = function( entity ) {
+    this.parent.onAdd( entity );
 };
-CameraComponent.onRemove = function( options ) {
-    this.parent.onRemove( options );
+CameraComponent.onRemove = function( entity ) {
+    this.parent.onRemove( entity );
 };
-CameraComponent.onReset = function( options ) {
-    this.parent.onReset( options );
+CameraComponent.onReset = function( entity ) {
+    this.parent.onReset( entity );
+};
+CameraComponent.prototype.addChild = function( child ) {
+    this.camera.addChild( child );
 };
 CameraComponent.prototype.setParent = function( parent ) {
-    parent.bindCameraObject( this.camera );
+    parent.addChild( this );
 };
 
 function ModelComponent( options ) {
@@ -473,20 +509,20 @@ ModelComponent.prototype = new Component( {
 } );
 ModelComponent.prototype.constructor = ModelComponent;
 ModelComponent.parent = Component;
-ModelComponent.onAdd = function( options ) {
-    this.parent.onAdd( options );
+ModelComponent.onAdd = function( entity ) {
+    this.parent.onAdd( entity );
 };
-ModelComponent.onRemove = function( options ) {
-    this.parent.onRemove( options );
+ModelComponent.onRemove = function( entity ) {
+    this.parent.onRemove( entity );
 };
-ModelComponent.onReset = function( options ) {
-    this.parent.onReset( options );
+ModelComponent.onReset = function( entity ) {
+    this.parent.onReset( entity );
+};
+ModelComponent.prototype.addChild = function( child ) {
+    this.object.bindChild( child );
 };
 ModelComponent.prototype.setParent = function( parent ) {
-    parent.bindCameraObject( this.camera );
-};
-ModelComponent.prototype.setParent = function( parent ) {
-    parent.bindSceneObject( this.object );
+    parent.addChild( this );
 };
 
 Paladin.tasker = new Tasker();
