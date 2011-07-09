@@ -48,8 +48,10 @@ function Tasker() {
         for( var id in tasksById ) {
             var task = tasksById[id];
             task.time = Date.now();
-            if( task.DONE === task._callback( task ) ) {
-                that.remove( task );
+            if( task.run ) {
+                if( task.DONE === task._callback( task ) ) {
+                    that.remove( task );
+                }
             }
         }
         
@@ -69,9 +71,18 @@ function Tasker() {
             _id: id,
             name: options.name || undefined,
             time: Date.now(),
-            CONT: 0,
-            DONE: 1,
-            AGAIN: 2
+            run: true,
+            
+            DONE: 0,
+            CONTINUE: 1,
+            AGAIN: 2,
+            
+            suspend: function() {
+                this.run = false;
+            },
+            resume: function() {
+                this.run = true;
+            }
         };
         
         tasksById[id] = task;

@@ -28,7 +28,7 @@ function Game() {
     
     camera.setTarget( box.spatial.position );
     
-    Paladin.tasker.add( {
+    var rotationTask = Paladin.tasker.add( {
         callback: function( task ) {
             box.spatial.rotation[0] += 0.1;
             box.spatial.rotation[1] += 0.2;
@@ -40,14 +40,21 @@ function Game() {
         event: 'wheel-up',
         callback: function( parameters ) {
             camera.spatial.position = [ camera.spatial.position[0], camera.spatial.position[1], camera.spatial.position[2] + 1 ];
-            console.log( 'zoom-in', camera.spatial.position, camera.camera.position );
         }
     } );
     box.listen( {
         event: 'wheel-down',
         callback: function( parameters ) {
             camera.spatial.position = [ camera.spatial.position[0], camera.spatial.position[1], camera.spatial.position[2] - 1 ];
-            console.log( 'zoom-out', camera.spatial.position, camera.camera.position );
+        }
+    } );
+    box.listen( {
+        event: 'escape-up',
+        callback: function( parameters ) {
+            if( rotationTask.run )
+                rotationTask.suspend();
+            else
+                rotationTask.resume();
         }
     } );
 
