@@ -1,47 +1,31 @@
 function Game() {
 
-    Paladin.init();
+    Paladin.init( {debug: true} );
 
-    var render = new Paladin.Scene();
-    var mesh = new Paladin.graphics.Mesh();
-    var entity = new Paladin.Entity();
-    entity.addComponent( new Paladin.component.Spatial(), { name: 'spatial' } );
-    entity.removeComponent( 'spatial' );
-
-/*    
-    var camera = new Paladin.Entity();
-    camera.addComponent( new Paladin.component.Spatial() );
-    camera.addComponent( new Paladin.component.Camera() );
-    camera.setParent( render );
-
-    var mesh = new Paladin.graphics.Mesh();     // graphics.Mesh is not a component
-
-    var obj1 = new Paladin.Entity();
-    obj1.addComponent( 'spatial', new Paladin.component.Spatial() );
-    obj1.addComponent( 'model', new Paladin.component.Model( mesh ) );  // component.Model should be a SceneObject
-    obj1.setParent( render );
-
-    var obj2 = new Paladin.Entity();
-    obj2.addComponent( 'spatial', new Paladin.component.Spatial() );
-    obj2.addComponent( 'model', new Paladin.component.Model( mesh ) );
-    obj2.setParent( render );
-
-    Paladin.tasker.add( {
-        callback: function( task ) {
-            obj1.getComponent( 'spatial' ).setRotation(); 
-            return task.CONT;
-        },
-        name: 'rotateObject1'
+    var scene = new Paladin.Scene();
+    
+    var camera = new Paladin.component.Camera();
+    camera.setSpatial( new Paladin.component.Spatial() );
+    camera.setParent( scene );
+    
+    var mesh = new Paladin.graphics.Mesh( {
+        primitives: [ {
+            type: 'box',
+            size: 0.5,
+            material: {
+              color: [1, 0, 0]
+            }
+          } ],
+          finalize: true
+        } );
+    var box = new Paladin.Entity();
+    box.spatial = new Paladin.component.Spatial( [-1, 0, -1] );
+    box.model = new Paladin.component.Model( {
+        mesh: mesh 
     } );
-    Paladin.tasker.add( {
-        callback: function( task ) {
-            obj2.getComponent( 'spatial' ).setPosition();
-            return task.CONT;
-        },
-        name: 'moveObject2'
-    } );
-*/
-
+    box.model.setSpatial( box.spatial );
+    box.model.setParent( scene );
+    
     this.run = function () {
       Paladin.run();
     };

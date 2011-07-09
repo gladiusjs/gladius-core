@@ -15,8 +15,12 @@ Array.prototype.remove = function(from, to) {
  */
 Paladin = {};
 Paladin.component = {};
-Paladin.init = function() {
+Paladin.init = function( options ) {
     Paladin.subsystem.init();
+    if( options && options.debug )
+        Paladin.debug = console.log;
+    else
+        Paladin.debug = function () {};
 };
 Paladin.run = function() {
     Paladin.tasker.run();
@@ -321,6 +325,7 @@ function Scene() {
         scene = new Paladin.graphics.Scene( {
             fov: 60
         } );
+        spatial = new SpatialComponent();
 
     this.addChild = function( child ) {
       
@@ -374,13 +379,17 @@ function Entity() {
         return children;
     };
 
-    this.addComponent = function( component, options ) {
+    this.addComponent = function( component ) {
         var componentType = component.getType();
         /* Note(alan.kligman@gmail.com):
          * We don't allow more than one component of the same type. This
          * might change in the future, so this step could be removed.
          */
-        var previousComponents = this.removeComponent( componentType, {} );
+        var previousComponents = this.getComponents( componentType );
+        for( var i = 0; i < previousComponents.length; ++ i )
+            this.removeComponent( previousComponents[i] );
+
+        Paladin.debug( "Entity.addComponent(): ", component );
         componentsByType[componentType] = component;
         component.onAdd( this );
 
@@ -392,6 +401,7 @@ function Entity() {
         if ( componentsByType[componentType] ) {
             for( var i = 0; i < componentsByType[componentType].length; ++ i ) {
                 if( componentsByType[componentType][i] == component ) {
+                    Paladin.debug( "Entity.removeComponent(): ", component );
                     componentsByType[componentType][i].onRemove( this );
                     componentsByType[componentType].remove( i );
                     break;
@@ -453,19 +463,6 @@ function Entity() {
     
 };
 
-// Place-holder prototypes for a few things we'll need.
-function Point3() {
-    this.x = undefined;
-    this.y = undefined;
-    this.z = undefined;
-};
-
-function Vector3() {
-    this.x = undefined;
-    this.y = undefined;
-    this.z = undefined;
-};
-
 /***
  * Component (prototype interface)
  * 
@@ -476,6 +473,7 @@ function Component( options ) {
     this.type = options.type || undefined;
     this.subtype = options.subtype || [];
     this.requires = options.requires || [];
+    this.parent = null;
 };
 Component.prototype.getType = function() {
     return this.type;
@@ -483,30 +481,54 @@ Component.prototype.getType = function() {
 Component.prototype.getSubtype = function() {
     return this.subtype;
 };
-Component.prototype.onAdd = function( entity ) {
-    this.entity = entity;
-};
-Component.prototype.onRemove = function( entity ) {
-    this.entity = null;
-};
-Component.prototype.onReset = function( entity) {
-};
 
-function SpatialComponent() {
-    this.position = new Point3();   // X, Y, Z
-    this.rotation = new Vector3();  // Roll, pitch, yaw
-    this.object = new Paladin.graphics.SceneObject();
+function SpatialComponent( position, rotation ) {
+    this.position = position ? position : [0, 0, 0];   // X, Y, Z
+    this.rotation = rotation ? rotation : [0, 0, 0];  // Roll, pitch, yaw
+    this.object = new Paladin.graphics.SceneObject( {
+        position: this.position,
+        rotation: this.rotation
+    } );
 }
 SpatialComponent.prototype = new Component( { 
-    type: 'spatial'
+    type: 'core',
+    subtype: [ 'spatial' ]
 } );
 SpatialComponent.prototype.constructor = SpatialComponent;
 SpatialComponent.prototype.addChild = function ( child ) {
     this.object.bindChild( child );
 };
+SpatialComponent.prototype.setParent = function( parent ) {
+    this.parent = parent;
+    parent.addChild( this );
+};
+
+function SceneComponent( options ) {
+    options = options || {};
+    this.render = new Paladin.graphics.Scene( {
+        fov: 60
+    } );
+    this.spatial = new Paladin.component.Spatial();
+    this.render.bindSceneObject( this.spatial );
+}
+SceneComponent.prototype = new Component( {
+    type: 'core',
+    subtype: [ 'scene' ]
+} );
+SceneComponent.prototype.constructor = SceneComponent;
+SceneComponent.prototype.addChild = function( child ) {
+    if( child.prototype == CameraComponent )
+        this.render.bindCamera( child );
+    else
+        this.spatial.bindChild( child );
+};
+SceneComponent.prototype.setParent = function( parent ) {
+    // Nothing to do.
+};
 
 function CameraComponent( options ) {
     this.camera = (options && options.camera) ? options.camera : new Paladin.graphics.Camera();
+    this.spatial = (options && options.spatial) ? options.spatial : null;
 }
 CameraComponent.prototype = new Component( {
     type: 'graphics',
@@ -514,26 +536,22 @@ CameraComponent.prototype = new Component( {
     requires: [ 'spatial' ]
 } );
 CameraComponent.prototype.constructor = CameraComponent;
-CameraComponent.prototype.onAdd = function( entity ) {
-    Component.prototype.onAdd.call( this, entity );
-};
-CameraComponent.prototype.onRemove = function( entity ) {
-    Component.prototype.onRemove.call( this, entity );
-};
-CameraComponent.prototype.onReset = function( entity ) {
-    Component.prototype.onReset.call( this, entity );
-};
 CameraComponent.prototype.addChild = function( child ) {
-    this.camera.addChild( child );
+    this.spatial.addChild( child );
 };
 CameraComponent.prototype.setParent = function( parent ) {
+    this.parent = parent;
     parent.addChild( this );
+};
+CameraComponent.prototype.setSpatial = function( spatial ) {
+    this.spatial = spatial;
 };
 
 function ModelComponent( options ) {
-    options = options || {};
-    this.mesh = options.mesh || undefined;
     this.object = new Paladin.graphics.SceneObject( options );
+    this.spatial = (options && options.spatial) ? options.spatial : null;
+    this.mesh = (options && options.mesh) ? options.mesh : null;
+    this.material = (options && options.material) ? options.material : null;
 };
 ModelComponent.prototype = new Component( {
     type: 'graphics',
@@ -541,20 +559,28 @@ ModelComponent.prototype = new Component( {
     requires: [ 'spatial' ]
 } );
 ModelComponent.prototype.constructor = ModelComponent;
-ModelComponent.prototype.onAdd = function( entity ) {
-    Component.prototype.onAdd.call( this, entity );
-};
-ModelComponent.prototype.onRemove = function( entity ) {
-    Component.prototype.onRemove.call( this, entity );
-};
-ModelComponent.prototype.onReset = function( entity ) {
-    Component.prototype.onReset.call( this, entity );
-};
+
 ModelComponent.prototype.addChild = function( child ) {
     this.object.bindChild( child );
 };
 ModelComponent.prototype.setParent = function( parent ) {
+    this.parent = parent;
     parent.addChild( this );
+};
+ModelComponent.prototype.setSpatial = function( spatial ) {
+    /* FIXME(alan.kligman@gmail.com):
+     * This needs to be properly managed.
+     */
+    this.spatial = spatial;    
+    this.object.position = spatial.position;
+    this.object.rotation = spatial.rotation;
+};
+ModelComponent.prototype.setMesh = function( mesh ) {
+    this.mesh = mesh;
+    this.object.obj = mesh;
+};
+ModelComponent.prototype.setMaterial = function( material ) {
+    this.material = material;
 };
 
 Paladin.tasker = new Tasker();
@@ -573,6 +599,7 @@ Paladin.Entity = Entity;
 Paladin.component.Spatial = SpatialComponent;
 Paladin.component.Camera = CameraComponent;
 Paladin.component.Model = ModelComponent;
+Paladin.component.Scene = SceneComponent;
 Paladin.component.Light = null;
 
 })( window, document );
