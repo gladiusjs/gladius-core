@@ -393,9 +393,11 @@ SpatialComponent.prototype = new Component( {
 } );
 SpatialComponent.prototype.constructor = SpatialComponent;
 SpatialComponent.prototype.addChild = function ( child ) {
+    Paladin.debug( "binding child to spatial" );
     this.object.bindChild( child );
 };
 SpatialComponent.prototype.setParent = function( parent ) {
+    Paladin.debug( "setting spatial parent" );
     this.parent = parent;
     parent.addChild( this );
 };
@@ -404,7 +406,8 @@ function SceneComponent( options ) {
     Paladin.debug( "constructing a new scene" );
     options = options || {};
     this.render = new Paladin.graphics.Scene( {
-        fov: 60
+        fov: 60,
+        resizable: true
     } );
     this.spatial = new Paladin.component.Spatial();
     this.render.bindSceneObject( this.spatial );

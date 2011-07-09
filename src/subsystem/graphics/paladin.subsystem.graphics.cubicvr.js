@@ -65,13 +65,13 @@
    */
   function SceneObject ( options ) {
     options = options || {};
-    CubicVR.SceneObject.call(this, options.mesh, options.name);
+    CubicVR.SceneObject.call(this, options.mesh, options.name);    
   } //ScenObject
   SceneObject.prototype = new CubicVR.SceneObject();
   SceneObject.prototype.constructor = SceneObject;
 
   /***
-   * Scene
+   * Camera
    */
   function Camera ( options ) {
     var cameraOptions = {
