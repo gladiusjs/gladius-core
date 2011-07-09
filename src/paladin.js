@@ -357,93 +357,7 @@ function Entity() {
             parameters: options.parameters || []
         } );
     };
-
-    this.getChildren = function () {
-        return children;
-    };
-
-    this.addComponent = function( component ) {
-        var componentType = component.getType();
-        /* Note(alan.kligman@gmail.com):
-         * We don't allow more than one component of the same type. This
-         * might change in the future, so this step could be removed.
-         */
-        var previousComponents = this.getComponents( componentType );
-        for( var i = 0; i < previousComponents.length; ++ i )
-            this.removeComponent( previousComponents[i] );
-
-        Paladin.debug( "Entity.addComponent(): ", component );
-        componentsByType[componentType] = component;
-        component.onAdd( this );
-
-        return previousComponents;
-    };
-
-    this.removeComponent = function( component ) {
-        var componentType = component.getType();
-        if ( componentsByType[componentType] ) {
-            for( var i = 0; i < componentsByType[componentType].length; ++ i ) {
-                if( componentsByType[componentType][i] == component ) {
-                    Paladin.debug( "Entity.removeComponent(): ", component );
-                    componentsByType[componentType][i].onRemove( this );
-                    componentsByType[componentType].remove( i );
-                    break;
-                }
-            }
-            
-            // If we removed the spatial component, re-parent all children to this
-            // entity so they can properly associate with an ancestor spatial component.
-            if( 'spatial' == componentType ) {
-                for( var child in this.children )
-                    child.setParent( this );
-            }
-        }
-    };
    
-    this.getComponents = function( componentType ) {
-        if( componentType && componentsByType.hasOwnProperty( componentType ) )
-            return componentsByType[componentType];
-        else {
-            var components = [];
-            for( var i = 0; i < componentsByType.length; ++ i ) {
-                components.concat( componentsByType[i] );
-            }
-            return components;
-        }
-    };
-    
-    this.hasComponent = function( componentType ) {
-        return componentType && componentsByType.hasOwnProperty( componentType );
-    };
-        
-    this.addChild = function( child ) {
-        children.push( child );
-    };
-    
-    this.setParent = function( parent ) {
-      parent.addChild( this );
-      this.parentNode = parent;
-      
-      // Find the nearest ancestral spatial component. It might be in the parent.
-      var nearestAncestor;
-      for( nearestAncestor = parent; parent != null; nearestAncestor = nearestAncestor.parent ) {
-          if( nearestAncestor.hasComponent( 'spatial' ) )
-              break;
-      }
-      
-      if( !this.hasComponent( 'spatial' ) ) {
-          // Re-parent any components that rely on the spatial component.
-          var components = this.getComponents();
-          for( var component in components ) {
-              if( 'spatial' in component.requires )
-                  component.setParent( nearestAncestor.getComponent( 'spatial' ) );
-          }
-      } else {
-          // Re-parent this entity's spatial component.
-          this.getComponents( 'spatial' ).setParent( nearestAncestor );
-      }
-    };
-    
 };
 
 /***
@@ -536,6 +450,8 @@ CameraComponent.prototype.setParent = function( parent ) {
 CameraComponent.prototype.setSpatial = function( spatial ) {
     Paladin.debug( "setting camera spatial" );
     this.spatial = spatial;
+    this.camera.position = spatial.position;
+    this.camera.rotation = spatial.rotation;
 };
 
 function ModelComponent( options ) {
