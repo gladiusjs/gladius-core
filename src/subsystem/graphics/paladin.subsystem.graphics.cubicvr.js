@@ -187,6 +187,8 @@
     },
 
     pushScene: function ( scene, options ) {
+      scene = scene.render;
+      options = options || {};
       mainLoop.pushSceneGroup({
         scenes: [scene],
         start: options.start,
@@ -202,6 +204,7 @@
     },
 
     pushSceneGroup: function ( scenes, options ) {
+      options = options || {};
       mainLoop.pushSceneGroup({
         scenes: scenes,
         start: options.start,

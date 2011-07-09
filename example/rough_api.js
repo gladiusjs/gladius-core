@@ -25,9 +25,13 @@ function Game() {
     } );
     box.model.setSpatial( box.spatial );
     box.model.setParent( scene );
-    
+
     this.run = function () {
       Paladin.run();
     };
+
+    Paladin.graphics.pushScene(scene);
+
+    window.foo = scene.render;
 
 };

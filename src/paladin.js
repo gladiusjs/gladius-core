@@ -394,7 +394,7 @@ SpatialComponent.prototype = new Component( {
 SpatialComponent.prototype.constructor = SpatialComponent;
 SpatialComponent.prototype.addChild = function ( child ) {
     Paladin.debug( "binding child to spatial" );
-    this.object.bindChild( child );
+    this.object.bindChild( child.object );
 };
 SpatialComponent.prototype.setParent = function( parent ) {
     Paladin.debug( "setting spatial parent" );
@@ -410,7 +410,7 @@ function SceneComponent( options ) {
         resizable: true
     } );
     this.spatial = new Paladin.component.Spatial();
-    this.render.bindSceneObject( this.spatial );
+    this.render.bindSceneObject( this.spatial.object );
 }
 SceneComponent.prototype = new Component( {
     type: 'core',
@@ -421,7 +421,7 @@ SceneComponent.prototype.addChild = function( child ) {
     Paladin.debug( "setting scene child" );
     if( child.constructor == CameraComponent ) {
         Paladin.debug( "bind camera to scene" );
-        this.render.bindCamera( child );
+        this.render.bindCamera( child.camera );
     }
     else {
         Paladin.debug( "bind component to scene" );
@@ -458,7 +458,7 @@ CameraComponent.prototype.setSpatial = function( spatial ) {
 };
 
 function ModelComponent( options ) {
-    this.object = new Paladin.graphics.SceneObject( options );
+    this.object = new Paladin.graphics.SceneObject( { mesh: options.mesh } );
     this.spatial = (options && options.spatial) ? options.spatial : null;
     this.mesh = (options && options.mesh) ? options.mesh : null;
     this.material = (options && options.material) ? options.material : null;
@@ -471,7 +471,7 @@ ModelComponent.prototype = new Component( {
 ModelComponent.prototype.constructor = ModelComponent;
 
 ModelComponent.prototype.addChild = function( child ) {
-    this.object.bindChild( child );
+    this.object.bindChild( child.object );
 };
 ModelComponent.prototype.setParent = function( parent ) {
     this.parent = parent;
