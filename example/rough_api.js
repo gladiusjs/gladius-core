@@ -35,6 +35,21 @@ function Game() {
             box.spatial.rotation[2] += 0.3;
         }
     } );
+    
+    box.listen( {
+        event: 'wheel-up',
+        callback: function( parameters ) {
+            camera.spatial.position = [ camera.spatial.position[0], camera.spatial.position[1], camera.spatial.position[2] + 1 ];
+            console.log( 'zoom-in', camera.spatial.position, camera.camera.position );
+        }
+    } );
+    box.listen( {
+        event: 'wheel-down',
+        callback: function( parameters ) {
+            camera.spatial.position = [ camera.spatial.position[0], camera.spatial.position[1], camera.spatial.position[2] - 1 ];
+            console.log( 'zoom-out', camera.spatial.position, camera.camera.position );
+        }
+    } );
 
     this.run = function () {
       Paladin.run();

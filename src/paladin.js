@@ -380,12 +380,30 @@ Component.prototype.getSubtype = function() {
 };
 
 function SpatialComponent( position, rotation ) {
-    this.position = position ? position : [0, 0, 0];   // X, Y, Z
-    this.rotation = rotation ? rotation : [0, 0, 0];  // Roll, pitch, yaw
+    this._position = position ? position : [0, 0, 0];   // X, Y, Z
+    this._rotation = rotation ? rotation : [0, 0, 0];  // Roll, pitch, yaw
     this.object = new Paladin.graphics.SceneObject( {
-        position: this.position,
-        rotation: this.rotation
+        position: this._position,
+        rotation: this._rotation
     } );
+    
+    this.__defineGetter__( 'position', function() {
+        return this._position;
+    } );
+    this.__defineSetter__( 'position', function( position ) {
+        this._position[0] = position[0];
+        this._position[1] = position[1];
+        this._position[2] = position[2];
+    } );
+    this.__defineGetter__( 'rotation', function() {
+        return this._rotation;
+    } );
+    this.__defineSetter__( 'rotation', function( rotation ) {
+        this._rotation[0] = rotation[0];
+        this._rotation[1] = rotation[1];
+        this._rotation[2] = rotation[2];
+    } );
+
 }
 SpatialComponent.prototype = new Component( { 
     type: 'core',
@@ -393,17 +411,14 @@ SpatialComponent.prototype = new Component( {
 } );
 SpatialComponent.prototype.constructor = SpatialComponent;
 SpatialComponent.prototype.addChild = function ( child ) {
-    Paladin.debug( "binding child to spatial" );
     this.object.bindChild( child.object );
 };
 SpatialComponent.prototype.setParent = function( parent ) {
-    Paladin.debug( "setting spatial parent" );
     this.parent = parent;
     parent.addChild( this );
 };
 
 function SceneComponent( options ) {
-    Paladin.debug( "constructing a new scene" );
     options = options || {};
     this.render = new Paladin.graphics.Scene( {
         fov: 60,
@@ -418,13 +433,10 @@ SceneComponent.prototype = new Component( {
 } );
 SceneComponent.prototype.constructor = SceneComponent;
 SceneComponent.prototype.addChild = function( child ) {
-    Paladin.debug( "setting scene child" );
     if( child.constructor == CameraComponent ) {
-        Paladin.debug( "bind camera to scene" );
         this.render.bindCamera( child.camera );
     }
     else {
-        Paladin.debug( "bind component to scene" );
         this.spatial.addChild( child );
     }
 };
@@ -446,15 +458,13 @@ CameraComponent.prototype.addChild = function( child ) {
     this.spatial.addChild( child );
 };
 CameraComponent.prototype.setParent = function( parent ) {
-    Paladin.debug( "setting camera parent" );
     this.parent = parent;
     parent.addChild( this );
 };
 CameraComponent.prototype.setSpatial = function( spatial ) {
-    Paladin.debug( "setting camera spatial" );
     this.spatial = spatial;
-    this.camera.position = spatial.position;
-    this.camera.rotation = spatial.rotation;
+    this.camera.position = this.spatial.position;
+    this.camera.rotation = this.spatial.rotation;
 };
 CameraComponent.prototype.setTarget = function( target ) {
     this.camera.target = target;
