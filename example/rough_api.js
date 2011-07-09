@@ -2,10 +2,10 @@ function Game() {
 
     Paladin.init( {debug: true} );
 
-    var scene = new Paladin.Scene();
+    var scene = new Paladin.component.Scene();
     
     var camera = new Paladin.component.Camera();
-    camera.setSpatial( new Paladin.component.Spatial() );
+    camera.setSpatial( new Paladin.component.Spatial( [0, 0, 0] ) );
     camera.setParent( scene );
     
     var mesh = new Paladin.graphics.Mesh( {

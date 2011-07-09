@@ -317,23 +317,6 @@ function Messenger() {
 };
 
 /***
- * Scene
- */
-function Scene() {
-  
-    var that = this;
-        scene = new Paladin.graphics.Scene( {
-            fov: 60
-        } );
-        spatial = new SpatialComponent();
-
-    this.addChild = function( child ) {
-      
-    };
-        
-};
-
-/***
  * Entity
  * 
  * An entity is a basic game object. It is a container object for components. Each
@@ -504,6 +487,7 @@ SpatialComponent.prototype.setParent = function( parent ) {
 };
 
 function SceneComponent( options ) {
+    Paladin.debug( "constructing a new scene" );
     options = options || {};
     this.render = new Paladin.graphics.Scene( {
         fov: 60
@@ -517,10 +501,15 @@ SceneComponent.prototype = new Component( {
 } );
 SceneComponent.prototype.constructor = SceneComponent;
 SceneComponent.prototype.addChild = function( child ) {
-    if( child.prototype == CameraComponent )
+    Paladin.debug( "setting scene child" );
+    if( child.constructor == CameraComponent ) {
+        Paladin.debug( "bind camera to scene" );
         this.render.bindCamera( child );
-    else
-        this.spatial.bindChild( child );
+    }
+    else {
+        Paladin.debug( "bind component to scene" );
+        this.spatial.addChild( child );
+    }
 };
 SceneComponent.prototype.setParent = function( parent ) {
     // Nothing to do.
@@ -540,10 +529,12 @@ CameraComponent.prototype.addChild = function( child ) {
     this.spatial.addChild( child );
 };
 CameraComponent.prototype.setParent = function( parent ) {
+    Paladin.debug( "setting camera parent" );
     this.parent = parent;
     parent.addChild( this );
 };
 CameraComponent.prototype.setSpatial = function( spatial ) {
+    Paladin.debug( "setting camera spatial" );
     this.spatial = spatial;
 };
 
@@ -594,7 +585,6 @@ Paladin.physics = undefined;
 Paladin.sound = undefined;
 
 // Attach prototypes to Paladin.
-Paladin.Scene = Scene;
 Paladin.Entity = Entity;
 Paladin.component.Spatial = SpatialComponent;
 Paladin.component.Camera = CameraComponent;
