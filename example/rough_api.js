@@ -25,6 +25,16 @@ function Game() {
     } );
     box.model.setSpatial( box.spatial );
     box.model.setParent( scene );
+    
+    camera.setTarget( box.spatial.position );
+    
+    Paladin.tasker.add( {
+        callback: function( task ) {
+            box.spatial.rotation[0] += 0.1;
+            box.spatial.rotation[1] += 0.2;
+            box.spatial.rotation[2] += 0.3;
+        }
+    } );
 
     this.run = function () {
       Paladin.run();

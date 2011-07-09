@@ -456,6 +456,9 @@ CameraComponent.prototype.setSpatial = function( spatial ) {
     this.camera.position = spatial.position;
     this.camera.rotation = spatial.rotation;
 };
+CameraComponent.prototype.setTarget = function( target ) {
+    this.camera.target = target;
+};
 
 function ModelComponent( options ) {
     this.object = new Paladin.graphics.SceneObject( { mesh: options.mesh } );
