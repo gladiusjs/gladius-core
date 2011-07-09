@@ -374,16 +374,6 @@ function Entity() {
         return children;
     };
 
-    this.injectComponent = function( component, skipMe ) {
-        if ( !skipMe && this.hasComponent( component.getType() ) ) {
-            component.addChild( this.getComponents( component.getType() ) );
-        } //if
-
-        for ( var i=0, l=children.length; i<l; ++i ) {
-            children[i].injectComponent( component );
-        } //for
-    };
-    
     this.addComponent = function( component, options ) {
         var componentType = component.getType();
         /* Note(alan.kligman@gmail.com):
@@ -392,19 +382,13 @@ function Entity() {
          */
         var previousComponents = this.removeComponent( componentType, {} );
         componentsByType[componentType] = component;
-
-        var parentEntity = this.findComponentInParents( componentType );
-        parentEntity && parentEntity.getComponents( componentType ).addChild( component );
-
-        this.injectComponent( component, true );
-
         component.onAdd( this );
 
         return previousComponents;
     };
 
     this.removeComponent = function( component ) {
-        var componentType = typeof(component) ==="string" ? component : component.getType();
+        var componentType = component.getType();
         if ( componentsByType[componentType] ) {
             for( var i = 0; i < componentsByType[componentType].length; ++ i ) {
                 if( componentsByType[componentType][i] == component ) {
@@ -413,67 +397,63 @@ function Entity() {
                     break;
                 }
             }
-        } //if
+            
+            // If we removed the spatial component, re-parent all children to this
+            // entity so they can properly associate with an ancestor spatial component.
+            if( 'spatial' == componentType ) {
+                for( var child in this.children )
+                    child.setParent( this );
+            }
+        }
     };
-    
+   
     this.getComponents = function( componentType ) {
         if( componentType && componentsByType.hasOwnProperty( componentType ) )
-            return componentsByType[componentType];        
-        
-        return [];
+            return componentsByType[componentType];
+        else {
+            var components = [];
+            for( var i = 0; i < componentsByType.length; ++ i ) {
+                components.concat( componentsByType[i] );
+            }
+            return components;
+        }
     };
     
     this.hasComponent = function( componentType ) {
         return componentType && componentsByType.hasOwnProperty( componentType );
     };
-
-    this.findComponentInParents = function ( componentType ) {
-        var parentEntity = this.parent;
-        while ( parentEntity && !parentEntity.hasComponent( 'spatial' ) ) {
-            parentEntity = parentEntity.parent;
-        }
-        return parentEntity;
-    };
-    
+        
     this.addChild = function( child ) {
-        child.parent = this;
-
-        if( child.hasComponent( 'spatial' ) ) {
-            // Add spatial component to closes parent if
-            var parentEntity = this.findComponentInParents( 'spatial' );
-
-            // If there's no parent entity with a spatial component, add one to self
-            if (!parentEntity) {
-              parentEntity = this;
-              if ( !this.hasComponent( 'spatial' ) ) {
-                this.addComponent( new Paladin.component.Spatial() );
-              }
-            }
-
-            // Hook up spatial components
-            parentEntity.getComponents( 'spatial' ).addChild( child.getComponents( 'spatial' ) );
-        } //if
-
-        if( child.hasComponent( 'graphics' ) ) {
-            /* Note:
-             * If there is also no spatial component, we assume 0 for both position and rotation.
-             */
-            if( !this.hasComponent( 'graphics' ) )
-                this.addComponent( new Paladin.component.GraphicsNode() );
-            
-            var graphicsComponent = this.getComponents( 'graphics' );            
-            graphicsComponent.addChild( child.getComponents( 'graphics' ) );
-        }
-
         children.push( child );
     };
     
     this.setParent = function( parent ) {
       parent.addChild( this );
+      this.parentNode = parent;
+      
+      // Find the nearest ancestral spatial component. It might be in the parent.
+      var nearestAncestor;
+      for( nearestAncestor = parent; parent != null; nearestAncestor = nearestAncestor.parent ) {
+          if( nearestAncestor.hasComponent( 'spatial' ) )
+              break;
+      }
+      
+      if( !this.hasComponent( 'spatial' ) ) {
+          // Re-parent any components that rely on the spatial component.
+          var components = this.getComponents();
+          for( var component in components ) {
+              if( 'spatial' in component.requires )
+                  component.setParent( nearestAncestor.getComponent( 'spatial' ) );
+          }
+      } else {
+          // Re-parent this entity's spatial component.
+          this.getComponents( 'spatial' ).setParent( nearestAncestor );
+      }
     };
+    
 };
 
-// Placeholder prototypes for a few things we'll need.
+// Place-holder prototypes for a few things we'll need.
 function Point3() {
     this.x = undefined;
     this.y = undefined;
@@ -495,7 +475,7 @@ function Vector3() {
 function Component( options ) {
     this.type = options.type || undefined;
     this.subtype = options.subtype || [];
-    this.children = [];
+    this.requires = options.requires || [];
 };
 Component.prototype.getType = function() {
     return this.type;
@@ -518,7 +498,7 @@ function SpatialComponent() {
     this.object = new Paladin.graphics.SceneObject();
 }
 SpatialComponent.prototype = new Component( { 
-    type: 'spatial' 
+    type: 'spatial'
 } );
 SpatialComponent.prototype.constructor = SpatialComponent;
 SpatialComponent.prototype.addChild = function ( child ) {
@@ -530,7 +510,8 @@ function CameraComponent( options ) {
 }
 CameraComponent.prototype = new Component( {
     type: 'graphics',
-    subtype: [ 'camera' ]
+    subtype: [ 'camera' ],
+    requires: [ 'spatial' ]
 } );
 CameraComponent.prototype.constructor = CameraComponent;
 CameraComponent.prototype.onAdd = function( entity ) {
@@ -556,7 +537,8 @@ function ModelComponent( options ) {
 };
 ModelComponent.prototype = new Component( {
     type: 'graphics',
-    subtype: [ 'model' ]
+    subtype: [ 'model' ],
+    requires: [ 'spatial' ]
 } );
 ModelComponent.prototype.constructor = ModelComponent;
 ModelComponent.prototype.onAdd = function( entity ) {
