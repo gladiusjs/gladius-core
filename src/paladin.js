@@ -47,7 +47,9 @@ function Tasker() {
     this.run = function() {
         for( var id in tasksById ) {
             var task = tasksById[id];
+            var last = task.time;
             task.time = Date.now();
+            task.dt = task.time - last;
             if( task.run ) {
                 if( task.DONE === task._callback( task ) ) {
                     that.remove( task );
@@ -72,6 +74,7 @@ function Tasker() {
             name: options.name || undefined,
             time: Date.now(),
             run: true,
+            dt: 0,
             
             DONE: 0,
             CONTINUE: 1,
@@ -428,6 +431,7 @@ function SpatialComponent( position, rotation ) {
         this._rotation[2] = rotation[2];
     } );
 
+
 }
 SpatialComponent.prototype = new Component( { 
     type: 'core',
@@ -483,7 +487,12 @@ CameraComponent.prototype.addChild = function( child ) {
 };
 CameraComponent.prototype.setParent = function( parent ) {
     this.parent = parent;
-    parent.addChild( this );
+    if ( parent.constructor === SceneComponent ) {
+        parent.addChild( this );
+    }
+    else {
+        this.camera.setParent( parent.object );
+    }
 };
 CameraComponent.prototype.setSpatial = function( spatial ) {
     this.spatial = spatial;
@@ -508,7 +517,13 @@ ModelComponent.prototype = new Component( {
 ModelComponent.prototype.constructor = ModelComponent;
 
 ModelComponent.prototype.addChild = function( child ) {
-    this.object.bindChild( child.object );
+    if( child.constructor === CameraComponent ) {
+        child.camera.setParent( this.object );
+    }
+    else {
+        this.object.bindChild( child.object );
+    }
+
 };
 ModelComponent.prototype.setParent = function( parent ) {
     this.parent = parent;
