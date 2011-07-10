@@ -57,7 +57,7 @@ function Game() {
                 rotationTask.resume();
         }
     } );
-
+    
     this.run = function () {
       Paladin.run();
     };

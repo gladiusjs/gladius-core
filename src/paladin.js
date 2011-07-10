@@ -123,23 +123,36 @@ function Loader() {
  */
 function MouseWatcher() {
 
-    var mousePosition = {
-            x: undefined,
-            y: undefined
+    var _mousePosition = {
+            X: undefined,
+            Y: undefined
         },
-        that = this;    
-
-    this.getX = function() {
-        return mousePosition['x'];
-    };
-
-    this.getY = function() {
-        return mousePosition['y'];
-    };
-
+        _mouseDelta = {
+            dX: undefined,
+            dY: undefined
+        };
+    
+    this.__defineGetter__( 'X', function() {
+        return _mousePosition.X;
+    } );
+    this.__defineGetter__( 'Y', function() {
+        return _mousePosition.Y;
+    } );
+    this.__defineGetter__( 'dX', function() {
+        return _mouseDelta.dX;
+    } );
+    this.__defineGetter__( 'dY', function() {
+        return _mouseDelta.dY;
+    } );
+    
     this._mouseMove = function( event ) {
-        mousePosition['x'] = event.pageX;
-        mousePosition['y'] = event.pageY;
+        if( _mousePosition.X )
+            _mouseDelta.dX = _mousePosition.X - event.pageX;
+        if( _mousePosition.Y )
+            _mouseDelta.dY = _mousePosition.Y - event.pageY;
+        
+        _mousePosition.X = event.pageX;
+        _mousePosition.Y = event.pageY;
     };
 
     window.addEventListener( 'mousemove', this._mouseMove, true );
