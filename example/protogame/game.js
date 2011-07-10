@@ -9,6 +9,7 @@ function Game() {
     var keysDown = {};
 
     function Ship() {
+        var entity = new Paladin.Entity();
         var accel = 0.01;
 
         var camera = new Paladin.component.Camera();
