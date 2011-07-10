@@ -97,11 +97,13 @@ function Game() {
 
     } //Ship
 
+    var boxes = [];
     for (var i=0; i<100; ++i) {
+      (function () {
         var mesh = new Paladin.graphics.Mesh( {
             primitives: [ {
                 type: 'box',
-                size: 0.5,
+                size: 0.5 + Math.random(),
                 material: {
                   color: [Math.random(), Math.random(), Math.random()]
                 }
@@ -111,7 +113,7 @@ function Game() {
 
         var box = new Paladin.Entity();
         box.spatial = new Paladin.component.Spatial( [-50 + 100 * Math.random(), 
-                                                      -2 + 4 * Math.random(),
+                                                      -5 + 10 * Math.random(),
                                                       -50 + 100 * Math.random()] );
         box.model = new Paladin.component.Model( {
             mesh: mesh 
@@ -119,15 +121,22 @@ function Game() {
         box.model.setSpatial( box.spatial );
         box.model.setParent( scene );
         
-        var rotationTask = Paladin.tasker.add( {
-            callback: function( task ) {
-                box.spatial.rotation[0] += 0.1;
-                box.spatial.rotation[1] += 0.2;
-                box.spatial.rotation[2] += 0.3;
-            }
-        } );
+        boxes.push(box);
+      
+      })();
     } //for
-    
+
+    var rotationTask = Paladin.tasker.add( {
+        callback: function( task ) {
+          for ( var i=0, l=boxes.length; i<l; ++i) {
+            boxes[i].spatial.rotation[0] += 0.1;
+            boxes[i].spatial.rotation[1] += 0.2;
+            boxes[i].spatial.rotation[2] += 0.3;
+          }
+        }
+   
+    } );
+
     var ship = new Ship();
     
     this.run = function () {
