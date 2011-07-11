@@ -4,16 +4,18 @@ function Game() {
 
     Paladin.init( {debug: true} );
 
-    var scene = new Paladin.component.Scene();
+    var scene = new Paladin.Scene();
 
     var keysDown = {};
 
     function Ship() {
-        var entity = new Paladin.Entity();
         var accel = 0.01;
+        
+        var entity = new Paladin.Entity();
+        entity.setParent( scene );
 
         var camera = new Paladin.component.Camera();
-        camera.setSpatial( new Paladin.component.Spatial( [0, 0, 0] ) );
+        entity.addComponent( camera );
 
         var mesh = new Paladin.graphics.Mesh( {
             primitives: [ {
@@ -26,13 +28,9 @@ function Game() {
             finalize: true
         } );
 
-        var model = new Paladin.component.Model( {
-            mesh: mesh 
-        } );
-
-        var spatial = this.spatial = new Paladin.component.Spatial([0, 0, 0]);
-
-        model.setParent(spatial);
+        entity.addComponent( new Paladin.component.Model ( {
+            mesh: mesh
+        } ) );
 
         Paladin.tasker.add( {
           callback: function ( task ) {
@@ -71,15 +69,13 @@ function Game() {
         } );
 
 
-        //camera.setTarget( spatial.position );
         camera.camera.targeted = false;
-        camera.spatial.rotation = [0, 0, 0];
-        camera.spatial.position = [0, 0, 0];
-        camera.setParent( scene );
+        camera.object.rotation = [0, 0, 0];
+        camera.object.position = [0, 0, 0];
 
         var shipFlyingTask = Paladin.tasker.add( {
             callback: function ( task ) {
-                var rotY = camera.spatial.rotation[1];
+                var rotY = camera.object.rotation[1];
                 
                 var dirVec = [
                     Math.sin(rotY*Math.PI/180),
@@ -89,8 +85,8 @@ function Game() {
 
                 dirVec = CubicVR.vec3.normalize(dirVec);
 
-                camera.spatial.position[0] -= dirVec[0] * accel * task.dt;
-                camera.spatial.position[2] -= dirVec[2] * accel * task.dt;
+                camera.object.position[0] -= dirVec[0] * accel * task.dt;
+                camera.object.position[2] -= dirVec[2] * accel * task.dt;
 
             }
         } );
@@ -112,14 +108,13 @@ function Game() {
         } );
 
         var box = new Paladin.Entity();
-        box.spatial = new Paladin.component.Spatial( [-50 + 100 * Math.random(), 
-                                                      -5 + 10 * Math.random(),
-                                                      -50 + 100 * Math.random()] );
-        box.model = new Paladin.component.Model( {
-            mesh: mesh 
-        } );
-        box.model.setSpatial( box.spatial );
-        box.model.setParent( scene );
+        box.addComponent( new Paladin.component.Model( {
+            mesh: mesh,
+            position: [-50 + 100 * Math.random(), 
+                       -5 + 10 * Math.random(),
+                       -50 + 100 * Math.random()]
+        } ) );        
+        box.setParent( scene );
         
         boxes.push(box);
       
@@ -142,8 +137,6 @@ function Game() {
     this.run = function () {
       Paladin.run();
     };
-
-    Paladin.graphics.pushScene(scene);
 
 };
 

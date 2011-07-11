@@ -187,7 +187,7 @@
     },
 
     pushScene: function ( scene, options ) {
-      scene = scene.render;
+      scene = scene.graphics;
       options = options || {};
       mainLoop.pushSceneGroup({
         scenes: [scene],

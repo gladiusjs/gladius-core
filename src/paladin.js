@@ -354,8 +354,11 @@ function Entity() {
     
     var id = nextEntityId ++,
         componentsByType = {},
-        children = [],
+        parent = null,
+        children = [],        
         that = this;
+    
+    this.spatial = new SpatialComponent();
     
     this.getId = function() {
         return id;
@@ -384,7 +387,66 @@ function Entity() {
             parameters: options.parameters || []
         } );
     };
+    
+    this.addComponent = function( component ) {
+        var componentType = component.getType();
+        if( !componentsByType.hasOwnProperty( componentType ) )
+            componentsByType[componentType] = [];
+        componentsByType[componentType].push( component );
+        component.onAdd( this );
+    };
+    
+    this.removeComponent = function( component ) {
+        var componentType = component.getType();
+        if( componentsByType.hasOwnProperty( componentType ) ) {
+            for( var i = 0; i < componentsByType[componentType].length; ++ i ) {
+                if( component === componentsByType[componentType][i] ) {
+                    component.onRemove( this );
+                    componentsByType[componentType].remove( i );
+                    break;
+                }
+            }
+        }
+    };
+    
+    this.getComponents = function( componentType ) {
+        if( componentType && componentsByType.hasOwnProperty( componentType ) )
+            return componentsByType[componentType];
+        else {
+            var components = [];
+            for( var i = 0; i < componentsByType.length; ++ i ) {
+                components.concat( componentsByType[i] );
+            }
+            return components;
+        }
+    };
+    
+    this.hasComponent = function( componentType ) {
+        return componentType && componentsByType.hasOwnProperty( componentType );
+    };
+    
+    this.setParent = function( newParentEntity ) {
+        if( parent )
+            parent.children.remove( this );
+
+        newParentEntity.children.push( this );
+        this.spatial.setParent( newParentEntity.spatial );
+        this.parent = newParentEntity;
+    };
    
+};
+
+function Scene( options ) {
+    options = options || {};
+    this.graphics = new Paladin.graphics.Scene( {
+        fov: 60,
+        resizable: true
+    } );
+    this.spatial = new SpatialComponent();
+    this.children = [];
+    
+    this.graphics.bindSceneObject( this.spatial.sceneObjects.graphics );
+    Paladin.graphics.pushScene( this );
 };
 
 /***
@@ -407,6 +469,13 @@ Component.prototype.getSubtype = function() {
 };
 
 function SpatialComponent( position, rotation ) {
+    
+    this.sceneObjects = {
+        graphics: new Paladin.graphics.SceneObject( {
+            position: this._position,
+            rotation: this._rotation
+        } )
+    };
     this._position = position ? position : [0, 0, 0];   // X, Y, Z
     this._rotation = rotation ? rotation : [0, 0, 0];  // Roll, pitch, yaw
     this.object = new Paladin.graphics.SceneObject( {
@@ -431,50 +500,22 @@ function SpatialComponent( position, rotation ) {
         this._rotation[2] = rotation[2];
     } );
 
-
 }
 SpatialComponent.prototype = new Component( { 
     type: 'core',
     subtype: [ 'spatial' ]
 } );
 SpatialComponent.prototype.constructor = SpatialComponent;
-SpatialComponent.prototype.addChild = function ( child ) {
-    this.object.bindChild( child.object );
-};
-SpatialComponent.prototype.setParent = function( parent ) {
-    this.parent = parent;
-    parent.addChild( this );
-};
-
-function SceneComponent( options ) {
-    options = options || {};
-    this.render = new Paladin.graphics.Scene( {
-        fov: 60,
-        resizable: true
-    } );
-    this.spatial = new Paladin.component.Spatial();
-    this.render.bindSceneObject( this.spatial.object );
-}
-SceneComponent.prototype = new Component( {
-    type: 'core',
-    subtype: [ 'scene' ]
-} );
-SceneComponent.prototype.constructor = SceneComponent;
-SceneComponent.prototype.addChild = function( child ) {
-    if( child.constructor == CameraComponent ) {
-        this.render.bindCamera( child.camera );
-    }
-    else {
-        this.spatial.addChild( child );
-    }
-};
-SceneComponent.prototype.setParent = function( parent ) {
-    // Nothing to do.
+SpatialComponent.prototype.setParent = function( newParentSpatial ) {
+    newParentSpatial.sceneObjects.graphics.bindChild( this.sceneObjects.graphics );
+    this.parent = newParentSpatial;
 };
 
 function CameraComponent( options ) {
-    this.camera = (options && options.camera) ? options.camera : new Paladin.graphics.Camera();
-    this.spatial = (options && options.spatial) ? options.spatial : null;
+    this.object = new Paladin.graphics.SceneObject();
+    this.camera = (options && options.camera) ? options.camera : new Paladin.graphics.Camera();  
+    this.camera.setParent( this.object );
+    this.entity = null;
 }
 CameraComponent.prototype = new Component( {
     type: 'graphics',
@@ -482,32 +523,21 @@ CameraComponent.prototype = new Component( {
     requires: [ 'spatial' ]
 } );
 CameraComponent.prototype.constructor = CameraComponent;
-CameraComponent.prototype.addChild = function( child ) {
-    this.spatial.addChild( child );
+CameraComponent.prototype.onAdd = function( entity ) {
+    entity.spatial.sceneObjects.graphics.bindChild( this.object );
+    this.entity = entity;
 };
-CameraComponent.prototype.setParent = function( parent ) {
-    this.parent = parent;
-    if ( parent.constructor === SceneComponent ) {
-        parent.addChild( this );
-    }
-    else {
-        this.camera.setParent( parent.object );
-    }
-};
-CameraComponent.prototype.setSpatial = function( spatial ) {
-    this.spatial = spatial;
-    this.camera.position = this.spatial.position;
-    this.camera.rotation = this.spatial.rotation;
-};
-CameraComponent.prototype.setTarget = function( target ) {
-    this.camera.target = target;
+CameraComponent.prototype.onRemove = function( entity ) {
+    /* Note(alan.kligman@gmail.com):
+     * Not implemented.
+     */
 };
 
 function ModelComponent( options ) {
-    this.object = new Paladin.graphics.SceneObject( { mesh: options.mesh } );
-    this.spatial = (options && options.spatial) ? options.spatial : null;
+    this.object = new Paladin.graphics.SceneObject( { mesh: options.mesh } );    
     this.mesh = (options && options.mesh) ? options.mesh : null;
-    this.material = (options && options.material) ? options.material : null;
+    this.material = (options && options.material) ? options.material : null;    
+    this.entity = null;
 };
 ModelComponent.prototype = new Component( {
     type: 'graphics',
@@ -515,27 +545,14 @@ ModelComponent.prototype = new Component( {
     requires: [ 'spatial' ]
 } );
 ModelComponent.prototype.constructor = ModelComponent;
-
-ModelComponent.prototype.addChild = function( child ) {
-    if( child.constructor === CameraComponent ) {
-        child.camera.setParent( this.object );
-    }
-    else {
-        this.object.bindChild( child.object );
-    }
-
+ModelComponent.prototype.onAdd = function( entity ) {
+    entity.spatial.sceneObjects.graphics.bindChild( this.object );
+    this.entity = entity;
 };
-ModelComponent.prototype.setParent = function( parent ) {
-    this.parent = parent;
-    parent.addChild( this );
-};
-ModelComponent.prototype.setSpatial = function( spatial ) {
-    /* FIXME(alan.kligman@gmail.com):
-     * This needs to be properly managed.
+ModelComponent.prototype.onRemove = function( entity ) {
+    /* Note(alan.kligman@gmail.com):
+     * Not implemented.
      */
-    this.spatial = spatial;    
-    this.object.position = spatial.position;
-    this.object.rotation = spatial.rotation;
 };
 ModelComponent.prototype.setMesh = function( mesh ) {
     this.mesh = mesh;
@@ -557,10 +574,10 @@ Paladin.sound = undefined;
 
 // Attach prototypes to Paladin.
 Paladin.Entity = Entity;
+Paladin.Scene = Scene;
 Paladin.component.Spatial = SpatialComponent;
 Paladin.component.Camera = CameraComponent;
 Paladin.component.Model = ModelComponent;
-Paladin.component.Scene = SceneComponent;
 Paladin.component.Light = null;
 
 })( window, document );
