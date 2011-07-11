@@ -1,9 +1,9 @@
-/*global text,expect,ok,module,notEqual,Paladin,test,window,start,stop,console*/
+/*global text,expect,ok,module,notEqual,Paladin,test,window,start,stop,console,asyncTest*/
 (function (window, document, undefined, Paladin) {
 
   var game;
   var entity1;
-  module("Paladin event subsystem", {
+  module("events", {
     setup: function () {
 
       // set up a game with some event listeners

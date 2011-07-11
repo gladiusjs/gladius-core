@@ -1,6 +1,6 @@
 /*global text,expect,ok,module,notEqual,Paladin,test,window*/
 (function (window, document, undefined, Paladin) {
-  module("Paladin dummy subsystem", {
+  module("dummy subsystem", {
     setup: function () {
     },
     teardown: function () {
