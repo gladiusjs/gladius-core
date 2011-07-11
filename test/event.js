@@ -2,18 +2,19 @@
 (function (window, document, undefined, Paladin) {
 
   var game;
-
+  var entity1;
   module("Paladin event subsystem", {
     setup: function () {
 
       // set up a game with some event listeners
       function Game() {
-  
-        var entity1 = new Paladin.Entity();
+
+        entity1 = new Paladin.Entity();
         entity1.count = 0;
         entity1.listen( {
           event: 'escape-up',
-          callback: function( parameters ) {
+          callback: function escapeUp( parameters ) {
+            console.log("entering escapeUp");
             ok(true, "escape-up event triggered");
             start();
           }
@@ -21,7 +22,8 @@
 
         entity1.listen( {
           event: 'mouse1-up',
-          callback: function( parameters ) {
+          callback: function mouse1Up( parameters ) {
+            console.log("entering mouse1Up");
             ok(true, "mouse1-up event triggered");
             start();
           }
@@ -37,6 +39,9 @@
     },
 
     teardown: function () {
+      entity1.ignore( {event: 'mouse1-up'});
+      entity1.ignore( {event: 'escape-up'});
+      game = null; // force as much to be GCed as we can
     }
   });
 
@@ -58,7 +63,7 @@
 
     var evt = newKbdEvent(charCode.charCodeAt(0));
     var canceled = !window.dispatchEvent(evt);
-    if(canceled) {
+    if (canceled) {
       // A handler called preventDefault
       console.log("simulated key event " + charCode + " canceled");
     }
@@ -71,25 +76,18 @@
     var canceled = !document.documentElement.dispatchEvent(evt);
     if (canceled) {
       // A handler called preventDefault
-      console.log("mouseup event cancelled");
+      console.log("simulated mouseup event cancelled");
     }
   }
 
-
-  test("escape keypress fires an up event", function () {
+  asyncTest("escape keypress fires an up event", function () {
     expect(1);
-    stop();
-    game.run();
     simulateKeyEvent("\x1b");
-    Paladin.tasker.terminate();
   });
 
-  test("mouse click fires an up event", function () { 
+  asyncTest("mouse click fires an up event", function () { 
     expect(1);
-    stop();
-    game.run();
     simulateClick();
-    Paladin.tasker.terminate();
   });
 
 })(window, document, undefined, Paladin);
