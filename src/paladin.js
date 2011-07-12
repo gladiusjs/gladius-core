@@ -51,6 +51,7 @@ function Tasker() {
             task.dt = task.time - last;
             if( task.run ) {
                 if( task.DONE === task._callback( task ) ) {
+                    task.run = false;
                     that.remove( task );
                 }
             }
@@ -94,6 +95,13 @@ function Tasker() {
         if( task._id in tasksById ) {
             delete tasksById[task._id];
         }
+    };
+    
+    this.hasTask = function( task ) {
+        if( task._id in tasksById )
+            return true;
+        else
+            return false;
     };
     
 };
