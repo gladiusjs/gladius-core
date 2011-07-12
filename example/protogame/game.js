@@ -190,7 +190,7 @@ function Game() {
     camera.getEntity().setParent( ship.getEntity() );
     
     this.run = function () {
-      Paladin.run();camera.object
+      Paladin.run();
     };
 
 };
