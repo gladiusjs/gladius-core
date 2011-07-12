@@ -52,6 +52,7 @@ function Game() {
         var accel = 0.01;
         
         var entity = new Paladin.Entity();
+        this.entity = entity;
         entity.setParent( scene );
 
         var mesh = new Paladin.graphics.Mesh( {
@@ -118,28 +119,19 @@ function Game() {
 
                 dirVec = CubicVR.vec3.normalize(dirVec);
 
-                entity.spatial.position[0] -= dirVec[0] * accel * task.dt;
-                entity.spatial.position[2] -= dirVec[2] * accel * task.dt;
+                entity.spatial.position[0] += dirVec[0] * accel * task.dt;
+                entity.spatial.position[2] += dirVec[2] * accel * task.dt;
 
             }
         } );
-        
-        this.getEntity = function() {
-            return entity;
-        };
-
     } //Ship
     
     function Camera() {
         var entity = new Paladin.Entity();
+        this.entity = entity;
         var cameraComponent = new Paladin.component.Camera();
-        scene.graphics.bindCamera( cameraComponent.camera );    // FIXME
         entity.addComponent( cameraComponent );
         cameraComponent.camera.setTargeted( false );        
-        
-        this.getEntity = function() {
-            return entity;
-        };
     }    
 
     var boxes = [];
@@ -186,8 +178,7 @@ function Game() {
 
     var ship = new Ship();
     var camera = new Camera();
-    camera.getEntity().spatial.position = [0, 0, 0];
-    camera.getEntity().setParent( ship.getEntity() );
+    camera.entity.setParent( ship.entity );
     
     this.run = function () {
       Paladin.run();

@@ -473,17 +473,13 @@ function SpatialComponent( position, rotation ) {
     
     this.sceneObjects = {
         graphics: new Paladin.graphics.SceneObject( {
-            position: this._position,
-            rotation: this._rotation
+            position: this.position,
+            rotation: this.rotation
         } )
     };
     this._position = position ? position : [0, 0, 0];   // X, Y, Z
     this._rotation = rotation ? rotation : [0, 0, 0];  // Roll, pitch, yaw
-    this.object = new Paladin.graphics.SceneObject( {
-        position: this._position,
-        rotation: this._rotation
-    } );
-    
+     
     this.__defineGetter__( 'position', function() {
         return this._position;
     } );
