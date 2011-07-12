@@ -65,7 +65,13 @@
    */
   function SceneObject ( options ) {
     options = options || {};
-    CubicVR.SceneObject.call(this, options.mesh, options.name);    
+    CubicVR.SceneObject.call(this, options.mesh, options.name);
+    if ( options.position ) {
+      this.position = options.position;
+    }
+    if ( options.rotation ) {
+      this.rotation = options.rotation;
+    }
   } //ScenObject
   SceneObject.prototype = new CubicVR.SceneObject();
   SceneObject.prototype.constructor = SceneObject;
@@ -74,6 +80,8 @@
    * Camera
    */
   function Camera ( options ) {
+    options = options || {};
+
     var cameraOptions = {
       width: options ? options.width : mainCanvas.width,
       height: options ? options.height : mainCanvas.height
@@ -86,6 +94,8 @@
     if (!options || !options.target) {
       this.target = [this.position[0], this.position[1], this.position[2]-1];
     } //if
+
+    this.setTargeted( ( options.targeted === undefined ? true : options.targeted ));
 
     this.getType = function () {
       return "Camera";
@@ -124,7 +134,7 @@
     var that = this;
 
     this.setCamera = function ( camera ) {
-      scene.camera = camera;
+      that.camera = camera;
     };
 
     this.pause = function () {

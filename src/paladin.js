@@ -40,7 +40,6 @@ function Tasker() {
 
     var nextId = 0,
         tasksById = {},
-        tasksByName = {},
         terminate = false,
         that = this;
     
@@ -71,7 +70,6 @@ function Tasker() {
         var task = {
             _callback: options.callback || function () {},            
             _id: id,
-            name: options.name || undefined,
             time: Date.now(),
             run: true,
             dt: 0,
@@ -89,8 +87,6 @@ function Tasker() {
         };
         
         tasksById[id] = task;
-        if( task.name )
-            tasksByName[task.name] = task;
         return task;
     };
 
@@ -98,14 +94,8 @@ function Tasker() {
         if( task._id in tasksById ) {
             delete tasksById[task._id];
         }
-        if ( task.name && task.name in tasksByName ) {
-            delete tasksByName[task.name];
-        }
     };
     
-    this.getTaskByName = function( name ) {
-      return tasksByName[name];
-    }
 };
 
 /***
@@ -435,7 +425,7 @@ function Entity() {
 
         newParentEntity.children.push( this );
         this.spatial.setParent( newParentEntity.spatial );
-        this.parent = newParentEntity;
+        parent = newParentEntity;
     };
    
 };
@@ -451,6 +441,10 @@ function Scene( options ) {
     
     this.graphics.bindSceneObject( this.spatial.sceneObjects.graphics );
     Paladin.graphics.pushScene( this );
+
+    this.setActiveCamera = function ( camera ) {
+        this.graphics.setCamera( camera.camera );
+    };
 };
 
 /***
@@ -474,12 +468,6 @@ Component.prototype.getSubtype = function() {
 
 function SpatialComponent( position, rotation ) {
     
-    this.sceneObjects = {
-        graphics: new Paladin.graphics.SceneObject( {
-            position: this.position,
-            rotation: this.rotation
-        } )
-    };
     this._position = position ? position : [0, 0, 0];   // X, Y, Z
     this._rotation = rotation ? rotation : [0, 0, 0];  // Roll, pitch, yaw
      
@@ -500,6 +488,13 @@ function SpatialComponent( position, rotation ) {
         this._rotation[2] = rotation[2];
     } );
 
+    this.sceneObjects = {
+        graphics: new Paladin.graphics.SceneObject( {
+            position: this.position,
+            rotation: this.rotation
+        } )
+    };
+
 }
 SpatialComponent.prototype = new Component( { 
     type: 'core',
@@ -512,8 +507,11 @@ SpatialComponent.prototype.setParent = function( newParentSpatial ) {
 };
 
 function CameraComponent( options ) {
+    options = options || {};
     this.object = new Paladin.graphics.SceneObject();
-    this.camera = (options && options.camera) ? options.camera : new Paladin.graphics.Camera();  
+    this.camera = (options && options.camera) ? options.camera : new Paladin.graphics.Camera({
+      targeted: options.targeted
+    });
     this.camera.setParent( this.object );
     this.entity = null;
 }
@@ -525,8 +523,8 @@ CameraComponent.prototype = new Component( {
 CameraComponent.prototype.constructor = CameraComponent;
 CameraComponent.prototype.onAdd = function( entity ) {
     entity.spatial.sceneObjects.graphics.bindChild( this.object );
-    this.object.position = entity.spatial.position;
-    this.object.rotation = entity.spatial.rotation;
+    //this.object.position = entity.spatial.position;
+    //this.object.rotation = entity.spatial.rotation;
     this.entity = entity;
 };
 CameraComponent.prototype.onRemove = function( entity ) {
@@ -549,8 +547,8 @@ ModelComponent.prototype = new Component( {
 ModelComponent.prototype.constructor = ModelComponent;
 ModelComponent.prototype.onAdd = function( entity ) {
     entity.spatial.sceneObjects.graphics.bindChild( this.object );
-    this.object.position = entity.spatial.position;
-    this.object.rotation = entity.spatial.rotation;
+    //this.object.position = entity.spatial.position;
+    //this.object.rotation = entity.spatial.rotation;
     this.entity = entity;
 };
 ModelComponent.prototype.onRemove = function( entity ) {

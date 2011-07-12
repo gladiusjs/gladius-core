@@ -55,6 +55,26 @@ function Game() {
         this.entity = entity;
         entity.setParent( scene );
 
+        function Camera() {
+            var entity = new Paladin.Entity();
+            this.entity = entity;
+            var cameraComponent = new Paladin.component.Camera({
+              targeted: false
+            });
+            entity.addComponent( cameraComponent );
+            scene.setActiveCamera( cameraComponent );
+            cameraComponent.camera.rotation[1] = 180;
+            cameraComponent.camera.position[1] = .5;
+            cameraComponent.camera.position[2] = -.5;
+
+            this.setRoll = function (angle) {
+              cameraComponent.camera.rotation[2] = angle;
+            };
+        }
+
+        var camera = new Camera();
+        camera.entity.setParent( entity );
+
         var mesh = new Paladin.graphics.Mesh( {
             primitives: [ {
                 type: 'box',
@@ -70,14 +90,21 @@ function Game() {
             mesh: mesh
         } ) );
 
+        var cameraRoll = 0;
         Paladin.tasker.add( {
           callback: function ( task ) {
             if ( keysDown['a'] ) {
               entity.spatial.rotation[1] += 1;
+              cameraRoll = Math.min(10, cameraRoll+1);
             }
             else if ( keysDown['d'] ) {
               entity.spatial.rotation[1] -= 1;
+              cameraRoll = Math.max(-10, cameraRoll-1);
             }
+            else {
+              cameraRoll -= cameraRoll*.1;
+            }
+            camera.setRoll(cameraRoll);
           }
         } );
 
@@ -124,15 +151,10 @@ function Game() {
 
             }
         } );
+
+
     } //Ship
     
-    function Camera() {
-        var entity = new Paladin.Entity();
-        this.entity = entity;
-        var cameraComponent = new Paladin.component.Camera();
-        entity.addComponent( cameraComponent );
-        cameraComponent.camera.setTargeted( false );        
-    }    
 
     var boxes = [];
     for (var i=0; i<100; ++i) {
@@ -165,24 +187,23 @@ function Game() {
       })();
     } //for
 
+    var ship = new Ship();
+
     var rotationTask = Paladin.tasker.add( {
         callback: function( task ) {
           for ( var i=0, l=boxes.length; i<l; ++i) {
-            boxes[i].spatial.rotation[0] += 0.1;
-            boxes[i].spatial.rotation[1] += 0.2;
-            boxes[i].spatial.rotation[2] += 0.3;
+            boxes[i].spatial.rotation[0] += .1;
+            boxes[i].spatial.rotation[1] += .2;
+            boxes[i].spatial.rotation[2] += .3;
           }
         }
-   
     } );
-
-    var ship = new Ship();
-    var camera = new Camera();
-    camera.entity.setParent( ship.entity );
     
     this.run = function () {
       Paladin.run();
     };
+
+    window.foo = scene.graphics;
 
 };
 
