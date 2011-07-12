@@ -102,7 +102,10 @@ function Tasker() {
             delete tasksByName[task.name];
         }
     };
-
+    
+    this.getTaskByName = function( name ) {
+      return tasksByName[name];
+    }
 };
 
 /***
