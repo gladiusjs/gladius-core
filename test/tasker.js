@@ -38,7 +38,7 @@
     } );
 
     asyncTest("task counts to 10 and terminates", function () {
-        expect(0);
+        expect(11);
         Paladin.run();
     } ); 
 
