@@ -1,21 +1,58 @@
 (function ( window, document, CubicVR, Paladin ) {
 
+/*
+function Game() {
+    
+    Paladin.init();
+    var scene = new Paladin.Scene();
+    Paladin.graphics.pushScene( scene );
+    
+    var camera = new Paladin.Entity();
+    camera.spatial.position = [0, 0, 0];
+    var cameraComponent = new Paladin.component.Camera();
+    camera.addComponent( cameraComponent );
+    camera.setParent( scene );
+    scene.graphics.bindCamera( cameraComponent.camera );    // FIXME
+    
+    var box = new Paladin.Entity();
+    box.spatial.position = [-1, 0, 0];
+    var mesh = new Paladin.graphics.Mesh( {
+        primitives: [ {
+            type: 'box',
+            size: 0.5,
+            material: {
+                color: [1, 0, 0]
+            }
+        } ],
+        finalize: true
+    } );
+    box.addComponent( new Paladin.component.Model ( {
+        mesh: mesh
+    } ) );
+    box.setParent( scene );
+    cameraComponent.camera.target = box.spatial.position;
+    
+    this.run = function () {
+        Paladin.run();
+    };
+};    
+*/
+    
+
 function Game() {
 
     Paladin.init( {debug: true} );
 
     var scene = new Paladin.Scene();
+    Paladin.graphics.pushScene( scene );
 
     var keysDown = {};
-
+    
     function Ship() {
         var accel = 0.01;
         
         var entity = new Paladin.Entity();
         entity.setParent( scene );
-
-        var camera = new Paladin.component.Camera();
-        entity.addComponent( camera );
 
         var mesh = new Paladin.graphics.Mesh( {
             primitives: [ {
@@ -35,10 +72,10 @@ function Game() {
         Paladin.tasker.add( {
           callback: function ( task ) {
             if ( keysDown['a'] ) {
-              camera.spatial.rotation[1] += 1;
+              entity.spatial.rotation[1] += 1;
             }
             else if ( keysDown['d'] ) {
-              camera.spatial.rotation[1] -= 1;
+              entity.spatial.rotation[1] -= 1;
             }
           }
         } );
@@ -69,13 +106,9 @@ function Game() {
         } );
 
 
-        camera.camera.targeted = false;
-        camera.object.rotation = [0, 0, 0];
-        camera.object.position = [0, 0, 0];
-
         var shipFlyingTask = Paladin.tasker.add( {
             callback: function ( task ) {
-                var rotY = camera.object.rotation[1];
+                var rotY = entity.spatial.rotation[1];
                 
                 var dirVec = [
                     Math.sin(rotY*Math.PI/180),
@@ -85,13 +118,29 @@ function Game() {
 
                 dirVec = CubicVR.vec3.normalize(dirVec);
 
-                camera.object.position[0] -= dirVec[0] * accel * task.dt;
-                camera.object.position[2] -= dirVec[2] * accel * task.dt;
+                entity.spatial.position[0] -= dirVec[0] * accel * task.dt;
+                entity.spatial.position[2] -= dirVec[2] * accel * task.dt;
 
             }
         } );
+        
+        this.getEntity = function() {
+            return entity;
+        };
 
     } //Ship
+    
+    function Camera() {
+        var entity = new Paladin.Entity();
+        var cameraComponent = new Paladin.component.Camera();
+        scene.graphics.bindCamera( cameraComponent.camera );    // FIXME
+        entity.addComponent( cameraComponent );
+        cameraComponent.camera.setTargeted( false );        
+        
+        this.getEntity = function() {
+            return entity;
+        };
+    }    
 
     var boxes = [];
     for (var i=0; i<100; ++i) {
@@ -109,11 +158,14 @@ function Game() {
 
         var box = new Paladin.Entity();
         box.addComponent( new Paladin.component.Model( {
-            mesh: mesh,
-            position: [-50 + 100 * Math.random(), 
-                       -5 + 10 * Math.random(),
-                       -50 + 100 * Math.random()]
-        } ) );        
+            mesh: mesh
+        } ) );
+        box.spatial.position = [-50 + 100 * Math.random(), 
+                                -5 + 10 * Math.random(),
+                                -50 + 100 * Math.random()];
+        box.spatial.rotation = [Math.random() * 360,
+                                Math.random() * 360,
+                                Math.random() * 360];
         box.setParent( scene );
         
         boxes.push(box);
@@ -133,9 +185,12 @@ function Game() {
     } );
 
     var ship = new Ship();
+    var camera = new Camera();
+    camera.getEntity().spatial.position = [0, 0, 0];
+    camera.getEntity().setParent( ship.getEntity() );
     
     this.run = function () {
-      Paladin.run();
+      Paladin.run();camera.object
     };
 
 };
