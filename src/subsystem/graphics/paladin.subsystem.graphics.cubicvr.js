@@ -13,7 +13,7 @@
     } //for
   } //extend
 
-  /*************************************************************
+  /***
    * Mesh
    */
   function Mesh ( options ) {
@@ -57,20 +57,21 @@
     } //if
 
   } //Mesh
-  Mesh.prototype = CubicVR.Mesh.prototype;
+  Mesh.prototype = new CubicVR.Mesh();
   Mesh.prototype.constructor = Mesh;
 
-  /*************************************************************
+  /***
    * SceneObject
    */
   function SceneObject ( options ) {
-    CubicVR.SceneObject.call(this, options.mesh, options.name);
+    options = options || {};
+    CubicVR.SceneObject.call(this, options.mesh, options.name);    
   } //ScenObject
-  SceneObject.prototype = CubicVR.SceneObject.prototype;
+  SceneObject.prototype = new CubicVR.SceneObject();
   SceneObject.prototype.constructor = SceneObject;
 
-  /*************************************************************
-   * Scene
+  /***
+   * Camera
    */
   function Camera ( options ) {
     var cameraOptions = {
@@ -90,10 +91,10 @@
       return "Camera";
     };
   } //Camera
-  Camera.prototype = CubicVR.Camera.prototype;
+  Camera.prototype = new CubicVR.Camera();
   Camera.prototype.constructor = Camera;
 
-  /*************************************************************
+  /***
    * Scene
    */
   function Scene ( options ) {
@@ -141,10 +142,10 @@
     options.resizable !== false && CubicVR.addResizeable(this);
 
   } //Scene
-  Scene.prototype = CubicVR.Scene.prototype;
+  Scene.prototype = new CubicVR.Scene();
   Scene.prototype.constructor = Scene;
 
-  /*************************************************************
+  /***
    * subsystem api object
    */
   var system = {
@@ -186,6 +187,8 @@
     },
 
     pushScene: function ( scene, options ) {
+      scene = scene.graphics;
+      options = options || {};
       mainLoop.pushSceneGroup({
         scenes: [scene],
         start: options.start,
@@ -201,6 +204,7 @@
     },
 
     pushSceneGroup: function ( scenes, options ) {
+      options = options || {};
       mainLoop.pushSceneGroup({
         scenes: scenes,
         start: options.start,

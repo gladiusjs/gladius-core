@@ -15,8 +15,12 @@ Array.prototype.remove = function(from, to) {
  */
 Paladin = {};
 Paladin.component = {};
-Paladin.init = function() {
+Paladin.init = function( options ) {
     Paladin.subsystem.init();
+    if( options && options.debug )
+        Paladin.debug = console.log;
+    else
+        Paladin.debug = function () {};
 };
 Paladin.run = function() {
     Paladin.tasker.run();
@@ -43,9 +47,13 @@ function Tasker() {
     this.run = function() {
         for( var id in tasksById ) {
             var task = tasksById[id];
+            var last = task.time;
             task.time = Date.now();
-            if( task.DONE === task._callback( task ) ) {
-                that.remove( task );
+            task.dt = task.time - last;
+            if( task.run ) {
+                if( task.DONE === task._callback( task ) ) {
+                    that.remove( task );
+                }
             }
         }
         
@@ -65,9 +73,19 @@ function Tasker() {
             _id: id,
             name: options.name || undefined,
             time: Date.now(),
-            CONT: 0,
-            DONE: 1,
-            AGAIN: 2
+            run: true,
+            dt: 0,
+            
+            DONE: 0,
+            CONTINUE: 1,
+            AGAIN: 2,
+            
+            suspend: function() {
+                this.run = false;
+            },
+            resume: function() {
+                this.run = true;
+            }
         };
         
         tasksById[id] = task;
@@ -111,23 +129,36 @@ function Loader() {
  */
 function MouseWatcher() {
 
-    var mousePosition = {
-            x: undefined,
-            y: undefined
+    var _mousePosition = {
+            X: undefined,
+            Y: undefined
         },
-        that = this;    
-
-    this.getX = function() {
-        return mousePosition['x'];
-    };
-
-    this.getY = function() {
-        return mousePosition['y'];
-    };
-
+        _mouseDelta = {
+            dX: undefined,
+            dY: undefined
+        };
+    
+    this.__defineGetter__( 'X', function() {
+        return _mousePosition.X;
+    } );
+    this.__defineGetter__( 'Y', function() {
+        return _mousePosition.Y;
+    } );
+    this.__defineGetter__( 'dX', function() {
+        return _mouseDelta.dX;
+    } );
+    this.__defineGetter__( 'dY', function() {
+        return _mouseDelta.dY;
+    } );
+    
     this._mouseMove = function( event ) {
-        mousePosition['x'] = event.pageX;
-        mousePosition['y'] = event.pageY;
+        if( _mousePosition.X )
+            _mouseDelta.dX = _mousePosition.X - event.pageX;
+        if( _mousePosition.Y )
+            _mouseDelta.dY = _mousePosition.Y - event.pageY;
+        
+        _mousePosition.X = event.pageX;
+        _mousePosition.Y = event.pageY;
     };
 
     window.addEventListener( 'mousemove', this._mouseMove, true );
@@ -316,22 +347,6 @@ function Messenger() {
 };
 
 /***
- * Scene
- */
-function Scene() {
-  
-    var that = this;
-        scene = new Paladin.graphics.Scene( {
-            fov: 60
-        } );
-
-    this.addChild = function( child ) {
-      
-    };
-        
-};
-
-/***
  * Entity
  * 
  * An entity is a basic game object. It is a container object for components. Each
@@ -342,7 +357,12 @@ function Entity() {
     
     var id = nextEntityId ++,
         componentsByType = {},
+        parent = null,
         that = this;
+    
+    this.children = [];
+    
+    this.spatial = new SpatialComponent();
     
     this.getId = function() {
         return id;
@@ -372,71 +392,65 @@ function Entity() {
         } );
     };
     
-    this.addComponent = function( component, options ) {
+    this.addComponent = function( component ) {
         var componentType = component.getType();
-        /* Note(alan.kligman@gmail.com):
-         * We don't allow more than one component of the same type. This
-         * might change in the future, so this step could be removed.
-         */
-        var previousComponents = removeComponent( componentType, {} );
-        componentsByType[componentType] = component;
-
-        
+        if( !componentsByType.hasOwnProperty( componentType ) )
+            componentsByType[componentType] = [];
+        componentsByType[componentType].push( component );
         component.onAdd( this );
-        return previousComponents;
     };
     
     this.removeComponent = function( component ) {
         var componentType = component.getType();
-        for( var i = 0; i < componentsByType[componentType].length; ++ i ) {
-            if( componentsByType[componentType][i] == component ) {
-                componentsByType[componentType][i].onRemove( this );
-                componentsByType[componentType].remove( i );
-                break;
+        if( componentsByType.hasOwnProperty( componentType ) ) {
+            for( var i = 0; i < componentsByType[componentType].length; ++ i ) {
+                if( component === componentsByType[componentType][i] ) {
+                    component.onRemove( this );
+                    componentsByType[componentType].remove( i );
+                    break;
+                }
             }
-        }        
+        }
     };
     
     this.getComponents = function( componentType ) {
         if( componentType && componentsByType.hasOwnProperty( componentType ) )
-            return componentsByType[componentType];        
-        
-        return [];
+            return componentsByType[componentType];
+        else {
+            var components = [];
+            for( var i = 0; i < componentsByType.length; ++ i ) {
+                components.concat( componentsByType[i] );
+            }
+            return components;
+        }
     };
     
     this.hasComponent = function( componentType ) {
         return componentType && componentsByType.hasOwnProperty( componentType );
     };
     
-    this.addChild = function( child ) {
-        if( child.hasComponent( 'graphics' ) ) {
-            /* Note:
-             * If there is also no spatial component, we assume 0 for both position and rotation.
-             */
-            if( !hasComponent( 'graphics' ) )
-                addComponent( new Paladin.component.GraphicsNode() );
-            
-            graphicsComponent = getComponents( 'graphics', null, 1 );            
-            graphicsComponent.addChild( child.getComponents( 'graphics', null, 1 ) );
-        }
+    this.setParent = function( newParentEntity ) {
+        if( parent )
+            parent.children.remove( this );
+
+        newParentEntity.children.push( this );
+        this.spatial.setParent( newParentEntity.spatial );
+        this.parent = newParentEntity;
     };
+   
+};
+
+function Scene( options ) {
+    options = options || {};
+    this.graphics = new Paladin.graphics.Scene( {
+        fov: 60,
+        resizable: true
+    } );
+    this.spatial = new SpatialComponent();
+    this.children = [];
     
-    this.setParent = function( parent ) {
-      parent.addChild( this );
-    };
-};
-
-// Placeholder prototypes for a few things we'll need.
-function Point3() {
-    this.x = undefined;
-    this.y = undefined;
-    this.z = undefined;
-};
-
-function Vector3() {
-    this.x = undefined;
-    this.y = undefined;
-    this.z = undefined;
+    this.graphics.bindSceneObject( this.spatial.sceneObjects.graphics );
+    Paladin.graphics.pushScene( this );
 };
 
 /***
@@ -448,6 +462,8 @@ function Vector3() {
 function Component( options ) {
     this.type = options.type || undefined;
     this.subtype = options.subtype || [];
+    this.requires = options.requires || [];
+    this.parent = null;
 };
 Component.prototype.getType = function() {
     return this.type;
@@ -455,74 +471,99 @@ Component.prototype.getType = function() {
 Component.prototype.getSubtype = function() {
     return this.subtype;
 };
-Component.prototype.onAdd = function( entity ) {
-    this.entity = entity;
-};
-Component.prototype.onRemove = function( entity ) {
-    this.entity = null;
-};
-Component.prototype.onReset = function( entity) {
-};
 
-function SpatialComponent() {
-    this.position = new Point3();   // X, Y, Z
-    this.rotation = new Vector3();  // Roll, pitch, yaw
+function SpatialComponent( position, rotation ) {
+    
+    this.sceneObjects = {
+        graphics: new Paladin.graphics.SceneObject( {
+            position: this.position,
+            rotation: this.rotation
+        } )
+    };
+    this._position = position ? position : [0, 0, 0];   // X, Y, Z
+    this._rotation = rotation ? rotation : [0, 0, 0];  // Roll, pitch, yaw
+     
+    this.__defineGetter__( 'position', function() {
+        return this._position;
+    } );
+    this.__defineSetter__( 'position', function( position ) {
+        this._position[0] = position[0];
+        this._position[1] = position[1];
+        this._position[2] = position[2];
+    } );
+    this.__defineGetter__( 'rotation', function() {
+        return this._rotation;
+    } );
+    this.__defineSetter__( 'rotation', function( rotation ) {
+        this._rotation[0] = rotation[0];
+        this._rotation[1] = rotation[1];
+        this._rotation[2] = rotation[2];
+    } );
+
 }
 SpatialComponent.prototype = new Component( { 
-    type: 'spatial' 
+    type: 'core',
+    subtype: [ 'spatial' ]
 } );
 SpatialComponent.prototype.constructor = SpatialComponent;
-SpatialComponent.parent = Component;
+SpatialComponent.prototype.setParent = function( newParentSpatial ) {
+    newParentSpatial.sceneObjects.graphics.bindChild( this.sceneObjects.graphics );
+    this.parent = newParentSpatial;
+};
 
 function CameraComponent( options ) {
-    this.camera = (options && options.camera) ? options.camera : new Paladin.graphics.Camera();
+    this.object = new Paladin.graphics.SceneObject();
+    this.camera = (options && options.camera) ? options.camera : new Paladin.graphics.Camera();  
+    this.camera.setParent( this.object );
+    this.entity = null;
 }
 CameraComponent.prototype = new Component( {
     type: 'graphics',
-    subtype: [ 'camera' ]
+    subtype: [ 'camera' ],
+    requires: [ 'spatial' ]
 } );
 CameraComponent.prototype.constructor = CameraComponent;
-CameraComponent.parent = Component;
-CameraComponent.onAdd = function( entity ) {
-    this.parent.onAdd( entity );
+CameraComponent.prototype.onAdd = function( entity ) {
+    entity.spatial.sceneObjects.graphics.bindChild( this.object );
+    this.object.position = entity.spatial.position;
+    this.object.rotation = entity.spatial.rotation;
+    this.entity = entity;
 };
-CameraComponent.onRemove = function( entity ) {
-    this.parent.onRemove( entity );
-};
-CameraComponent.onReset = function( entity ) {
-    this.parent.onReset( entity );
-};
-CameraComponent.prototype.addChild = function( child ) {
-    this.camera.addChild( child );
-};
-CameraComponent.prototype.setParent = function( parent ) {
-    parent.addChild( this );
+CameraComponent.prototype.onRemove = function( entity ) {
+    /* Note(alan.kligman@gmail.com):
+     * Not implemented.
+     */
 };
 
 function ModelComponent( options ) {
-    this.mesh = options.mesh || undefined;
-    this.object = new Paladin.graphics.SceneObject( { mesh: options.mesh, name: options.name } );
+    this.object = new Paladin.graphics.SceneObject( { mesh: options.mesh } );    
+    this.mesh = (options && options.mesh) ? options.mesh : null;
+    this.material = (options && options.material) ? options.material : null;    
+    this.entity = null;
 };
 ModelComponent.prototype = new Component( {
     type: 'graphics',
-    subtype: [ 'model' ]
+    subtype: [ 'model' ],
+    requires: [ 'spatial' ]
 } );
 ModelComponent.prototype.constructor = ModelComponent;
-ModelComponent.parent = Component;
-ModelComponent.onAdd = function( entity ) {
-    this.parent.onAdd( entity );
+ModelComponent.prototype.onAdd = function( entity ) {
+    entity.spatial.sceneObjects.graphics.bindChild( this.object );
+    this.object.position = entity.spatial.position;
+    this.object.rotation = entity.spatial.rotation;
+    this.entity = entity;
 };
-ModelComponent.onRemove = function( entity ) {
-    this.parent.onRemove( entity );
+ModelComponent.prototype.onRemove = function( entity ) {
+    /* Note(alan.kligman@gmail.com):
+     * Not implemented.
+     */
 };
-ModelComponent.onReset = function( entity ) {
-    this.parent.onReset( entity );
+ModelComponent.prototype.setMesh = function( mesh ) {
+    this.mesh = mesh;
+    this.object.obj = mesh;
 };
-ModelComponent.prototype.addChild = function( child ) {
-    this.object.bindChild( child );
-};
-ModelComponent.prototype.setParent = function( parent ) {
-    parent.addChild( this );
+ModelComponent.prototype.setMaterial = function( material ) {
+    this.material = material;
 };
 
 Paladin.tasker = new Tasker();
@@ -536,8 +577,8 @@ Paladin.physics = undefined;
 Paladin.sound = undefined;
 
 // Attach prototypes to Paladin.
-Paladin.Scene = Scene;
 Paladin.Entity = Entity;
+Paladin.Scene = Scene;
 Paladin.component.Spatial = SpatialComponent;
 Paladin.component.Camera = CameraComponent;
 Paladin.component.Model = ModelComponent;
