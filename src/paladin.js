@@ -40,7 +40,6 @@ function Tasker() {
 
     var nextId = 0,
         tasksById = {},
-        tasksByName = {},
         terminate = false,
         that = this;
     
@@ -71,7 +70,6 @@ function Tasker() {
         var task = {
             _callback: options.callback || function () {},            
             _id: id,
-            name: options.name || undefined,
             time: Date.now(),
             run: true,
             dt: 0,
@@ -89,8 +87,6 @@ function Tasker() {
         };
         
         tasksById[id] = task;
-        if( task.name )
-            tasksByName[task.name] = task;
         return task;
     };
 
@@ -98,14 +94,8 @@ function Tasker() {
         if( task._id in tasksById ) {
             delete tasksById[task._id];
         }
-        if ( task.name && task.name in tasksByName ) {
-            delete tasksByName[task.name];
-        }
     };
     
-    this.getTaskByName = function( name ) {
-      return tasksByName[name];
-    }
 };
 
 /***
