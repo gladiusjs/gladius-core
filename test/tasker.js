@@ -14,7 +14,11 @@
                     callback: function() {        
                         if( ++ counter > 10 ) {
                             ok(true, "task counted to 10");
-                            start();
+                            setTimeout(function(){
+                                ok(!Paladin.tasker.hasTask(task),
+                                    "task is not scheduled to run");
+                            }, 0);                            
+                            start();                           
                             return task.DONE;
                         } else {
                             console.log( counter );
@@ -33,13 +37,9 @@
         }
     } );
 
-    test("task counts to 10 and terminates", function () {
+    asyncTest("task counts to 10 and terminates", function () {
         expect(0);
-        stop();
         Paladin.run();
-        
-        ok(!Paladin.tasker.hasTask(task),
-                "task is not scheduled to run");
     } ); 
 
 })(window, document, undefined, Paladin);
