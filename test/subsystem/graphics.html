@@ -10,7 +10,11 @@
 
           document.addEventListener('DOMContentLoaded', function (e) {
 
-            Paladin.init();
+            Paladin.init({
+              graphics: {
+                canvas: document.getElementById('test-canvas')
+              }
+            });
 
             var scene = new Paladin.Scene( { fov: 60 } );
 
@@ -31,9 +35,20 @@
           }, false);
 
         </script>
+        <style>
+          #test-canvas {
+            width: 300px;
+            height: 300px;
+            display: block;
+            position: static;
+            padding: 5px;
+          }
+        </style>
+
     </head>   
     
     <body>
+      <canvas id="test-canvas"></canvas>
     </body>
     
 </html>
