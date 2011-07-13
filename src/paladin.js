@@ -16,7 +16,7 @@ Array.prototype.remove = function(from, to) {
 Paladin = {};
 Paladin.component = {};
 Paladin.init = function( options ) {
-    Paladin.subsystem.init();
+    Paladin.subsystem.init( options );
     if( options && options.debug )
         Paladin.debug = console.log;
     else

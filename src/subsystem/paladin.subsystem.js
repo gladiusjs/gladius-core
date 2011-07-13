@@ -9,10 +9,10 @@
       Paladin[name] = subsystem;
     },
 
-    init: function () {
+    init: function ( options ) {
       for ( var name in subsystems ) {
         if ( subsystems.hasOwnProperty(name) ) {
-          subsystems[name].start && subsystems[name].start();
+          subsystems[name].start && subsystems[name].start( options );
         } //if
       } //for
     },
