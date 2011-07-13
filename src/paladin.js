@@ -416,8 +416,7 @@ function Entity( options ) {
             var components = componentsByType[ componentType ];
             if ( components && subType ) {
                 for( var i = 0; i < components.length; ++ i ) {
-                    console.log('checking', subType);
-                    if ( components[i].subtype === subType ) {
+                    if ( components[i].subtype.indexOf( subType ) > -1 ) {
                         return components[i];
                     }
                 }

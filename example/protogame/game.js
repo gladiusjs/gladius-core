@@ -48,97 +48,95 @@ function Game() {
 
     var keysDown = {};
     
-    function Ship() {
-
-        var shipEntity = this.entity = new Paladin.Entity({
-          parent: scene,
-          children: [
-            new Paladin.Entity({
-              parent: shipEntity,
-              components: [
-                new Paladin.component.Camera({
-                  targeted: false,
-                  position: [0, .5, -.5],
-                  rotation: [0, 180, 0]
-                }), //camera
-              ], //components
-              init: function ( entity ) {
-                var cameraComponent = entity.getComponents('graphics', 'camera');
-                console.log(cameraComponent);
-                cameraComponent.camera.rotation[1] = 180;
-                cameraComponent.camera.position[1] = .5;
-                cameraComponent.camera.position[2] = -.5;
-
-                var cameraRoll = 0;
-                Paladin.tasker.add( {
-                  callback: function ( task ) {
-                    if ( keysDown['a'] ) {
-                      shipEntity.spatial.rotation[1] += 1;
-                      cameraRoll = Math.min(10, cameraRoll+1);
-                    }
-                    else if ( keysDown['d'] ) {
-                      shipEntity.spatial.rotation[1] -= 1;
-                      cameraRoll = Math.max(-10, cameraRoll-1);
-                    }
-                    else {
-                      cameraRoll -= cameraRoll*.1;
-                    }
-                    cameraComponent.camera.rotation[2] = angle;
-                  }
-                } );
-              }
-            }),
-          ], //children
-          listeners: {
-            'a-up': function ( params ) {
-              keysDown['a'] = false;
-            },
-            'a-down': function ( params ) {
-              keysDown['a'] = true;
-            },
-            'd-up': function ( params ) {
-              keysDown['d'] = false;
-            },
-            'd-down': function ( params ) {
-              keysDown['d'] = true;
-            },
-          },
+    var shipEntity = this.entity = new Paladin.Entity({
+      parent: scene,
+      children: [
+        new Paladin.Entity({
+          parent: shipEntity,
           components: [
-            new Paladin.component.Model( {
-              mesh: new Paladin.graphics.Mesh( {
-                primitives: [ {
-                  type: 'box',
-                  size: 0.5,
-                  material: {
-                    color: [1, 0, 1]
-                  }
-                }],
-                finalize: true
-              })
-            })
-          ],
+            new Paladin.component.Camera({
+              targeted: false,
+              position: [0, .5, -.5],
+              rotation: [0, 180, 0]
+            }), //camera
+          ], //components
           init: function ( entity ) {
-            var accel = 0.01;
-            var shipFlyingTask = Paladin.tasker.add( {
-                callback: function ( task ) {
-                    var rotY = entity.spatial.rotation[1];
-                    
-                    var dirVec = [
-                        Math.sin(rotY*Math.PI/180),
-                        0,
-                        Math.cos(rotY*Math.PI/180)
-                    ];
+            var cameraComponent = entity.getComponents('graphics', 'camera');
+            cameraComponent.camera.rotation[1] = 180;
+            cameraComponent.camera.position[1] = .5;
+            cameraComponent.camera.position[2] = -.5;
 
-                    dirVec = CubicVR.vec3.normalize(dirVec);
+            scene.setActiveCamera( cameraComponent );
 
-                    entity.spatial.position[0] += dirVec[0] * accel * task.dt;
-                    entity.spatial.position[2] += dirVec[2] * accel * task.dt;
-
+            var cameraRoll = 0;
+            Paladin.tasker.add( {
+              callback: function ( task ) {
+                if ( keysDown['a'] ) {
+                  shipEntity.spatial.rotation[1] += 1;
+                  cameraRoll = Math.min(10, cameraRoll+1);
                 }
+                else if ( keysDown['d'] ) {
+                  shipEntity.spatial.rotation[1] -= 1;
+                  cameraRoll = Math.max(-10, cameraRoll-1);
+                }
+                else {
+                  cameraRoll -= cameraRoll*.1;
+                }
+                cameraComponent.camera.rotation[2] = cameraRoll;
+              }
             } );
           }
-        });
-    } //Ship
+        }),
+      ], //children
+      listeners: {
+        'a-up': function ( params ) {
+          keysDown['a'] = false;
+        },
+        'a-down': function ( params ) {
+          keysDown['a'] = true;
+        },
+        'd-up': function ( params ) {
+          keysDown['d'] = false;
+        },
+        'd-down': function ( params ) {
+          keysDown['d'] = true;
+        },
+      },
+      components: [
+        new Paladin.component.Model( {
+          mesh: new Paladin.graphics.Mesh( {
+            primitives: [ {
+              type: 'box',
+              size: 0.5,
+              material: {
+                color: [1, 0, 1]
+              }
+            }],
+            finalize: true
+          })
+        })
+      ],
+      init: function ( entity ) {
+        var accel = 0.01;
+        var shipFlyingTask = Paladin.tasker.add( {
+            callback: function ( task ) {
+                var rotY = entity.spatial.rotation[1];
+                
+                var dirVec = [
+                    Math.sin(rotY*Math.PI/180),
+                    0,
+                    Math.cos(rotY*Math.PI/180)
+                ];
+
+                dirVec = CubicVR.vec3.normalize(dirVec);
+
+                entity.spatial.position[0] += dirVec[0] * accel * task.dt;
+                entity.spatial.position[2] += dirVec[2] * accel * task.dt;
+
+            }
+        } );
+      }
+    });
     
 
     var boxes = [];
@@ -171,8 +169,6 @@ function Game() {
       
       })();
     } //for
-
-    var ship = new Ship();
 
     var rotationTask = Paladin.tasker.add( {
         callback: function( task ) {
