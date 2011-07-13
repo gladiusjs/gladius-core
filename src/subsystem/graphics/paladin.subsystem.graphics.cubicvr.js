@@ -162,7 +162,7 @@
 
     start: function (options) {
 
-      options = options ? options.graphics : {};
+      options = options && options.graphics ? options.graphics : {};
 
       var gl = CubicVR.init( options.canvas, options.vertexShader, options.fragmentShader );
       if (!gl) {
