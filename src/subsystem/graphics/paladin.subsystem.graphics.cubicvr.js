@@ -63,7 +63,7 @@
   /***
    * SceneObject
    */
-  function SceneObject ( options ) {
+  function SceneObject ( options ) {    
     options = options || {};
     CubicVR.SceneObject.call(this, options.mesh, options.name);
     if ( options.position ) {

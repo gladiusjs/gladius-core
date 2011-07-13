@@ -47,7 +47,7 @@
 
   /* Initialize a keyboard event for either Gecko or WebKit) */
   function newKbdEvent(charCode) {
-    var evt = document.createEvent("KeyboardEvent");
+    var evt = document.createEvent("KeyboardEvent");    
     if ("initKeyEvent" in evt) {
       // vestigial DOM2 method still in use by Gecko
       evt.initKeyEvent("keyup", true, true, window, 0, 0, 0, 0, 
@@ -60,7 +60,6 @@
   }
 
   function simulateKeyEvent(charCode) {
-
     var evt = newKbdEvent(charCode.charCodeAt(0));
     var canceled = !window.dispatchEvent(evt);
     if (canceled) {
@@ -80,12 +79,12 @@
     }
   }
 
-  asyncTest("escape keypress fires an up event", function () {
+  asyncTest("escape keypress fires an up event", function () {    
     expect(1);
     simulateKeyEvent("\x1b");
   });
 
-  asyncTest("mouse click fires an up event", function () { 
+  asyncTest("mouse click fires an up event", function () {    
     expect(1);
     simulateClick();
   });
