@@ -356,10 +356,10 @@ function Entity() {
     var id = nextEntityId ++,
         componentsByType = {},
         parent = null,
-        that = this;
+        that = this;   
     
     this.children = [];
-    
+        
     this.spatial = new SpatialComponent();
     
     this.getId = function() {
@@ -495,12 +495,14 @@ function SpatialComponent( position, rotation ) {
         this._rotation[1] = rotation[1];
         this._rotation[2] = rotation[2];
     } );
-
+    
     this.sceneObjects = {
         graphics: new Paladin.graphics.SceneObject( {
             position: this.position,
             rotation: this.rotation
-        } )
+        } ),
+        physics: null,
+        sound: null
     };
 
 }
