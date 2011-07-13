@@ -7,7 +7,11 @@
       }
     });
 
-    Paladin.init();
+    Paladin.init({ 
+      graphics: {
+        canvas: document.getElementById('test-canvas') 
+      }
+    });
 
     var boss = new Paladin.Entity(), miniBoss = new Paladin.Entity();
 

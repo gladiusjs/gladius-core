@@ -26,7 +26,12 @@
 
   test("dummy subsystem was initialized after init", function () {
     expect(1);
-    Paladin.init();
+    Paladin.init({ 
+      graphics: {
+        canvas: document.getElementById('test-canvas') 
+      }
+    });
+
     var dummy = Paladin.subsystem.get('dummy');
     ok(dummy.dummy() === true);
   });
