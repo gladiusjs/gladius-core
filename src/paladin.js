@@ -351,7 +351,7 @@ function Messenger() {
  * entity has a unique identifier.
  */
 var nextEntityId = 0;   // FIXME(alan.kligman@gmail.com): This is a hack.
-function Entity() {
+function Entity( options ) {
     
     var id = nextEntityId ++,
         componentsByType = {},
@@ -411,9 +411,19 @@ function Entity() {
         }
     };
     
-    this.getComponents = function( componentType ) {
-        if( componentType && componentsByType.hasOwnProperty( componentType ) )
-            return componentsByType[componentType];
+    this.getComponents = function( componentType, subType ) {
+        if( componentType && componentsByType.hasOwnProperty( componentType ) ) {
+            var components = componentsByType[ componentType ];
+            if ( components && subType ) {
+                for( var i = 0; i < components.length; ++ i ) {
+                    console.log('checking', subType);
+                    if ( components[i].subtype === subType ) {
+                        return components[i];
+                    }
+                }
+            }
+            return components;
+        }
         else {
             var components = [];
             for( var i = 0; i < componentsByType.length; ++ i ) {
@@ -435,7 +445,45 @@ function Entity() {
         this.spatial.setParent( newParentEntity.spatial );
         parent = newParentEntity;
     };
-   
+
+    options = options || {};
+
+    options.parent && this.setParent( options.parent );
+
+    if ( options.children ) {
+      for ( var i=0; i<options.children.length; ++i) {
+        options.children[i].setParent(this);
+      } //for
+    } //if
+
+    if ( options.listeners ) {
+      for ( var eventName in options.listeners ) {
+        var callback, params, persistent;
+        if ( options.listeners[ eventName ] instanceof Function ) {
+          callback = options.listeners[ eventName ];
+        }
+        else {
+          callback = options.callback;
+          params = options.parameters;
+          persistent = options.persistent;
+        }
+        this.listen( {
+          event: eventName,
+          callback: callback,
+          parameters: params,
+          persistent: persistent
+        });
+      } //for
+    } //if
+
+    if ( options.components ) {
+      for ( var i=0; i<options.components.length; ++i ) {
+        this.addComponent( options.components[ i ] );
+      } //for
+    } //if
+
+    options.init && options.init( this );
+
 };
 
 function Scene( options ) {
