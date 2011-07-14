@@ -100,7 +100,7 @@ function Game() {
         },
         'd-down': function ( params ) {
           keysDown['d'] = true;
-        },
+        }
       },
       components: [
         new Paladin.component.Model( {
