@@ -45,6 +45,11 @@
     };
 
     if ( options ) {
+      if ( options.loadFrom ) {
+        // XXX should we really be doing this inside a constructor?
+        return CubicVR.loadMesh(options.loadFrom);        
+      }
+            
       if ( options.primitives ) {
         for ( var i=0, l=options.primitives.length; i<l; ++i ) {
           this.addPrimitive(options.primitives[i]);

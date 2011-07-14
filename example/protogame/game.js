@@ -63,9 +63,9 @@ function Game() {
             });
             entity.addComponent( cameraComponent );
             scene.setActiveCamera( cameraComponent );
-            cameraComponent.camera.rotation[1] = 180;
-            cameraComponent.camera.position[1] = .5;
-            cameraComponent.camera.position[2] = -.5;
+            cameraComponent.camera.rotation[1] = 0;
+            cameraComponent.camera.position[1] = 6;
+            cameraComponent.camera.position[2] = 40;
 
             this.setRoll = function (angle) {
               cameraComponent.camera.rotation[2] = angle;
@@ -75,16 +75,10 @@ function Game() {
         var camera = new Camera();
         camera.entity.setParent( entity );
 
-        var mesh = new Paladin.graphics.Mesh( {
-            primitives: [ {
-                type: 'box',
-                size: 0.5,
-                material: {
-                    color: [1, 0, 1]
-                }
-            } ],
-            finalize: true
-        } );
+        var mesh = Paladin.graphics.Mesh( { loadFrom: "ship-main.xml" } );
+
+       // XXX push down into graphics subsys?
+       mesh.clean();
 
         entity.addComponent( new Paladin.component.Model ( {
             mesh: mesh
