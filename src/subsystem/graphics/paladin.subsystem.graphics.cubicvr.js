@@ -162,7 +162,9 @@
 
     start: function (options) {
 
-      var gl = CubicVR.init();
+      options = options && options.graphics ? options.graphics : {};
+
+      var gl = CubicVR.init( options.canvas, options.vertexShader, options.fragmentShader );
       if (!gl) {
         console.log('CubicVR Error: Could not init GL');
         return false;
