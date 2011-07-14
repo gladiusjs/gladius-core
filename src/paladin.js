@@ -533,8 +533,6 @@ CameraComponent.prototype = new Component( {
 CameraComponent.prototype.constructor = CameraComponent;
 CameraComponent.prototype.onAdd = function( entity ) {
     entity.spatial.sceneObjects.graphics.bindChild( this.object );
-    //this.object.position = entity.spatial.position;
-    //this.object.rotation = entity.spatial.rotation;
     this.entity = entity;
 };
 CameraComponent.prototype.onRemove = function( entity ) {
@@ -557,8 +555,6 @@ ModelComponent.prototype = new Component( {
 ModelComponent.prototype.constructor = ModelComponent;
 ModelComponent.prototype.onAdd = function( entity ) {
     entity.spatial.sceneObjects.graphics.bindChild( this.object );
-    //this.object.position = entity.spatial.position;
-    //this.object.rotation = entity.spatial.rotation;
     this.entity = entity;
 };
 ModelComponent.prototype.onRemove = function( entity ) {
