@@ -1,68 +1,99 @@
+/*global deepEqual,expect,module,ok,Paladin,start,stop,test,window */
 (function ( window, document, undefined, Paladin ) {
 
-  document.addEventListener('DOMContentLoaded', function (e) {
+    var game, scene, camera, model, task;
+     
+    module("graphics", {
+      setup: function graphics_setup() {
 
-    Paladin.init({
-      graphics: {
-        canvas: document.getElementById('test-canvas')
-      }
-    });
+        function Game() {
 
-    var scene = new Paladin.Scene( { fov: 60 } ),
-        camera = new Paladin.component.Camera({ targeted: false }),
-        entity = new Paladin.Entity()
-        mesh = new Paladin.graphics.Mesh( {
-          primitives: [ {
-            type: 'box',
-            size: 0.5,
-            material: {
-            color: [1, 0, 1]
+          Paladin.init({
+            graphics: {
+              canvas: document.getElementById('test-canvas')
             }
-          }],
-          finalize: true
-        }),
-        model = new Paladin.component.Model({
-          mesh: mesh,
-          position: [0, 0, 0],
-          rotation: [0, 0, 0]
-        });
+          });
 
-    entity.addComponent( model );
-    entity.addComponent( camera );
-    entity.setParent( scene );
+          scene = new Paladin.Scene( { fov: 60 } );
+          camera = new Paladin.component.Camera({ targeted: false });
+          entity = new Paladin.Entity();
+          var mesh = new Paladin.graphics.Mesh( {
+            primitives: [ {
+              type: 'box',
+              size: 0.5,
+              material: {
+                color: [1, 0, 1]
+              }
+            }],
+            finalize: true
+          });
+          model = new Paladin.component.Model({
+            mesh: mesh,
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+          });
 
-    model.object.rotation = [0, 45, 45];
-    camera.camera.position = [0, 0, 1];
+          entity.addComponent( model );
+          entity.addComponent( camera );
+          entity.setParent( scene );
 
-    Paladin.tasker.add({
-      callback: function ( task ) {
-        model.object.rotation[0] += 1;
+          // XXXdmose these should all be done in the initializers
+          model.object.position = [3, 6, 9];
+          model.object.rotation = [15, 30, 45];
+          camera.camera.position = [1, 2, 3];
+          camera.camera.rotation = [10, 20, 30];
+
+          task = Paladin.tasker.add({
+            callback: function () {
+              model.object.rotation[0] += 1;
+            }
+          });
+
+          this.run = function () {
+            Paladin.run();
+          };
+        }
+
+        game = new Game();
+      },
+      teardown: function graphics_teardown ( ) {
+        Paladin.tasker.terminate();
+
+        // XXXdmose commented out because qunit/Paladin concurrency model
+        // interactions horking us.  There are likely bad hidden consequences
+        // of this waiting to bite us.
+        //
+        // force as much to be GCed as we can
+        //game = scene = camera = model = null;
       }
     });
-
-    Paladin.run();
-
-    module( "Scene setup" );
-
+       
     test( "Scene rendering", function () {
       expect( 1 );
-      stop();
       Paladin.graphics.pushScene( scene );
-      ok( scene.graphics.frames > 0, "Scene has rendered several times" );
-      setTimeout( start, 500 );
-    });
+      game.run();
+      stop();
 
+      // XXX would be nice to have something more deterministic/less racy
+      // than setTimeout for this
+      setTimeout( function () { 
+                    ok( scene.graphics.frames > 0, "Scene has rendered several times" );
+                    start();
+                }, 500 );
+    });
+    
     test( "Camera setup", function () {
-      expect( 1 );
+      expect( 3 );
       scene.setActiveCamera( camera );
       ok( scene.graphics.camera === camera.camera, "Camera is correct" );
+      deepEqual( camera.camera.position, [1, 2, 3], "Initial camera position" );
+      deepEqual( camera.camera.rotation, [10, 20, 30], "Initial camera rotation" );
     });
 
     test( "Model setup", function () {
+      expect( 2 );
+      deepEqual( model.object.position, [3, 6, 9], "Initial model position" );
+      deepEqual( model.object.rotation, [15, 30, 45], "Initial model rotation" );
     });
-
-
-  }, false);
-
 
 })( window, document, undefined, Paladin );
