@@ -56,15 +56,15 @@ function Game() {
           components: [
             new Paladin.component.Camera({
               targeted: false,
-              position: [0, .5, -.5],
+              position: [0, 0.5, -0.5],
               rotation: [0, 180, 0]
-            }), //camera
+            }) //camera
           ], //components
           init: function ( entity ) {
             var cameraComponent = entity.getComponents('graphics', 'camera');
             cameraComponent.camera.rotation[1] = 180;
-            cameraComponent.camera.position[1] = .5;
-            cameraComponent.camera.position[2] = -.5;
+            cameraComponent.camera.position[1] = 18;
+            cameraComponent.camera.position[2] = -40;
 
             scene.setActiveCamera( cameraComponent );
 
@@ -85,6 +85,7 @@ function Game() {
                 cameraComponent.camera.rotation[2] = cameraRoll;
               }
             } );
+
           }
         }),
       ], //children
@@ -102,6 +103,19 @@ function Game() {
           keysDown['d'] = true;
         }
       },
+      
+
+      components: [
+        new Paladin.component.Model( {
+          mesh: new Paladin.graphics.Mesh( { 
+            loadFrom: "ship-main.xml",
+            finalize: true
+          })
+        }) // XXX mesh.clean()
+      ],
+      
+
+     /*
       components: [
         new Paladin.component.Model( {
           mesh: new Paladin.graphics.Mesh( {
@@ -116,6 +130,8 @@ function Game() {
           })
         })
       ],
+           */
+          
       init: function ( entity ) {
         var accel = 0.01;
         var shipFlyingTask = Paladin.tasker.add( {
