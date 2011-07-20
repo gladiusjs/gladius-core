@@ -15,7 +15,11 @@
           });
 
           scene = new Paladin.Scene( { fov: 60 } );
-          camera = new Paladin.component.Camera({ targeted: false });
+          camera = new Paladin.component.Camera({ 
+            targeted: false,
+            position: [1, 2, 3],
+            rotation: [10, 20, 30]
+          });
           var entity = new Paladin.Entity();
           var mesh = new Paladin.graphics.Mesh( {
             primitives: [ {
@@ -29,19 +33,13 @@
           });
           model = new Paladin.component.Model({
             mesh: mesh,
-            position: [0, 0, 0],
-            rotation: [0, 0, 0]
+            position: [3, 6, 9],
+            rotation: [15, 30, 45]
           });
 
           entity.addComponent( model );
           entity.addComponent( camera );
           entity.setParent( scene );
-
-          // XXXdmose these should all be done in the initializers
-          model.object.position = [3, 6, 9];
-          model.object.rotation = [15, 30, 45];
-          camera.camera.position = [1, 2, 3];
-          camera.camera.rotation = [10, 20, 30];
 
           task = Paladin.tasker.add({
             callback: function () {
@@ -86,8 +84,8 @@
       expect( 3 );
       scene.setActiveCamera( camera );
       ok( scene.graphics.camera === camera.camera, "Camera is correct" );
-      deepEqual( camera.camera.position, [1, 2, 3], "Initial camera position" );
-      deepEqual( camera.camera.rotation, [10, 20, 30], "Initial camera rotation" );
+      deepEqual( camera.object.position, [1, 2, 3], "Initial camera position" );
+      deepEqual( camera.object.rotation, [10, 20, 30], "Initial camera rotation" );
     });
 
     test( "Model setup", function () {
