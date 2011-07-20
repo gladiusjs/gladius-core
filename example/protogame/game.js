@@ -48,92 +48,76 @@ function Game() {
 
     var keysDown = {};
     
-    function Ship() {
-        var accel = 0.01;
-        
-        var entity = new Paladin.Entity();
-        this.entity = entity;
-        entity.setParent( scene );
-
-        function Camera() {
-            var entity = new Paladin.Entity();
-            this.entity = entity;
-            var cameraComponent = new Paladin.component.Camera({
-              targeted: false
-            });
-            entity.addComponent( cameraComponent );
-            scene.setActiveCamera( cameraComponent );
+    var shipEntity = this.entity = new Paladin.Entity({
+      parent: scene,
+      children: [
+        new Paladin.Entity({
+          parent: shipEntity,
+          components: [
+            new Paladin.component.Camera({
+              targeted: false,
+              position: [0, .5, -.5],
+              rotation: [0, 180, 0]
+            }), //camera
+          ], //components
+          init: function ( entity ) {
+            var cameraComponent = entity.getComponents('graphics', 'camera');
             cameraComponent.camera.rotation[1] = 180;
             cameraComponent.camera.position[1] = .5;
             cameraComponent.camera.position[2] = -.5;
 
-            this.setRoll = function (angle) {
-              cameraComponent.camera.rotation[2] = angle;
-            };
-        }
+            scene.setActiveCamera( cameraComponent );
 
-        var camera = new Camera();
-        camera.entity.setParent( entity );
-
-        var mesh = new Paladin.graphics.Mesh( {
-            primitives: [ {
-                type: 'box',
-                size: 0.5,
-                material: {
-                    color: [1, 0, 1]
+            var cameraRoll = 0;
+            Paladin.tasker.add( {
+              callback: function ( task ) {
+                if ( keysDown['a'] ) {
+                  shipEntity.spatial.rotation[1] += 1;
+                  cameraRoll = Math.min(10, cameraRoll+1);
                 }
-            } ],
-            finalize: true
-        } );
-
-        entity.addComponent( new Paladin.component.Model ( {
-            mesh: mesh
-        } ) );
-
-        var cameraRoll = 0;
-        Paladin.tasker.add( {
-          callback: function ( task ) {
-            if ( keysDown['a'] ) {
-              entity.spatial.rotation[1] += 1;
-              cameraRoll = Math.min(10, cameraRoll+1);
-            }
-            else if ( keysDown['d'] ) {
-              entity.spatial.rotation[1] -= 1;
-              cameraRoll = Math.max(-10, cameraRoll-1);
-            }
-            else {
-              cameraRoll -= cameraRoll*.1;
-            }
-            camera.setRoll(cameraRoll);
+                else if ( keysDown['d'] ) {
+                  shipEntity.spatial.rotation[1] -= 1;
+                  cameraRoll = Math.max(-10, cameraRoll-1);
+                }
+                else {
+                  cameraRoll -= cameraRoll*.1;
+                }
+                cameraComponent.camera.rotation[2] = cameraRoll;
+              }
+            } );
           }
-        } );
-
-        entity.listen( {
-            event: 'a-down',
-            callback: function( parameters ) {
-                keysDown['a'] = true;
-            }
-        } );
-        entity.listen( {
-            event: 'a-up',
-            callback: function( parameters ) {
-                keysDown['a'] = false;
-            }
-        } );
-        entity.listen( {
-            event: 'd-down',
-            callback: function( parameters ) {
-                keysDown['d'] = true;
-            }
-        } );
-        entity.listen( {
-            event: 'd-up',
-            callback: function( parameters ) {
-                keysDown['d'] = false;
-            }
-        } );
-
-
+        }),
+      ], //children
+      listeners: {
+        'a-up': function ( params ) {
+          keysDown['a'] = false;
+        },
+        'a-down': function ( params ) {
+          keysDown['a'] = true;
+        },
+        'd-up': function ( params ) {
+          keysDown['d'] = false;
+        },
+        'd-down': function ( params ) {
+          keysDown['d'] = true;
+        }
+      },
+      components: [
+        new Paladin.component.Model( {
+          mesh: new Paladin.graphics.Mesh( {
+            primitives: [ {
+              type: 'box',
+              size: 0.5,
+              material: {
+                color: [1, 0, 1]
+              }
+            }],
+            finalize: true
+          })
+        })
+      ],
+      init: function ( entity ) {
+        var accel = 0.01;
         var shipFlyingTask = Paladin.tasker.add( {
             callback: function ( task ) {
                 var rotY = entity.spatial.rotation[1];
@@ -151,9 +135,8 @@ function Game() {
 
             }
         } );
-
-
-    } //Ship
+      }
+    });
     
 
     var boxes = [];
@@ -186,8 +169,6 @@ function Game() {
       
       })();
     } //for
-
-    var ship = new Ship();
 
     var rotationTask = Paladin.tasker.add( {
         callback: function( task ) {
