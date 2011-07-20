@@ -16,7 +16,7 @@
 
           scene = new Paladin.Scene( { fov: 60 } );
           camera = new Paladin.component.Camera({ targeted: false });
-          entity = new Paladin.Entity();
+          var entity = new Paladin.Entity();
           var mesh = new Paladin.graphics.Mesh( {
             primitives: [ {
               type: 'box',
