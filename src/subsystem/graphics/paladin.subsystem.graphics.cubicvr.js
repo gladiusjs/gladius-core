@@ -46,10 +46,8 @@
 
     if ( options ) {
       if ( options.loadFrom ) {
-        // XXX should we really be doing this inside a constructor?
         var mesh = CubicVR.loadMesh(options.loadFrom);
-        mesh.clean(); // XXX what does this do?  does it belong here?
-        return mesh;
+        this.booleanAdd( mesh );
       }
             
       if ( options.primitives ) {
