@@ -571,6 +571,12 @@ function CameraComponent( options ) {
     });
     this.camera.setParent( this.object );
     this.entity = null;
+    if (options.position) {
+        this.object.position = options.position;
+    }
+    if (options.rotation) {
+        this.object.rotation = options.rotation;
+    }
 }
 CameraComponent.prototype = new Component( {
     type: 'graphics',
@@ -593,6 +599,13 @@ function ModelComponent( options ) {
     this.mesh = (options && options.mesh) ? options.mesh : null;
     this.material = (options && options.material) ? options.material : null;    
     this.entity = null;
+
+    if (options.position) {
+        this.object.position = options.position;
+    }
+    if (options.rotation) {
+        this.object.rotation = options.rotation;
+    }
 };
 ModelComponent.prototype = new Component( {
     type: 'graphics',

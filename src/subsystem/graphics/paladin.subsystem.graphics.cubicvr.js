@@ -45,6 +45,11 @@
     };
 
     if ( options ) {
+      if ( options.loadFrom ) {
+        var mesh = CubicVR.loadMesh(options.loadFrom);
+        this.booleanAdd( mesh );
+      }
+            
       if ( options.primitives ) {
         for ( var i=0, l=options.primitives.length; i<l; ++i ) {
           this.addPrimitive(options.primitives[i]);
