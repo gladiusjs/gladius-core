@@ -5,20 +5,21 @@
   Paladin.subsystem = {
 
     register: function ( name, subsystem ) {
-      subsystems[name] = subsystem;
-      Paladin[name] = subsystem;
+      subsystems[ name ] = subsystem;
     },
 
     init: function ( options ) {
+      var newSubsystems = {};
       for ( var name in subsystems ) {
-        if ( subsystems.hasOwnProperty(name) ) {
-          subsystems[name].start && subsystems[name].start( options );
+        if ( subsystems.hasOwnProperty( name ) ) {
+          newSubsystems[ name ] = new subsystems[ name ]( options );
         } //if
       } //for
+      return newSubsystems;
     },
 
     get: function ( name ) {
-      return subsystems[name];
+      return subsystems[ name ];
     }
 
   };
