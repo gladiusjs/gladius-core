@@ -7,12 +7,12 @@
     setup: function () {
 
       // set up a game with some event listeners
-      var paladin = new Paladin({
+      paladin = new Paladin({
         graphics: {
           canvas: document.getElementById('test-canvas')
         },
         setup: function ( paladin ) {
-          entity1 = new Paladin.Entity();
+          entity1 = new paladin.Entity();
           entity1.count = 0;
           entity1.listen( {
             event: 'escape-up',

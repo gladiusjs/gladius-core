@@ -19,14 +19,13 @@
                           if( ++ counter > 10 ) {
                               ok(true, "task counted to 10");
                                 setTimeout(function(){
-                                    ok(!Paladin.tasker.hasTask(task),
+                                    ok(!paladin.tasker.hasTask(task),
                                        "task is not scheduled to run");
                                 }, 0);                            
                                 start();                           
                                 return task.DONE;
                           } else {
-                              console.log( counter );
-                              ok(Paladin.tasker.hasTask(task),
+                              ok(paladin.tasker.hasTask(task),
                                  "task is scheduled to run" );
                               return task.CONTINUE;
                           } //if

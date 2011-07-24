@@ -472,6 +472,7 @@ var Paladin = window.Paladin = function ( options ) {
 
       options.init && options.init( this );
 
+
   };
 
   function Scene( options ) {
@@ -621,10 +622,10 @@ var Paladin = window.Paladin = function ( options ) {
 
   var that = this;
   this.debug = options && options.debug ? console.log : function () {};
-  this.tasker = Paladin.tasker = new Tasker();
-  this.messenger = Paladin.messenger = new Messenger();
-  this.mouseWatcher = Paladin.mouseWatcher = new MouseWatcher();
-  this.loader = Paladin.loader = new Loader();
+  this.tasker = new Tasker();
+  this.messenger = new Messenger();
+  this.mouseWatcher = new MouseWatcher();
+  this.loader = new Loader();
 
   this.run = function () {
     ( options && options.run ) && options.run ( that );
@@ -632,26 +633,25 @@ var Paladin = window.Paladin = function ( options ) {
   };
 
   // Init instance of each subsystem and store reference as subsystem name
-  var subsystems = that.subsystems = Paladin.subsystem.init( options );
+  var subsystems = paladin.subsystems = Paladin.subsystem.init( options );
   for ( subsystemName in subsystems ) {
-    that[ subsystemName ] = subsystems[ subsystemName ];
-    Paladin[ subsystemName ] = subsystems[ subsystemName ];
+    paladin[ subsystemName ] = subsystems[ subsystemName ];
   }
 
-  // run user-specified setup function
-  ( options && options.setup ) && options.setup( that );
-
   // Expose Paladin objects
-  this.Entity = Paladin.Entity = Entity;
-  this.Scene = Paladin.Scene = Scene;
+  this.Entity = Entity;
+  this.Scene = Scene;
 
   // Expose components
-  this.component = Paladin.component = {
+  this.component = {
     Spatial: SpatialComponent,
     Camera: CameraComponent,
     Model: ModelComponent,
     Light: null
   };
+
+  // run user-specified setup function
+  ( options && options.setup ) && options.setup( paladin );
 
 }; //Paladin
 

@@ -12,7 +12,11 @@
 
   module("Before initialization", {
     setup: function () {
-      paladin = new Paladin();
+      paladin = new Paladin({
+        graphics: {
+          canvas: document.getElementById('test-canvas')
+        },
+      });
     }
   });
 
