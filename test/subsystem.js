@@ -1,39 +1,30 @@
 /*global text,expect,ok,module,notEqual,Paladin,test,window*/
 (function (window, document, undefined, Paladin) {
-  module("dummy subsystem", {
-    setup: function () {
-    },
-    teardown: function () {
-    }
-  });
+
+  var paladin;
+
+  module("Before initialization");
 
   test("dummy subsystem exists", function () {
     expect(1);
     notEqual(Paladin.subsystem.get('dummy'), undefined);
   });
 
-  test("start function exists", function () {
-    expect(1);
-    var dummy = Paladin.subsystem.get('dummy');
-    ok(dummy.start instanceof Function);
+  module("Before initialization", {
+    setup: function () {
+      paladin = new Paladin();
+    }
   });
 
   test("dummy function exists", function () {
     expect(1);
-    var dummy = Paladin.subsystem.get('dummy');
-    ok(dummy.dummy instanceof Function);
+    ok(paladin.dummy.dummy instanceof Function);
   });
 
   test("dummy subsystem was initialized after init", function () {
-    expect(1);
-    Paladin.init({ 
-      graphics: {
-        canvas: document.getElementById('test-canvas') 
-      }
-    });
-
-    var dummy = Paladin.subsystem.get('dummy');
-    ok(dummy.dummy() === true);
+    expect(2);
+    ok(paladin.dummy.dummy() === true, "inner scope");
+    ok(paladin.dummy.numDummies() === 2, "outer scope");
   });
 
 })(window, document, undefined, Paladin);

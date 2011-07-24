@@ -1,47 +1,45 @@
 /*global text,expect,ok,module,notEqual,Paladin,test,window,start,stop,console,asyncTest*/
 (function (window, document, undefined, Paladin) {
 
-  var game;
-  var entity1;
+  var paladin, entity1;
+
   module("events", {
     setup: function () {
 
       // set up a game with some event listeners
-      function Game() {
+      var paladin = new Paladin({
+        graphics: {
+          canvas: document.getElementById('test-canvas')
+        },
+        setup: function ( paladin ) {
+          entity1 = new Paladin.Entity();
+          entity1.count = 0;
+          entity1.listen( {
+            event: 'escape-up',
+            callback: function escapeUp( parameters ) {
+              console.log("entering escapeUp");
+              ok(true, "escape-up event triggered");
+              start();
+            }
+          } );
 
-        entity1 = new Paladin.Entity();
-        entity1.count = 0;
-        entity1.listen( {
-          event: 'escape-up',
-          callback: function escapeUp( parameters ) {
-            console.log("entering escapeUp");
-            ok(true, "escape-up event triggered");
-            start();
-          }
-        } );
-
-        entity1.listen( {
-          event: 'mouse1-up',
-          callback: function mouse1Up( parameters ) {
-            console.log("entering mouse1Up");
-            ok(true, "mouse1-up event triggered");
-            start();
-          }
-        } );
-         
-        this.run = function () {
-          Paladin.run();
-        };
-      }
-
-      game = new Game();
+          entity1.listen( {
+            event: 'mouse1-up',
+            callback: function mouse1Up( parameters ) {
+              console.log("entering mouse1Up");
+              ok(true, "mouse1-up event triggered");
+              start();
+            }
+          } );
+        } //setup
+      }); //Paladin
 
     },
 
     teardown: function () {
       entity1.ignore( {event: 'mouse1-up'});
       entity1.ignore( {event: 'escape-up'});
-      game = null; // force as much to be GCed as we can
+      paladin = null; // force as much to be GCed as we can
     }
   });
 
