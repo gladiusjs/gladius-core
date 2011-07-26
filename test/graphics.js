@@ -1,61 +1,53 @@
 /*global deepEqual,expect,module,ok,Paladin,start,stop,test,window */
 (function ( window, document, undefined, Paladin ) {
 
-    var game, scene, camera, model, task;
+    var paladin, scene, camera, model, task;
      
     module("graphics", {
       setup: function graphics_setup() {
 
-        function Game() {
+        paladin = new Paladin({
+          graphics: {
+            canvas: document.getElementById('test-canvas')
+          }
+        });
 
-          Paladin.init({
-            graphics: {
-              canvas: document.getElementById('test-canvas')
+        scene = new paladin.Scene( { fov: 60 } );
+        camera = new paladin.component.Camera({ 
+          targeted: false,
+          position: [1, 2, 3],
+          rotation: [10, 20, 30]
+        });
+        var entity = new paladin.Entity();
+        var mesh = new paladin.graphics.Mesh( {
+          primitives: [ {
+            type: 'box',
+            size: 0.5,
+            material: {
+              color: [1, 0, 1]
             }
-          });
+          }],
+          finalize: true
+        });
+        model = new paladin.component.Model({
+          mesh: mesh,
+          position: [3, 6, 9],
+          rotation: [15, 30, 45]
+        });
 
-          scene = new Paladin.Scene( { fov: 60 } );
-          camera = new Paladin.component.Camera({ 
-            targeted: false,
-            position: [1, 2, 3],
-            rotation: [10, 20, 30]
-          });
-          var entity = new Paladin.Entity();
-          var mesh = new Paladin.graphics.Mesh( {
-            primitives: [ {
-              type: 'box',
-              size: 0.5,
-              material: {
-                color: [1, 0, 1]
-              }
-            }],
-            finalize: true
-          });
-          model = new Paladin.component.Model({
-            mesh: mesh,
-            position: [3, 6, 9],
-            rotation: [15, 30, 45]
-          });
+        entity.addComponent( model );
+        entity.addComponent( camera );
+        entity.setParent( scene );
 
-          entity.addComponent( model );
-          entity.addComponent( camera );
-          entity.setParent( scene );
+        task = paladin.tasker.add({
+          callback: function () {
+            model.object.rotation[0] += 1;
+          }
+        });
 
-          task = Paladin.tasker.add({
-            callback: function () {
-              model.object.rotation[0] += 1;
-            }
-          });
-
-          this.run = function () {
-            Paladin.run();
-          };
-        }
-
-        game = new Game();
       },
       teardown: function graphics_teardown ( ) {
-        Paladin.tasker.terminate();
+        paladin.tasker.terminate();
 
         // XXXdmose commented out because qunit/Paladin concurrency model
         // interactions horking us.  There are likely bad hidden consequences
@@ -68,8 +60,8 @@
        
     test( "Scene rendering", function () {
       expect( 1 );
-      Paladin.graphics.pushScene( scene );
-      game.run();
+      paladin.graphics.pushScene( scene );
+      paladin.run();
       stop();
 
       // XXX would be nice to have something more deterministic/less racy
