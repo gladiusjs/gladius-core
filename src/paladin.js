@@ -151,6 +151,37 @@ var Paladin = window.Paladin = function ( options ) {
       window.addEventListener( 'mousemove', this._mouseMove, true );
       window.addEventListener( 'mouseover', this._mouseMove, true );
   };
+  
+  function TouchWatcher() {
+      
+      var _touches = {};
+
+      this._touchStart = function( event ) {
+          for( var touch in touches ) {
+              _touches[touch.identifier] = {
+                  X: touch.pageX,
+                  Y: touch.pageY
+              };
+          }
+      };
+      
+      this._touchMove = function( event ) {
+          for( var touch in touches ) {
+              _touches[touch.identifier].X = touch.pageX;
+              _touches[touch.identifier].Y = touch.pageY;
+          }
+      };
+      
+      this._touchEnd = function( event ) {
+          for( var touch in touches ) {
+              delete _touches[touch.identifier];
+          }
+      };
+      
+      window.addEventListener( 'touchstart', this._touchMove, true );
+      window.addEventListener( 'touchmove', this._touchMove, true );
+      window.addEventListener( 'touchend', this._touchMove, true );
+  };
 
   /***
    * Messenger
@@ -239,6 +270,24 @@ var Paladin = window.Paladin = function ( options ) {
           } );        
       };
       
+      this._touchDown = function( event ) {
+          for( var touch in touches ) {
+              that.send( {
+                  event: that._convertTouchEvent( event, 'down' ),
+                  parameters: [touch.identifier]
+              } );
+          }
+      };
+      
+      this._touchUp = function( event ) {
+          for( var touch in touches ) {
+              that.send( {
+                  event: that._convertTouchEvent( event, 'up' ),
+                  parameters: [touch.identifier]
+              } );
+          }
+      };
+      
       this._convertKeyEvent = function( event, mode ) {
           var code = event.keyCode;
           
@@ -272,7 +321,7 @@ var Paladin = window.Paladin = function ( options ) {
           
           components.push( mode );
           
-          result = components.join( '-' );
+          var result = components.join( '-' );
           return result;
       };
 
@@ -300,7 +349,7 @@ var Paladin = window.Paladin = function ( options ) {
 
           components.push( mode );
 
-          result = components.join( '-' );
+          var result = components.join( '-' );
           return result;
       };
 
@@ -322,7 +371,12 @@ var Paladin = window.Paladin = function ( options ) {
           else if( code > 0 )
               components.push( 'wheel-down' );
 
-          result = components.join( '-' );
+          var result = components.join( '-' );
+          return result;
+      };
+      
+      this._convertTouchEvent = function( event, mode ) {
+          var result = "touch-" + mode;
           return result;
       };
       
@@ -331,6 +385,8 @@ var Paladin = window.Paladin = function ( options ) {
       window.addEventListener( 'mousedown', this._mouseButtonDown, true );
       window.addEventListener( 'mouseup', this._mouseButtonUp, true );
       window.addEventListener( 'DOMMouseScroll', this._mouseWheelScroll, true );
+      window.addEventListener( 'touchstart', this._touchDown, true );
+      window.addEventListener( 'touchend', this._touchUp, true );
   };
 
   /***
@@ -625,6 +681,7 @@ var Paladin = window.Paladin = function ( options ) {
   this.tasker = new Tasker();
   this.messenger = new Messenger();
   this.mouseWatcher = new MouseWatcher();
+  this.touchWatcher = new TouchWatcher();
   this.loader = new Loader();
 
   this.run = function () {
