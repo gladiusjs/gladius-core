@@ -2,26 +2,26 @@
 
 function Game() {
 
-    Paladin.init( {debug: true} );
+    var paladin = new Paladin( {debug: true} );
 
-    var scene = new Paladin.Scene();
-    Paladin.graphics.pushScene( scene );
+    var scene = new paladin.Scene();
+    paladin.graphics.pushScene( scene );
 
     var keysDown = {};
     
-    var shipEntity = this.entity = new Paladin.Entity({
+    var shipEntity = this.entity = new paladin.Entity({
       parent: scene,
       children: [
-        new Paladin.Entity({
+        new paladin.Entity({
           parent: shipEntity,
           components: [
-            new Paladin.component.Camera({
+            new paladin.component.Camera({
               targeted: false,
               position: [0, 10, -20],
               rotation: [0, 180, 0]
             }), //camera
-            new Paladin.component.Model( {
-              mesh: new Paladin.graphics.Mesh( { 
+            new paladin.component.Model( {
+              mesh: new paladin.graphics.Mesh( { 
                 loadFrom: "ship-main.xml",
                 finalize: true
               })
@@ -34,7 +34,7 @@ function Game() {
             var shipModel = entity.getComponents('graphics', 'model');
 
             var cameraRoll = 0;
-            Paladin.tasker.add( {
+            paladin.tasker.add( {
               callback: function ( task ) {
                 if ( keysDown['a'] ) {
                   shipEntity.spatial.rotation[1] += 1 * task.dt/20;
@@ -73,7 +73,7 @@ function Game() {
       
       init: function ( entity ) {
         var accel = 0.01;
-        var shipFlyingTask = Paladin.tasker.add( {
+        var shipFlyingTask = paladin.tasker.add( {
             callback: function ( task ) {
                 var rotY = entity.spatial.rotation[1];
                 
@@ -97,7 +97,7 @@ function Game() {
     var boxes = [];
     for (var i=0; i<100; ++i) {
       (function () {
-        var mesh = new Paladin.graphics.Mesh( {
+        var mesh = new paladin.graphics.Mesh( {
             primitives: [ {
                 type: 'box',
                 size: 0.5 + Math.random(),
@@ -108,8 +108,8 @@ function Game() {
             finalize: true
         } );
 
-        var box = new Paladin.Entity();
-        box.addComponent( new Paladin.component.Model( {
+        var box = new paladin.Entity();
+        box.addComponent( new paladin.component.Model( {
             mesh: mesh
         } ) );
         box.spatial.position = [-50 + 100 * Math.random(), 
@@ -125,7 +125,7 @@ function Game() {
       })();
     } //for
 
-    var rotationTask = Paladin.tasker.add( {
+    var rotationTask = paladin.tasker.add( {
         callback: function( task ) {
           for ( var i=0, l=boxes.length; i<l; ++i) {
             boxes[i].spatial.rotation[0] += .1;
@@ -136,7 +136,7 @@ function Game() {
     } );
     
     this.run = function () {
-      Paladin.run();
+      paladin.run();
     };
 
     window.foo = scene.graphics;
