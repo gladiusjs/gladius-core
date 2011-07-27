@@ -178,6 +178,18 @@ var Paladin = window.Paladin = function ( options ) {
           }
       };
       
+      this.getTouch = function( touch ) {
+          if( _touches.hasOwnProperty( touch ) ) {
+              return _touches[touch];
+          }
+          else {
+              return {
+                  x: undefined,
+                  y: undefined
+              };
+          }
+      };
+      
       window.addEventListener( 'touchstart', this._touchMove, true );
       window.addEventListener( 'touchmove', this._touchMove, true );
       window.addEventListener( 'touchend', this._touchMove, true );
