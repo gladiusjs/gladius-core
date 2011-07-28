@@ -102,8 +102,8 @@
       return mag <= sqrtRad*sqrtRad;
     },
     intersectsAABB: function ( sphere, aabb ) {
-      var max = aabb[0],
-          min = aabb[1];
+      var min = aabb[0],
+          max = aabb[1];
       max = [ max[0] - dims[0], max[1] - dims[1], max[2] - dims[2] ];
       min = [ min[0] - dims[0], min[1] - dims[1], min[2] - dims[2] ];
       max = max[0]*max[0] + max[1]*max[1] + max[2]*max[2];
@@ -137,7 +137,7 @@
         nodes = [],
         sphere = position.slice().concat( Math.sqrt( 3*size/2*size/2 ) ),
         aabb = [[0,0,0],[0,0,0]],
-        root = undefined,
+        root = options.root,
         that = this;
     
     var halfSize = size/2;
@@ -249,8 +249,8 @@
               children[ news[i][1] ] = new Octree({
                 size: newSize,
                 depth: depth -1,
-                that,
-                news[i][2]
+                root: that,
+                position: news[i][2]
               });
             }
             children[ news[i][1] ].insert( node );
@@ -267,7 +267,7 @@
 
   } //Octree
 
-  Paladin.subsystem.register( "dummy", function ( options ) {
+  Paladin.subsystem.register( "physics", function ( options ) {
   
     options = options || {};
 
@@ -306,7 +306,7 @@
           var max = newDims.max || [0,0,0],
               min = newDims.min || [0,0,0];
 
-          extents = [ max.slice(), min.slide() ];
+          extents = [ min.slice(), max.slice() ];
         }
         else {
           extents = [ newDims[ 0 ].slice(), newDims[ 1 ].slice() ];
@@ -323,6 +323,47 @@
 
       this.setExtents( options );
     }; //AABB
+
+    var Body = this.Body = function ( options ) {
+      options = options || {};
+      var that = this;
+
+      var aabb = new AABB({
+        min: options.aabb ? options.aabb[0] : undefined,
+        max: options.aabb ? options.aabb[1] : undefined,
+      });
+
+      var extents = aabb.getExtents(),
+          diff = [extents[1][0]-extents[0][0], extents[1][1]-extents[0][1], extents[1][2]-extents[0][2]],
+          mag = Math.sqrt(diff[0]*diff[0]+diff[1]*diff[1]+diff[2]*diff[2]);
+
+      var sphere = new Sphere({
+        position: options.position,
+        radius: mag/2,
+      });
+
+      this.getSphere = function () {
+        return sphere;
+      };
+      this.getAABB = function () {
+        return aabb;
+      };
+
+      this.onCollision = options.onCollision;
+
+      this.testCollision = function ( otherBody ) {
+        var otherSphere = otherBody.getSphere();
+        if ( otherSphere.intersectsSphere( sphere ) ) {
+          var otherAABB = otherBody.getAABB();
+          if ( otherAABB.intersectsAABB( aabb ) ) {
+            this.onCollision && options.onCollision( otherBody );
+            return true;
+          } //if
+        } //if
+        return false;
+      };
+
+    };
 
   });
 
