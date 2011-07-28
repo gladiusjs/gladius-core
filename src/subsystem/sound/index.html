@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <title>Sound Effects</title>
+    <script src="audiosrcs.js"></script>
+    <script src="soundeffects.js"></script>
+    <script>
+      var fx = SoundEffects;
+      fx.init({
+        sounds: sounds,
+        callback: function() {
+          document.getElementById('sounds').style.display = "block";
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <h3>Sound Effects</h3>
+    <p>Sound effects are created using <a href="http://humphd.github.com/sfxr.js">SFXR.js</a> and then turned into Wave DataURLs.  This is done to reduce network load (1 load for the sound effects vs. 1 per sound file).  The effects are loaded from <a href="audiosrcs.js">audiosrcs.js</a> into the SoundEffects object, which clones the effects so that multiple instances can be played at once.</p>
+    <p>The code to use the SoundEffects manager is very simple:</p>
+    <pre>
+      var fx = SoundEffects,
+          sound = {'explosion': 'data:audio/wav;base64,UklGRo6EAABXQVZFZm10I...'};
+
+      fx.init({
+        sounds: sounds, /* an object containing audio effect src strings, keyed by effect name */
+        callback: function() { /* effects are ready to be played now... */}
+      });
+
+      fx.play('explosion');
+    </pre>
+    <div id="sounds" style="display: none;">
+      <button onclick="fx.play('explosion');">Explosion 1</button>
+      <button onclick="fx.play('big-explosion');">Big Explosion</button>
+      <button onclick="fx.play('laser1');">Laser 1</button>
+      <button onclick="fx.play('flyby');">Fly By</button>
+    </div>
+  </body>
+</html>
