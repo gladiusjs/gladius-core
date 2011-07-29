@@ -21,6 +21,12 @@
     }
   };
 
+  var bases = [
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+  ];
+
   function dot(a, b) {
     return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
   }
@@ -73,39 +79,43 @@
     },
     overlaps: function ( aabb1, aabb2 ) {
       // thanks flipcode! http://www.flipcode.com/archives/2D_OBB_Intersection.shtml
-      var axes = [
-        [1, 0, 0],
-        [0, 1, 0],
-        [0, 0, 1],
-      ];
+
       for ( var axis=0; axis<3; ++axis ) {
-        var t = dot(aabb1[0], axes[axis]);
+        var t = dot(aabb1[0], bases[axis]);
         var tmin = 1000000000000000000, tmax = -1000000000000000;
-        var corners = [
-          [aabb2[0][0], aabb2[0][1], aabb2[0][2]],
-          [aabb2[1][0], aabb2[0][1], aabb2[0][2]],
-          [aabb2[0][0], aabb2[1][1], aabb2[0][2]],
-          [aabb2[1][0], aabb2[1][1], aabb2[0][2]],
-          [aabb2[0][0], aabb2[0][1], aabb2[1][2]],
-          [aabb2[1][0], aabb2[0][1], aabb2[1][2]],
-          [aabb2[0][0], aabb2[1][1], aabb2[1][2]],
-          [aabb2[1][0], aabb2[1][1], aabb2[1][2]],
-        ];
-        for ( var corner=0; corner<8; ++corner ) {
-          t = dot(corners[corner], axes[axis]);
-          if ( t < tmin ) {
-            tmin = t;
-          }
-          else if ( t > tmax ) {
-            tmax = t;
-          }
-        }
-        var origin1 = dot( aabb1[0], axes[axis] ),
-            origin2 = dot( aabb1[1], axes[axis] );
+
+        //unrolled
+        t = dot([aabb2[0][0], aabb2[0][1], aabb2[0][2]], bases[axis]);
+        tmin = t < tmin ? t : tmin;
+        tmax = t > tmax ? t : tmax;
+        t = dot([aabb2[1][0], aabb2[0][1], aabb2[0][2]], bases[axis]);
+        tmin = t < tmin ? t : tmin;
+        tmax = t > tmax ? t : tmax;
+        t = dot([aabb2[0][0], aabb2[1][1], aabb2[0][2]], bases[axis]);
+        tmin = t < tmin ? t : tmin;
+        tmax = t > tmax ? t : tmax;
+        t = dot([aabb2[1][0], aabb2[1][1], aabb2[0][2]], bases[axis]);
+        tmin = t < tmin ? t : tmin;
+        tmax = t > tmax ? t : tmax;
+        t = dot([aabb2[0][0], aabb2[0][1], aabb2[1][2]], bases[axis]);
+        tmin = t < tmin ? t : tmin;
+        tmax = t > tmax ? t : tmax;
+        t = dot([aabb2[1][0], aabb2[0][1], aabb2[1][2]], bases[axis]);
+        tmin = t < tmin ? t : tmin;
+        tmax = t > tmax ? t : tmax;
+        t = dot([aabb2[0][0], aabb2[1][1], aabb2[1][2]], bases[axis]);
+        tmin = t < tmin ? t : tmin;
+        tmax = t > tmax ? t : tmax;
+        t = dot([aabb2[1][0], aabb2[1][1], aabb2[1][2]], bases[axis]);
+        tmin = t < tmin ? t : tmin;
+        tmax = t > tmax ? t : tmax;
+
+        var origin1 = dot( aabb1[0], bases[axis] ),
+            origin2 = dot( aabb1[1], bases[axis] );
         if ( ( tmin > origin2 ) || tmax < origin1 ) {
           return false;
         }
-      }
+      } //for
       return true;
     },
     intersectsAABB: function ( aabb1, aabb2 ) {
@@ -476,7 +486,7 @@
         for ( var i=0, l=bodies.length; i<l; ++i ) {
           bodies[i].advance( time );
         }
-        // the worst
+        // TODO [secretrobotron]: the worst (use the octree)
         for ( var i=0, l=bodies.length; i<l; ++i ) {
           for ( var j=0; j<l; ++j ) {
             if ( bodies[i] !== bodies[j] && bodies[i].testCollision( bodies[j] ) ) {
