@@ -21,6 +21,10 @@
     }
   };
 
+  function dot(a, b) {
+    return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+  }
+
   var aabbMath = {
     engulf: function (aabb, point) {
       if (aabb[0][0] > point[0]) {
@@ -67,9 +71,48 @@
             &&  point[1] >= aabb[0][1]
             &&  point[2] >= aabb[0][2];
     },
+    overlaps: function ( aabb1, aabb2 ) {
+      // thanks flipcode! http://www.flipcode.com/archives/2D_OBB_Intersection.shtml
+      var axes = [
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 1],
+      ];
+      for ( var axis=0; axis<3; ++axis ) {
+        var t = dot(aabb1[0], axes[axis]);
+        var tmin = 1000000000000000000, tmax = -1000000000000000;
+        var corners = [
+          [aabb2[0][0], aabb2[0][1], aabb2[0][2]],
+          [aabb2[1][0], aabb2[0][1], aabb2[0][2]],
+          [aabb2[0][0], aabb2[1][1], aabb2[0][2]],
+          [aabb2[1][0], aabb2[1][1], aabb2[0][2]],
+          [aabb2[0][0], aabb2[0][1], aabb2[1][2]],
+          [aabb2[1][0], aabb2[0][1], aabb2[1][2]],
+          [aabb2[0][0], aabb2[1][1], aabb2[1][2]],
+          [aabb2[1][0], aabb2[1][1], aabb2[1][2]],
+        ];
+        for ( var corner=0; corner<8; ++corner ) {
+          t = dot(corners[corner], axes[axis]);
+          if ( t < tmin ) {
+            tmin = t;
+          }
+          else if ( t > tmax ) {
+            tmax = t;
+          }
+        }
+        var origin1 = dot( aabb1[0], axes[axis] ),
+            origin2 = dot( aabb1[1], axes[axis] );
+        if ( ( tmin > origin2 ) || tmax < origin1 ) {
+          return false;
+        }
+      }
+      return true;
+    },
     intersectsAABB: function ( aabb1, aabb2 ) {
-      var contains = aabbMath.containsPoint;
-      return contains( aabb1, aabb2[0] ) || contains( aabb1, aabb2[1] );
+      if ( aabbMath.containsPoint( aabb1, aabb2[0] ) || aabbMath.containsPoint( aabb1, aabb2[1] ) ) {
+        return true;
+      }
+      return aabbMath.overlaps( aabb1, aabb2 ) || aabbMath.overlaps( aabb2, aabb1 );
     }
   };
 
@@ -271,9 +314,9 @@
   
     options = options || {};
 
-    var dims = [0, 0, 0, 0];
-
     var Sphere = this.Sphere = function ( options ) {
+      var dims = [0,0,0,0];
+
       this.intersectsSphere = function ( otherSphere ) {
         return sphereMath.intersectsSphere( dims, otherSphere.getDims() );
       };
@@ -324,9 +367,32 @@
       this.setExtents( options );
     }; //AABB
 
+    var numBodies = 0;
     var Body = this.Body = function ( options ) {
       options = options || {};
       var that = this;
+
+      var id = numBodies++;
+      this.getId = function () {
+        return id;
+      };
+
+      var vel = options.velocity || [0, 0, 0];
+      var acc = options.acceleration || [0, 0, 0];
+
+      this.setVelocity = function ( v ) {
+        vel = v;
+      };
+      this.setAcceleration = function ( a ) {
+        acc = a;
+      };
+
+      this.getVelocity = function () {
+        return vel;
+      };
+      this.getAcceleration = function () {
+        return accel;
+      };
 
       var aabb = new AABB({
         min: options.aabb ? options.aabb[0] : undefined,
@@ -338,7 +404,7 @@
           mag = Math.sqrt(diff[0]*diff[0]+diff[1]*diff[1]+diff[2]*diff[2]);
 
       var sphere = new Sphere({
-        position: options.position,
+        position: [extents[0][0] + diff[0]/2, extents[0][1] + diff[1]/2, extents[0][2] + diff[2]/2],
         radius: mag/2,
       });
 
@@ -356,13 +422,70 @@
         if ( otherSphere.intersectsSphere( sphere ) ) {
           var otherAABB = otherBody.getAABB();
           if ( otherAABB.intersectsAABB( aabb ) ) {
-            this.onCollision && options.onCollision( otherBody );
             return true;
           } //if
         } //if
         return false;
       };
 
+      this.advance = function ( time ) {
+        if ( !time ) return;
+        vel[0] += acc[0]*time;
+        vel[1] += acc[1]*time;
+        vel[2] += acc[2]*time;
+        var vx = vel[0]*time,
+            vy = vel[1]*time,
+            vz = vel[2]*time;
+        var sphereDims = sphere.getDims();
+        var aabbDims = aabb.getExtents();
+        sphereDims[0] += vx;
+        sphereDims[1] += vy;
+        sphereDims[2] += vz;
+        aabbDims[0][0] += vx;
+        aabbDims[0][1] += vy;
+        aabbDims[0][2] += vz;
+        aabbDims[1][0] += vx;
+        aabbDims[1][1] += vy;
+        aabbDims[1][2] += vz;
+      };
+
+    };
+
+    var Universe = this.Universe = function ( options ) {
+      options = options || {};
+
+      var bodies = [];
+
+      this.addBody = function ( body ) {
+        if ( bodies.indexOf( body ) === -1 ) {
+          bodies.push( body );
+        }
+        return body;
+      };
+
+      this.removeBody = function ( body ) {
+        var idx = bodies.indexOf( body );
+        if ( idx > -1 ) {
+          idx.splice( idx, 1 );
+        }
+        return body;
+      };
+
+      this.advance = function ( time ) {
+        var collisions = [];
+        for ( var i=0, l=bodies.length; i<l; ++i ) {
+          bodies[i].advance( time );
+        }
+        // the worst
+        for ( var i=0, l=bodies.length; i<l; ++i ) {
+          for ( var j=0; j<l; ++j ) {
+            if ( bodies[i] !== bodies[j] && bodies[i].testCollision( bodies[j] ) ) {
+              collisions.push( [ bodies[i], bodies[j] ] );
+            } //if
+          } //for
+        } //for
+        return collisions;
+      }; //advance
     };
 
   });

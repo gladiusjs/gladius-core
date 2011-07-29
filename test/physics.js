@@ -39,4 +39,40 @@
     ok( !body1.testCollision( body3 ), "non-overlapping objects don't collide" );
   });
 
+  test("Universe", function () {
+    var body1 = new paladin.physics.Body({
+      aabb: [[-3, -3, -3], [1, 1, 1]],
+      position: [-1, -1, -1]
+    });
+
+    var body2 = new paladin.physics.Body({
+      aabb: [[-2, -2, -2], [1, 1, 1]],
+      position: [1, 1, 1]
+    });
+
+    var body3 = new paladin.physics.Body({
+      aabb: [[5, 5, 5], [6, 6, 6]],
+      position: [1, 1, 1]
+    });
+
+    var universe = new paladin.physics.Universe();
+
+    var collisions = universe.advance();
+    ok( collisions.length === 0, "no collisions yet");
+
+    universe.addBody( body1 );
+    universe.addBody( body2 );
+    universe.addBody( body3 );
+
+    collisions = universe.advance(1);
+    ok( collisions.length === 1, "a collision!" );
+
+    body2.setAcceleration([20, 0, 0]);
+    collisions = universe.advance(.1);
+    ok( collisions.length === 1, "a collision still!" );
+
+    collisions = universe.advance(1);
+    ok( collisions.length === 0, "no more collisions" );
+  });
+
 })(window, document, undefined, Paladin);

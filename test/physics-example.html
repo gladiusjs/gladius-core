@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	  <link rel="stylesheet" href="qunit/qunit.css" type="text/css" media="screen">
+    <script type="text/javascript" src="../src/paladin.js"></script>
+    <script type="text/javascript" src="../src/subsystem/paladin.subsystem.js"></script>
+    <script type="text/javascript" src="../src/subsystem/physics/paladin.subsystem.physics.js"></script>
+    <script type="text/javascript">
+      document.addEventListener('DOMContentLoaded', function (e) {
+        var canvas = document.getElementById('test-canvas'),
+            ctx = canvas.getContext('2d');
+
+        var paladin = new Paladin({
+        });
+
+        var bodies = [
+          new paladin.physics.Body({
+            aabb: [[95, 145, 0], [155, 215, 0]]
+          }),
+          new paladin.physics.Body({
+            aabb: [[55, 110, 0], [95, 130, 0]]
+          }),
+          new paladin.physics.Body({
+            aabb: [[20, 150, 0], [130, 260, 0]]
+          }),
+        ];
+
+        var universe = new paladin.physics.Universe();
+
+        for ( var i=0; i<bodies.length; ++i ) {
+          universe.addBody( bodies[i] );
+        }
+
+        //bodies[1].setVelocity([2, 2, 0]);
+
+        function draw() {
+          ctx.fillStyle = "#000";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          for ( var i=0, l=bodies.length; i<l; ++i ) {
+            if ( bodies[i].smash ) {
+              ctx.fillStyle = "rgb(215, 128, 0)";
+            }
+            else {
+              ctx.fillStyle = "rgb("+(255-(i*24))+", "+(255-(i*32))+", "+(255-(i*48))+")";
+            }
+            var ext = bodies[i].getAABB().getExtents();
+            var sph = bodies[i].getSphere().getDims();
+            ctx.strokeStyle = "#fff";
+            ctx.fillRect( ext[0][0], ext[0][1], ext[1][0]-ext[0][0], ext[1][1]-ext[0][1] );
+            ctx.strokeRect( ext[0][0], ext[0][1], ext[1][0]-ext[0][0], ext[1][1]-ext[0][1] );
+            ctx.beginPath();
+            ctx.arc(sph[0], sph[1], sph[3], 0, Math.PI*2, true);
+            ctx.stroke();
+            bodies[i].smash = false;
+          }
+        }
+
+        var frames = 0;
+        function advance () {
+          ++frames;
+          var collisions = universe.advance(1);
+          bodies[1].setVelocity([4*Math.sin(frames/25), 4*Math.cos(frames/25), 0]);
+          //bodies[2].setVelocity([-6*Math.sin(frames/35), -6*Math.cos(frames/25), 0]);
+          bodies[2].setVelocity([6*Math.sin(frames/35), 6*Math.cos(frames/25), 0]);
+          if ( collisions.length ) {
+            for ( var i=0; i<collisions.length; ++i ) {
+              collisions[i][0].smash = true;
+              collisions[i][1].smash = true;
+            }
+          }
+          draw();
+        }
+
+        setInterval( advance, 20 );
+      }, false);
+    </script>
+  </head>
+  <body>
+    <canvas id="test-canvas" width="1000" height="400"></canvas>
+  </body>
+</html>
