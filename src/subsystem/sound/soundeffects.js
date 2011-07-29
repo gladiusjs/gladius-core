@@ -23,6 +23,12 @@
  *    into SoundEffects.  NOTE: you must load sounds via init() before accessing
  *    effectNames.
  *
+ *  - SoundEffects.volume - a read/write property that sets the volume to be used
+ *    for all sound effects. The volume must be a value between 0 and 1.0.
+ *
+ *  - SoundEffects.muted - a read/write property that determines whether any
+ *    sound should be made when playing sound effects.
+ *
  * Sample Code:
  * ------------
  *
@@ -49,6 +55,8 @@
 var SoundEffects = (function(global, nop) {
 
   var readyState = 0,
+    globalVolume = 1.0,
+    globalMuted = false,
     cloneCount,
     readyCallback = nop,
     audioSources = {},
@@ -72,7 +80,31 @@ var SoundEffects = (function(global, nop) {
         return audioNames.slice(0);
       },
 
+      get volume() {
+        return globalVolume;
+      },
+
+      set volume(v) {
+        // Normalize to a value between 0 and 1.0
+        v = v < 0 ? 0 : v;
+        v = v > 1.0 ? 1.0 : v;
+
+        globalVolume = v;
+      },
+
+      get muted() {
+        return globalMuted;
+      },
+
+      set muted(m) {
+        globalMuted = !!m;
+      },
+
       init: function(config) {
+        if (readyState !== this.EMPTY) {
+          throw "SoundEffects: invalid state.  You can only call init() once.";
+        }
+
         cloneCount = config.channels || 4;
         readyCallback = config.callback || nop;
         var sounds = config.sounds;
@@ -84,11 +116,18 @@ var SoundEffects = (function(global, nop) {
       },
 
       play: function(name) {
+        if (readyState !== fx.READY) {
+          throw "SoundEffects: invalid state.  You must call init() before calling play().";
+        }
+
         if (!audioSources[name]) {
           throw "SoundEffects: no sound named '" + name + "'";
         }
 
-        findAvailable(name).play();
+        var audio = findAvailable(name);
+        audio.volume = globalVolume;
+        audio.muted = globalMuted;
+        audio.play();
       }
     };
 

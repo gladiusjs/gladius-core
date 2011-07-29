@@ -1,4 +1,4 @@
-(function (window, document, Paladin) {
+(function (window, document, Paladin, undefined) {
 
   var numDummies = 0;
 
@@ -20,4 +20,4 @@
 
   });
 
-})(window, document, Paladin);
+})(window, window.document, Paladin);

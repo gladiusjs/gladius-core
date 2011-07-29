@@ -1,5 +1,5 @@
 /*global deepEqual,expect,module,ok,Paladin,start,stop,test,window */
-(function ( window, document, undefined, Paladin ) {
+(function ( window, document, Paladin, undefined ) {
 
     var paladin, scene, camera, model, task;
      
@@ -86,4 +86,4 @@
       deepEqual( model.object.rotation, [15, 30, 45], "Initial model rotation" );
     });
 
-})( window, document, undefined, Paladin );
+})( window, window.document, Paladin );

@@ -1,4 +1,4 @@
-(function (window, document, undefined, Paladin) {
+(function (window, document, Paladin, undefined) {
 
   var subsystems = {};
 
@@ -24,4 +24,4 @@
 
   };
 
-})(window, document, undefined, Paladin);
+})(window, window.document, Paladin);
