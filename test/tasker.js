@@ -1,5 +1,5 @@
 /*global stop,console,start,expect,ok,module,Paladin,test,window*/
-(function (window, document, undefined, Paladin) {
+(function (window, document, Paladin, undefined) {
 
     var paladin,
     task;
@@ -44,5 +44,4 @@
         paladin.run();
     } ); 
 
-})(window, document, undefined, Paladin);
-
+})(window, window.document, Paladin);

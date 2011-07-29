@@ -1,4 +1,4 @@
-(function (window, document, undefined, Paladin) {
+(function (window, document, Paladin, undefined) {
   document.addEventListener('DOMContentLoaded', function (e) {
     module("Paladin components", {
       setup: function () {
@@ -61,4 +61,4 @@
 
   }, false);
 
-})(window, document, undefined, Paladin);
+})(window, window.document, Paladin);
