@@ -1,5 +1,5 @@
 /*global text,expect,ok,module,notEqual,Paladin,test,window,start,stop,console,asyncTest*/
-(function (window, document, undefined, Paladin) {
+(function (window, document, Paladin, undefined) {
 
   var paladin, entity1;
 
@@ -87,4 +87,4 @@
     simulateClick();
   });
 
-})(window, document, undefined, Paladin);
+})(window, window.document, Paladin);
