@@ -382,7 +382,9 @@
       options = options || {};
       var that = this;
 
-      var id = numBodies++;
+      var layer = 0,
+          id = numBodies++;
+
       this.getId = function () {
         return id;
       };
@@ -424,6 +426,15 @@
       this.getAABB = function () {
         return aabb;
       };
+      
+      this.moveAABB = function ( extents ) {
+        aabb.setExtents( extents );
+        var diff = [extents[1][0]-extents[0][0], extents[1][1]-extents[0][1], extents[1][2]-extents[0][2]],
+            mag = Math.sqrt(diff[0]*diff[0]+diff[1]*diff[1]+diff[2]*diff[2]);
+
+        sphere.setDims([extents[0][0] + diff[0]/2, extents[0][1] + diff[1]/2, extents[0][2] + diff[2]/2, mag/2]);
+
+      };
 
       this.onCollision = options.onCollision;
 
@@ -459,12 +470,25 @@
         aabbDims[1][2] += vz;
       };
 
+      this.setLayer = function ( l ) {
+        layer = l;
+      };
+
+      this.getLayer = function () {
+        return layer;
+      };
+
+      this.collisions = [];
+
+      this.externalObject = undefined;
+
     };
 
     var Universe = this.Universe = function ( options ) {
       options = options || {};
 
-      var bodies = [];
+      var bodies = [],
+          that = this;
 
       this.addBody = function ( body ) {
         if ( bodies.indexOf( body ) === -1 ) {
@@ -476,25 +500,37 @@
       this.removeBody = function ( body ) {
         var idx = bodies.indexOf( body );
         if ( idx > -1 ) {
-          idx.splice( idx, 1 );
+          bodies.splice( idx, 1 );
         }
         return body;
       };
 
-      this.advance = function ( time ) {
+      this.getCollisions = function () {
         var collisions = [];
+         // TODO [secretrobotron]: the worst (use the octree)
         for ( var i=0, l=bodies.length; i<l; ++i ) {
-          bodies[i].advance( time );
+          bodies[i].collisions = [];
         }
-        // TODO [secretrobotron]: the worst (use the octree)
         for ( var i=0, l=bodies.length; i<l; ++i ) {
           for ( var j=0; j<l; ++j ) {
-            if ( bodies[i] !== bodies[j] && bodies[i].testCollision( bodies[j] ) ) {
+            if (     bodies[i] !== bodies[j]
+                  && bodies[i].collisions.indexOf( bodies[j] ) === -1
+                  && bodies[i].testCollision( bodies[j] ) 
+              ) {
+              bodies[i].collisions.push( bodies[j] );
+              bodies[j].collisions.push( bodies[i] );
               collisions.push( [ bodies[i], bodies[j] ] );
             } //if
           } //for
         } //for
         return collisions;
+      };
+
+      this.advance = function ( time ) {
+        for ( var i=0, l=bodies.length; i<l; ++i ) {
+          bodies[i].advance( time );
+        }
+        return that.getCollisions();
       }; //advance
     };
 

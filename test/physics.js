@@ -22,17 +22,14 @@
   test("Body object", function () {
     var body1 = new paladin.physics.Body({
       aabb: [[-3, -3, -3], [1, 1, 1]],
-      position: [-1, -1, -1]
     });
 
     var body2 = new paladin.physics.Body({
       aabb: [[-2, -2, -2], [1, 1, 1]],
-      position: [1, 1, 1]
     });
 
     var body3 = new paladin.physics.Body({
       aabb: [[5, 5, 5], [6, 6, 6]],
-      position: [1, 1, 1]
     });
 
     ok( body1.testCollision( body2 ), "overlapping objects collide" );
@@ -42,17 +39,14 @@
   test("Universe", function () {
     var body1 = new paladin.physics.Body({
       aabb: [[-3, -3, -3], [1, 1, 1]],
-      position: [-1, -1, -1]
     });
 
     var body2 = new paladin.physics.Body({
       aabb: [[-2, -2, -2], [1, 1, 1]],
-      position: [1, 1, 1]
     });
 
     var body3 = new paladin.physics.Body({
       aabb: [[5, 5, 5], [6, 6, 6]],
-      position: [1, 1, 1]
     });
 
     var universe = new paladin.physics.Universe();
@@ -66,6 +60,7 @@
 
     collisions = universe.advance(1);
     ok( collisions.length === 1, "a collision!" );
+    console.log( collisions.length );
 
     body2.setAcceleration([20, 0, 0]);
     collisions = universe.advance(.1);
