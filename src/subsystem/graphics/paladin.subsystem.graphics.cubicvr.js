@@ -1,4 +1,4 @@
-(function (window, document, undefined, Paladin, CubicVR) {
+(function (window, document, Paladin, CubicVR, undefined) {
 
   function extend ( object, extra ) {
     for ( var prop in extra ) {
@@ -230,4 +230,4 @@
 
   }); //system
 
-})(window, document, undefined, Paladin, CubicVR);
+})(window, window.document, Paladin, CubicVR);

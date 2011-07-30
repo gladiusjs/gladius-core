@@ -1,5 +1,5 @@
 /*global deepEqual,expect,module,ok,Paladin,start,stop,test,window */
-(function ( window, document, undefined, Paladin ) {
+(function ( window, document, Paladin, undefined ) {
 
     var paladin, scene, camera, model, task;
      
@@ -39,11 +39,13 @@
         entity.addComponent( camera );
         entity.setParent( scene );
 
+        /*
         task = paladin.tasker.add({
           callback: function () {
             model.object.rotation[0] += 1;
           }
         });
+        */
 
       },
       teardown: function graphics_teardown ( ) {
@@ -86,4 +88,4 @@
       deepEqual( model.object.rotation, [15, 30, 45], "Initial model rotation" );
     });
 
-})( window, document, undefined, Paladin );
+})( window, window.document, Paladin );
