@@ -39,11 +39,13 @@
         entity.addComponent( camera );
         entity.setParent( scene );
 
+        /*
         task = paladin.tasker.add({
           callback: function () {
             model.object.rotation[0] += 1;
           }
         });
+        */
 
       },
       teardown: function graphics_teardown ( ) {
