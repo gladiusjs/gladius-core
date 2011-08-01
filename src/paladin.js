@@ -109,90 +109,207 @@ var Paladin = window.Paladin = function ( options ) {
 
   };
 
-  /***
-   * MouseWatcher
-   * 
-   * Caches the current mouse position and provides access to the coordinates.
-   */
-  function MouseWatcher() {
+  function KeyboardInput( messenger, element ) {
 
-      var _mousePosition = {
-              X: undefined,
-              Y: undefined
-          },
-          _mouseDelta = {
-              dX: undefined,
-              dY: undefined
-          };
-      
-      this.__defineGetter__( 'X', function() {
-          return _mousePosition.X;
-      } );
-      this.__defineGetter__( 'Y', function() {
-          return _mousePosition.Y;
-      } );
-      this.__defineGetter__( 'dX', function() {
-          return _mouseDelta.dX;
-      } );
-      this.__defineGetter__( 'dY', function() {
-          return _mouseDelta.dY;
-      } );
-      
-      this._mouseMove = function( event ) {
-          if( _mousePosition.X )
-              _mouseDelta.dX = _mousePosition.X - event.pageX;
-          if( _mousePosition.Y )
-              _mouseDelta.dY = _mousePosition.Y - event.pageY;
+      var that = this;
+      var TYPE = 'keyboard';
+      var KEYMAP = {
+              0: 'meta',
+              16: 'shift',
+              17: 'ctrl',
+              18: 'alt',
+              27: 'escape',
+              37: 'left',
+              38: 'up',
+              39: 'right',
+              40: 'down'
+      };
+      for( var key = 48; key <= 90; ++ key )
+          KEYMAP[key] = String.fromCharCode( key ).toLocaleLowerCase();
+
+      var UNDEFINED = 'undefined';
+      var MODIFIERS = [0, 16, 17, 18];
+
+      var processEvent = function( event ) {
+          var inputs = [];
           
-          _mousePosition.X = event.pageX;
-          _mousePosition.Y = event.pageY;
+          if( event.shiftKey || 16 == event.keyCode )
+              inputs.push( KEYMAP[16] );
+          if( event.ctrlKey || 17 == event.keyCode )
+              inputs.push( KEYMAP[17] );
+          if( event.altKey || 18 == event.keyCode )
+              inputs.push( KEYMAP[18] );
+          if( event.metaKey || 0 == event.keyCode )
+              inputs.push( KEYMAP[0] );
+          
+          if( KEYMAP.hasOwnProperty( event.keyCode ) )
+              inputs.push( KEYMAP[event.keyCode] );
+          else
+              inputs.push( UNDEFINED );
+
+          return inputs;
+      };
+      
+      var hashInput = function( input, state ) {
+          var result = TYPE;
+          
+          var hash = [];
+          for( var key in Object.keys( KEYMAP ) ) {
+              if( input.indexOf( KEYMAP[key]) >= 0 )
+                  hash.push( key );
+          }
+          result += ':' + hash.join( '-' );
+          
+          result += ':';
+          if( null != state )
+              result += state ? 'true' : 'false';
+          
+          return result;
+      };
+      
+      this.Event = function( input, state ) {
+          return hashInput( input, state );
       };
 
-      window.addEventListener( 'mousemove', this._mouseMove, true );
-      window.addEventListener( 'mouseover', this._mouseMove, true );
+      this.handleKeyDown = function( event ) {
+          var event = that.Event( processEvent( event ), true );
+          messenger.send( {
+              event: event,
+              parameters: []
+          } );
+      };
+
+      this.handleKeyUp = function( event ) {
+          var event = that.Event( processEvent( event ), false );
+          messenger.send( {
+              event: event,
+              parameters: []
+          } );
+      };
+
+      element.addEventListener( 'keydown', this.handleKeyDown, true );
+      element.addEventListener( 'keyup', this.handleKeyUp, true );
+
   };
   
-  function TouchWatcher() {
-      
-      var _touches = {};
+  function MouseInput( messenger, element ) {
 
-      this._touchStart = function( event ) {
-          for( var touch in touches ) {
-              _touches[touch.identifier] = {
-                  X: touch.pageX,
-                  Y: touch.pageY
-              };
-          }
+      var that = this;
+      var TYPE = 'mouse';
+      var KEYMAP = {
+              0: 'meta',
+              16: 'shift',
+              17: 'ctrl',
+              18: 'alt',
+      };
+      var BUTTONMAP = {
+              0: 'mouse1',
+              1: 'mouse3',
+              2: 'mouse2'
+      };
+      var WHEELMAP = {
+              0: 'wheel-up',
+              1: 'wheel-down'
+      };
+      var UNDEFINED = 'undefined';
+      var MODIFIERS = [0, 16, 17, 18];
+
+      var position = {
+              x: undefined,
+              y: undefined
+      };
+
+      var processEvent = function( event ) {
+          position.x = event.pageX;
+          position.y = event.pageY;
+          
+          var inputs = [];
+          
+          if( event.shiftKey || 16 == event.keyCode )
+              inputs.push( KEYMAP[16] );
+          if( event.ctrlKey || 17 == event.keyCode )
+              inputs.push( KEYMAP[17] );
+          if( event.altKey || 18 == event.keyCode )
+              inputs.push( KEYMAP[18] );
+          if( event.metaKey || 0 == event.keyCode )
+              inputs.push( KEYMAP[0] );
+          
+          if( event instanceof MouseEvent &&
+                  BUTTONMAP.hasOwnProperty( event.button ) )
+              inputs.push( BUTTONMAP[event.button] );
+          else if( event instanceof DOMMouseScroll )
+              inputs.push( (event.detail < 0) ? WHEELMAP[0] : WHEELMAP[1] );
+          else
+              inputs.push( UNDEFINED );
+
+          return inputs;
       };
       
-      this._touchMove = function( event ) {
-          for( var touch in touches ) {
-              _touches[touch.identifier].X = touch.pageX;
-              _touches[touch.identifier].Y = touch.pageY;
+      var hashInput = function( input, state ) {
+          var result = TYPE;
+          
+          var hash = [];
+          for( var key in Object.keys( KEYMAP ) ) {
+              if( input.indexOf( KEYMAP[key] ) >= 0 )
+                  hash.push( key );
           }
+          result += ':' + hash.join( '-' );
+          
+          hash = [];
+          for( var button in Object.keys( BUTTONMAP ) ) {            
+              if( input.indexOf( BUTTONMAP[button] ) >= 0 ) {
+                  hash.push( button );
+              }
+          }
+          result += ':' + hash.join( '-' );
+          
+          hash = [];
+          for( var wheel in Object.keys( WHEELMAP ) ) {
+              if( input.indexOf( WHEELMAP[wheel] ) >= 0 ) {
+                  hash.push( wheel );
+              }
+          }
+          result += ':' + hash.join( '-' );
+          
+          result += ':';
+          if( null != state )
+              result += state ? 'true' : 'false';
+          
+          return result;
       };
       
-      this._touchEnd = function( event ) {
-          for( var touch in touches ) {
-              delete _touches[touch.identifier];
-          }
+      this.Event = function( input, state ) {
+          return hashInput( input, state );
+      };
+     
+      this.handleMouseDown = function( event ) {
+          var event = that.Event( processEvent( event ), true );
+          messenger.send( {
+              event: event,
+              parameters: [position]
+          } );
+      };
+
+      this.handleMouseUp = function( event ) {
+          var event = that.Event( processEvent( event ), false );
+          messenger.send( {
+              event: event,
+              parameters: [position]
+          } );
+      };
+
+      this.handleMouseWheel = function( event ) {
+          var event = that.Event( processEvent( event ), null );
+          messenger.send( {
+              event: event,
+              parameters: [position]
+          } );
       };
       
-      this.getTouch = function( touch ) {
-          if( _touches.hasOwnProperty( touch ) ) {
-              return _touches[touch];
-          }
-          else {
-              return {
-                  x: undefined,
-                  y: undefined
-              };
-          }
-      };
-      
-      window.addEventListener( 'touchstart', this._touchMove, true );
-      window.addEventListener( 'touchmove', this._touchMove, true );
-      window.addEventListener( 'touchend', this._touchMove, true );
+      element.addEventListener( 'mousedown', this.handleMouseDown, true );
+      element.addEventListener( 'mouseup', this.handleMouseUp, true );
+      element.addEventListener( 'DOMMouseScroll', this.handleMouseWheel, true );
+
   };
 
   /***
@@ -204,32 +321,34 @@ var Paladin = window.Paladin = function ( options ) {
    * listen for them.
    */
   function Messenger() {
-      
-      var callbacks = {},
-          that = this;
+
+      var callbacks = {};
       
       this.listen = function( options ) {
           var id = options.entity.getId();
+          
           if( !callbacks.hasOwnProperty( options.event ) )
-              callbacks[options.event] = {};        
+              callbacks[options.event] = {};
+                    
           callbacks[options.event][id] = {
               callback: options.callback.bind( options.entity ),
               parameters: options.parameters,
               persistent: options.persistent
-          };
+          };          
       };
       
-      this.ignore = function( options ) {
+      this.ignore = function( options ) {          
           if( callbacks.hasOwnProperty( options.event ) ) {
-              if( callbacks[options.event].hasOwnProperty( options.entity.getId() ) )
-                  delete callbacks[options.event][options.entity.getId()];
-              if( 0 == Object.keys( callbacks[options.event] ).length )
+              var listeners = callbacks[options.event];
+              if( listeners.hasOwnProperty( options.entity.getId() ) )
+                  delete listeners[options.entity.getId()];
+              if( 0 == Object.keys( listeners ).length )
                   delete callbacks[options.event];
           }
       };
       
       this.ignoreAll = function( options ) {
-          
+          // Not implemented.
       };
       
       this.send = function( options ) {
@@ -242,158 +361,13 @@ var Paladin = window.Paladin = function ( options ) {
                   
                   callback( parameters.concat( options.parameters ) );
                   if( !persistent )
-                      delete callbacks[options.event][id];
+                      delete listeners[id];
               }
+              if( 0 == Object.keys( listeners ).length )
+                  delete callbacks[options.event];
           }
       };
 
-      this._keyDown = function( event ) {
-          that.send( {
-              event: that._convertKeyEvent( event, 'down' ),
-              parameters: []
-          } );
-      };
-      
-      this._keyUp = function( event ) {
-          that.send( {
-              event: that._convertKeyEvent( event, 'up' ),
-              parameters: []
-          } );        
-      };
-
-      this._mouseButtonDown = function( event ) {
-          that.send( {
-              event: that._convertMouseButtonEvent( event, 'down' ),
-              parameters: []
-          } );        
-      };
-
-      this._mouseButtonUp = function( event ) {
-          that.send( {
-              event: that._convertMouseButtonEvent( event, 'up' ),
-              parameters: []
-          } );        
-      };
-
-      this._mouseWheelScroll = function( event ) {
-          that.send( {
-              event: that._convertMouseWheelEvent( event ),
-              parameters: []
-          } );        
-      };
-      
-      this._touchDown = function( event ) {
-          console.log( 'touch-down' );
-          for( var touch in touches ) {
-              that.send( {
-                  event: that._convertTouchEvent( event, 'down' ),
-                  parameters: [touch.identifier]
-              } );
-          }
-      };
-      
-      this._touchUp = function( event ) {
-          console.log( 'touch-up' );
-          for( var touch in touches ) {
-              that.send( {
-                  event: that._convertTouchEvent( event, 'up' ),
-                  parameters: [touch.identifier]
-              } );
-          }
-      };
-      
-      this._convertKeyEvent = function( event, mode ) {
-          var code = event.keyCode;
-          
-          var components = [];
-          if( event.shiftKey || code == 16 )
-              components.push( 'shift' );
-          if( event.ctrlKey || code == 17 )
-              components.push( 'control' );
-          if( event.altKey || code == 18 )
-              components.push( 'alt' );
-          if( event.metaKey || code == 0 )
-              components.push( 'meta' );
-
-          if( code == 0 || (code >= 16 && code <= 18) || code == 224 ) {
-              // These are modifier keys, do nothing.
-          }
-          else if( code == 27 )
-              components.push( 'escape' );
-          else if( code == 37 )
-              components.push( 'larrow' );
-          else if( code == 38 )
-              components.push( 'uarrow' );
-          else if( code == 39 )
-              components.push( 'rarrow' );
-          else if( code == 40 )
-              components.push( 'darrow' );
-          else if( (code >= 48 && code <= 90) )         
-              components.push( String.fromCharCode( code ).toLocaleLowerCase() );
-          else
-              components.push( '<' + code + '>' );
-          
-          components.push( mode );
-          
-          var result = components.join( '-' );
-          return result;
-      };
-
-      this._convertMouseButtonEvent = function( event, mode ) {
-          var code = event.button;
-
-          var components = [];
-          if( event.shiftKey )
-              components.push( 'shift' );
-          if( event.ctrlKey )
-              components.push( 'control' );
-          if( event.altKey )
-              components.push( 'alt' );
-          if( event.metaKey )
-              components.push( 'meta' );
-
-          if( code == 0 )
-              components.push( 'mouse1' );
-          else if( code == 2 )
-              components.push( 'mouse2' );
-          else if( code == 1 )
-              components.push( 'mouse3' );
-          else
-              components.push( '<' + code + '>' );
-
-          components.push( mode );
-
-          var result = components.join( '-' );
-          return result;
-      };
-
-      this._convertMouseWheelEvent = function( event ) {
-          var code = event.detail;
-
-          var components = [];
-          if( event.shiftKey )
-              components.push( 'shift' );
-          if( event.ctrlKey )
-              components.push( 'control' );
-          if( event.altKey )
-              components.push( 'alt' );
-          if( event.metaKey )
-              components.push( 'meta' );
-
-          if( code < 0 )
-              components.push( 'wheel-up' );
-          else if( code > 0 )
-              components.push( 'wheel-down' );
-
-          var result = components.join( '-' );
-          return result;
-      };
-      
-      this._convertTouchEvent = function( event, mode ) {
-          var result = "touch-" + mode;
-          return result;
-      };
-      
   };
 
   /***
@@ -687,19 +661,9 @@ var Paladin = window.Paladin = function ( options ) {
   this.debug = options && options.debug ? console.log : function () {};
   this.tasker = new Tasker();
   this.messenger = new Messenger();
-  this.mouseWatcher = new MouseWatcher();
-  this.touchWatcher = new TouchWatcher();
   this.loader = new Loader();
 
-  this.run = function () {
-      var canvas = that.graphics.getCanvas();
-      
-      canvas.addEventListener( 'keydown', that.messenger._keyDown, true );
-      canvas.addEventListener( 'keyup', that.messenger._keyUp, true );
-      canvas.addEventListener( 'mousedown', that.messenger._mouseButtonDown, true );
-      canvas.addEventListener( 'mouseup', that.messenger._mouseButtonUp, true );
-      canvas.addEventListener( 'DOMMouseScroll', that.messenger._mouseWheelScroll, true );
-      
+  this.run = function () {    
       ( options && options.run ) && options.run ( that );
       that.tasker.run();
   };
@@ -709,6 +673,8 @@ var Paladin = window.Paladin = function ( options ) {
   for ( subsystemName in subsystems ) {
     paladin[ subsystemName ] = subsystems[ subsystemName ];
   }
+  this.keyboardInput = new KeyboardInput( this.messenger, this.graphics.getCanvas() );
+  this.mouseInput = new MouseInput( this.messenger, this.graphics.getCanvas() );
   
   // Expose Paladin objects
   this.Entity = Entity;

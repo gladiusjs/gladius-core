@@ -15,18 +15,18 @@
           entity1 = new paladin.Entity();
           entity1.count = 0;
           entity1.listen( {
-            event: 'escape-up',
+            event: paladin.keyboardInput.Event( ['escape'], false ),
             callback: function escapeUp( parameters ) {
-              console.log("entering escapeUp");
+              console.log("entering escapeUp", parameters);
               ok(true, "escape-up event triggered");
               start();
             }
           } );
 
           entity1.listen( {
-            event: 'mouse1-up',
+            event: paladin.mouseInput.Event( ['mouse1'], false ),
             callback: function mouse1Up( parameters ) {
-              console.log("entering mouse1Up");
+              console.log("entering mouse1Up", parameters);
               ok(true, "mouse1-up event triggered");
               start();
             }
@@ -38,8 +38,8 @@
     },
 
     teardown: function () {
-      entity1.ignore( {event: 'mouse1-up'});
-      entity1.ignore( {event: 'escape-up'});
+      entity1.ignore( {event: paladin.mouseInput.Event( ['mouse1'], false )});
+      entity1.ignore( {event: paladin.keyboardInput.Event( ['escape'], false )});
       paladin = null; // force as much to be GCed as we can
     }
   });
