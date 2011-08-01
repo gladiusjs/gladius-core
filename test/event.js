@@ -31,6 +31,17 @@
               start();
             }
           } );
+          
+          /*
+          entity1.listen( {
+              event: paladin.touchInput.Event( [], false ),
+              callback: function touchEnd( parameters ) {
+                  console.log("entering touchEnd", parameters);
+                  ok(true, "touch-end event triggered");
+                  start();
+                }
+          } );
+          */
         } //setup
       }); //Paladin
       paladin.run();
@@ -79,6 +90,18 @@
       console.log("simulated mouseup event cancelled");
     }
   }
+  
+  function simulateTouch() {
+      var canvas = document.getElementById( "test-canvas" );
+      var evt = document.createEvent("TouchEvent");
+      evt.initTouchEvent("touchend", true, true, window,
+        1, 50, 50, 50, 50, false, false, false, false, 0, null);
+      var canceled = !canvas.dispatchEvent(evt);
+      if (canceled) {
+        // A handler called preventDefault
+        console.log("simulated touchend event cancelled");
+      }
+  }
 
   asyncTest("escape keypress fires an up event", function () {    
     expect(1);
@@ -89,5 +112,15 @@
     expect(1);
     simulateClick();
   });
+  
+  /***
+   * FIXME(alan.kligman@gmail.com):
+   * Disabled until we can create touch events manually.
+   * 
+  asyncTest("touch fires an end event", function () {
+      expect(1);
+      simulateTouch();
+  });
+  */
 
 })(window, window.document, Paladin);

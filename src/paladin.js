@@ -218,11 +218,13 @@ var Paladin = window.Paladin = function ( options ) {
               x: undefined,
               y: undefined
       };
-
-      var processEvent = function( event ) {
+      
+      var updateInputState = function( event ) {
           position.x = event.pageX;
           position.y = event.pageY;
-          
+      };
+
+      var processEvent = function( event ) {
           var inputs = [];
           
           if( event.shiftKey || 16 == event.keyCode )
@@ -241,7 +243,8 @@ var Paladin = window.Paladin = function ( options ) {
               inputs.push( (event.detail < 0) ? WHEELMAP[0] : WHEELMAP[1] );
           else
               inputs.push( UNDEFINED );
-
+          
+          updateInputState( event );
           return inputs;
       };
       
@@ -306,10 +309,143 @@ var Paladin = window.Paladin = function ( options ) {
           } );
       };
       
+      this.handleMouseMove = function( event ) {
+          processEvent( event );
+      };
+      
       element.addEventListener( 'mousedown', this.handleMouseDown, true );
       element.addEventListener( 'mouseup', this.handleMouseUp, true );
       element.addEventListener( 'DOMMouseScroll', this.handleMouseWheel, true );
+      element.addEventListener( 'mousemove', this.handleMouseMove, true );
 
+  };
+  
+  function TouchInput( messenger, element ) {
+      
+      var that = this;
+      
+      var TYPE = 'touch';
+      var KEYMAP = {
+              0: 'meta',
+              16: 'shift',
+              17: 'ctrl',
+              18: 'alt',
+      };
+      var UNDEFINED = 'undefined';
+      var MODIFIERS = [0, 16, 17, 18];
+
+      var activeTouches = {};
+      
+      var updateInputState = function( event ) {
+          var touches = event.changedTouches;
+          switch( event.type ) {
+          case "touchstart":
+          case "touchmove":
+              for( var touch in touches )
+                  activeTouches[touch.identifier] = touch;
+              break;
+          case "touchend":
+          case "touchcancel":
+              for( var touch in touches )
+                  delete activeTouches[touch.identifier];
+              break;
+          }
+      };
+      
+      var processEvent = function( event ) {          
+          var inputs = [];
+          
+          if( event.shiftKey || 16 == event.keyCode )
+              inputs.push( KEYMAP[16] );
+          if( event.ctrlKey || 17 == event.keyCode )
+              inputs.push( KEYMAP[17] );
+          if( event.altKey || 18 == event.keyCode )
+              inputs.push( KEYMAP[18] );
+          if( event.metaKey || 0 == event.keyCode )
+              inputs.push( KEYMAP[0] );
+          
+          if( event instanceof MouseEvent &&
+                  BUTTONMAP.hasOwnProperty( event.button ) )
+              inputs.push( BUTTONMAP[event.button] );
+          else if( event instanceof DOMMouseScroll )
+              inputs.push( (event.detail < 0) ? WHEELMAP[0] : WHEELMAP[1] );
+          else
+              inputs.push( UNDEFINED );
+
+          updateInputState( event );          
+          return inputs;
+      };
+      
+      var hashInput = function( input, state ) {
+          var result = TYPE;
+          
+          var hash = [];
+          for( var key in Object.keys( KEYMAP ) ) {
+              if( input.indexOf( KEYMAP[key] ) >= 0 )
+                  hash.push( key );
+          }
+          result += ':' + hash.join( '-' );
+                 
+          result += ':';
+          if( null != state )
+              result += state ? 'true' : 'false';
+          
+          return result;
+      };
+      
+      this.Event = function( input, state ) {
+          return hashInput( input, state );
+      };
+      
+      var buildParameterList = function( touches ) {
+          var parameters = [];
+          for( var touch in touches ) {
+              parameters.push( {
+                  identifier: touch.identifier,
+                  position: {
+                      x: touch.pageX,
+                      y: touch.pageY
+                  }
+              } );
+          }
+          return parameters;
+      };
+     
+      this.handleTouchStart = function( event ) {
+          var event = that.Event( processEvent( event ), true );
+          messenger.send( {
+              event: event,
+              parameters: buildParameterList( event.changedTouches )
+          } );
+      };
+
+      this.handleTouchEnd = function( event ) {
+          var event = that.Event( processEvent( event ), false );
+          messenger.send( {
+              event: event,
+              parameters: buildParameterList( event.changedTouches )
+          } );
+
+      };
+
+      this.handleTouchCancel = function( event ) {
+          var event = that.Event( processEvent( event ), false );
+          messenger.send( {
+              event: event,
+              parameters: buildParameterList( event.changedTouches )
+          } );
+
+      };
+      
+      this.handleTouchMove = function( event ) {
+          processEvent( event );
+      };
+      
+      element.addEventListener( 'touchstart', this.handleTouchStart, true );
+      element.addEventListener( 'touchend', this.handleTouchEnd, true );
+      element.addEventListener( 'touchcancel', this.handleTouchCancel, true );
+      element.addEventListener( 'touchmove', this.handleTouchMove, true );
+      
   };
 
   /***
@@ -673,8 +809,11 @@ var Paladin = window.Paladin = function ( options ) {
   for ( subsystemName in subsystems ) {
     paladin[ subsystemName ] = subsystems[ subsystemName ];
   }
+  
+  // Create input handlers
   this.keyboardInput = new KeyboardInput( this.messenger, this.graphics.getCanvas() );
   this.mouseInput = new MouseInput( this.messenger, this.graphics.getCanvas() );
+  this.touchInput = new TouchInput( this.messenger, this.graphics.getCanvas() );
   
   // Expose Paladin objects
   this.Entity = Entity;

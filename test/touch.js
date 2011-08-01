@@ -4,7 +4,7 @@ function Game() {
 
     var paladin = new Paladin( {debug: true} );
 
-
+    
     
     this.run = function () {
       paladin.run();
