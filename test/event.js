@@ -33,6 +33,7 @@
           } );
         } //setup
       }); //Paladin
+      paladin.run();
 
     },
 
@@ -58,8 +59,9 @@
   }
 
   function simulateKeyEvent(charCode) {
+    var canvas = document.getElementById( "test-canvas" );
     var evt = newKbdEvent(charCode.charCodeAt(0));
-    var canceled = !window.dispatchEvent(evt);
+    var canceled = !canvas.dispatchEvent(evt);
     if (canceled) {
       // A handler called preventDefault
       console.log("simulated key event " + charCode + " canceled");
@@ -67,10 +69,11 @@
   } 
 
   function simulateClick() {
+    var canvas = document.getElementById( "test-canvas" );
     var evt = document.createEvent("MouseEvent");
     evt.initMouseEvent("mouseup", true, true, window,
       1, 50, 50, 50, 50, false, false, false, false, 0, null);
-    var canceled = !document.documentElement.dispatchEvent(evt);
+    var canceled = !canvas.dispatchEvent(evt);
     if (canceled) {
       // A handler called preventDefault
       console.log("simulated mouseup event cancelled");

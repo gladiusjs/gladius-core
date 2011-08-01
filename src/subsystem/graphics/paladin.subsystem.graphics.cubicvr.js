@@ -24,6 +24,9 @@
     } //if
 
     mainCanvas = CubicVR.getCanvas();
+    this.getCanvas = function() {
+        return mainCanvas;
+    };
 
     var mainLoopFunc = options && options.mainLoop ? options.mainLoop : function ( timer, gl ) {
     };

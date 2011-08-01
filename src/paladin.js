@@ -283,6 +283,7 @@ var Paladin = window.Paladin = function ( options ) {
       };
       
       this._touchDown = function( event ) {
+          console.log( 'touch-down' );
           for( var touch in touches ) {
               that.send( {
                   event: that._convertTouchEvent( event, 'down' ),
@@ -292,6 +293,7 @@ var Paladin = window.Paladin = function ( options ) {
       };
       
       this._touchUp = function( event ) {
+          console.log( 'touch-up' );
           for( var touch in touches ) {
               that.send( {
                   event: that._convertTouchEvent( event, 'up' ),
@@ -392,13 +394,6 @@ var Paladin = window.Paladin = function ( options ) {
           return result;
       };
       
-      window.addEventListener( 'keydown', this._keyDown, true );
-      window.addEventListener( 'keyup', this._keyUp, true );
-      window.addEventListener( 'mousedown', this._mouseButtonDown, true );
-      window.addEventListener( 'mouseup', this._mouseButtonUp, true );
-      window.addEventListener( 'DOMMouseScroll', this._mouseWheelScroll, true );
-      window.addEventListener( 'touchstart', this._touchDown, true );
-      window.addEventListener( 'touchend', this._touchUp, true );
   };
 
   /***
@@ -697,8 +692,16 @@ var Paladin = window.Paladin = function ( options ) {
   this.loader = new Loader();
 
   this.run = function () {
-    ( options && options.run ) && options.run ( that );
-    that.tasker.run();
+      var canvas = that.graphics.getCanvas();
+      
+      canvas.addEventListener( 'keydown', that.messenger._keyDown, true );
+      canvas.addEventListener( 'keyup', that.messenger._keyUp, true );
+      canvas.addEventListener( 'mousedown', that.messenger._mouseButtonDown, true );
+      canvas.addEventListener( 'mouseup', that.messenger._mouseButtonUp, true );
+      canvas.addEventListener( 'DOMMouseScroll', that.messenger._mouseWheelScroll, true );
+      
+      ( options && options.run ) && options.run ( that );
+      that.tasker.run();
   };
 
   // Init instance of each subsystem and store reference as subsystem name
@@ -706,7 +709,7 @@ var Paladin = window.Paladin = function ( options ) {
   for ( subsystemName in subsystems ) {
     paladin[ subsystemName ] = subsystems[ subsystemName ];
   }
-
+  
   // Expose Paladin objects
   this.Entity = Entity;
   this.Scene = Scene;
