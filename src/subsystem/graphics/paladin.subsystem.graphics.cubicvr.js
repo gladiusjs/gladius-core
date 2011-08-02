@@ -28,6 +28,14 @@
         return mainCanvas;
     };
 
+    this.getWidth = function() {
+        return mainCanvas.width;
+    };
+
+    this.getHeight = function() {
+        return mainCanvas.height;
+    };
+
     var mainLoopFunc = options && options.mainLoop ? options.mainLoop : function ( timer, gl ) {
     };
 

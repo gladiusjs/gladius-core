@@ -393,7 +393,8 @@ var Paladin = window.Paladin = function ( options ) {
       
       var buildParameterList = function( touches ) {
           var parameters = [];
-          for( var touch in touches ) {
+          for( var i = 0; i < touches.length; ++ i ) {
+              var touch = touches[i];
               parameters.push( {
                   identifier: touch.identifier,
                   position: {
@@ -420,7 +421,6 @@ var Paladin = window.Paladin = function ( options ) {
               event: that.Event( processEvent( event ), false ),
               parameters: buildParameterList( event.changedTouches )
           };
-          console.log( options );
           messenger.send( options );
       };
 
@@ -468,7 +468,6 @@ var Paladin = window.Paladin = function ( options ) {
               parameters: options.parameters,
               persistent: options.persistent
           };          
-          console.log( "listen: ", options.event );
       };
       
       this.ignore = function( options ) {          
@@ -500,7 +499,6 @@ var Paladin = window.Paladin = function ( options ) {
               if( 0 == Object.keys( listeners ).length )
                   delete callbacks[options.event];
           }
-          console.log( "send: ", options.event );
       };
 
   };
