@@ -341,7 +341,8 @@ var Paladin = window.Paladin = function ( options ) {
               17: 'ctrl',
               18: 'alt',
       };
-      var UNDEFINED = 'undefined';
+      var UNDEFINED = '?';
+      var ALL = '*';
       var MODIFIERS = [0, 16, 17, 18];
 
       var activeTouches = {};
@@ -365,23 +366,6 @@ var Paladin = window.Paladin = function ( options ) {
       var processEvent = function( event ) {          
           var inputs = [];
           
-          if( event.shiftKey || 16 == event.keyCode )
-              inputs.push( KEYMAP[16] );
-          if( event.ctrlKey || 17 == event.keyCode )
-              inputs.push( KEYMAP[17] );
-          if( event.altKey || 18 == event.keyCode )
-              inputs.push( KEYMAP[18] );
-          if( event.metaKey || 0 == event.keyCode )
-              inputs.push( KEYMAP[0] );
-          
-          if( event instanceof MouseEvent &&
-                  BUTTONMAP.hasOwnProperty( event.button ) )
-              inputs.push( BUTTONMAP[event.button] );
-          else if( event instanceof DOMMouseScroll )
-              inputs.push( (event.detail < 0) ? WHEELMAP[0] : WHEELMAP[1] );
-          else
-              inputs.push( UNDEFINED );
-
           updateInputState( event );          
           return inputs;
       };
@@ -422,20 +406,22 @@ var Paladin = window.Paladin = function ( options ) {
       };
      
       this.handleTouchStart = function( event ) {
-          var event = that.Event( processEvent( event ), true );
-          messenger.send( {
-              event: event,
+          event.preventDefault();
+          var options = {
+              event: that.Event( processEvent( event ), true ),
               parameters: buildParameterList( event.changedTouches )
-          } );
+          };
+          messenger.send( options );
       };
 
       this.handleTouchEnd = function( event ) {
-          var event = that.Event( processEvent( event ), false );
-          messenger.send( {
-              event: event,
+          event.preventDefault();
+          var options = {
+              event: that.Event( processEvent( event ), false ),
               parameters: buildParameterList( event.changedTouches )
-          } );
-
+          };
+          console.log( options );
+          messenger.send( options );
       };
 
       this.handleTouchCancel = function( event ) {
@@ -448,6 +434,7 @@ var Paladin = window.Paladin = function ( options ) {
       };
       
       this.handleTouchMove = function( event ) {
+          event.preventDefault();
           processEvent( event );
       };
       
@@ -481,6 +468,7 @@ var Paladin = window.Paladin = function ( options ) {
               parameters: options.parameters,
               persistent: options.persistent
           };          
+          console.log( "listen: ", options.event );
       };
       
       this.ignore = function( options ) {          
@@ -512,6 +500,7 @@ var Paladin = window.Paladin = function ( options ) {
               if( 0 == Object.keys( listeners ).length )
                   delete callbacks[options.event];
           }
+          console.log( "send: ", options.event );
       };
 
   };
