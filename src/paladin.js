@@ -127,7 +127,8 @@ var Paladin = window.Paladin = function ( options ) {
       for( var key = 48; key <= 90; ++ key )
           KEYMAP[key] = String.fromCharCode( key ).toLocaleLowerCase();
 
-      var UNDEFINED = 'undefined';
+      var UNDEFINED = '?';
+      var ALL = '*';
       var MODIFIERS = [0, 16, 17, 18];
 
       var processEvent = function( event ) {
@@ -154,7 +155,9 @@ var Paladin = window.Paladin = function ( options ) {
           var result = TYPE;
           
           var hash = [];
-          for( var key in Object.keys( KEYMAP ) ) {
+          var keymapKeys = Object.keys( KEYMAP );
+          for( var i = 0; i < keymapKeys.length; ++ i ) {
+              var key = keymapKeys[i];
               if( input.indexOf( KEYMAP[key]) >= 0 )
                   hash.push( key );
           }
@@ -211,7 +214,8 @@ var Paladin = window.Paladin = function ( options ) {
               0: 'wheel-up',
               1: 'wheel-down'
       };
-      var UNDEFINED = 'undefined';
+      var UNDEFINED = '?';
+      var ALL = '*';
       var MODIFIERS = [0, 16, 17, 18];
 
       var position = {
@@ -252,14 +256,18 @@ var Paladin = window.Paladin = function ( options ) {
           var result = TYPE;
           
           var hash = [];
-          for( var key in Object.keys( KEYMAP ) ) {
+          var keymapKeys = Object.keys( KEYMAP );
+          for( var i = 0; i < keymapKeys.length; ++ i ) {
+              var key = keymapKeys[i];
               if( input.indexOf( KEYMAP[key] ) >= 0 )
                   hash.push( key );
           }
           result += ':' + hash.join( '-' );
           
           hash = [];
-          for( var button in Object.keys( BUTTONMAP ) ) {            
+          var buttonmapKeys = Object.keys( BUTTONMAP );
+          for( var i = 0; i < buttonmapKeys.length; ++ i ) {
+              var button = buttonmapKeys[i];            
               if( input.indexOf( BUTTONMAP[button] ) >= 0 ) {
                   hash.push( button );
               }
@@ -267,7 +275,9 @@ var Paladin = window.Paladin = function ( options ) {
           result += ':' + hash.join( '-' );
           
           hash = [];
-          for( var wheel in Object.keys( WHEELMAP ) ) {
+          var wheelmapKeys = Object.keys( WHEELMAP );
+          for( var i = 0; i < wheelmapKeys.length; ++ i ) {
+              var wheel = wheelmapKeys[i];
               if( input.indexOf( WHEELMAP[wheel] ) >= 0 ) {
                   hash.push( wheel );
               }
@@ -811,7 +821,7 @@ var Paladin = window.Paladin = function ( options ) {
   }
   
   // Create input handlers
-  this.keyboardInput = new KeyboardInput( this.messenger, this.graphics.getCanvas() );
+  this.keyboardInput = new KeyboardInput( this.messenger, window );
   this.mouseInput = new MouseInput( this.messenger, this.graphics.getCanvas() );
   this.touchInput = new TouchInput( this.messenger, this.graphics.getCanvas() );
   
