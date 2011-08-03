@@ -448,6 +448,46 @@ var Paladin = window.Paladin = function ( options ) {
       
   };
 
+  function InputMap( messenger ) {
+
+      var map = {};
+
+      this.add = function( destinationEvent, sourceEvent ) {
+          if( !map.hasOwnProperty( sourceEvent ) )
+              map[sourceEvent] = [];
+              messenger.listen( {
+                  event: sourceEvent,
+                  callback: dispatch,
+                  parameters: sourceEvent
+              } );
+          map[sourceEvent].push( destinationEvent );
+      };
+
+      this.remove = function( destinationEvent, sourceEvent ) {
+          if( map.hasOwnProperty( sourceEvent ) ) {
+              var index = map[sourceEvent].indexOf( destinationEvent );
+              if( index >= 0 ) {
+                  map[sourceEvent].remove( destinationEvent );
+                  if( 0 == map[sourceEvent].length ) {
+                      messenger.ignore( {
+                          event: sourceEvent
+                      } );
+                      delete map[sourceEvent];
+                  }
+              }
+          }
+      };
+
+      var dispatch = function( parameters ) {
+          var sourceEvent = parameters[0];
+          if( map.hasOwnProperty( sourceEvent ) ) {
+              for( var i = 0; i < map[sourceEvent].length; ++ i )
+                  messenger.send( map[sourceEvent][i] );
+          }
+      };
+
+  };
+
   /***
    * Messenger
    * 
@@ -516,6 +556,20 @@ var Paladin = window.Paladin = function ( options ) {
             dispatch();
         }
       } );
+
+      var hashInput = function( name, state ) {
+          var result = 'client:' + name;
+                 
+          result += ':';
+          if( null != state )
+              result += state ? 'true' : 'false';
+          
+          return result;
+      };
+      
+      this.Event = function( name, state ) {
+          return hashInput( name, state );
+      };
 
   };
 
