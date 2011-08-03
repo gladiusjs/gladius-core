@@ -453,9 +453,10 @@ var Paladin = window.Paladin = function ( options ) {
    * handled here and converted to game engine events so that entities can
    * listen for them.
    */
-  function Messenger() {
+  function Messenger( tasker ) {
 
-      var callbacks = {};
+      var callbacks = {},
+          queue = [];
       
       this.listen = function( options ) {
           var id = options.entity.getId();
@@ -485,21 +486,33 @@ var Paladin = window.Paladin = function ( options ) {
       };
       
       this.send = function( options ) {
-          if( callbacks.hasOwnProperty( options.event ) ) {
-              listeners = callbacks[options.event];
-              for( var id in listeners ) {
-                  var callback = listeners[id].callback,
+        queue.push( options );
+      };
+
+      var dispatch = function() {
+          while( queue.length > 0 ) {
+              var options = queue.shift();
+              if( callbacks.hasOwnProperty( options.event ) ) {
+                  listeners = callbacks[options.event];
+                  for( var id in listeners ) {
+                      var callback = listeners[id].callback,
                       parameters = listeners[id].parameters,
                       persistent = listeners[id].persistent;
                   
-                  callback( parameters.concat( options.parameters ) );
-                  if( !persistent )
-                      delete listeners[id];
+                      callback( parameters.concat( options.parameters ) );
+                      if( !persistent )
+                          delete listeners[id];
+                  }
+                  if( 0 == Object.keys( listeners ).length )
+                      delete callbacks[options.event];
               }
-              if( 0 == Object.keys( listeners ).length )
-                  delete callbacks[options.event];
           }
       };
+      var task = tasker.add( {
+        callback: function( task ) {
+            dispatch();
+        }
+      } );
 
   };
 
@@ -793,7 +806,7 @@ var Paladin = window.Paladin = function ( options ) {
   var that = this;
   this.debug = options && options.debug ? console.log : function () {};
   this.tasker = new Tasker();
-  this.messenger = new Messenger();
+  this.messenger = new Messenger( this.tasker );
   this.loader = new Loader();
 
   this.run = function () {    
