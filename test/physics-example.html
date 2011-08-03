@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	  <link rel="stylesheet" href="qunit/qunit.css" type="text/css" media="screen">
+    <script type="text/javascript" src="../lib/CubicVR.js"></script>
+    <script type="text/javascript" src="../src/paladin.js"></script>
+    <script type="text/javascript" src="../src/subsystem/paladin.subsystem.js"></script>
+    <script type="text/javascript" src="../src/subsystem/physics/paladin.subsystem.physics.js"></script>
+    <script type="text/javascript">
+      document.addEventListener('DOMContentLoaded', function (e) {
+        CubicVR.init();
+        var canvas = CubicVR.getCanvas();
+
+        var paladin = new Paladin({
+          graphics: {
+            canvas: canvas
+          }
+        });
+
+        var bodies = [
+          new paladin.physics.Body({
+            aabb: [[35, 45, 0], [95, 115, 50]]
+          }),
+          new paladin.physics.Body({
+            aabb: [[-5, 10, 0], [35, 30, 80]]
+          }),
+          new paladin.physics.Body({
+            aabb: [[-10, 50, 0], [70, 160, 100]]
+          }),
+        ];
+
+        var universe = new paladin.physics.Universe();
+
+        var scene = new CubicVR.Scene(canvas.width, canvas.height, 60, 0.1, 2000);
+
+        var envTex = new CubicVR.Texture("../example/protogame/2576-diffuse.jpg");
+
+        var outerBox = CubicVR.primitives.box({
+          size: 800,
+          material: new CubicVR.Material({
+            textures: {
+              color: new CubicVR.Texture('../example/protogame/2576-diffuse.jpg')
+            }
+          }),
+          uvmapper: {
+            projectionMode: CubicVR.enums.uv.projection.CUBIC,
+            scale: [100, 100, 100]
+          }
+        });
+        outerBox.flipFaces();
+        outerBox.prepare();
+        scene.bindSceneObject(new CubicVR.SceneObject(outerBox));
+
+        for ( var i=0; i<bodies.length; ++i ) {
+          universe.addBody( bodies[i] );
+          var mat = new CubicVR.Material({
+            color: [0, 0, 1],
+            textures: {
+              color: new CubicVR.Texture('../example/protogame/2282-diffuse.jpg'),
+              envsphere: envTex
+            }
+          });
+          bodies[i].graphics = {
+            obj: new CubicVR.SceneObject( CubicVR.primitives.box({
+              size: 1,
+              material: mat,
+              uvmapper: {
+                projectionMode: CubicVR.enums.uv.projection.CUBIC,
+                scale: [1, 1, 1]
+              }
+            }).prepare()),
+            mat: mat
+          };
+          var aabb = bodies[i].getAABB().getExtents();
+          bodies[i].graphics.obj.scale = [
+            aabb[1][0]-aabb[0][0], aabb[1][1]-aabb[0][1], aabb[1][2]-aabb[0][2]
+          ];
+          scene.bindSceneObject( bodies[i].graphics.obj );
+        }
+
+        scene.camera.target = [0, 0, 0];
+        scene.camera.position = [300, 300, 300];
+
+        var frames = 0;
+        CubicVR.MainLoop( function ( timer, gl ) {
+          ++frames;
+          var collisions = universe.advance(1);
+          bodies[1].setVelocity([4*Math.sin(frames/25), 4*Math.cos(frames/25), Math.sin(frames/35)*10]);
+          bodies[2].setVelocity([6*Math.sin(frames/35), 6*Math.cos(frames/25), Math.sin(frames/35)*7]);
+          if ( collisions.length ) {
+            for ( var i=0; i<collisions.length; ++i ) {
+              collisions[i][0].graphics.mat.color = [1, 8, 0];
+              collisions[i][1].graphics.mat.color = [1, 8, 0];
+            }
+          }
+          for ( var i=0, l=bodies.length; i<l; ++i ) {
+            var s = bodies[i].getSphere().getDims();
+            bodies[i].graphics.obj.position = [
+              s[0], s[1], s[2]
+            ];
+          }
+          scene.render();
+          for ( var i=0, l=bodies.length; i<l; ++i ) {
+            bodies[i].graphics.mat.color = [0, 0, 1];
+          }
+        });
+
+        new CubicVR.MouseViewController(canvas, scene.camera);
+
+      }, false);
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

@@ -38,6 +38,7 @@ var Paladin = window.Paladin = function ( options ) {
               var last = task.time;
               task.time = Date.now();
               task.dt = task.time - last;
+              task.elapsed = task.time - task.start;
               if( task.run ) {
                   if( task.DONE === task._callback( task ) ) {
                       task.run = false;
@@ -63,6 +64,8 @@ var Paladin = window.Paladin = function ( options ) {
               time: Date.now(),
               run: true,
               dt: 0,
+              elapsed: 0,
+              start: Date.now(),
               
               DONE: 0,
               CONTINUE: 1,
