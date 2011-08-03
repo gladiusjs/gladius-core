@@ -451,14 +451,18 @@ var Paladin = window.Paladin = function ( options ) {
   function InputMap( messenger ) {
 
       var map = {};
+          id = nextEntityId ++;
+      var that = this;
 
       this.add = function( destinationEvent, sourceEvent ) {
           if( !map.hasOwnProperty( sourceEvent ) )
               map[sourceEvent] = [];
               messenger.listen( {
+                  entity: this,
                   event: sourceEvent,
                   callback: dispatch,
-                  parameters: sourceEvent
+                  parameters: [ sourceEvent ],
+                  persistent: true
               } );
           map[sourceEvent].push( destinationEvent );
       };
@@ -481,9 +485,16 @@ var Paladin = window.Paladin = function ( options ) {
       var dispatch = function( parameters ) {
           var sourceEvent = parameters[0];
           if( map.hasOwnProperty( sourceEvent ) ) {
-              for( var i = 0; i < map[sourceEvent].length; ++ i )
-                  messenger.send( map[sourceEvent][i] );
+              for( var i = 0; i < map[sourceEvent].length; ++ i ) {
+                  messenger.send( {
+                      event: map[sourceEvent][i]
+                  } );
+              }
           }
+      };
+
+      this.getId = function() {
+          return id;
       };
 
   };
@@ -885,6 +896,7 @@ var Paladin = window.Paladin = function ( options ) {
   // Expose Paladin objects
   this.Entity = Entity;
   this.Scene = Scene;
+  this.InputMap = InputMap;
 
   // Expose components
   this.component = {
