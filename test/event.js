@@ -15,30 +15,42 @@
           entity1 = new paladin.Entity();
           entity1.count = 0;
           entity1.listen( {
-            event: 'escape-up',
+            event: paladin.keyboardInput.Event( ['escape'], false ),
             callback: function escapeUp( parameters ) {
-              console.log("entering escapeUp");
+              console.log("entering escapeUp", parameters);
               ok(true, "escape-up event triggered");
               start();
             }
           } );
 
           entity1.listen( {
-            event: 'mouse1-up',
+            event: paladin.mouseInput.Event( ['mouse1'], false ),
             callback: function mouse1Up( parameters ) {
-              console.log("entering mouse1Up");
+              console.log("entering mouse1Up", parameters);
               ok(true, "mouse1-up event triggered");
               start();
             }
           } );
+          
+          /*
+          entity1.listen( {
+              event: paladin.touchInput.Event( [], false ),
+              callback: function touchEnd( parameters ) {
+                  console.log("entering touchEnd", parameters);
+                  ok(true, "touch-end event triggered");
+                  start();
+                }
+          } );
+          */
         } //setup
       }); //Paladin
+      paladin.run();
 
     },
 
     teardown: function () {
-      entity1.ignore( {event: 'mouse1-up'});
-      entity1.ignore( {event: 'escape-up'});
+      entity1.ignore( {event: paladin.mouseInput.Event( ['mouse1'], false )});
+      entity1.ignore( {event: paladin.keyboardInput.Event( ['escape'], false )});
       paladin = null; // force as much to be GCed as we can
     }
   });
@@ -58,8 +70,9 @@
   }
 
   function simulateKeyEvent(charCode) {
+    var canvas = document.getElementById( "test-canvas" );
     var evt = newKbdEvent(charCode.charCodeAt(0));
-    var canceled = !window.dispatchEvent(evt);
+    var canceled = !canvas.dispatchEvent(evt);
     if (canceled) {
       // A handler called preventDefault
       console.log("simulated key event " + charCode + " canceled");
@@ -67,14 +80,27 @@
   } 
 
   function simulateClick() {
+    var canvas = document.getElementById( "test-canvas" );
     var evt = document.createEvent("MouseEvent");
     evt.initMouseEvent("mouseup", true, true, window,
       1, 50, 50, 50, 50, false, false, false, false, 0, null);
-    var canceled = !document.documentElement.dispatchEvent(evt);
+    var canceled = !canvas.dispatchEvent(evt);
     if (canceled) {
       // A handler called preventDefault
       console.log("simulated mouseup event cancelled");
     }
+  }
+  
+  function simulateTouch() {
+      var canvas = document.getElementById( "test-canvas" );
+      var evt = document.createEvent("TouchEvent");
+      evt.initTouchEvent("touchend", true, true, window,
+        1, 50, 50, 50, 50, false, false, false, false, 0, null);
+      var canceled = !canvas.dispatchEvent(evt);
+      if (canceled) {
+        // A handler called preventDefault
+        console.log("simulated touchend event cancelled");
+      }
   }
 
   asyncTest("escape keypress fires an up event", function () {    
@@ -86,5 +112,15 @@
     expect(1);
     simulateClick();
   });
+  
+  /***
+   * FIXME(alan.kligman@gmail.com):
+   * Disabled until we can create touch events manually.
+   * 
+  asyncTest("touch fires an end event", function () {
+      expect(1);
+      simulateTouch();
+  });
+  */
 
 })(window, window.document, Paladin);
