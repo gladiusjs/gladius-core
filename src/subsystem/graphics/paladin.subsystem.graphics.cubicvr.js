@@ -36,7 +36,17 @@
         return mainCanvas.height;
     };
 
+    var layout = new CubicVR.Layout( {
+        width: mainCanvas.width,
+        height: mainCanvas.height
+    } );
+    
+    this.getLayout = function() {
+        return layout;
+    };
+
     var mainLoopFunc = options && options.mainLoop ? options.mainLoop : function ( timer, gl ) {
+        layout.render();
     };
 
     mainLoop = new CubicVR.MainLoop(mainLoopFunc);
@@ -187,6 +197,30 @@
     }; //Camera
     Camera.prototype = new CubicVR.Camera();
     Camera.prototype.constructor = Camera;
+
+    var LayoutElement = this.LayoutElement = function( options ) {
+        options = options || {};
+
+        var texture = new CubicVR.Texture( options.texture );
+
+        var layoutElementOptions = {
+            texture: texture
+        };
+
+        extend( layoutElementOptions, options );
+
+        CubicVR.View.call( this, layoutElementOptions );
+    };
+    LayoutElement.prototype = new CubicVR.View();
+    LayoutElement.prototype.constructor = LayoutElement;
+
+    this.addLayoutElement = function( element ) {
+        layout.addSubview( element );
+    };
+
+    this.removeLayoutElement = function( element ) {
+        layout.removeSubview( element );
+    };
 
     /***
      * Scene
