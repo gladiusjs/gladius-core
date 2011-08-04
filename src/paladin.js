@@ -122,6 +122,7 @@ var Paladin = window.Paladin = function ( options ) {
               17: 'ctrl',
               18: 'alt',
               27: 'escape',
+              32: 'space',
               37: 'left',
               38: 'up',
               39: 'right',
@@ -410,6 +411,7 @@ var Paladin = window.Paladin = function ( options ) {
       };
      
       this.handleTouchStart = function( event ) {
+          console.log( event );
           event.preventDefault();
           var options = {
               event: that.Event( processEvent( event ), true ),
@@ -419,6 +421,7 @@ var Paladin = window.Paladin = function ( options ) {
       };
 
       this.handleTouchEnd = function( event ) {
+          console.log( event );
           event.preventDefault();
           var options = {
               event: that.Event( processEvent( event ), false ),
@@ -437,6 +440,7 @@ var Paladin = window.Paladin = function ( options ) {
       };
       
       this.handleTouchMove = function( event ) {
+          console.log( event );
           event.preventDefault();
           processEvent( event );
       };
@@ -445,20 +449,17 @@ var Paladin = window.Paladin = function ( options ) {
       element.addEventListener( 'touchend', this.handleTouchEnd, true );
       element.addEventListener( 'touchcancel', this.handleTouchCancel, true );
       element.addEventListener( 'touchmove', this.handleTouchMove, true );
-      
   };
 
-  function InputMap( messenger ) {
+  function InputMap( entity ) {
 
       var map = {};
-          id = nextEntityId ++;
       var that = this;
 
       this.add = function( destinationEvent, sourceEvent ) {
           if( !map.hasOwnProperty( sourceEvent ) )
               map[sourceEvent] = [];
-              messenger.listen( {
-                  entity: this,
+              entity.listen( {
                   event: sourceEvent,
                   callback: dispatch,
                   parameters: [ sourceEvent ],
@@ -473,7 +474,7 @@ var Paladin = window.Paladin = function ( options ) {
               if( index >= 0 ) {
                   map[sourceEvent].remove( destinationEvent );
                   if( 0 == map[sourceEvent].length ) {
-                      messenger.ignore( {
+                      entity.ignore( {
                           event: sourceEvent
                       } );
                       delete map[sourceEvent];
@@ -486,15 +487,11 @@ var Paladin = window.Paladin = function ( options ) {
           var sourceEvent = parameters[0];
           if( map.hasOwnProperty( sourceEvent ) ) {
               for( var i = 0; i < map[sourceEvent].length; ++ i ) {
-                  messenger.send( {
+                  entity.send( {
                       event: map[sourceEvent][i]
                   } );
               }
           }
-      };
-
-      this.getId = function() {
-          return id;
       };
 
   };
