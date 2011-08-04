@@ -19,6 +19,7 @@
 
     function AudioPool( url, instances, callback, errback ) {
       var audio = new Audio(),
+        cloningDone = false, // work around https://bugzilla.mozilla.org/show_bug.cgi?id=675986
         clones = [];
 
       // XXXhumph do we want to have this be configurable for late load?
@@ -30,9 +31,13 @@
         errback(audio.error);
       };
       audio.oncanplaythrough = function() {
+        if (cloningDone) {
+          return;
+        }
         while ( instances-- ) {
          clones.push( audio.cloneNode( true ) );
         }
+        cloningDone = true;
         callback();
       };
       audio.src = url;
@@ -72,11 +77,11 @@
         url,
         options.instances || DEFAULT_INSTANCES,
         options.callback ?
-          (function( track ) {
+          (function( track, callback ) {
             return function() {
-              options.callback( track );
+              callback( track );
             };
-          }( this )) : nop,
+          }( this, options.callback )) : nop,
         options.errback || nop
       );
 
