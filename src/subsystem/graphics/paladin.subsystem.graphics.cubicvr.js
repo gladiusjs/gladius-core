@@ -198,6 +198,7 @@
     Camera.prototype = new CubicVR.Camera();
     Camera.prototype.constructor = Camera;
 
+    /*
     var LayoutElement = this.LayoutElement = function( options ) {
         options = options || {};
 
@@ -221,6 +222,7 @@
     this.removeLayoutElement = function( element ) {
         layout.removeSubview( element );
     };
+    */
 
     /***
      * Scene
