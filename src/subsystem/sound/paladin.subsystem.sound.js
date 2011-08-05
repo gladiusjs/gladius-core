@@ -15,7 +15,7 @@
         };
     }());
 
-    function nop(){};
+    function nop(){}
 
     function AudioPool( url, instances, callback, errback ) {
       var audio = new Audio(),
@@ -65,7 +65,7 @@
 
         return clone;
       };
-    };
+    }
 
     function Track( options ) {
       var url = options.url;
@@ -105,7 +105,7 @@
 
     function Sound( options ) {
       this.Track = Track;
-    };
+    }
 
     Paladin.subsystem.register( "sound", Sound );
 
