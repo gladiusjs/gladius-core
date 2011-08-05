@@ -16,6 +16,7 @@ PALADIN := paladin
 SRC_DIR := ./src
 DIST_DIR := ./dist
 LIB_DIR := ./lib
+EXTERNAL_DIR := ./external
 PALADIN_SRC := $(SRC_DIR)/$(PALADIN).js
 PALADIN_DIST := $(DIST_DIR)/$(PALADIN).js
 PALADIN_MIN := $(DIST_DIR)/$(PALADIN).min.js
@@ -24,7 +25,7 @@ SUBSYS_DIR := $(SRC_DIR)/subsystem
 TOOLS_DIR := ./tools
 TESTS_DIR := $(DIST_DIR)/test
 
-CUBICVR_LIB := $(LIB_DIR)/CubicVR.min.js
+CUBICVR_LIB := $(EXTERNAL_DIR)/CubicVR.js/dist/CubicVR.min.js
 
 CORE_FILES := $(SRC_DIR)/paladin.js
 
