@@ -96,7 +96,7 @@ var Paladin = window.Paladin = function ( options ) {
               return false;
       };
       
-  };
+  }
 
   /***
    * Loader
@@ -106,11 +106,11 @@ var Paladin = window.Paladin = function ( options ) {
   function Loader() {
     
       var that = this,
-          graphics = undefined,
-          physics = undefined,
-          sound = undefined;
+          graphics,
+          physics,
+          sound;
 
-  };
+  }
 
   function KeyboardInput( messenger, element ) {
 
@@ -138,13 +138,13 @@ var Paladin = window.Paladin = function ( options ) {
       var processEvent = function( event ) {
           var inputs = [];
           
-          if( event.shiftKey || 16 == event.keyCode )
+          if( event.shiftKey || 16 === event.keyCode )
               inputs.push( KEYMAP[16] );
-          if( event.ctrlKey || 17 == event.keyCode )
+          if( event.ctrlKey || 17 === event.keyCode )
               inputs.push( KEYMAP[17] );
-          if( event.altKey || 18 == event.keyCode )
+          if( event.altKey || 18 === event.keyCode )
               inputs.push( KEYMAP[18] );
-          if( event.metaKey || 0 == event.keyCode )
+          if( event.metaKey || 0 === event.keyCode )
               inputs.push( KEYMAP[0] );
           
           if( KEYMAP.hasOwnProperty( event.keyCode ) )
@@ -156,19 +156,21 @@ var Paladin = window.Paladin = function ( options ) {
       };
       
       var hashInput = function( input, state ) {
-          var result = TYPE;
-          
-          var hash = [];
-          var keymapKeys = Object.keys( KEYMAP );
-          for( var i = 0; i < keymapKeys.length; ++ i ) {
-              var key = keymapKeys[i];
+          var result = TYPE,
+            keymapKeys = Object.keys( KEYMAP ),
+            hash = [],
+            key,
+            i;
+
+          for( i = 0; i < keymapKeys.length; ++ i ) {
+              key = keymapKeys[i];
               if( input.indexOf( KEYMAP[key]) >= 0 )
                   hash.push( key );
           }
           result += ':' + hash.join( '-' );
           
           result += ':';
-          if( null != state )
+          if( state !== null )
               result += state ? 'true' : 'false';
           
           return result;
@@ -179,7 +181,7 @@ var Paladin = window.Paladin = function ( options ) {
       };
 
       this.handleKeyDown = function( event ) {
-          var event = that.Event( processEvent( event ), true );
+          event = that.Event( processEvent( event ), true );
           messenger.send( {
               event: event,
               parameters: []
@@ -187,7 +189,7 @@ var Paladin = window.Paladin = function ( options ) {
       };
 
       this.handleKeyUp = function( event ) {
-          var event = that.Event( processEvent( event ), false );
+          event = that.Event( processEvent( event ), false );
           messenger.send( {
               event: event,
               parameters: []
@@ -197,7 +199,7 @@ var Paladin = window.Paladin = function ( options ) {
       element.addEventListener( 'keydown', this.handleKeyDown, true );
       element.addEventListener( 'keyup', this.handleKeyUp, true );
 
-  };
+  }
   
   function MouseInput( messenger, element ) {
 
@@ -235,13 +237,13 @@ var Paladin = window.Paladin = function ( options ) {
       var processEvent = function( event ) {
           var inputs = [];
           
-          if( event.shiftKey || 16 == event.keyCode )
+          if( event.shiftKey || 16 === event.keyCode )
               inputs.push( KEYMAP[16] );
-          if( event.ctrlKey || 17 == event.keyCode )
+          if( event.ctrlKey || 17 === event.keyCode )
               inputs.push( KEYMAP[17] );
-          if( event.altKey || 18 == event.keyCode )
+          if( event.altKey || 18 === event.keyCode )
               inputs.push( KEYMAP[18] );
-          if( event.metaKey || 0 == event.keyCode )
+          if( event.metaKey || 0 === event.keyCode )
               inputs.push( KEYMAP[0] );
           
           if( event instanceof MouseEvent &&
@@ -257,21 +259,26 @@ var Paladin = window.Paladin = function ( options ) {
       };
       
       var hashInput = function( input, state ) {
-          var result = TYPE;
-          
-          var hash = [];
-          var keymapKeys = Object.keys( KEYMAP );
-          for( var i = 0; i < keymapKeys.length; ++ i ) {
-              var key = keymapKeys[i];
+          var result = TYPE,
+            keymapKeys = Object.keys( KEYMAP ),
+            buttonmapKeys = Object.keys( BUTTONMAP ),
+            wheelmapKeys = Object.keys( WHEELMAP ),
+            button,
+            hash = [],
+            key,
+            i;
+
+          for( i = 0; i < keymapKeys.length; ++ i ) {
+              key = keymapKeys[i];
               if( input.indexOf( KEYMAP[key] ) >= 0 )
                   hash.push( key );
           }
           result += ':' + hash.join( '-' );
           
           hash = [];
-          var buttonmapKeys = Object.keys( BUTTONMAP );
-          for( var i = 0; i < buttonmapKeys.length; ++ i ) {
-              var button = buttonmapKeys[i];            
+
+          for( i = 0; i < buttonmapKeys.length; ++ i ) {
+              button = buttonmapKeys[i];            
               if( input.indexOf( BUTTONMAP[button] ) >= 0 ) {
                   hash.push( button );
               }
@@ -279,9 +286,9 @@ var Paladin = window.Paladin = function ( options ) {
           result += ':' + hash.join( '-' );
           
           hash = [];
-          var wheelmapKeys = Object.keys( WHEELMAP );
-          for( var i = 0; i < wheelmapKeys.length; ++ i ) {
-              var wheel = wheelmapKeys[i];
+
+          for( i = 0; i < wheelmapKeys.length; ++ i ) {
+              wheel = wheelmapKeys[i];
               if( input.indexOf( WHEELMAP[wheel] ) >= 0 ) {
                   hash.push( wheel );
               }
@@ -289,7 +296,7 @@ var Paladin = window.Paladin = function ( options ) {
           result += ':' + hash.join( '-' );
           
           result += ':';
-          if( null != state )
+          if( state !== null )
               result += state ? 'true' : 'false';
           
           return result;
@@ -300,7 +307,7 @@ var Paladin = window.Paladin = function ( options ) {
       };
      
       this.handleMouseDown = function( event ) {
-          var event = that.Event( processEvent( event ), true );
+          event = that.Event( processEvent( event ), true );
           messenger.send( {
               event: event,
               parameters: [position]
@@ -308,7 +315,7 @@ var Paladin = window.Paladin = function ( options ) {
       };
 
       this.handleMouseUp = function( event ) {
-          var event = that.Event( processEvent( event ), false );
+          event = that.Event( processEvent( event ), false );
           messenger.send( {
               event: event,
               parameters: [position]
@@ -316,7 +323,7 @@ var Paladin = window.Paladin = function ( options ) {
       };
 
       this.handleMouseWheel = function( event ) {
-          var event = that.Event( processEvent( event ), null );
+          event = that.Event( processEvent( event ), null );
           messenger.send( {
               event: event,
               parameters: [position]
@@ -332,36 +339,36 @@ var Paladin = window.Paladin = function ( options ) {
       element.addEventListener( 'DOMMouseScroll', this.handleMouseWheel, true );
       element.addEventListener( 'mousemove', this.handleMouseMove, true );
 
-  };
+  }
   
   function TouchInput( messenger, element ) {
-      
-      var that = this;
-      
-      var TYPE = 'touch';
-      var KEYMAP = {
-              0: 'meta',
-              16: 'shift',
-              17: 'ctrl',
-              18: 'alt'
-      };
-      var UNDEFINED = '?';
-      var ALL = '*';
-      var MODIFIERS = [0, 16, 17, 18];
 
-      var activeTouches = {};
-      
+      var that = this,
+        TYPE = 'touch',
+        KEYMAP = {
+          0: 'meta',
+          16: 'shift',
+          17: 'ctrl',
+          18: 'alt'
+        },
+        touch,
+        UNDEFINED = '?',
+        ALL = '*',
+        MODIFIERS = [0, 16, 17, 18],
+        activeTouches = {};
+
       var updateInputState = function( event ) {
-          var touches = event.changedTouches;
+          var touches = event.changedTouches,
+            touch;
           switch( event.type ) {
           case "touchstart":
           case "touchmove":
-              for( var touch in touches )
+              for( touch in touches )
                   activeTouches[touch.identifier] = touch;
               break;
           case "touchend":
           case "touchcancel":
-              for( var touch in touches )
+              for( touch in touches )
                   delete activeTouches[touch.identifier];
               break;
           }
@@ -375,17 +382,18 @@ var Paladin = window.Paladin = function ( options ) {
       };
       
       var hashInput = function( input, state ) {
-          var result = TYPE;
+          var result = TYPE,
+            key;
           
           var hash = [];
-          for( var key in Object.keys( KEYMAP ) ) {
+          for( key in Object.keys( KEYMAP ) ) {
               if( input.indexOf( KEYMAP[key] ) >= 0 )
                   hash.push( key );
           }
           result += ':' + hash.join( '-' );
                  
           result += ':';
-          if( null != state )
+          if( null !== state )
               result += state ? 'true' : 'false';
           
           return result;
@@ -396,9 +404,10 @@ var Paladin = window.Paladin = function ( options ) {
       };
       
       var buildParameterList = function( touches ) {
-          var parameters = [];
+          var parameters = [],
+            touch;
           for( var i = 0; i < touches.length; ++ i ) {
-              var touch = touches[i];
+              touch = touches[i];
               parameters.push( {
                   identifier: touch.identifier,
                   position: {
@@ -431,7 +440,7 @@ var Paladin = window.Paladin = function ( options ) {
       };
 
       this.handleTouchCancel = function( event ) {
-          var event = that.Event( processEvent( event ), false );
+          event = that.Event( processEvent( event ), false );
           messenger.send( {
               event: event,
               parameters: buildParameterList( event.changedTouches )
@@ -449,7 +458,7 @@ var Paladin = window.Paladin = function ( options ) {
       element.addEventListener( 'touchend', this.handleTouchEnd, true );
       element.addEventListener( 'touchcancel', this.handleTouchCancel, true );
       element.addEventListener( 'touchmove', this.handleTouchMove, true );
-  };
+  }
 
   function InputMap( entity ) {
 
@@ -473,7 +482,7 @@ var Paladin = window.Paladin = function ( options ) {
               var index = map[sourceEvent].indexOf( destinationEvent );
               if( index >= 0 ) {
                   map[sourceEvent].remove( destinationEvent );
-                  if( 0 == map[sourceEvent].length ) {
+                  if( 0 === map[sourceEvent].length ) {
                       entity.ignore( {
                           event: sourceEvent
                       } );
@@ -494,7 +503,7 @@ var Paladin = window.Paladin = function ( options ) {
           }
       };
 
-  };
+  }
 
   /***
    * Messenger
@@ -527,7 +536,7 @@ var Paladin = window.Paladin = function ( options ) {
               var listeners = callbacks[options.event];
               if( listeners.hasOwnProperty( options.entity.getId() ) )
                   delete listeners[options.entity.getId()];
-              if( 0 == Object.keys( listeners ).length )
+              if( 0 === Object.keys( listeners ).length )
                   delete callbacks[options.event];
           }
       };
@@ -554,7 +563,7 @@ var Paladin = window.Paladin = function ( options ) {
                       if( !persistent )
                           delete listeners[id];
                   }
-                  if( 0 == Object.keys( listeners ).length )
+                  if( 0 === Object.keys( listeners ).length )
                       delete callbacks[options.event];
               }
           }
@@ -569,7 +578,7 @@ var Paladin = window.Paladin = function ( options ) {
           var result = 'client:' + name;
                  
           result += ':';
-          if( null != state )
+          if( null !== state )
               result += state ? 'true' : 'false';
           
           return result;
@@ -579,7 +588,7 @@ var Paladin = window.Paladin = function ( options ) {
           return hashInput( name, state );
       };
 
-  };
+  }
 
   /***
    * Entity
@@ -593,7 +602,8 @@ var Paladin = window.Paladin = function ( options ) {
       var id = nextEntityId ++,
           componentsByType = {},
           parent = null,
-          that = this;   
+          that = this,
+          i;
       
       this.children = [];
           
@@ -649,10 +659,12 @@ var Paladin = window.Paladin = function ( options ) {
       };
       
       this.getComponents = function( componentType, subType ) {
+          var components,
+            i;
           if( componentType && componentsByType.hasOwnProperty( componentType ) ) {
-              var components = componentsByType[ componentType ];
+              components = componentsByType[ componentType ];
               if ( components && subType ) {
-                  for( var i = 0; i < components.length; ++ i ) {
+                  for( i = 0; i < components.length; ++ i ) {
                       if ( components[i].subtype.indexOf( subType ) > -1 ) {
                           return components[i];
                       }
@@ -661,8 +673,8 @@ var Paladin = window.Paladin = function ( options ) {
               return components;
           }
           else {
-              var components = [];
-              for( var i = 0; i < componentsByType.length; ++ i ) {
+              components = [];
+              for( i = 0; i < componentsByType.length; ++ i ) {
                   components.concat( componentsByType[i] );
               }
               return components;
@@ -684,10 +696,12 @@ var Paladin = window.Paladin = function ( options ) {
 
       options = options || {};
 
-      options.parent && this.setParent( options.parent );
+      if ( options.parent ) {
+          this.setParent( options.parent );
+      }
 
       if ( options.children ) {
-        for ( var i=0; i<options.children.length; ++i) {
+        for ( i=0; i<options.children.length; ++i) {
           options.children[i].setParent(this);
         } //for
       } //if
@@ -713,15 +727,16 @@ var Paladin = window.Paladin = function ( options ) {
       } //if
 
       if ( options.components ) {
-        for ( var i=0; i<options.components.length; ++i ) {
+        for ( i=0; i<options.components.length; ++i ) {
           this.addComponent( options.components[ i ] );
         } //for
       } //if
 
-      options.init && options.init( this );
+      if ( options.init ) {
+          options.init( this );
+      }
 
-
-  };
+  }
 
   function Scene( options ) {
       options = options || {};
@@ -738,7 +753,7 @@ var Paladin = window.Paladin = function ( options ) {
       this.setActiveCamera = function ( camera ) {
           this.graphics.setCamera( camera.camera );
       };
-  };
+  }
 
   /***
    * Component (prototype interface)
@@ -751,7 +766,7 @@ var Paladin = window.Paladin = function ( options ) {
       this.subtype = options.subtype || [];
       this.requires = options.requires || [];
       this.parent = null;
-  };
+  }
   Component.prototype.getType = function() {
       return this.type;
   };
@@ -844,7 +859,7 @@ var Paladin = window.Paladin = function ( options ) {
       if (options.rotation) {
           this.object.rotation = options.rotation;
       }
-  };
+  }
   ModelComponent.prototype = new Component( {
       type: 'graphics',
       subtype: [ 'model' ],
@@ -986,7 +1001,7 @@ var Paladin = window.Paladin = function ( options ) {
       this.__defineSetter__( 'muted', function(m) {
           muted = !!m;
       });
-  };
+  }
   SpeakerComponent.prototype = new Component( {
       type: 'sound'
   } );
@@ -999,12 +1014,15 @@ var Paladin = window.Paladin = function ( options ) {
   this.loader = new Loader();
 
   this.run = function () {    
-      ( options && options.run ) && options.run ( that );
+      if ( options && options.run ) {
+          options.run ( that );
+      }
       that.tasker.run();
   };
 
   // Init instance of each subsystem and store reference as subsystem name
-  var subsystems = paladin.subsystems = Paladin.subsystem.init( options );
+  var subsystems = paladin.subsystems = Paladin.subsystem.init( options ),
+    subsystemName;
   for ( subsystemName in subsystems ) {
     paladin[ subsystemName ] = subsystems[ subsystemName ];
   }
@@ -1029,9 +1047,11 @@ var Paladin = window.Paladin = function ( options ) {
   };
 
   // run user-specified setup function
-  ( options && options.setup ) && options.setup( paladin );
+  if ( options && options.setup ) {
+      options.setup( paladin );
+  }
 
 }; //Paladin
 
 // Attach prototypes to Paladin.
-})( window, document );
+})( window, window.document );
