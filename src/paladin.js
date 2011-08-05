@@ -342,7 +342,7 @@ var Paladin = window.Paladin = function ( options ) {
   }
   
   function TouchInput( messenger, element ) {
-      
+
       var that = this,
         TYPE = 'touch',
         KEYMAP = {
@@ -356,7 +356,7 @@ var Paladin = window.Paladin = function ( options ) {
         ALL = '*',
         MODIFIERS = [0, 16, 17, 18],
         activeTouches = {};
-      
+
       var updateInputState = function( event ) {
           var touches = event.changedTouches,
             touch;
