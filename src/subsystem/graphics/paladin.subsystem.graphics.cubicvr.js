@@ -269,7 +269,9 @@
         return "Scene";
       };
 
-      options.resizable !== false && CubicVR.addResizeable(this);
+      if (options.resizable !== false) {
+        CubicVR.addResizeable(this);
+      }
 
     }; //Scene
     Scene.prototype = new CubicVR.Scene();

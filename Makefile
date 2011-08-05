@@ -1,3 +1,16 @@
+#############################################################################################
+# NOTES:
+#
+# This Makefile assumes that you have the following installed, setup:
+#
+#  * Java
+#  * Unixy shell (use msys on Windows)
+#  * SpiderMonkey JavaScript Shell (jsshell), binaries available at:
+#      https://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-mozilla-central/
+#  * $JSSHELL environment variable in .profile or .bashrc pointing to a SpiderMonkey binary.
+#    For example: export JSSHELL=/Users/dave/moz/jsshell/js
+#
+#############################################################################################
 
 PALADIN := paladin
 SRC_DIR := ./src
@@ -14,7 +27,14 @@ TESTS_DIR := $(DIST_DIR)/test
 CUBICVR_LIB := $(LIB_DIR)/CubicVR.min.js
 
 CORE_FILES := $(SRC_DIR)/paladin.js
-SUBSYSTEM_FILES := $(SUBSYS_DIR)/paladin.subsystem.js $(SUBSYS_DIR)/dummy/paladin.subsystem.dummy.js
+
+SUBSYSTEM_FILES := \
+  $(SUBSYS_DIR)/paladin.subsystem.js \
+  $(SUBSYS_DIR)/dummy/paladin.subsystem.dummy.js \
+  $(SUBSYS_DIR)/graphics/paladin.subsystem.graphics.cubicvr.js \
+  $(SUBSYS_DIR)/sound/paladin.subsystem.sound.js \
+  $(SUBSYS_DIR)/physics/paladin.subsystem.physics.js
+
 CONCAT_LIST := $(CORE_FILES) $(SUBSYSTEM_FILES)
 COMPILE_LIST := $(patsubst %.js, --js %.js, $(CONCAT_LIST))
 
@@ -26,6 +46,8 @@ compile = java -jar $(TOOLS_DIR)/closure/compiler.jar \
 concat = cat $(CONCAT_LIST) > $(1)
 
 complete = cat $(PALADIN_MIN) $(CUBICVR_LIB) > $(1)
+
+jshint = echo "Linting $(1)" ; $$JSSHELL2 -f $(TOOLS_DIR)/jshint.js $(TOOLS_DIR)/jshint-cmdline.js < $(1)
 
 all: $(DIST_DIR) $(PALADIN_DIST) $(PALADIN_MIN) $(PALADIN_COMPLETE)
 	@@echo "Finished, see $(DIST_DIR)"
@@ -56,5 +78,10 @@ tests: $(DIST_DIR) $(PALADIN_MIN)
 clean:
 	@@rm -fr $(DIST_DIR)
 
-check-lint:
-	${TOOLS_DIR}/jslint.py ${JSSHELL} paladin.js
+check-lint: check-lint-core check-lint-subsystems
+
+check-lint-core:
+	@@$(call jshint,$(CORE_FILES))
+
+check-lint-subsystems:
+	@@$(foreach subsystem,$(SUBSYSTEM_FILES),echo "-----" ; $(call jshint,$(subsystem)) ; )

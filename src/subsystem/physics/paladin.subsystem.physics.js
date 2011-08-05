@@ -24,7 +24,7 @@
   var bases = [
     [1, 0, 0],
     [0, 1, 0],
-    [0, 0, 1],
+    [0, 0, 1]
   ];
 
   function dot(a, b) {
@@ -70,12 +70,12 @@
       return [x,y,z];
     },
     containsPoint: function ( aabb, point ) {
-      return    point[0] <= aabb[1][0] 
-            &&  point[1] <= aabb[1][1]
-            &&  point[2] <= aabb[1][2]
-            &&  point[0] >= aabb[0][0]
-            &&  point[1] >= aabb[0][1]
-            &&  point[2] >= aabb[0][2];
+      return point[0] <= aabb[1][0] &&
+             point[1] <= aabb[1][1] &&
+             point[2] <= aabb[1][2] &&
+             point[0] >= aabb[0][0] &&
+             point[1] >= aabb[0][1] &&
+             point[2] >= aabb[0][2];
     },
     overlaps: function ( aabb1, aabb2 ) {
       // thanks flipcode! http://www.flipcode.com/archives/2D_OBB_Intersection.shtml
@@ -148,9 +148,9 @@
 
   var sphereMath = {
     intersectsSphere: function ( sphere1, sphere2 ) {
-          diff = [ sphere2[0] - sphere1[0], sphere2[1] - sphere1[1], sphere2[2] - sphere1[2] ],
-          mag = diff[0]*diff[0] + diff[1]*diff[1] + diff[2]*diff[2],
-          sqrtRad = sphere2[3] + sphere1[3];
+      var diff = [ sphere2[0] - sphere1[0], sphere2[1] - sphere1[1], sphere2[2] - sphere1[2] ],
+        mag = diff[0]*diff[0] + diff[1]*diff[1] + diff[2]*diff[2],
+        sqrtRad = sphere2[3] + sphere1[3];
           // no need to sqrt here
       return mag <= sqrtRad*sqrtRad;
     },
@@ -172,13 +172,15 @@
     this.inserted = options.inserted || function () {};
     this.aabb = options.aabb;
     this.object = options.object; 
-    options.object && this.bindObject( options.object );
+    if ( options.object ) {
+      this.bindObject( options.object );
+    }
     this.destroy = function () {
       that.leaves = undefined;
       that.commonRoot = undefined;
     };
 
-  };
+  }
 
   function Octree ( options ) {
     options = options || {};
@@ -219,7 +221,9 @@
     };
 
     this.dirtyLineage = function () {
-      root && root.dirtyLineage();
+      if ( root ) {
+        root.dirtyLineage();
+      }
     };
 
     this.dirty = function ( val ) {
@@ -255,7 +259,7 @@
       node.commonRoot = root;
       aabbMath.engulf( node.aabb, aabb[0] );
       aabbMath.engulf( node.aabb, aabb[1] );
-    };
+    }
 
     this.insertNode = function ( node ) {
       if ( maxDepth === 0 ) {
@@ -408,7 +412,7 @@
 
       var aabb = new AABB({
         min: options.aabb ? options.aabb[0] : undefined,
-        max: options.aabb ? options.aabb[1] : undefined,
+        max: options.aabb ? options.aabb[1] : undefined
       });
 
       var extents = aabb.getExtents(),
@@ -417,7 +421,7 @@
 
       var sphere = new Sphere({
         position: [extents[0][0] + diff[0]/2, extents[0][1] + diff[1]/2, extents[0][2] + diff[2]/2],
-        radius: mag/2,
+        radius: mag/2
       });
 
       this.getSphere = function () {
@@ -506,16 +510,17 @@
       };
 
       this.getCollisions = function () {
-        var collisions = [];
+        var collisions = [],
+          i, j, l;
          // TODO [secretrobotron]: the worst (use the octree)
-        for ( var i=0, l=bodies.length; i<l; ++i ) {
+        for ( i=0, l=bodies.length; i<l; ++i ) {
           bodies[i].collisions = [];
         }
-        for ( var i=0, l=bodies.length; i<l; ++i ) {
-          for ( var j=0; j<l; ++j ) {
-            if (     bodies[i] !== bodies[j]
-                  && bodies[i].collisions.indexOf( bodies[j] ) === -1
-                  && bodies[i].testCollision( bodies[j] ) 
+        for ( i=0, l=bodies.length; i<l; ++i ) {
+          for ( j=0; j<l; ++j ) {
+            if (  bodies[i] !== bodies[j] &&
+                  bodies[i].collisions.indexOf( bodies[j] ) === -1 &&
+                  bodies[i].testCollision( bodies[j] ) 
               ) {
               bodies[i].collisions.push( bodies[j] );
               bodies[j].collisions.push( bodies[i] );
