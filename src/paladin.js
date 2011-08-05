@@ -207,7 +207,7 @@ var Paladin = window.Paladin = function ( options ) {
               0: 'meta',
               16: 'shift',
               17: 'ctrl',
-              18: 'alt',
+              18: 'alt'
       };
       var BUTTONMAP = {
               0: 'mouse1',
@@ -343,7 +343,7 @@ var Paladin = window.Paladin = function ( options ) {
               0: 'meta',
               16: 'shift',
               17: 'ctrl',
-              18: 'alt',
+              18: 'alt'
       };
       var UNDEFINED = '?';
       var ALL = '*';
