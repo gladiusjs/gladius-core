@@ -420,7 +420,6 @@ var Paladin = window.Paladin = function ( options ) {
       };
      
       this.handleTouchStart = function( event ) {
-          console.log( event );
           event.preventDefault();
           var options = {
               event: that.Event( processEvent( event ), true ),
@@ -430,7 +429,6 @@ var Paladin = window.Paladin = function ( options ) {
       };
 
       this.handleTouchEnd = function( event ) {
-          console.log( event );
           event.preventDefault();
           var options = {
               event: that.Event( processEvent( event ), false ),
@@ -449,7 +447,6 @@ var Paladin = window.Paladin = function ( options ) {
       };
       
       this.handleTouchMove = function( event ) {
-          console.log( event );
           event.preventDefault();
           processEvent( event );
       };
