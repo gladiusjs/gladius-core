@@ -23,8 +23,9 @@ define( function ( require, exports ) {
   // that need to know the paladin instance.
   function partialCtor(func, instance) {
     return function () {
-      var args = [instance].concat(arguments);
-      return func.apply(this, args);
+      var args = [instance].concat(arguments),
+          ret = func.apply(this, args);
+      return ret || this;
     };
   }
 
