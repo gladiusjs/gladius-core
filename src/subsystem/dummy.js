@@ -1,9 +1,12 @@
-(function (window, document, Paladin, undefined) {
+/*jshint white: false, strict: false, plusplus: false */
+/*global define: false */
+
+define( function ( require ) {
 
   var numDummies = 0;
 
-  Paladin.subsystem.register( "dummy", function ( options ) {
-  
+  function dummy( options ) {
+
     options = options || {};
 
     ++numDummies;
@@ -18,6 +21,7 @@
       return numDummies;
     };
 
-  });
+  }
 
-})(window, window.document, Paladin);
+  return dummy;
+});

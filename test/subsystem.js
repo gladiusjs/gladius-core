@@ -1,34 +1,46 @@
-/*global text,expect,ok,module,notEqual,Paladin,test,window*/
-(function (window, document, Paladin, undefined) {
+/*jshint white: false, strict: false, plusplus: false, onevar: false,
+  nomen: false */
+/*global define: false, document: false, window: false, module: false,
+  test: false, expect: false, ok: false, notEqual: false, QUnit: false */
 
-  var paladin;
+define( function( require ) {
+
+  var paladin = require( 'paladin' ),
+      p;
 
   module("Before initialization");
 
   test("dummy subsystem exists", function () {
-    expect(1);
-    notEqual(Paladin.subsystem.get('dummy'), undefined);
+    QUnit.stop();
+    paladin.create({}, function (paladin) {
+      expect(1);
+      notEqual(paladin.subsystem.dummy, undefined);
+      QUnit.start();
+    });
   });
 
   module("Before initialization", {
     setup: function () {
-      paladin = new Paladin({
+      QUnit.stop();
+      p = paladin.create({
         graphics: {
           canvas: document.getElementById('test-canvas')
-        },
+        }
+      }, function () {
+        QUnit.start();
       });
     }
   });
 
   test("dummy function exists", function () {
     expect(1);
-    ok(paladin.dummy.dummy instanceof Function);
+    ok(p.subsystem.dummy.dummy instanceof Function);
   });
 
   test("dummy subsystem was initialized after init", function () {
     expect(2);
-    ok(paladin.dummy.dummy() === true, "inner scope");
-    ok(paladin.dummy.numDummies() === 2, "outer scope");
+    ok(p.subsystem.dummy.dummy() === true, "inner scope");
+    ok(p.subsystem.dummy.numDummies() === 2, "outer scope");
   });
 
-})(window, window.document, Paladin);
+});
