@@ -3,16 +3,8 @@
 
 1. VERSION NUMBER
    --------------
-Paladin version numbers have the following form:
-
-    A.B.C.D    
-
-A is the major version. It increments whenever we make a significant change or backward compatibility
-is broken. B is the minor version. It increments when a new feature, or set of smaller features, are
-introduced. C indicates the development stage, chosen from 0 (experimental/alpha), 1 (test candidate),
-2 (testing/beta), 3 (release candidate), 4 (release). D is the revision number. In general, the last
-version in each stage is identical to the first version in the following stage (i.e., the final
-release candidate is the same as the next release). 
+Paladin follows the Semantic Versioning Specification. See http://semver.org for
+full details.
 
 2. REPORTING ISSUES
    ----------------
