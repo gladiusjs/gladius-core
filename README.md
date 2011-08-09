@@ -1,21 +1,19 @@
-WHAT, WHY, and WHO
-------------------
+# Paladin
 
-VERSION NUMBER
---------------
+Paladin is Mozilla's movement to provide open source gaming technology for the web.
+
+## Version Number
+
 Paladin follows the Semantic Versioning Specification. See http://semver.org for full details.
 
-REPORTING ISSUES
-----------------
+## Reporting Issues
 
-BUILD and TEST
---------------
+## Build and Test
 
-EXAMPLES and HELP
------------------
+## Examples and Help
 
-CONTRIBUTING
-------------
+## Contributing
 
-LICENSE
--------
+## License
+
+Licensed under the AGPLv3. See LICENSE for more information.
