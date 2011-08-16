@@ -16,4 +16,4 @@ Paladin follows the Semantic Versioning Specification. See http://semver.org for
 
 ## License
 
-Licensed under the AGPLv3. See LICENSE for more information.
+See LICENSE for more information.
