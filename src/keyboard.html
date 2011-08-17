@@ -1,0 +1,17 @@
+<html>
+<body>
+<div id="test"></div>
+<script src="keyboard.js"></script>
+<script>
+setInterval(function() {
+  var test = document.getElementById('test');
+
+  if (paladin.input.keyboard['KEY_A']) {
+    test.innerHTML = "A Pressed";
+  } else {
+    test.innerHTML = "A Not Pressed";
+  }
+}, 50);
+</script>
+</body>
+</html>
