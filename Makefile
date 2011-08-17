@@ -48,7 +48,7 @@ concat = cat $(CONCAT_LIST) > $(1)
 
 complete = cat $(PALADIN_MIN) $(CUBICVR_LIB) > $(1)
 
-jshint = echo "Linting $(1)" ; $$JSSHELL2 -f $(TOOLS_DIR)/jshint.js $(TOOLS_DIR)/jshint-cmdline.js < $(1)
+jshint = echo "Linting $(1)" ; $(JSSHELL) -f $(TOOLS_DIR)/jshint.js $(TOOLS_DIR)/jshint-cmdline.js < $(1)
 
 all: $(DIST_DIR) $(PALADIN_DIST) $(PALADIN_MIN) $(PALADIN_COMPLETE)
 	@@echo "Finished, see $(DIST_DIR)"
