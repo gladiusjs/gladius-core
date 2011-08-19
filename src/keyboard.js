@@ -194,32 +194,34 @@ paladin.input.keyboard = (function() {
   function getKeyCode(e) {
     var code = e.which || e.keyCode;
     switch (code) {
-      case 13: // ENTER
-        return 10;
+      case 8:
+        return 46; // delete on Mac
+      case 61:
+        return 109; // + on Mac
       case 91: // META L (Saf/Mac)
       case 93: // META R (Saf/Mac)
       case 224: // META (FF/Mac)
         return 157;
       case 57392: // CONTROL (Op/Mac)
         return 17;
-      case 46: // DELETE
-        return 127;
       case 45: // INSERT
         return 155;
     }
     return code;
   }
 
-  function keyDown(e) {
-    keys[getKeyCode(e)].pressed = true;
+  function keyHandler(e, isPressed) {
+    e.preventDefault();
+    var key = keys[getKeyCode(e)];
+    if (!key) {
+      console.log('Keyboard: Unknown key, Key Code = ' + (e.which || e.keyCode));
+      key = keys[0]; // Unknown
+    }
+    key.pressed = isPressed;
   }
 
-  function keyUp(e) {
-    keys[getKeyCode(e)].pressed = false;
-  }
-
-  window.addEventListener('keydown', keyDown, false);
-  window.addEventListener('keyup', keyUp, false);
+  window.addEventListener('keydown', function(e) { keyHandler(e, true);  }, false);
+  window.addEventListener('keyup',   function(e) { keyHandler(e, false); }, false);
 
   return keyboard;
 
