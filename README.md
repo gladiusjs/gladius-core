@@ -14,6 +14,8 @@ Paladin follows the Semantic Versioning Specification. See http://semver.org for
 
 ## Contributing
 
+See https://wiki.mozilla.org/Paladin/Workflow for details about git workflow, testing, and code reviews.
+
 ## License
 
 See LICENSE for more information.
