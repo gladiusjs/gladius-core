@@ -8,6 +8,13 @@
   // Where to find the module names listed below.
   baseUrl: '../src',
 
+  // Where to find modules that are outside of src.
+  // This setup assumes CubicVR.js is the built output,
+  // so this build file assumes make has already run in CubicVR.js
+  paths: {
+    'CubicVR.js/CubicVR': '../external/CubicVR.js/dist/CubicVR'
+  },
+
   // Do not minify with the requirejs optimizer, to allow shipping
   // a non-minified and minified version. The Makefile will do the
   // minification.

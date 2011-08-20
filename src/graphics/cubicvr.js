@@ -3,14 +3,12 @@
 
 define( function ( require ) {
 
-  // Pull in CubicVR, but then get a ref to it using its global name, since
-  // it does not register via define()
-  // TODO: uncomment this once the document.write use inside CubicVR
-  // can be resolved. Until then, have to manually script tag it.
-  //require( '../../../external/CubicVR.js/CubicVR');
-
-  var CubicVR = window.CubicVR,
+  var CubicVR = require( 'CubicVR.js/CubicVR' ),
       lang = require( '../core/lang' );
+
+  // CubicVR does not use define() to declare a module, just grab it
+  // via global.
+  CubicVR = this.CubicVR;
 
   function graphicsCubicVR( options ) {
 

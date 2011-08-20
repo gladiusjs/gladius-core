@@ -19,11 +19,10 @@ EXTERNAL_DIR := ./external
 PALADIN_SRC := $(SRC_DIR)/$(PALADIN).js
 PALADIN_DIST := $(DIST_DIR)/$(PALADIN).js
 PALADIN_MIN := $(DIST_DIR)/$(PALADIN).min.js
-PALADIN_COMPLETE := $(DIST_DIR)/$(PALADIN).complete.js
 TOOLS_DIR := ./tools
 TESTS_DIR := $(DIST_DIR)/test
 
-CUBICVR_LIB := $(EXTERNAL_DIR)/CubicVR.js/dist/CubicVR.min.js
+CUBICVR_LIB := $(EXTERNAL_DIR)/CubicVR.js/dist/CubicVR.js
 
 CORE_FILES := $(SRC_DIR)/paladin.js $(SRC_DIR)/core/*.js $(SRC_DIR)/input/*.js
 
@@ -42,24 +41,24 @@ complete = cat $(PALADIN_MIN) $(CUBICVR_LIB) > $(1)
 
 jshint = echo "Linting $(1)" ; $(JSSHELL) -f $(TOOLS_DIR)/jshint.js $(TOOLS_DIR)/jshint-cmdline.js < $(1)
 
-all: $(DIST_DIR) $(PALADIN_DIST) $(PALADIN_MIN) $(PALADIN_COMPLETE)
+all: $(DIST_DIR) $(PALADIN_DIST) $(PALADIN_MIN)
 	@@echo "Finished, see $(DIST_DIR)"
+
+$(CUBICVR_LIB):
+	@@echo "Creating $(CUBICVR_LIB)"
+	@@cd $(EXTERNAL_DIR)/CubicVR.js && make
 
 $(DIST_DIR):
 	@@echo "Creating $(DIST_DIR)"
 	@@mkdir $(DIST_DIR)
 
-$(PALADIN_DIST): $(DIST_DIR) $(PALADIN_SRC)
+$(PALADIN_DIST): $(DIST_DIR) $(PALADIN_SRC) $(CUBICVR_LIB)
 	@@echo "Building $(PALADIN_DIST)"
 	@@cd $(TOOLS_DIR) && java -classpath rhino.jar org.mozilla.javascript.tools.shell.Main r.js -o build.js
 
 $(PALADIN_MIN): $(DIST_DIR) $(PALADIN_SRC)
 	@@echo "Building $(PALADIN_MIN)"
 	@@$(call compile,$(PALADIN_MIN))
-
-$(PALADIN_COMPLETE): $(DIST_DIR) $(PALADIN_MIN)
-	@@echo "Building $(PALADIN_COMPLETE)"
-	@@$(call complete,$(PALADIN_COMPLETE))
 
 tests: $(DIST_DIR) $(PALADIN_MIN)
 	@@echo "Creating tests in $(TESTS_DIR)"

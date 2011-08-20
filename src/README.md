@@ -1,0 +1,12 @@
+# src layout
+
+* **paladin.js**: the main JS file. In source form, internally uses
+../external/require.js to load itself and its modules. The dist/ output
+for paladin.js does not need require.js to run.
+* **order.js**: the order plugin for require.js, used to load CubicVR.js in its
+  source form. Not needed for the dist/ version of paladin.
+* **core**: modules used directly by paladin.js
+* **graphics**: for graphics subsystems.
+* **input**: modules for handling input
+* **physics**: for physics subsystems.
+* **sound**: for sound subsystems.

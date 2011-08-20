@@ -4,7 +4,6 @@
     <title>Paladin Test Suite</title>
     <link rel="stylesheet" href="qunit/qunit.css" type="text/css" media="screen">
     <script src="qunit/qunit.js"></script>
-    <script src="../external/CubicVR.js/CubicVR.js"></script>
     <script src="../external/require.js"></script>
     <script>
       // Pause QUnit until tests are loaded.
@@ -15,6 +14,7 @@
         baseUrl: '../src',
         paths: {
           // Paths are relative to baseUrl
+          'CubicVR.js': '../external/CubicVR.js',
           'test': '../test'
         }
       }, [
