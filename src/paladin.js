@@ -2,30 +2,28 @@
 /*global define: false, console: false, window: false */
 
 define( function ( require, exports ) {
-  var lang = require( './lang' ),
-      Tasker = require( './Tasker' ),
-      Loader = require( './Loader' ),
-      KeyboardInput = require( './KeyboardInput' ),
-      MouseInput = require( './MouseInput' ),
-      TouchInput = require( './TouchInput' ),
-      InputMap = require( './InputMap' ),
-      Messenger = require( './Messenger' ),
-      Scene = require( './Scene' ),
-      Entity = require( './Entity' ),
-      SpatialComponent = require( './SpatialComponent' ),
-      CameraComponent = require( './CameraComponent' ),
-      ModelComponent = require( './ModelComponent' ),
-      SpeakerComponent = require( './SpeakerComponent' ),
+  var lang = require( './core/lang' ),
+      Tasker = require( './core/Tasker' ),
+      Loader = require( './core/Loader' ),
+      KeyboardInput = require( './input/KeyboardInput' ),
+      MouseInput = require( './input/MouseInput' ),
+      TouchInput = require( './input/TouchInput' ),
+      InputMap = require( './input/InputMap' ),
+      Messenger = require( './core/Messenger' ),
+      Scene = require( './core/Scene' ),
+      Entity = require( './core/Entity' ),
+      SpatialComponent = require( './core/SpatialComponent' ),
+      CameraComponent = require( './core/CameraComponent' ),
+      ModelComponent = require( './core/ModelComponent' ),
+      SpeakerComponent = require( './core/SpeakerComponent' ),
 
       Paladin;
 
   // Utility to bridge the gap between constructor functions
   // that need to know the paladin instance.
-  function partialCtor(func, instance) {
-    return function () {
-      var args = [instance].concat(arguments),
-          ret = func.apply(this, args);
-      return ret || this;
+  function partialCtor( Func, instance ) {
+    return function ( options ) {
+      return new Func( instance, options );
     };
   }
 
@@ -51,7 +49,7 @@ define( function ( require, exports ) {
     for ( prop in subsystems ) {
       if ( subsystems.hasOwnProperty( prop ) ) {
         sNames.push(prop);
-        sIds.push('./subsystem/' + subsystems[prop]);
+        sIds.push('./' + subsystems[prop]);
       }
     }
 
@@ -67,6 +65,10 @@ define( function ( require, exports ) {
         subs[ sNames[i] ] = new arguments[i]( this.options );
       }
 
+      // Hmm, graphics is also on this, instead of always
+      // referenced on subsystem? sound too?
+      this.graphics = subs.graphics;
+      this.sound = subs.sound;
 
       // Expose Paladin objects, partially
       // applying items needed for their constructors.

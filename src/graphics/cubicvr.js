@@ -10,7 +10,7 @@ define( function ( require ) {
   //require( '../../../external/CubicVR.js/CubicVR');
 
   var CubicVR = window.CubicVR,
-      lang = require( '../../lang' );
+      lang = require( '../core/lang' );
 
   function graphicsCubicVR( options ) {
 

@@ -1,6 +1,13 @@
-(function (window, document, Paladin, undefined) {
+/*jshint white: false, strict: false, plusplus: false, onevar: false,
+  nomen: false */
+/*global define: false, document: false, window: false, setTimeout: false,
+ module, test, expect, ok, notEqual, QUnit, stop, start, asyncTest, equal,
+ deepEqual, raises */
 
-  var paladin,
+define( function( require ) {
+
+  var p = require('paladin'),
+    paladin,
     track,
     speaker,
     emptyArray = [],
@@ -10,23 +17,26 @@
 
   module("sound", {
     setup: function () {
-      paladin = new Paladin({
+      stop();
+
+      p.create({
         graphics: {
           canvas: document.createElement('canvas')
         }
-      });
+      }, function (instance) {
+        paladin = instance;
 
-      stop();
-      track = new paladin.sound.Track({
-        url: shortSound,
-        instances: 1, // Force a single clone to make testing audio element possible
-        callback: function() {
-          trackArray = [track];
-          start();
-        }
-      });
+        track = new paladin.sound.Track({
+          url: shortSound,
+          instances: 1, // Force a single clone to make testing audio element possible
+          callback: function() {
+            trackArray = [track];
+            start();
+          }
+        });
 
-      speaker = new paladin.component.Speaker();
+        speaker = new paladin.component.Speaker();
+      });
     },
     teardown: function () {
     }
@@ -199,4 +209,4 @@
     testSpeaker.pause();
   });
 
-})(window, window.document, Paladin);
+});
