@@ -1,5 +1,5 @@
 /**
- * @license r.js 0.26.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+ * @license r.js 0.26.0+ Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -20,7 +20,7 @@ var requirejs, require, define;
 
     var fileName, env, fs, vm, path, exec, rhinoContext, dir, nodeRequire,
         nodeDefine, exists, reqMain, loadedOptimizedLib,
-        version = '0.26.0',
+        version = '0.26.0+',
         jsSuffixRegExp = /\.js$/,
         commandOption = '',
         //Used by jslib/rhino/args.js
@@ -101,7 +101,7 @@ var requirejs, require, define;
     }
 
     /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 0.26.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS 0.26.0+ Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -113,7 +113,7 @@ var requirejs, require, define;
 
 (function () {
     //Change this version number for each release.
-    var version = "0.26.0",
+    var version = "0.26.0+",
         commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
         cjsRequireRegExp = /require\(\s*["']([^'"\s]+)["']\s*\)/g,
         currDirRegExp = /^\.\//,
@@ -629,7 +629,7 @@ var requirejs, require, define;
         }
 
         function execManager(manager) {
-            var i, ret, waitingCallbacks, err, errFile,
+            var i, ret, waitingCallbacks, err, errFile, errModuleTree,
                 cb = manager.callback,
                 fullName = manager.fullName,
                 args = [],
@@ -693,12 +693,14 @@ var requirejs, require, define;
             if (err) {
                 errFile = (fullName ? makeModuleMap(fullName).url : '') ||
                            err.fileName || err.sourceURL;
+                errModuleTree = err.moduleTree;
                 err = makeError('defineerror', 'Error evaluating ' +
                                 'module "' + fullName + '" at location "' +
                                 errFile + '":\n' +
                                 err + '\nfileName:' + errFile +
                                 '\nlineNumber: ' + (err.lineNumber || err.line), err);
                 err.moduleName = fullName;
+                err.moduleTree = errModuleTree;
                 return req.onError(err);
             }
 
@@ -1287,7 +1289,6 @@ var requirejs, require, define;
                     //Allow tracing some require calls to allow the fetching
                     //of the priority config.
                     context.requireWait = false;
-
                     //But first, call resume to register any defined modules that may
                     //be in a data-main built file before the priority config
                     //call. Also grab any waiting define calls for this context.
@@ -2551,6 +2552,10 @@ define('node/file', ['fs', 'path'], function (fs, path) {
             //summary: copies files from srcDir to destDir using the regExpFilter to determine if the
             //file should be copied. Returns a list file name strings of the destinations that were copied.
             regExpFilter = regExpFilter || /\w/;
+
+            //Normalize th directory names.
+            srcDir = path.normalize(srcDir);
+            destDir = path.normalize(destDir);
 
             var fileNames = file.getFilteredFileList(srcDir, regExpFilter, true),
             copiedFiles = [], i, srcFileName, destFileName;
@@ -7330,6 +7335,30 @@ function (file,           pragma,   parse) {
             oldDef,
             cachedFileContents = {};
 
+
+        /** Print out some extrs info about the module tree that caused the error. **/
+        require.onError = function (err) {
+
+            var msg = '\nIn module tree:\n',
+                standardIndent = '  ',
+                tree = err.moduleTree,
+                i, j, mod;
+
+            if (tree && tree.length > 0) {
+                for (i = tree.length - 1; i > -1 && (mod = tree[i]); i--) {
+                    for (j = tree.length - i; j > -1; j--) {
+                        msg += standardIndent;
+                    }
+                    msg += mod + '\n';
+                }
+
+                err = new Error(err.toString() + msg);
+            }
+
+            throw err;
+        };
+
+
         /** Reset state for each build layer pass. */
         require._buildReset = function () {
             var oldContext = require.s.contexts._;
@@ -7467,13 +7496,20 @@ function (file,           pragma,   parse) {
                         eval(contents);
 
                         //Support anonymous modules.
-                        context.completeLoad(moduleName);
+                        try {
+                            context.completeLoad(moduleName);
+                        } catch (e) {
+                            //Track which module could not complete loading.
+                            (e.moduleTree || (e.moduleTree = [])).push(moduleName);
+                            throw e;
+                        }
                     }
 
-                } catch (e) {
-                    e.fileName = url;
-                    e.lineNumber = e.line;
-                    throw e;
+                } catch (eOuter) {
+                    if (!eOuter.fileName) {
+                        eOuter.fileName = url;
+                    }
+                    throw eOuter;
                 }
 
                 // remember the list of dependencies for this layer.
@@ -8053,6 +8089,20 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
     };
 
     /**
+     * Converts command line args like "paths.foo=../some/path"
+     * result.paths = { foo: '../some/path' } where prop = paths,
+     * name = paths.foo and value = ../some/path, so it assumes the
+     * name=value splitting has already happened.
+     */
+    function stringDotToObj(result, prop, name, value) {
+        if (!result[prop]) {
+            result[prop] = {};
+        }
+        name = name.substring((prop + '.').length, name.length);
+        result[prop][name] = value;
+    }
+
+    /**
      * Converts an array that has String members of "name=value"
      * into an object, where the properties on the object are the names in the array.
      * Also converts the strings "true" and "false" to booleans for the values.
@@ -8088,14 +8138,8 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                 value = value.split(",");
             }
 
-            if (prop.indexOf("paths.") === 0) {
-                //Special handling of paths properties. paths.foo=bar is transformed
-                //to data.paths = {foo: 'bar'}
-                if (!result.paths) {
-                    result.paths = {};
-                }
-                prop = prop.substring("paths.".length, prop.length);
-                result.paths[prop] = value;
+            if (prop.indexOf("paths.") === 0 || prop.indexOf("wrap.") === 0) {
+                stringDotToObj(result, prop.split('.')[0], prop, value);
             } else {
                 result[prop] = value;
             }
@@ -8252,6 +8296,19 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             if (config[prop]) {
                 config[prop] = build.makeAbsPath(config[prop], absFilePath);
             }
+        }
+
+        //Get any wrap text.
+        try {
+            if (config.wrap) {
+                config.wrap.start = config.wrap.start ||
+                        file.readFile(build.makeAbsPath(config.wrap.startFile, absFilePath));
+                config.wrap.end = config.wrap.end ||
+                        file.readFile(build.makeAbsPath(config.wrap.endFile, absFilePath));
+            }
+        } catch (wrapError) {
+            throw new Error('Malformed wrap config: need both start/end or ' +
+                            'startFile/endFile: ' + wrapError.toString());
         }
 
         //Do final input verification
@@ -8451,7 +8508,9 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
         }
 
         return {
-            text: fileContents,
+            text: config.wrap ?
+                    config.wrap.start + fileContents + config.wrap.end :
+                    fileContents,
             buildText: buildFileContents
         };
     };
@@ -8575,7 +8634,10 @@ require({
     baseUrl: require.s.contexts._.config.baseUrl,
     //Use a separate context than the default context so that the
     //build can use the default context.
-    context: 'build'
+    context: 'build',
+    catchError: {
+        define: true
+    }
 },       ['env!env/args', 'build'],
 function (args,            build) {
     build(args);

@@ -1,0 +1,4 @@
+
+this.paladin = requirejs('paladin');
+
+}());
