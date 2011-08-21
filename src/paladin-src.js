@@ -74,6 +74,7 @@ define( function ( require ) {
       // Hmm, graphics is also on this, instead of always
       // referenced on subsystem? sound too?
       this.graphics = subs.graphics;
+      this.physics = subs.physics;
       this.sound = subs.sound;
 
       // Expose Paladin objects, partially

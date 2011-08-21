@@ -12,6 +12,8 @@ define( function ( require ) {
 
   function graphicsCubicVR( options ) {
 
+    this.CubicVR = CubicVR;
+
     var mainCanvas, mainLoop;
 
     var scenesByName = {},
