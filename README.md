@@ -10,6 +10,12 @@ Paladin follows the Semantic Versioning Specification. See http://semver.org for
 
 ## Build and Test
 
+No building is needed for development workflows. To build the engine for distribution, run make in the top-level
+project directory. The build process produces a javascript file containing the entire engine and its dependencies
+and also a minified version of that file.
+
+Run unit tests by opening test/ directory in a web browser. Tests run automatically and failures are marked in red.
+
 ## Examples and Help
 
 ## Contributing
