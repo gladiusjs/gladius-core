@@ -42,17 +42,11 @@
 
   var paladin = this.paladin || ( this.paladin = {} );
 
-  paladin.ready = function ( callback ) {
-    if ( paladin.create ) {
-      // Built version, paladin is ready!
-      // Use setTimeout so that ready is always async
-      setTimeout ( function () {
-        callback();
-      }, 5 );
-    } else {
+  if ( !paladin.create ) {
+    paladin.create = function () {
       // Hold on to callback, code in paladin-src will call it.
-      ( paladin._readyCallbacks ||
-        ( paladin._readyCallbacks = [] ) ).push( callback );
-    }
-  };
+      ( paladin._waitingCreates ||
+        ( paladin._waitingCreates = [] ) ).push( arguments );
+    };
+  }
 }());

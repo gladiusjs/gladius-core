@@ -17,7 +17,7 @@ define( function ( require ) {
       ModelComponent = require( './core/ModelComponent' ),
       SpeakerComponent = require( './core/SpeakerComponent' ),
 
-      Paladin, i, cb,
+      Paladin, i, args,
 
       // Expose the API on the global object. Part of if may already
       // exist, mainly paladin.ready from paladin.js. Check tools/wrap.start
@@ -141,11 +141,11 @@ define( function ( require ) {
   };
 
   // Call any callbacks waiting for paladin to be available.
-  if ( global._readyCallbacks ) {
-    for ( i = 0; (cb = global._readyCallbacks[i]); i++ ) {
-      cb();
+  if ( global._waitingCreates ) {
+    for ( i = 0; (args = global._waitingCreates[i]); i++ ) {
+      global.create.apply(global, args);
     }
-    delete global._readyCallbacks;
+    delete global._waitingCreates;
   }
 
   return global;
