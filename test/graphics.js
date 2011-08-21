@@ -1,32 +1,31 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
   nomen: false */
-/*global define: false, document: false, window: false, setTimeout: false,
- module, test, expect, ok, notEqual, QUnit, stop, start, asyncTest */
+/*global paladin: false, document: false, window: false, setTimeout: false,
+ module, test, expect, ok, notEqual, QUnit, stop, start, asyncTest, deepEqual */
 
-define( function( require ) {
+(function() {
 
-    var p = require('paladin'),
-        paladin, scene, camera, model, task;
+    var p, scene, camera, model, task;
 
     module("graphics", {
       setup: function graphics_setup() {
         stop();
 
-        p.create({
+        paladin.create({
           graphics: {
             canvas: document.getElementById('test-canvas')
           }
         }, function (instance) {
-          paladin = instance;
+          p = instance;
 
-          scene = new paladin.Scene( { fov: 60 } );
-          camera = new paladin.component.Camera({
+          scene = new p.Scene( { fov: 60 } );
+          camera = new p.component.Camera({
             targeted: false,
             position: [1, 2, 3],
             rotation: [10, 20, 30]
           });
-          var entity = new paladin.Entity();
-          var mesh = new paladin.graphics.Mesh( {
+          var entity = new p.Entity();
+          var mesh = new p.graphics.Mesh( {
             primitives: [ {
               type: 'box',
               size: 0.5,
@@ -36,7 +35,7 @@ define( function( require ) {
             }],
             finalize: true
           });
-          model = new paladin.component.Model({
+          model = new p.component.Model({
             mesh: mesh,
             position: [3, 6, 9],
             rotation: [15, 30, 45]
@@ -47,7 +46,7 @@ define( function( require ) {
           entity.setParent( scene );
 
           /*
-          task = paladin.tasker.add({
+          task = p.tasker.add({
             callback: function () {
               model.object.rotation[0] += 1;
             }
@@ -59,7 +58,7 @@ define( function( require ) {
 
       },
       teardown: function graphics_teardown ( ) {
-        paladin.tasker.terminate();
+        p.tasker.terminate();
 
         // XXXdmose commented out because qunit/Paladin concurrency model
         // interactions horking us.  There are likely bad hidden consequences
@@ -72,8 +71,8 @@ define( function( require ) {
 
     test( "Scene rendering", function () {
       expect( 1 );
-      paladin.graphics.pushScene( scene );
-      paladin.run();
+      p.graphics.pushScene( scene );
+      p.run();
       stop();
 
       // XXX would be nice to have something more deterministic/less racy
@@ -98,4 +97,4 @@ define( function( require ) {
       deepEqual( model.object.rotation, [15, 30, 45], "Initial model rotation" );
     });
 
-});
+}());

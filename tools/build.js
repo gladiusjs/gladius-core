@@ -1,8 +1,7 @@
 /**
  * Build profile for paladin. Replaces the use of requirejs with an AMD
  * loader shim, almond.js, since the built file does not need to use
- * all of requirejs. The entire file is wrapped in a closure that exports
- * a global "paladin" object.
+ * all of requirejs.
  */
 ({
   // Where to find the module names listed below.
@@ -13,6 +12,12 @@
   // so this build file assumes make has already run in CubicVR.js
   paths: {
     'CubicVR.js/CubicVR': '../external/CubicVR.js/dist/CubicVR'
+  },
+
+  // Use has branch trimming in the build to remove the document.write
+  // code in src/paladin.js after a minification is done.
+  has: {
+    'source-config': false
   },
 
   // Do not minify with the requirejs optimizer, to allow shipping
@@ -27,10 +32,13 @@
   name: '../tools/almond',
 
   // Files to include along with almond. Their nested dependencies will also be
-  // included. Subsystems are listed explicitly because paladin.js does not
-  // have explicit dependencies for them, but uses them on demand.
+  // included. Subsystems are listed explicitly because paladin-src.js does not
+  // have explicit dependencies for them, but uses them on demand. Also,
+  // paladin.js references paladin-src in a document.write string, so it will
+  // not be found by the AST analysis done in the optimizer.
   include: [
             'paladin',
+            'paladin-src',
             'dummy',
             'graphics/cubicvr',
             'physics/default',

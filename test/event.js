@@ -1,19 +1,18 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
   nomen: false */
-/*global define: false, document: false, window: false, setTimeout: false,
+/*global paladin: false, document: false, window: false, setTimeout: false,
  module, test, expect, ok, notEqual, QUnit, stop, start, asyncTest, console */
 
-define( function( require ) {
+(function() {
 
-  var p = require( 'paladin' ),
-      paladin, entity1;
+  var p, entity1;
 
   module("events", {
     setup: function () {
       stop();
 
       // set up a game with some event listeners
-      paladin = p.create({
+      p = paladin.create({
         graphics: {
           canvas: document.getElementById('test-canvas')
         },
@@ -50,17 +49,17 @@ define( function( require ) {
           */
         } //setup
       }, function (instance) {
-        paladin = instance;
-        paladin.run();
+        p = instance;
+        p.run();
         start();
       }); //Paladin
 
     },
 
     teardown: function () {
-      entity1.ignore( {event: paladin.mouseInput.Event( ['mouse1'], false )});
-      entity1.ignore( {event: paladin.keyboardInput.Event( ['escape'], false )});
-      paladin = null; // force as much to be GCed as we can
+      entity1.ignore( {event: p.mouseInput.Event( ['mouse1'], false )});
+      entity1.ignore( {event: p.keyboardInput.Event( ['escape'], false )});
+      p = null; // force as much to be GCed as we can
     }
   });
 
@@ -132,4 +131,4 @@ define( function( require ) {
   });
   */
 
-});
+}());

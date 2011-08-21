@@ -4,27 +4,20 @@
     <title>Paladin Test Suite</title>
     <link rel="stylesheet" href="qunit/qunit.css" type="text/css" media="screen">
     <script src="qunit/qunit.js"></script>
-    <script src="../external/require.js"></script>
+    <!-- To test the dist file, uncomment the line below and comment out
+         the src/paladin.js script. -->
+    <!-- script src="../dist/paladin.js"></script -->
+    <script src="../src/paladin.js"></script>
+    <script src="subsystem.js"></script>
+    <script src="tasker.js"></script>
+    <script src="event.js"></script>
+    <script src="graphics.js"></script>
+    <script src="sound.js"></script>
     <script>
       // Pause QUnit until tests are loaded.
       QUnit.config.autostart = false;
 
-      // Set up paths to find scripts.
-      require({
-        baseUrl: '../src',
-        paths: {
-          // Paths are relative to baseUrl
-          'CubicVR.js': '../external/CubicVR.js',
-          'test': '../test'
-        }
-      }, [
-        'test/subsystem',
-        'test/tasker',
-        'test/event',
-        'test/graphics',
-        'test/sound'
-      ], function () {
-        // Everything loaded, start up QUnit
+      paladin.ready(function () {
         QUnit.start();
       });
     </script>

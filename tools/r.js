@@ -6756,7 +6756,7 @@ define('pragma', function () {
     var pragma = {
         conditionalRegExp: /(exclude|include)Start\s*\(\s*["'](\w+)["']\s*,(.*)\)/,
         useStrictRegExp: /['"]use strict['"];/g,
-        hasRegExp: /has\s*\(\s*['"]([^'"]+)['"]\)/g,
+        hasRegExp: /has\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
         nsRegExp: /(^|[^\.])(requirejs|require|define)\s*\(/,
         apiDefRegExp: /var requirejs, require, define;/,
 

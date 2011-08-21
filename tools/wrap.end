@@ -1,4 +1,2 @@
 
-this.paladin = requirejs('paladin');
-
 }());

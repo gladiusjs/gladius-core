@@ -1,11 +1,10 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
   nomen: false */
-/*global define: false, document: false, window: false, setTimeout: false,
+/*global paladin: false, document: false, window: false, setTimeout: false,
  module, test, expect, ok, notEqual, QUnit, stop, start, asyncTest */
 
-define( function( require ) {
-    var paladin = require('paladin'),
-    task, p;
+(function() {
+    var task, p;
 
     module("tasker", {
         setup: function () {
@@ -51,4 +50,4 @@ define( function( require ) {
         p.run();
     } );
 
-});
+}());

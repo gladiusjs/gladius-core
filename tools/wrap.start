@@ -13,3 +13,8 @@
  */
 
 (function () {
+
+  // Bail if there is already a paladin in the page.
+  if ( this.paladin ) {
+    return;
+  }

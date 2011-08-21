@@ -1,141 +1,58 @@
-/*jshint white: false, strict: false, plusplus: false */
-/*global define: false, console: false, window: false */
+/*jshint white: false, strict: false, plusplus: false, evil: true,
+  onevar: false, nomen: false */
+/*global requirejs: false, document: false, console: false, window: false,
+  setTimeout: false */
 
-define( function ( require, exports ) {
-  var lang = require( './core/lang' ),
-      Tasker = require( './core/Tasker' ),
-      Loader = require( './core/Loader' ),
-      KeyboardInput = require( './input/KeyboardInput' ),
-      MouseInput = require( './input/MouseInput' ),
-      TouchInput = require( './input/TouchInput' ),
-      InputMap = require( './input/InputMap' ),
-      Messenger = require( './core/Messenger' ),
-      Scene = require( './core/Scene' ),
-      Entity = require( './core/Entity' ),
-      SpatialComponent = require( './core/SpatialComponent' ),
-      CameraComponent = require( './core/CameraComponent' ),
-      ModelComponent = require( './core/ModelComponent' ),
-      SpeakerComponent = require( './core/SpeakerComponent' ),
-
-      Paladin;
-
-  // Utility to bridge the gap between constructor functions
-  // that need to know the paladin instance.
-  function partialCtor( Func, instance ) {
-    return function ( options ) {
-      return new Func( instance, options );
-    };
+/**
+ * In the source case, use document.write to write out the require tag,
+ * and load all moduels as distinct scripts for debugging. After a build,
+ * all the modules are inlined, so will not use the document.write path.
+ * Use has() testing module, since the requirejs optimizer will convert
+ * the has test to false, and minification will strip the false code
+ * branch. http://requirejs.org/docs/optimization.html#hasjs
+ */
+(function () {
+  // Stub for has function.
+  function has() {
+    return true;
   }
 
-  /***
-  * Paladin
-  *
-  * This is where we put all of our goodies. Some are instances, like the subsystems,
-  * and others are prototypes to be used and extended.
-  */
-  Paladin = function ( options, callback ) {
-    var sNames = [],
-        sIds = [],
-        subsystems, prop;
+  if ( has( 'source-config' ) ) {
+    // Get the location of the paladin source.
+    // The last script tag should be the paladin source
+    // tag since in dev, it will be a blocking script tag,
+    // so latest tag is the one for this script.
+    var scripts = document.getElementsByTagName( 'script' ),
+        path = scripts[scripts.length - 1].src;
+    path = path.split( '/' );
+    path.pop();
+    path = path.join( '/' ) + '/';
 
-    this.options = options || {};
-    this.debug = this.options.debug ? console.log : function () {};
-    this.tasker = new Tasker();
-    this.messenger = new Messenger( this.tasker );
-    this.loader = new Loader();
+    document.write( '<script src="' + path + '../external/require.js"></' + 'script>' );
 
-    // Init instance of each subsystem and store reference as subsystem name
-    subsystems = this.options.subsystems || exports.subsystems;
-    for ( prop in subsystems ) {
-      if ( subsystems.hasOwnProperty( prop ) ) {
-        sNames.push(prop);
-        sIds.push('./' + subsystems[prop]);
-      }
-    }
-
-    // Fetch the subsystems. These can potentially be async operations.
-    // In a build, they are async, but do not result in any network
-    // requests for the subsystems bundled in the build.
-    require(sIds, lang.bind(this, function () {
-      // Create a property on the instance's subsystem object for
-      // each subsystem, based on the name given the subsystems options object.
-      var subs = this.subsystem = {},
-          i;
-      for (i = 0; i < arguments.length; i++) {
-        subs[ sNames[i] ] = new arguments[i]( this.options );
-      }
-
-      // Hmm, graphics is also on this, instead of always
-      // referenced on subsystem? sound too?
-      this.graphics = subs.graphics;
-      this.sound = subs.sound;
-
-      // Expose Paladin objects, partially
-      // applying items needed for their constructors.
-      lang.extend(this, {
-        Entity: partialCtor( Entity, this ),
-        Scene: partialCtor( Scene, this ),
-        InputMap: partialCtor( InputMap, this ),
-
-        // Expose components,
-        // but partially apply the subsytem object
-        // for this instance to each constructor.
-        component: {
-          Spatial: partialCtor( SpatialComponent, this ),
-          Camera: partialCtor( CameraComponent, this ),
-          Model: partialCtor( ModelComponent, this ),
-          Speaker: partialCtor( SpeakerComponent, this ),
-          Light: null
-        }
-      });
-
-      // Create input handlers
-      this.keyboardInput = new KeyboardInput( this.messenger, window );
-      if (subs.graphics.getCanvas) {
-        this.mouseInput = new MouseInput( this.messenger, subs.graphics.getCanvas() );
-        this.touchInput = new TouchInput( this.messenger, subs.graphics.getCanvas() );
-      }
-
-      // run user-specified setup function
-      if ( this.options.setup ) {
-          this.options.setup( this );
-      }
-
-      // Let caller know the Paladin instance is ready.
-      if (callback) {
-        callback(this);
-      }
-    }));
-  }; //Paladin
-
-  // Set up common properties for all Paladin instances
-  Paladin.prototype = {
-
-    run: function () {
-        if ( this.options.run ) {
-            this.options.run( this );
-        }
-        this.tasker.run();
-    }
-  };
-
-  // Export the public API for creating Paladin instances.
-  exports.create = function ( options, callback ) {
-    return new Paladin( options, callback );
-  };
-
-  // Any default subsystems that should be created if
-  // caller to paladin.create() does not explicitly ask for
-  // subsystems in the options.
-  exports.subsystems = {
-    dummy: 'dummy',
-    physics: 'physics/default',
-    graphics: 'graphics/cubicvr',
-    sound: 'sound/default'
-  };
-
-  // Expose the API on the global object, if not already there.
-  if ( !window.paladin ) {
-    window.paladin = exports;
+    // Set up paths to find scripts.
+    document.write('<script>requirejs.config( { baseUrl: "' + path + '",' +
+        'paths: {' +
+        // Paths are relative to baseUrl
+        '  "CubicVR.js": "../external/CubicVR.js"' +
+        '}' +
+      '} );' +
+      'requirejs(["paladin-src"])</' + 'script>');
   }
-});
+
+  var paladin = this.paladin || ( this.paladin = {} );
+
+  paladin.ready = function ( callback ) {
+    if ( paladin.create ) {
+      // Built version, paladin is ready!
+      // Use setTimeout so that ready is always async
+      setTimeout ( function () {
+        callback();
+      }, 5 );
+    } else {
+      // Hold on to callback, code in paladin-src will call it.
+      ( paladin._readyCallbacks ||
+        ( paladin._readyCallbacks = [] ) ).push( callback );
+    }
+  };
+}());
