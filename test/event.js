@@ -1,13 +1,18 @@
-/*global text,expect,ok,module,notEqual,Paladin,test,window,start,stop,console,asyncTest*/
-(function (window, document, Paladin, undefined) {
+/*jshint white: false, strict: false, plusplus: false, onevar: false,
+  nomen: false */
+/*global paladin: false, document: false, window: false, setTimeout: false,
+ module, test, expect, ok, notEqual, QUnit, stop, start, asyncTest, console */
 
-  var paladin, entity1;
+(function() {
+
+  var p, entity1;
 
   module("events", {
     setup: function () {
+      stop();
 
       // set up a game with some event listeners
-      paladin = new Paladin({
+      p = paladin.create({
         graphics: {
           canvas: document.getElementById('test-canvas')
         },
@@ -31,7 +36,7 @@
               start();
             }
           } );
-          
+
           /*
           entity1.listen( {
               event: paladin.touchInput.Event( [], false ),
@@ -43,25 +48,28 @@
           } );
           */
         } //setup
+      }, function (instance) {
+        p = instance;
+        p.run();
+        start();
       }); //Paladin
-      paladin.run();
 
     },
 
     teardown: function () {
-      entity1.ignore( {event: paladin.mouseInput.Event( ['mouse1'], false )});
-      entity1.ignore( {event: paladin.keyboardInput.Event( ['escape'], false )});
-      paladin = null; // force as much to be GCed as we can
+      entity1.ignore( {event: p.mouseInput.Event( ['mouse1'], false )});
+      entity1.ignore( {event: p.keyboardInput.Event( ['escape'], false )});
+      p = null; // force as much to be GCed as we can
     }
   });
 
   /* Initialize a keyboard event for either Gecko or WebKit) */
   function newKbdEvent(charCode) {
-    var evt = document.createEvent("KeyboardEvent");    
+    var evt = document.createEvent("KeyboardEvent");
     if ("initKeyEvent" in evt) {
       // vestigial DOM2 method still in use by Gecko
-      evt.initKeyEvent("keyup", true, true, window, 0, 0, 0, 0, 
-                       charCode, charCode);       
+      evt.initKeyEvent("keyup", true, true, window, 0, 0, 0, 0,
+                       charCode, charCode);
     } else {
       // otherwise assume DOM3
       evt.initKeyboardEvent("keyup", 0, 0, window, charCode);
@@ -77,7 +85,7 @@
       // A handler called preventDefault
       console.log("simulated key event " + charCode + " canceled");
     }
-  } 
+  }
 
   function simulateClick() {
     var canvas = document.getElementById( "test-canvas" );
@@ -90,7 +98,7 @@
       console.log("simulated mouseup event cancelled");
     }
   }
-  
+
   function simulateTouch() {
       var canvas = document.getElementById( "test-canvas" );
       var evt = document.createEvent("TouchEvent");
@@ -103,24 +111,24 @@
       }
   }
 
-  asyncTest("escape keypress fires an up event", function () {    
+  asyncTest("escape keypress fires an up event", function () {
     expect(1);
     simulateKeyEvent("\x1b");
   });
 
-  asyncTest("mouse click fires an up event", function () {    
+  asyncTest("mouse click fires an up event", function () {
     expect(1);
     simulateClick();
   });
-  
+
   /***
    * FIXME(alan.kligman@gmail.com):
    * Disabled until we can create touch events manually.
-   * 
+   *
   asyncTest("touch fires an end event", function () {
       expect(1);
       simulateTouch();
   });
   */
 
-})(window, window.document, Paladin);
+}());

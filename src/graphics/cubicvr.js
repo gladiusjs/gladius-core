@@ -1,14 +1,16 @@
-(function (window, document, Paladin, CubicVR, undefined) {
+/*jshint white: false, onevar: false, strict: false, plusplus: false */
+/*global define: false, window: false, console: false */
 
-  function extend ( object, extra ) {
-    for ( var prop in extra ) {
-      if ( extra.hasOwnProperty(prop) ) {
-        object[prop] = extra[prop];
-      } //if
-    } //for
-  } //extend
+define( function ( require ) {
 
-  Paladin.subsystem.register( "graphics", function ( options ) {
+  var CubicVR = require( 'CubicVR.js/CubicVR' ),
+      lang = require( '../core/lang' );
+
+  // CubicVR does not use define() to declare a module, just grab it
+  // via global.
+  CubicVR = this.CubicVR;
+
+  function graphicsCubicVR( options ) {
 
     var mainCanvas, mainLoop;
 
@@ -40,7 +42,7 @@
         width: mainCanvas.width,
         height: mainCanvas.height
     } );
-    
+
     this.getLayout = function() {
         return layout;
     };
@@ -50,7 +52,7 @@
     };
 
     mainLoop = new CubicVR.MainLoop(mainLoopFunc);
-    
+
     this.getScenes = function () {
       return scenesByName;
     };
@@ -138,12 +140,12 @@
           var mesh = CubicVR.loadMesh(options.loadFrom);
           this.booleanAdd( mesh );
         }
-              
+
         if ( options.primitives ) {
           for ( var i=0, l=options.primitives.length; i<l; ++i ) {
             this.addPrimitive(options.primitives[i]);
           } //for
-        } //if 
+        } //if
 
         if ( options.finalize ) {
           this.prepare();
@@ -157,7 +159,7 @@
     /***
      * SceneObject
      */
-    var SceneObject = this.SceneObject = function ( options ) {    
+    var SceneObject = this.SceneObject = function ( options ) {
       options = options || {};
       CubicVR.SceneObject.call(this, options.mesh, options.name);
       if ( options.position ) {
@@ -181,7 +183,7 @@
         height: options ? options.height : mainCanvas.height
       };
 
-      extend(cameraOptions, options);
+      lang.extend(cameraOptions, options);
 
       CubicVR.Camera.call(this, cameraOptions);
 
@@ -208,7 +210,7 @@
             texture: texture
         };
 
-        extend( layoutElementOptions, options );
+        lang.extend( layoutElementOptions, options );
 
         CubicVR.View.call( this, layoutElementOptions );
     };
@@ -277,6 +279,7 @@
     Scene.prototype = new CubicVR.Scene();
     Scene.prototype.constructor = Scene;
 
-  }); //system
+  } //system
 
-})(window, window.document, Paladin, CubicVR);
+  return graphicsCubicVR;
+});

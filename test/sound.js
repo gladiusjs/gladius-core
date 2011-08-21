@@ -1,6 +1,12 @@
-(function (window, document, Paladin, undefined) {
+/*jshint white: false, strict: false, plusplus: false, onevar: false,
+  nomen: false */
+/*global paladin: false, document: false, window: false, setTimeout: false,
+ module, test, expect, ok, notEqual, QUnit, stop, start, asyncTest, equal,
+ deepEqual, raises */
 
-  var paladin,
+(function() {
+
+  var p,
     track,
     speaker,
     emptyArray = [],
@@ -10,23 +16,26 @@
 
   module("sound", {
     setup: function () {
-      paladin = new Paladin({
+      stop();
+
+      paladin.create({
         graphics: {
           canvas: document.createElement('canvas')
         }
-      });
+      }, function (instance) {
+        p = instance;
 
-      stop();
-      track = new paladin.sound.Track({
-        url: shortSound,
-        instances: 1, // Force a single clone to make testing audio element possible
-        callback: function() {
-          trackArray = [track];
-          start();
-        }
-      });
+        track = new p.sound.Track({
+          url: shortSound,
+          instances: 1, // Force a single clone to make testing audio element possible
+          callback: function() {
+            trackArray = [track];
+            start();
+          }
+        });
 
-      speaker = new paladin.component.Speaker();
+        speaker = new p.component.Speaker();
+      });
     },
     teardown: function () {
     }
@@ -76,7 +85,7 @@
   test("Track gets created properly", function() {
     expect(3);
 
-    raises(function() { new paladin.sound.Track({url: null}); }, "Track constructor expects a url");
+    raises(function() { new p.sound.Track({url: null}); }, "Track constructor expects a url");
     equal(track.url, shortSound, "Track url property holds correct url");
     ok(track.audio instanceof HTMLAudioElement, "Track audio property returns an audio element");
   });
@@ -85,7 +94,7 @@
     expect(1);
     stop();
 
-    var badTrack = new paladin.sound.Track({
+    var badTrack = new p.sound.Track({
       url: "garbage",
       errback: function() {
         start();
@@ -98,7 +107,7 @@
     expect(1);
     stop();
 
-    var goodTrack = new paladin.sound.Track({
+    var goodTrack = new p.sound.Track({
       url: shortSound,
       callback: function() {
         start();
@@ -111,12 +120,12 @@
     expect(2);
     stop();
 
-    paladin.sound.Track.load({
+    p.sound.Track.load({
       url: shortSound,
       instances: 1,
       callback: function(t) {
         start();
-        ok(t instanceof paladin.sound.Track, "Track is a paladin.sound.Track object");
+        ok(t instanceof p.sound.Track, "Track is a p.sound.Track object");
         equal(t.url, track.url, "Track.load fires callback with reference to correct Track object");
       }
     });
@@ -126,7 +135,7 @@
     expect(1);
     stop();
 
-    paladin.sound.Track.load({
+    p.sound.Track.load({
       url: "garbage",
       instances: 1,
       errback: function() {
@@ -140,7 +149,7 @@
     expect(1);
     stop();
 
-    var testSpeaker = new paladin.component.Speaker();
+    var testSpeaker = new p.component.Speaker();
     testSpeaker.add('blip', track);
     testSpeaker.muted = true;
 
@@ -161,7 +170,7 @@
     expect(1);
     stop();
 
-    var testSpeaker = new paladin.component.Speaker();
+    var testSpeaker = new p.component.Speaker();
     testSpeaker.add('blip', track);
     testSpeaker.muted = true;
 
@@ -182,7 +191,7 @@
     expect(1);
     stop();
 
-    var testSpeaker = new paladin.component.Speaker();
+    var testSpeaker = new p.component.Speaker();
     testSpeaker.add('blip', track);
     testSpeaker.muted = true;
 
@@ -199,4 +208,4 @@
     testSpeaker.pause();
   });
 
-})(window, window.document, Paladin);
+}());

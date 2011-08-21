@@ -1,7 +1,8 @@
+/*jshint white: false, onevar: false, strict: false, plusplus: false,
+  nomen: false */
+/*global define: false, window: false, document: false */
 
-
-
-(function (window, document, Paladin, undefined) {
+define( function ( require ) {
 
     // Default number of audio instances to clone
     var DEFAULT_INSTANCES = 4;
@@ -107,6 +108,6 @@
       this.Track = Track;
     }
 
-    Paladin.subsystem.register( "sound", Sound );
+    return Sound;
 
-}(window, window.document, Paladin));
+});

@@ -15,59 +15,50 @@
 PALADIN := paladin
 SRC_DIR := ./src
 DIST_DIR := ./dist
-LIB_DIR := ./lib
 EXTERNAL_DIR := ./external
 PALADIN_SRC := $(SRC_DIR)/$(PALADIN).js
 PALADIN_DIST := $(DIST_DIR)/$(PALADIN).js
 PALADIN_MIN := $(DIST_DIR)/$(PALADIN).min.js
-PALADIN_COMPLETE := $(DIST_DIR)/$(PALADIN).complete.js
-SUBSYS_DIR := $(SRC_DIR)/subsystem
 TOOLS_DIR := ./tools
 TESTS_DIR := $(DIST_DIR)/test
 
-CUBICVR_LIB := $(EXTERNAL_DIR)/CubicVR.js/dist/CubicVR.min.js
+CUBICVR_LIB := $(EXTERNAL_DIR)/CubicVR.js/dist/CubicVR.js
 
-CORE_FILES := $(SRC_DIR)/paladin.js
+CORE_FILES := $(SRC_DIR)/paladin.js $(SRC_DIR)/core/*.js $(SRC_DIR)/input/*.js
 
 SUBSYSTEM_FILES := \
-  $(SUBSYS_DIR)/paladin.subsystem.js \
-  $(SUBSYS_DIR)/dummy/paladin.subsystem.dummy.js \
-  $(SUBSYS_DIR)/graphics/paladin.subsystem.graphics.cubicvr.js \
-  $(SUBSYS_DIR)/sound/paladin.subsystem.sound.js \
-  $(SUBSYS_DIR)/physics/paladin.subsystem.physics.js
-
-CONCAT_LIST := $(CORE_FILES) $(SUBSYSTEM_FILES)
-COMPILE_LIST := $(patsubst %.js, --js %.js, $(CONCAT_LIST))
+  $(SRC_DIR)/dummy.js \
+  $(SRC_DIR)/graphics/cubicvr.js \
+  $(SRC_DIR)/sound/default.js \
+  $(SRC_DIR)/physics/default.js
 
 compile = java -jar $(TOOLS_DIR)/closure/compiler.jar \
-                    $(COMPILE_LIST) \
 	                  --compilation_level SIMPLE_OPTIMIZATIONS \
+	                  --js $(PALADIN_DIST) \
 	                  --js_output_file $(1)
-
-concat = cat $(CONCAT_LIST) > $(1)
 
 complete = cat $(PALADIN_MIN) $(CUBICVR_LIB) > $(1)
 
 jshint = echo "Linting $(1)" ; $(JSSHELL) -f $(TOOLS_DIR)/jshint.js $(TOOLS_DIR)/jshint-cmdline.js < $(1)
 
-all: $(DIST_DIR) $(PALADIN_DIST) $(PALADIN_MIN) $(PALADIN_COMPLETE)
+all: $(DIST_DIR) $(PALADIN_DIST) $(PALADIN_MIN)
 	@@echo "Finished, see $(DIST_DIR)"
+
+$(CUBICVR_LIB):
+	@@echo "Creating $(CUBICVR_LIB)"
+	@@cd $(EXTERNAL_DIR)/CubicVR.js && make
 
 $(DIST_DIR):
 	@@echo "Creating $(DIST_DIR)"
 	@@mkdir $(DIST_DIR)
 
-$(PALADIN_DIST): $(DIST_DIR) $(PALADIN_SRC)
+$(PALADIN_DIST): $(DIST_DIR) $(PALADIN_SRC) $(CUBICVR_LIB)
 	@@echo "Building $(PALADIN_DIST)"
-	@@$(call concat,$(PALADIN_DIST))
+	@@cd $(TOOLS_DIR) && java -classpath rhino.jar org.mozilla.javascript.tools.shell.Main r.js -o build.js
 
 $(PALADIN_MIN): $(DIST_DIR) $(PALADIN_SRC)
 	@@echo "Building $(PALADIN_MIN)"
 	@@$(call compile,$(PALADIN_MIN))
-
-$(PALADIN_COMPLETE): $(DIST_DIR) $(PALADIN_MIN)
-	@@echo "Building $(PALADIN_COMPLETE)"
-	@@$(call complete,$(PALADIN_COMPLETE))
 
 tests: $(DIST_DIR) $(PALADIN_MIN)
 	@@echo "Creating tests in $(TESTS_DIR)"

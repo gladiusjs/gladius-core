@@ -1,4 +1,8 @@
-(function (window, document, Paladin) {
+/*jshint white: false, strict: false, plusplus: false, onevar: false,
+  nomen: false */
+/*global define: false, console: false, window: false, setTimeout: false */
+
+define( function( require ) {
 
   var enums = {
     frustum: {
@@ -171,7 +175,7 @@
     this.type = options.type;
     this.inserted = options.inserted || function () {};
     this.aabb = options.aabb;
-    this.object = options.object; 
+    this.object = options.object;
     if ( options.object ) {
       this.bindObject( options.object );
     }
@@ -194,7 +198,7 @@
         aabb = [[0,0,0],[0,0,0]],
         root = options.root,
         that = this;
-    
+
     var halfSize = size/2;
     aabbMath.engulf( aabb, [position[0] + halfSize, position[1] + halfSize, position[2] + halfSize] );
     aabbMath.engulf( aabb, [position[0] - halfSize, position[1] - halfSize, position[2] - halfSize] );
@@ -324,8 +328,8 @@
 
   } //Octree
 
-  Paladin.subsystem.register( "physics", function ( options ) {
-  
+  function physics( options ) {
+
     options = options || {};
 
     var Sphere = this.Sphere = function ( options ) {
@@ -430,7 +434,7 @@
       this.getAABB = function () {
         return aabb;
       };
-      
+
       this.moveAABB = function ( extents ) {
         aabb.setExtents( extents );
         var diff = [extents[1][0]-extents[0][0], extents[1][1]-extents[0][1], extents[1][2]-extents[0][2]],
@@ -520,7 +524,7 @@
           for ( j=0; j<l; ++j ) {
             if (  bodies[i] !== bodies[j] &&
                   bodies[i].collisions.indexOf( bodies[j] ) === -1 &&
-                  bodies[i].testCollision( bodies[j] ) 
+                  bodies[i].testCollision( bodies[j] )
               ) {
               bodies[i].collisions.push( bodies[j] );
               bodies[j].collisions.push( bodies[i] );
@@ -539,6 +543,7 @@
       }; //advance
     };
 
-  });
+  }
 
-})(window, document, Paladin);
+  return physics;
+});
