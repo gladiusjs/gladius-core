@@ -94,7 +94,6 @@ define( function ( require ) {
         return url;
       });
     }
-
     Track.load = function( options ) {
       var track = new Track({
         url: options.url,
@@ -104,8 +103,19 @@ define( function ( require ) {
       });
     };
 
+    /**
+     * A special-case Track with only one audio instance (no clones).
+     */
+    function Song( options ) {
+      // Force a single audio
+      options.instances = 1;
+      Track.call( this, options );
+    }
+    Song.load = Track.load;
+
     function Sound( options ) {
       this.Track = Track;
+      this.Song = Song;
     }
 
     return Sound;

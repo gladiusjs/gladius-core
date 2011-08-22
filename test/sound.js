@@ -8,6 +8,7 @@
 
   var p,
     track,
+    song,
     speaker,
     emptyArray = [],
     trackArray;
@@ -206,6 +207,64 @@
 
     testSpeaker.play('blip');
     testSpeaker.pause();
+  });
+
+  test("sound.music allows Tracks to be added and removed.", function() {
+    expect(7);
+
+    // Use sound.music speaker singleton
+    var music = p.sound.music;
+
+    deepEqual(music.tracks, emptyArray, "Speaker has no tracks at first");
+
+    music.add('blip', track);
+    deepEqual(music.tracks, trackArray, "Adding a Track to Speaker works");
+    raises(function() { music.add('blip', track); }, "Adding a Track name more than once fails");
+    raises(function() { music.add('empty', null); }, "Adding a null Track fails");
+
+    music.remove('blip');
+    deepEqual(music.tracks, emptyArray, "Removing a Track from a Speaker works");
+    music.add('blip', track);
+    deepEqual(music.tracks, trackArray, "Adding a track after removing works");
+
+    music.add('bloop', track);
+    music.remove('bloop');
+    deepEqual(music.tracks, trackArray, "Remove removes the proper track");
+  });
+
+  test("sound.music can load Songs", function() {
+    expect(2);
+    stop();
+
+    song = new p.sound.Song({
+      url: shortSound,
+      callback: function() {
+        start();
+        ok(true, "Song fires callback when being created");
+        ok(song instanceof p.sound.Song);
+      }
+    });
+  });
+
+  test("sound.music can play Song", function() {
+    expect(1);
+    stop();
+
+    var music = p.sound.music;
+    music.add('song', song);
+    music.muted = true;
+
+    var audio = song.audio;
+
+    function onEnded() {
+      start();
+      ok(true, "sound.music.play correctly plays song to completion");
+      audio.removeEventListener('ended', onEnded, false);
+    }
+
+    audio.addEventListener('ended', onEnded, false);
+
+    music.play('song');
   });
 
 }());
