@@ -6,9 +6,10 @@ define( function ( require ) {
   var Component = require( './Component' );
 
   function ModelComponent( paladin, options ) {
+      options = options || {};
       this.object = new paladin.graphics.SceneObject( { mesh: options.mesh } );
-      this.mesh = (options && options.mesh) ? options.mesh : null;
-      this.material = (options && options.material) ? options.material : null;
+      this.mesh = options.mesh || null;
+      this.material = options.material || null;
       this.entity = null;
 
       if (options.position) {
