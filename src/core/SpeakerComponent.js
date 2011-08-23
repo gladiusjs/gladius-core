@@ -7,43 +7,43 @@ define( function ( require ) {
 
   function SpeakerComponent( options ) {
 
-      var tracks = {},
+      var sounds = {},
         volume = 1,
         muted = false,
         activeAudio = {};
 
-      this.__defineGetter__( 'tracks', function() {
+      this.__defineGetter__( 'sounds', function() {
           var name,
-            trackList = [];
+            soundList = [];
 
-          for ( name in tracks ) {
-              if ( !tracks.hasOwnProperty( name ) ) {
+          for ( name in sounds ) {
+              if ( !sounds.hasOwnProperty( name ) ) {
                   continue;
               }
-              trackList.push( tracks[name] );
+              soundList.push( sounds[name] );
           }
 
-          return trackList;
+          return soundList;
       });
 
-      this.add = function( name, track ) {
-          if ( !track ) {
-              throw "Paladin: Speaker expects non-null track in add";
+      this.add = function( name, sound ) {
+          if ( !sound ) {
+              throw "Paladin: Speaker expects non-null sound in add";
           }
 
           if ( !name ) {
               throw "Paladin: Speaker expects non-null name for track in add";
           }
 
-          if ( tracks[name] ) {
-              throw "Paladin: Speaker already contains track named '" + name + "'";
+          if ( sounds[name] ) {
+              throw "Paladin: Speaker already contains a sound named '" + name + "'";
           }
-          tracks[name] = track;
+          sounds[name] = sound;
       };
 
       this.remove = function( name ) {
-          tracks[name] = null;
-          delete tracks[name];
+          sounds[name] = null;
+          delete sounds[name];
       };
 
       this.pause = function( name ) {
@@ -77,14 +77,14 @@ define( function ( require ) {
 
       this.play = function( name ) {
           // XXXhumph - what to do when play called after pause?
-          var track = tracks[name];
-          if ( !track ) {
-              throw "Paladin: Speaker does not contain a track named '" + name + "'";
+          var sound = sounds[name];
+          if ( !sound ) {
+              throw "Paladin: Speaker does not contain a sound named '" + name + "'";
           }
 
-          var audio = track.audio;
+          var audio = sound.audio;
           if ( !audio ) {
-              throw "Paladin: Speaker unable to play track named '" + name + "'";
+              throw "Paladin: Speaker unable to play sound named '" + name + "'";
           }
 
           // Use Speaker's volume settings
