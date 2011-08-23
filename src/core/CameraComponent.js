@@ -8,8 +8,8 @@ define( function ( require ) {
   function CameraComponent( paladin, options ) {
       options = options || {};
       this.object = new paladin.subsystem.graphics.SceneObject();
-      this.camera = (options && options.camera) ? options.camera : new paladin.subsystem.graphics.Camera({
-        targeted: options.targeted
+      this.camera = options.camera || new paladin.subsystem.graphics.Camera({
+          targeted: options.targeted
       });
       this.camera.setParent( this.object );
       this.entity = null;
