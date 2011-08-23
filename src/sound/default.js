@@ -68,10 +68,19 @@ define( function ( require ) {
       };
     }
 
-    function Track( options ) {
+    function load( Type, options ) {
+      var snd = new Type({
+        url: options.url,
+        instances: options.instances,
+        callback: options.callback,
+        errback: options.errback
+      });
+    }
+
+    function Effect( options ) {
       var url = options.url;
       if ( !url ) {
-        throw "Paladin Sound: you must pass a URL to Track.";
+        throw "Paladin Sound: you must pass a URL to Effect.";
       }
 
       var pool = new AudioPool(
@@ -94,28 +103,25 @@ define( function ( require ) {
         return url;
       });
     }
-    Track.load = function( options ) {
-      var track = new Track({
-        url: options.url,
-        instances: options.instances,
-        callback: options.callback,
-        errback: options.errback
-      });
+    Effect.load = function( options ) {
+      load( Effect, options );
     };
 
     /**
-     * A special-case Track with only one audio instance (no clones).
+     * A special-case Effect with only one audio instance (no clones).
      */
-    function Song( options ) {
+    function Track( options ) {
       // Force a single audio
       options.instances = 1;
-      Track.call( this, options );
+      Effect.call( this, options );
     }
-    Song.load = Track.load;
+    Track.load = function( options ) {
+      load( Track, options );
+    };
 
     function Sound( options ) {
+      this.Effect = Effect;
       this.Track = Track;
-      this.Song = Song;
     }
 
     return Sound;
