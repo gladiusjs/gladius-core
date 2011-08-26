@@ -96,6 +96,9 @@ define( function ( require ) {
         }
       });
 
+      // Create music Speaker singleton
+      this.sound.music = new this.component.Speaker();
+
       // Create input handlers
       this.keyboardInput = new KeyboardInput( this.messenger, window );
       if (subs.graphics.getCanvas) {

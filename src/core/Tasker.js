@@ -77,10 +77,7 @@ define( function () {
       };
 
       this.hasTask = function( task ) {
-          if( task._id in tasksById )
-              return true;
-          else
-              return false;
+          return task._id in tasksById;
       };
 
   }
