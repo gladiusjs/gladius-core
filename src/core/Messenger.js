@@ -12,10 +12,9 @@ define( function ( require ) {
    * handled here and converted to game engine events so that entities can
    * listen for them.
    */
-  function Messenger( tasker ) {
+  function Messenger() {
 
-      var callbacks = {},
-          queue = [];
+      var callbacks = {};
 
       this.listen = function( options ) {
           var id = options.entity.getId();
@@ -45,33 +44,21 @@ define( function ( require ) {
       };
 
       this.send = function( options ) {
-        queue.push( options );
-      };
-
-      var dispatch = function() {
-          while( queue.length > 0 ) {
-              var options = queue.shift();
-              if( callbacks.hasOwnProperty( options.event ) ) {
-                  var listeners = callbacks[options.event];
-                  for( var id in listeners ) {
-                      var callback = listeners[id].callback,
+          if( callbacks.hasOwnProperty( options.event ) ) {
+              listeners = callbacks[options.event];
+              for( var id in listeners ) {
+                  var callback = listeners[id].callback,
                       parameters = listeners[id].parameters,
                       persistent = listeners[id].persistent;
-
-                      callback( parameters.concat( options.parameters ) );
-                      if( !persistent )
-                          delete listeners[id];
-                  }
-                  if( 0 === Object.keys( listeners ).length )
-                      delete callbacks[options.event];
+                  
+                  callback( parameters.concat( options.parameters ) );
+                  if( !persistent )
+                      delete listeners[id];
               }
+              if( 0 == Object.keys( listeners ).length )
+                  delete callbacks[options.event];
           }
       };
-      var task = tasker.add( {
-        callback: function( task ) {
-            dispatch();
-        }
-      } );
 
       var hashInput = function( name, state ) {
           var result = 'client:' + name;
