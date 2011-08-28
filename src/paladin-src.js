@@ -9,12 +9,12 @@ define( function ( require ) {
       TouchInput = require( './input/TouchInput' ),
       InputMap = require( './input/InputMap' ),
       Messenger = require( './core/Messenger' ),
-      Scene = require( './core/Scene' ),
+      Scene = require( './core/scene/Scene' ),
       Entity = require( './core/Entity' ),
-      SpatialComponent = require( './core/SpatialComponent' ),
-      CameraComponent = require( './core/CameraComponent' ),
-      ModelComponent = require( './core/ModelComponent' ),
-      SpeakerComponent = require( './core/SpeakerComponent' ),
+      SpatialComponent = require( './core/scene/Spatial' ),
+      CameraComponent = require( './core/component/Camera' ),
+      ModelComponent = require( './core/component/Model' ),
+      SpeakerComponent = require( './core/component/Speaker' ),
 
       Paladin, i, args,
 

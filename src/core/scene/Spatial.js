@@ -3,45 +3,39 @@
 /*global define: false, console: false, window: false, setTimeout: false */
 
 define( function ( require ) {
-  var Component = require( './Component' );
-
   function SpatialComponent( paladin, position, rotation ) {
 
-      this._position = position ? position : [0, 0, 0];   // X, Y, Z
-      this._rotation = rotation ? rotation : [0, 0, 0];  // Roll, pitch, yaw
+      var position = position ? position : [0, 0, 0];   // X, Y, Z
+      var rotation = rotation ? rotation : [0, 0, 0];   // Roll, pitch, yaw
+      var that = this;
 
       this.__defineGetter__( 'position', function() {
-          return this._position;
+          return position;
       } );
       this.__defineSetter__( 'position', function( position ) {
-          this._position[0] = position[0];
-          this._position[1] = position[1];
-          this._position[2] = position[2];
+          position[0] = position[0];
+          position[1] = position[1];
+          position[2] = position[2];
       } );
       this.__defineGetter__( 'rotation', function() {
-          return this._rotation;
+          return rotation;
       } );
       this.__defineSetter__( 'rotation', function( rotation ) {
-          this._rotation[0] = rotation[0];
-          this._rotation[1] = rotation[1];
-          this._rotation[2] = rotation[2];
+          rotation[0] = rotation[0];
+          rotation[1] = rotation[1];
+          rotation[2] = rotation[2];
       } );
 
       this.sceneObjects = {
           graphics: new paladin.graphics.SceneObject( {
-              position: this.position,
-              rotation: this.rotation
+              position: that.position,
+              rotation: that.rotation
           } ),
           physics: null,
           sound: null
       };
 
   }
-  SpatialComponent.prototype = new Component( {
-      type: 'core',
-      subtype: [ 'spatial' ]
-  } );
-  SpatialComponent.prototype.constructor = SpatialComponent;
   SpatialComponent.prototype.setParent = function( newParentSpatial ) {
       newParentSpatial.sceneObjects.graphics.bindChild( this.sceneObjects.graphics );
       this.parent = newParentSpatial;

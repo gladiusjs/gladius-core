@@ -4,7 +4,7 @@
 
 define( function ( require ) {
 
-  var SpatialComponent = require( './SpatialComponent' );
+  var SpatialComponent = require( './Spatial' );
 
   function Scene( paladin, options ) {
       options = options || {};
