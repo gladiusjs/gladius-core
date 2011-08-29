@@ -103,7 +103,7 @@ define( function ( require ) {
 
       this.setParent = function( newParentEntity ) {
           if( parent )
-              parent.children.remove( this );
+              parent.children.remove( parent.children.indexOf( this ) );
 
           newParentEntity.children.push( this );
           this.spatial.setParent( newParentEntity.spatial );
