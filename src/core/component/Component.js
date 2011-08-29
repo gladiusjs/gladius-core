@@ -10,17 +10,9 @@ define( function ( require ) {
    * together by entities to form game objects.
    */
   function Component( options ) {
-      this.type = options.type;
-      this.subtype = options.subtype || [];
-      this.requires = options.requires || [];
-      this.parent = null;
+    var node = options.node ? options.node : null;
   }
-  Component.prototype.getType = function() {
-      return this.type;
-  };
-  Component.prototype.getSubtype = function() {
-      return this.subtype;
-  };
 
   return Component;
+
 });

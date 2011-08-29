@@ -5,7 +5,7 @@
 define( function ( require ) {
   var Component = require( './Component' );
 
-  function ModelComponent( paladin, options ) {
+  function Model( paladin, options ) {
       options = options || {};
       this.object = new paladin.graphics.SceneObject( { mesh: options.mesh } );
       this.mesh = options.mesh || null;
@@ -19,28 +19,19 @@ define( function ( require ) {
           this.object.rotation = options.rotation;
       }
   }
-  ModelComponent.prototype = new Component( {
-      type: 'graphics',
-      subtype: [ 'model' ],
-      requires: [ 'spatial' ]
-  } );
-  ModelComponent.prototype.constructor = ModelComponent;
-  ModelComponent.prototype.onAdd = function( entity ) {
-      entity.spatial.sceneObjects.graphics.bindChild( this.object );
-      this.entity = entity;
-  };
-  ModelComponent.prototype.onRemove = function( entity ) {
-      /* Note(alan.kligman@gmail.com):
-       * Not implemented.
-       */
-  };
-  ModelComponent.prototype.setMesh = function( mesh ) {
+  Model.prototype = new Component( {} );
+  Model.prototype.constructor = Model;
+  
+  /* Note:
+   * These should be getter/setter methods.
+   */
+  Model.prototype.setMesh = function( mesh ) {
       this.mesh = mesh;
       this.object.obj = mesh;
   };
-  ModelComponent.prototype.setMaterial = function( material ) {
+  Model.prototype.setMaterial = function( material ) {
       this.material = material;
   };
 
-  return ModelComponent;
+  return Model;
 });
