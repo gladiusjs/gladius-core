@@ -3,44 +3,36 @@
 /*global define: false, console: false, window: false, setTimeout: false */
 
 define( function ( require ) {
-  function SpatialComponent( paladin, position, rotation ) {
+  function Spatial( paladin, options ) {
 
-      var position = position ? position : [0, 0, 0];   // X, Y, Z
-      var rotation = rotation ? rotation : [0, 0, 0];   // Roll, pitch, yaw
-      var that = this;
-
-      this.__defineGetter__( 'position', function() {
-          return position;
+      var _position = options && options.position ? options.position : [0, 0, 0];   // X, Y, Z
+      var _rotation = options && options.rotation ? options.rotation : [0, 0, 0];   // Roll, pitch, yaw
+      
+      Object.defineProperty( this, 'position', {
+         get: function() {
+             return _position;
+         },
+         set: function( value ) {
+             if( value.length != _position.length )
+                 throw 'position requires ' + _position.length + ' components, ' + value.length + ' given';
+             for( var i = 0; i < _position.length; ++ i )
+                 _position[i] = value[i];
+         }
+      });
+      
+      Object.defineProperty( this, 'rotation', {
+          get: function() {
+              return _rotation;
+          },
+          set: function( value ) {
+              if( value.length != _rotation.length )
+                  throw 'rotation requires ' + _rotation.length + ' components, ' + value.length + ' given';
+              for( var i = 0; i < _rotation.length; ++ i )
+                  _rotation[i] = value[i];
+          }          
       } );
-      this.__defineSetter__( 'position', function( position ) {
-          position[0] = position[0];
-          position[1] = position[1];
-          position[2] = position[2];
-      } );
-      this.__defineGetter__( 'rotation', function() {
-          return rotation;
-      } );
-      this.__defineSetter__( 'rotation', function( rotation ) {
-          rotation[0] = rotation[0];
-          rotation[1] = rotation[1];
-          rotation[2] = rotation[2];
-      } );
-
-      this.sceneObjects = {
-          graphics: new paladin.graphics.SceneObject( {
-              position: that.position,
-              rotation: that.rotation
-          } ),
-          physics: null,
-          sound: null
-      };
 
   }
-  SpatialComponent.prototype.setParent = function( newParentSpatial ) {
-      newParentSpatial.sceneObjects.graphics.bindChild( this.sceneObjects.graphics );
-      this.parent = newParentSpatial;
-  };
 
-
-  return SpatialComponent;
+  return Spatial;
 });
