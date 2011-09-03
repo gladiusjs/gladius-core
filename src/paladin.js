@@ -34,7 +34,7 @@
     document.write('<script>requirejs.config( { baseUrl: "' + path + '",' +
         'paths: {' +
         // Paths are relative to baseUrl
-        '  "CubicVR.js": "../external/CubicVR.js"' +
+        //'  "CubicVR.js": "../external/CubicVR.js"' +
         '}' +
       '} );' +
       'requirejs(["paladin-src"])</' + 'script>');

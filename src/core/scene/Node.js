@@ -4,7 +4,8 @@
 
 define( function( require ) {
 
-    var Spatial = require( './Spatial' );
+    var Entity = require( '../Entity' );
+    var Spatial = require( './Spatial' );    
 
     /***
      * Node
@@ -16,10 +17,10 @@ define( function( require ) {
         var options = options ? options : {};
         var _spatial = options.spatial ? options.spatial : new Spatial();    // Spatial data for this node.
         var _component = options.component ? options.component : null;       // Component associated with this node. Can be null.
-        var _parent = null;  // Parent node.
-        var _children = [];  // Child nodes.
-        var _name = undefined;    // Name for this node.
-        var _tags = [];      // Tags for this node. Can be added and removed.
+        var _parent = null;         // Parent node.
+        var _children = [];         // Child nodes.
+        var _name = undefined;      // Name for this node.
+        var _tags = [];             // Tags for this node. Can be added and removed.
         
         Object.defineProperty( this, 'parent', {
            get: function() {
@@ -94,6 +95,7 @@ define( function( require ) {
         };
         
     }
+    Node.prototype = new Entity();
 
     return Node;
 

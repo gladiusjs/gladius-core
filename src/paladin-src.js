@@ -3,18 +3,17 @@
 
 define( function ( require ) {
   var lang = require( './core/lang' ),
-      Tasker = require( './core/Tasker' ),
-      KeyboardInput = require( './input/KeyboardInput' ),
-      MouseInput = require( './input/MouseInput' ),
-      TouchInput = require( './input/TouchInput' ),
-      InputMap = require( './input/InputMap' ),
-      Messenger = require( './core/Messenger' ),
-      Scene = require( './core/scene/Scene' ),
+      // Tasker = require( './core/Tasker' ),
+      // KeyboardInput = require( './input/KeyboardInput' ),
+      // MouseInput = require( './input/MouseInput' ),
+      // TouchInput = require( './input/TouchInput' ),
+      // InputMap = require( './input/InputMap' ),
+      // Messenger = require( './core/Messenger' ),
       Entity = require( './core/Entity' ),
-      SpatialComponent = require( './core/scene/Spatial' ),
-      CameraComponent = require( './core/component/Camera' ),
-      ModelComponent = require( './core/component/Model' ),
-      SpeakerComponent = require( './core/component/Speaker' ),
+      // Spatial = require( './core/scene/Spatial' ),
+      // Camera= require( './core/component/Camera' ),
+      // Model= require( './core/component/Model' ),
+      // Speaker= require( './core/component/Speaker' ),
 
       Paladin, i, args,
 
@@ -45,8 +44,8 @@ define( function ( require ) {
 
     this.options = options || {};
     this.debug = this.options.debug ? console.log : function () {};
-    this.tasker = new Tasker();
-    this.messenger = new Messenger( this.tasker );
+    // this.tasker = new Tasker();
+    // this.messenger = new Messenger( this.tasker );
 
     // Init instance of each subsystem and store reference as subsystem name
     subsystems = this.options.subsystems || global.subsystems;
@@ -71,37 +70,36 @@ define( function ( require ) {
 
       // Hmm, graphics is also on this, instead of always
       // referenced on subsystem? sound too?
-      this.graphics = subs.graphics;
-      this.physics = subs.physics;
-      this.sound = subs.sound;
+      // this.graphics = subs.graphics;
+      // this.physics = subs.physics;
+      // this.sound = subs.sound;
 
       // Expose Paladin objects, partially
       // applying items needed for their constructors.
       lang.extend(this, {
         Entity: partialCtor( Entity, this ),
-        Scene: partialCtor( Scene, this ),
-        InputMap: partialCtor( InputMap, this ),
+        // InputMap: partialCtor( InputMap, this ),
 
         // Expose components,
         // but partially apply the subsytem object
         // for this instance to each constructor.
         component: {
-          Spatial: partialCtor( SpatialComponent, this ),
-          Camera: partialCtor( CameraComponent, this ),
-          Model: partialCtor( ModelComponent, this ),
-          Speaker: partialCtor( SpeakerComponent, this ),
-          Light: null
+          // Spatial: partialCtor( SpatialComponent, this ),
+          // Camera: partialCtor( CameraComponent, this ),
+          // Model: partialCtor( ModelComponent, this ),
+          // Speaker: partialCtor( SpeakerComponent, this ),
+          // Light: null
         }
       });
 
       // Create music Speaker singleton
-      this.sound.music = new this.component.Speaker();
+      // this.sound.music = new this.component.Speaker();
 
       // Create input handlers
-      this.keyboardInput = new KeyboardInput( this.messenger, window );
-      if (subs.graphics.getCanvas) {
-        this.mouseInput = new MouseInput( this.messenger, subs.graphics.getCanvas() );
-        this.touchInput = new TouchInput( this.messenger, subs.graphics.getCanvas() );
+      // this.keyboardInput = new KeyboardInput( this.messenger, window );
+      if (subs.graphics && subs.graphics.getCanvas) {
+        // this.mouseInput = new MouseInput( this.messenger, subs.graphics.getCanvas() );
+        // this.touchInput = new TouchInput( this.messenger, subs.graphics.getCanvas() );
       }
 
       // run user-specified setup function
@@ -123,7 +121,7 @@ define( function ( require ) {
         if ( this.options.run ) {
             this.options.run( this );
         }
-        this.tasker.run();
+        // this.tasker.run();
     }
   };
 
@@ -136,10 +134,9 @@ define( function ( require ) {
   // caller to paladin.create() does not explicitly ask for
   // subsystems in the options.
   global.subsystems = {
-    dummy: 'dummy',
-    physics: 'physics/default',
-    graphics: 'graphics/cubicvr',
-    sound: 'sound/default'
+    // physics: 'physics/default',
+    // graphics: 'graphics/cubicvr',
+    // sound: 'sound/default'
   };
 
   // Call any callbacks waiting for paladin to be available.
