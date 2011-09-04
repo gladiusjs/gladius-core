@@ -23,7 +23,7 @@
   });
 
   test( 'Math is available', function() {
-    expect( 3 );
+    expect( 4 );
 
     ok(
         engine.math,
@@ -37,11 +37,28 @@
         engine.math.Matrix4,
         'Found Matrix4'
     );
+    ok(
+        engine.math.FLOAT_ARRAY_TYPE,
+        'Found FLOAT_ARRAY_TYPE'
+    );
   });
 
-/*
   test( 'Vector3', function() {
+    expect( 3 );
+    
+    var vec3 = new engine.math.Vector3( 1, 2, 3 );
+    ok(
+        vec3,
+        'Construct a Vector3 instance'
+    );
+    ok(
+        vec3 instanceof engine.math.FLOAT_ARRAY_TYPE,
+        'vec3 is an instance of FLOAT_ARRAY_TYPE'
+    );
+    ok(
+        vec3[0] === 1 && vec3[1] === 2 && vec3[2] === 3,
+        'vec3 elements are [1, 2, 3]'
+    );
   });
-*/
 
 }());
