@@ -109,6 +109,11 @@ define( function ( require ) {
         }
       });
 
+      this.assert = function( condition, message ) {
+        if( !condition )
+            throw 'Assertion failed: ' + message;
+      }
+
       this.math = new this.Math();    
 
       // Create music Speaker singleton

@@ -6,8 +6,9 @@ define( function ( require ) {
 
   function Spatial( engine, options ) {
 
-      var _position = options && options.position ? options.position : engine.math.Vector3.$( 0, 0, 0 );   // X, Y, Z
-      var _rotation = options && options.rotation ? options.rotation : engine.math.Vector3.$( 0, 0, 0 );   // Roll, pitch, yaw
+      var _position = options && options.position ? options.position : new engine.math.Vector3( 0, 0, 0 );   // X, Y, Z
+      var _rotation = options && options.rotation ? options.rotation : new engine.math.Vector3( 0, 0, 0 );   // Roll, pitch, yaw
+      var _direction = new engine.math.Vector3( 0, 0, 0 )   // Cached direction vector
       
       Object.defineProperty( this, 'position', {
          get: function() {

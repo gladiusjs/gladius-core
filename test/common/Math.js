@@ -23,28 +23,42 @@
   });
 
   test( 'Math is available', function() {
-    expect( 4 );
+    expect( 2 );
 
     ok(
         engine.math,
         'Math found'
     );
     ok(
-        engine.math.Vector3,
-        'Found Vector3'
+        engine.math.ARRAY_TYPE,
+        'Found ARRAY_TYPE'
+    );
+  });
+
+  test( 'Vector2', function() {
+    expect( 4 );
+    
+    var vec2 = new engine.math.Vector2( 1, 2 );
+    ok(
+        vec2,
+        'Construct a Vector2 instance'
     );
     ok(
-        engine.math.Matrix4,
-        'Found Matrix4'
+        vec2 instanceof engine.math.ARRAY_TYPE,
+        'vec2 is an instance of ARRAY_TYPE'
     );
     ok(
-        engine.math.FLOAT_ARRAY_TYPE,
-        'Found FLOAT_ARRAY_TYPE'
+        2 === vec2.length,
+        'vec2 has length 2'
+    );
+    ok(
+        vec2[0] === 1 && vec2[1] === 2,
+        'vec2 elements are [1, 2]'
     );
   });
 
   test( 'Vector3', function() {
-    expect( 3 );
+    expect( 4 );
     
     var vec3 = new engine.math.Vector3( 1, 2, 3 );
     ok(
@@ -52,12 +66,38 @@
         'Construct a Vector3 instance'
     );
     ok(
-        vec3 instanceof engine.math.FLOAT_ARRAY_TYPE,
-        'vec3 is an instance of FLOAT_ARRAY_TYPE'
+        vec3 instanceof engine.math.ARRAY_TYPE,
+        'vec3 is an instance of ARRAY_TYPE'
+    );
+    ok(
+        3 === vec3.length,
+        'vec3 has length 3'
     );
     ok(
         vec3[0] === 1 && vec3[1] === 2 && vec3[2] === 3,
         'vec3 elements are [1, 2, 3]'
+    );
+  });
+
+  test( 'Vector4', function() {
+    expect( 4 );
+    
+    var vec4 = new engine.math.Vector4( 1, 2, 3, 4 );
+    ok(
+        vec4,
+        'Construct a Vector4 instance'
+    );
+    ok(
+        vec4 instanceof engine.math.ARRAY_TYPE,
+        'vec4 is an instance of ARRAY_TYPE'
+    );
+    ok(
+        4 === vec4.length,
+        'vec4 has length 4'
+    );
+    ok(
+        vec4[0] === 1 && vec4[1] === 2 && vec4[2] === 3, vec4[3] === 4,
+        'vec4 elements are [1, 2, 3, 4]'
     );
   });
 
