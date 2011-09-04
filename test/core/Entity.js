@@ -32,7 +32,7 @@
     );
   });
 
-  test( 'Id', function() {
+  test( 'Ids are set correctly', function() {
     expect( 3 );
 
     var entity1 = new engine.Entity();
@@ -53,14 +53,31 @@
     );
   });
 
-  
-  test( 'Inheritance works', function() {
+  test( 'Initializer is present', function() {
     expect( 1 );
 
-    var EntitySubclass = function() {
-        this.init_Entity();
+    var entity = new engine.Entity();
+    ok(
+        entity.init_Entity,
+        'Has initializer'
+    );
+  }); 
+  
+  test( 'Inheritance works properly', function() {
+    expect( 1 );
+
+    var EntitySubclass = function( options ) {
+        
+        this.init = function() {
+            this.init_Entity();
+        };
+
+        this.init_EntitySubclass = this.init;
+        if( options && (options.init ? options.init : true) )
+            this.init();
+
     };
-    EntitySubclass.prototype = new engine.Entity();
+    EntitySubclass.prototype = new engine.Entity({ init: false });
     EntitySubclass.prototype.constructor = EntitySubclass;
     var entitySubclass = new EntitySubclass();
     ok(

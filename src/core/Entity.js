@@ -4,11 +4,15 @@
 
 define( function ( require ) {
 
-  var Entity = function( engine, options ) {
+  var Entity = function( engine, options ) {     
 
-      this.init = this.init_Entity = function() {
+      this.init = function() {
           this.id = engine.nextGUID;
-      };      
+      };
+
+      this.init_Entity = this.init;
+      if( options && (options.init ? options.init : true) )
+          this.init(); 
 
   }
 
