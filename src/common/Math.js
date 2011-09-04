@@ -8,8 +8,14 @@ define( function ( require ) {
 
   var Math = function( engine, options ) {
 
-    this.Vector3 = V3;
-    this.Matrix4 = M4x4;
+    this.Vector3 = function( x, y, z ) {
+        return V3.$( x, y, z );
+    }; 
+    this.Matrix4 = function( m00, m01, m02, m03, m04, m05, m06, m07,
+                             m08, m09, m10, m11, m12, m13, m14, m15 ) {
+        return M4x4.$( m00, m01, m02, m03, m04, m5, m06, m07,
+                       m08, m09, m10, m11, m12, m13, m14, m15 );
+    };
 
   }
 
