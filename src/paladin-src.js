@@ -14,6 +14,7 @@ define( function ( require ) {
       // Camera= require( './core/component/Camera' ),
       // Model= require( './core/component/Model' ),
       // Speaker= require( './core/component/Speaker' ),
+      Math = require( './common/Math' ),
 
       Paladin, i, args,
 
@@ -94,6 +95,7 @@ define( function ( require ) {
       lang.extend(this, {
         Entity: partialCtor( Entity, this ),
         // InputMap: partialCtor( InputMap, this ),
+        Math: partialCtor( Math, this ),
 
         // Expose components,
         // but partially apply the subsytem object
@@ -106,6 +108,8 @@ define( function ( require ) {
           // Light: null
         }
       });
+
+      this.math = new this.Math();    
 
       // Create music Speaker singleton
       // this.sound.music = new this.component.Speaker();

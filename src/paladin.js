@@ -34,6 +34,7 @@
     document.write('<script>requirejs.config( { baseUrl: "' + path + '",' +
         'paths: {' +
         // Paths are relative to baseUrl
+          '  "external": "../external"' + 
         //'  "CubicVR.js": "../external/CubicVR.js"' +
         '}' +
       '} );' +
