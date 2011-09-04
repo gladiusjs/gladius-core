@@ -56,6 +56,21 @@ define( function ( require ) {
       }
     }
 
+    var _nextGUID = 0;
+    Object.defineProperty( this, 'nextGUID', {
+        get: function() {
+            if( this.options.debug ) {
+                var nextGUID = ++ _nextGUID;
+                if( _nextGUID < nextGUID )
+                    this.debug( 'GUID overflow' );
+                return nextGUID;
+            }
+            else {
+                return ++ _nextGUID;
+            }
+        }
+    });
+
     // Fetch the subsystems. These can potentially be async operations.
     // In a build, they are async, but do not result in any network
     // requests for the subsystems bundled in the build.

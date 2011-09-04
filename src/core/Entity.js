@@ -4,16 +4,14 @@
 
 define( function ( require ) {
 
-  var nextEntityId = 0;   // FIXME(alan.kligman@gmail.com): This is a hack.
-  function Entity( paladin, options ) {
-      var init = function() {
-          
-      };
+  var Entity = function( engine, options ) {
+
+      this.init = this.init_Entity = function() {
+          this.id = engine.nextGUID;
+      };      
+
   }
 
-  if( Entity.init )
-      Entity.init_Entity = Entity.init;
-  
   return Entity;
 
 });
