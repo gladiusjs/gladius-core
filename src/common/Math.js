@@ -4,7 +4,7 @@
 
 define( function ( require ) {
 
-  var Math = function( engine, options ) {
+  var _Math = function( options ) {
 
     var FLOAT_ARRAY_ENUM = {
         Float32: Float32Array,
@@ -28,8 +28,10 @@ define( function ( require ) {
             elements = args;
         }
 
-        engine.assert( elements.length === dim,
+        /*
+        assert( elements.length === dim,
                 'Invalid number of elements: ' + args.length );
+        */
 
         var vector = new FLOAT_ARRAY_TYPE( dim );
         for( var i = 0; i < dim; ++ i )
@@ -42,19 +44,70 @@ define( function ( require ) {
         return Vector( 2, arguments );
     };
     this.vector2 = {
+
+        add: function() {},
+        angle: function() {},
+        cross: function() {},
+        dot: function() {},
+        equal: function() {},
+        length: function( v ) {
+            return Math.sqrt( v[0] * v[0] + v[1] * v[1] );
+        },
+        multiply: function() {},
+        normal: function() {},
+        normalize: function() {},
+        subtract: function() {}
+
     };
 
     this.Vector3 = function() {
         return Vector( 3, arguments );
     };
     this.vector3 = {
+
     };
 
     this.Vector4 = function() {
         return Vector( 4, arguments );
     };
     this.vector4 = {
+
     };
+
+    const _x = new this.Vector4( 1.0, 0.0, 0.0, 0.0 );
+    Object.defineProperty( this, 'x', {
+        get: function() {
+            return _x;
+        }
+    });
+    Object.defineProperty( this, 'u', {
+        get: function() {
+            return _x;
+        }
+    });
+    const _y = new this.Vector4( 0.0, 1.0, 0.0, 0.0 );
+    Object.defineProperty( this, 'y', {
+        get: function() {
+            return _y;
+        }
+    });
+    Object.defineProperty( this, 'v', {
+        get: function() {
+            return _y;
+        }
+    });
+    const _z = new this.Vector4( 0.0, 0.0, 1.0, 0.0 );
+    Object.defineProperty( this, 'z', {
+        get: function() {
+            return _z;
+        }
+    });
+    const _w = new this.Vector4( 0.0, 0.0, 0.0, 1.0 );
+    Object.defineProperty( this, 'w', {
+        get: function() {
+            return _w;
+        }
+    });
 
     this.Matrix2 = function() {
     };
@@ -71,8 +124,8 @@ define( function ( require ) {
     this.matrix4 = {
     };
 
-  }
+  }  
 
-  return Math;
+  return _Math;
 
 });

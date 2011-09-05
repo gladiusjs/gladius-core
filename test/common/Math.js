@@ -57,6 +57,16 @@
     );
   });
 
+  test( 'Vector2 operations', function() {
+    expect( 1 );
+
+    var vec2 = new engine.math.Vector2( 1, 1 );
+    ok(
+        Math.sqrt( 2 ) === engine.math.vector2.length( vec2 ),
+        'Length of [1, 1]'
+    );
+  });
+
   test( 'Vector3', function() {
     expect( 4 );
     
@@ -96,8 +106,17 @@
         'vec4 has length 4'
     );
     ok(
-        vec4[0] === 1 && vec4[1] === 2 && vec4[2] === 3, vec4[3] === 4,
+        vec4[0] === 1 && vec4[1] === 2 && vec4[2] === 3 && vec4[3] === 4,
         'vec4 elements are [1, 2, 3, 4]'
+    );
+  });
+
+  test( 'Constants', function() {
+    expect( 1 );
+
+    ok(
+        engine.math.x[0] === 1.0 && engine.math.x[1] === 0.0 && engine.math.x[2] === 0.0 && engine.math.x[3] === 0.0,
+        'x'
     );
   });
 
