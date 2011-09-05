@@ -4,12 +4,10 @@
 
 define( function( require ) {
 
-    var Spatial = require( 'core/scene/Spatial' );    
-
     function Node( engine, options ) {
 
         var options = options ? options : {};
-        var _spatial = options.spatial ? options.spatial : new Spatial();    // Spatial data for this node.
+        var _spatial = options.spatial ? options.spatial : new engine.Spatial();    // Spatial data for this node.
         var _component = options.component ? options.component : null;       // Component associated with this node. Can be null.
         var _parent = null;         // Parent node.
         var _children = [];         // Child nodes.
