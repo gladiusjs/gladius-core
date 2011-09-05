@@ -25,7 +25,7 @@
   test( 'Construction', function () {
     expect( 3 );
 
-    var spatial = new engine.Spatial();
+    var spatial = new engine.scene.Spatial();
     ok(
         spatial,
         'Construct a new spatial object'
@@ -45,7 +45,7 @@
   test( 'Assign position', function() {
     expect( 2 );
 
-    var spatial = new engine.Spatial();
+    var spatial = new engine.scene.Spatial();
     var newPosition = new engine.math.Vector3( 1, 2, 3 );
     spatial.position = newPosition;
     same(
@@ -63,7 +63,7 @@
   test( 'Assign rotation', function() {
     expect( 2 );
 
-    var spatial = new engine.Spatial();
+    var spatial = new engine.scene.Spatial();
     var newRotation = new engine.math.Vector3( 1, 2, 3 );
     spatial.rotation = newRotation;
     same(

@@ -23,9 +23,17 @@
   });
 
   test( 'Construction', function () {
-    expect( 0 );
+    expect( 1 );
 
-    var node = new engine.Node();
+    var node = new engine.scene.Node();
+    ok(
+        node,
+        'Node is constructed'
+    );
+  });
+
+  test( 'Node relationships', function() {
+    expect( 0 );
   });
 
 }());

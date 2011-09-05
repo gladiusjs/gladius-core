@@ -96,8 +96,11 @@ define( function ( require ) {
       lang.extend(this, {
         Entity: partialCtor( Entity, this ),
         // InputMap: partialCtor( InputMap, this ),
-        Spatial: partialCtor( Spatial, this ),
-        Node: partialCtor( Node, this ),
+
+        scene: {
+            Spatial: partialCtor( Spatial, this ),
+            Node: partialCtor( Node, this )
+        },
 
         // Expose components,
         // but partially apply the subsytem object
