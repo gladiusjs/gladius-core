@@ -4,16 +4,10 @@
 
 define( function( require ) {
 
-    var Entity = require( '../Entity' );
-    var Spatial = require( './Spatial' );    
+    var Spatial = require( 'core/scene/Spatial' );    
 
-    /***
-     * Node
-     *
-     * A node is a single scene element. It contains tree (parent/children) data and
-     * spatial (position/rotation) data.
-     */ 
-    function Node( paladin, options ) {
+    function Node( engine, options ) {
+
         var options = options ? options : {};
         var _spatial = options.spatial ? options.spatial : new Spatial();    // Spatial data for this node.
         var _component = options.component ? options.component : null;       // Component associated with this node. Can be null.
@@ -95,7 +89,6 @@ define( function( require ) {
         };
         
     }
-    Node.prototype = new Entity();
 
     return Node;
 

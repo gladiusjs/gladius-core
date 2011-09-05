@@ -7,7 +7,7 @@
 
   var engine = null;
 
-  module( 'Math', {
+  module( 'common/Math', {
     setup: function () {
       stop();
 

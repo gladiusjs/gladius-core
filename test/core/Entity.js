@@ -7,7 +7,7 @@
 
   var engine = null;
 
-  module( 'Entity', {
+  module( 'core/Entity', {
     setup: function () {
       stop();
 
@@ -22,7 +22,7 @@
     }
   });
 
-  test( 'Construct a new Entity', function () {
+  test( 'Construction', function () {
     expect( 1 );
 
     var entity = new engine.Entity();
@@ -32,7 +32,7 @@
     );
   });
 
-  test( 'Ids are set correctly', function() {
+  test( 'Id', function() {
     expect( 3 );
 
     var entity1 = new engine.Entity();
@@ -63,7 +63,7 @@
     );
   }); 
   
-  test( 'Inheritance works properly', function() {
+  test( 'Inheritance', function() {
     expect( 1 );
 
     var EntitySubclass = function( options ) {

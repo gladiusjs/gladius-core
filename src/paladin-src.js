@@ -10,7 +10,8 @@ define( function ( require ) {
       // InputMap = require( './input/InputMap' ),
       // Messenger = require( './core/Messenger' ),
       Entity = require( './core/Entity' ),
-      // Spatial = require( './core/scene/Spatial' ),
+      Spatial = require( './core/scene/Spatial' ),
+      Node = require( './core/scene/Node' ),
       // Camera= require( './core/component/Camera' ),
       // Model= require( './core/component/Model' ),
       // Speaker= require( './core/component/Speaker' ),
@@ -95,13 +96,13 @@ define( function ( require ) {
       lang.extend(this, {
         Entity: partialCtor( Entity, this ),
         // InputMap: partialCtor( InputMap, this ),
-        // _Math: partialCtor( _Math, this ),
+        Spatial: partialCtor( Spatial, this ),
+        Node: partialCtor( Node, this ),
 
         // Expose components,
         // but partially apply the subsytem object
         // for this instance to each constructor.
         component: {
-          // Spatial: partialCtor( SpatialComponent, this ),
           // Camera: partialCtor( CameraComponent, this ),
           // Model: partialCtor( ModelComponent, this ),
           // Speaker: partialCtor( SpeakerComponent, this ),

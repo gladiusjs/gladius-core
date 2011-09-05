@@ -23,10 +23,6 @@ CUBICVR_LIB := $(EXTERNAL_DIR)/CubicVR.js/dist/CubicVR.js
 CORE_FILES := $(SRC_DIR)/paladin.js $(wildcard $(SRC_DIR)/core/*.js) $(wildcard $(SRC_DIR)/input/*.js)
 
 SUBSYSTEM_FILES := \
-  $(SRC_DIR)/dummy.js \
-  $(SRC_DIR)/graphics/cubicvr.js \
-  $(SRC_DIR)/sound/default.js \
-  $(SRC_DIR)/physics/default.js
 
 compile = node $(TOOLS_DIR)/node_modules/uglify-js/bin/uglifyjs -o $(1) $(PALADIN_DIST)
 
