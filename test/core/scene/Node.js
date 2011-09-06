@@ -32,8 +32,33 @@
     );
   });
 
-  test( 'Node relationships', function() {
-    expect( 0 );
+  test( 'Set parent', function() {
+    expect( 4 );
+
+    var node1 = new engine.scene.Node();
+    var node2 = new engine.scene.Node();
+
+    node2.parent = node1;
+    
+    ok(
+        node2.parent === node1,
+        'Node 1 is the parent of node 2'
+    );
+    ok(
+        node1.children.indexOf( node2 ) != -1,
+        'Node 2 is a child of node 1'
+    );
+
+    node2.parent = null;
+
+    ok(
+        node2.parent === null,
+        'Node 2 has no parent'
+    );
+    ok(
+        node1.children.indexOf( node2 ) === -1,
+        'Node 2 is not a child of node 1'
+    );
   });
 
 }());

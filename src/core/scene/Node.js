@@ -6,7 +6,7 @@ define( function( require ) {
 
     function Node( engine, options ) {
 
-        var options = options ? options : {};
+        options = options || {};
         var _spatial = options.spatial ? options.spatial : new engine.scene.Spatial();    // Spatial data for this node.
         var _component = options.component ? options.component : null;       // Component associated with this node. Can be null.
         var _parent = null;         // Parent node.
@@ -20,10 +20,10 @@ define( function( require ) {
            },
            set: function( value ) {
                if( null != _parent )
-                   _parent.removeChild( this );
-               _parent = value;
+                   _parent.removeChild({ node: this });
+               _parent = value || null;
                if( null != _parent )
-                   _parent.addChild( this );
+                   _parent.addChild({ node:this });
            }
         } );
         
@@ -43,13 +43,16 @@ define( function( require ) {
         } );
 
         this.addChild = function( options ) {
-            if( optons && options.node && -1 != _children.indexOf( options.node ) )
+            if( options && options.node && -1 === _children.indexOf( options.node ) )
                 _children.push( options.node );
         };
 
         this.removeChild = function( options ) {
-            if( options && options.node )
-                _children.remove( options.node );
+            if( options && options.node ) {
+                var i = _children.indexOf( options.node );
+                if( i >= 0 )
+                    _children.remove( i );
+            }
         };
 
         Object.defineProperty( this, 'component', {
