@@ -53,37 +53,4 @@
     );
   });
 
-  test( 'Initializer is present', function() {
-    expect( 1 );
-
-    var entity = new engine.Entity();
-    ok(
-        entity.init_Entity,
-        'Has initializer'
-    );
-  }); 
-  
-  test( 'Inheritance', function() {
-    expect( 1 );
-
-    var EntitySubclass = function( options ) {
-        
-        this.init = function() {
-            this.init_Entity();
-        };
-
-        this.init_EntitySubclass = this.init;
-        if( options && (options.init ? options.init : true) )
-            this.init();
-
-    };
-    EntitySubclass.prototype = new engine.Entity({ init: false });
-    EntitySubclass.prototype.constructor = EntitySubclass;
-    var entitySubclass = new EntitySubclass();
-    ok(
-        entitySubclass.id === 1,
-        'EntitySubclass id is 1'
-    );
-  });
-
 }());

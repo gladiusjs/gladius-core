@@ -4,18 +4,87 @@
 
 define( function ( require ) {
 
-  var Entity = function( engine, options ) {     
+    /* Entity
+     *
+     * An entity is a collection of entity components under a single globally unique identifier.
+     */
 
-      this.init = function() {
-          this.id = engine.nextGUID;
-      };
+    var Entity = function( engine, options ) {     
+    
+        options = options || {};   
 
-      this.init_Entity = this.init;
-      if( options && (options.init ? options.init : true) )
-          this.init(); 
+        // Members
 
-  }
+        var _guid = engine.nextGuid                 // Globally-unique ID
+        Object.defineProperty( this, 'guid', {
+            get: function() {
+                return _guid;
+            }
+        });
 
-  return Entity;
+        var _name = options.name || null;           // Name string
+        Object.defineProperty( this, 'name', {
+            get: function() {
+                return _name;
+            }
+        });
+
+        var _parent = options.parent || null;       // Parent entity, or null if no parent
+        Object.defineProperty( this, 'parent', {
+            get: function() {
+                return _parent;
+            },
+            set: function( value ) {
+                if( value != this && value != _parent ) {
+                    _parent = value;
+                    // TODO: raise an event containing the new parent.
+                }
+            }
+        });
+
+        var _manager = options.manager || null;     // Component manager
+        Object.defineProperty( this, 'manager', {
+            get: function() {
+                return _manager;
+            },
+            set: function( value ) {
+                _manager = value;
+            }
+        });
+
+        var _components = {};       // Dictionary of components, indexed by component type
+
+        // 
+        var updateComponentDependencies = function() {
+        };
+
+        // Methods
+
+        // Add a component.
+        this.add = function( options ) {
+        };
+
+        // Remove a component.
+        this.remove = function( options ) {
+        };
+
+        // Return the number of components present.
+        this.size = function() {
+        };
+
+        // Events
+
+        var onParentChanged = function() {
+        };
+
+        var onComponentAdded = function() {
+        };
+
+        var onComponentRemoved = function() {
+        };
+
+    }
+
+    return Entity;
 
 });
