@@ -3,19 +3,9 @@
 
 define( function ( require ) {
   var lang = require( './core/lang' ),
-      // Tasker = require( './core/Tasker' ),
-      // KeyboardInput = require( './input/KeyboardInput' ),
-      // MouseInput = require( './input/MouseInput' ),
-      // TouchInput = require( './input/TouchInput' ),
-      // InputMap = require( './input/InputMap' ),
-      // Messenger = require( './core/Messenger' ),
-      Entity = require( './core/Entity' ),
-      Spatial = require( './core/scene/Spatial' ),
-      Node = require( './core/scene/Node' ),
-      // Camera= require( './core/component/Camera' ),
-      // Model= require( './core/component/Model' ),
-      // Speaker= require( './core/component/Speaker' ),
       _Math = require( './common/Math' ),
+      // Entity = require( './core/Entity' ),
+      Component = require( './core/Component' ),
 
       Paladin, i, args,
 
@@ -94,13 +84,8 @@ define( function ( require ) {
       // Expose Paladin objects, partially
       // applying items needed for their constructors.
       lang.extend(this, {
-        Entity: partialCtor( Entity, this ),
-        // InputMap: partialCtor( InputMap, this ),
-
-        scene: {
-            Spatial: partialCtor( Spatial, this ),
-            Node: partialCtor( Node, this )
-        },
+        // Entity: partialCtor( Entity, this ),
+        Component: partialCtor( Component, this )(),
 
         // Expose components,
         // but partially apply the subsytem object

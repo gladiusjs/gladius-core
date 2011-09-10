@@ -22,6 +22,7 @@
     }
   });
 
+/*
   test( 'Construction', function () {
     expect( 1 );
 
@@ -31,26 +32,6 @@
         'New entity is constructed.'
     );
   });
-
-  test( 'Id', function() {
-    expect( 3 );
-
-    var entity1 = new engine.Entity();
-    var entity2 = new engine.Entity();
-    entity1.init();
-    entity2.init();
-    ok(
-        entity1.id === 1,
-        'Entity id is 1'
-    );
-    ok(
-        entity2.id === 2,
-        'Entity id is 2'
-    );
-    ok(
-        entity1.id != entity2.id,
-        'Entity1 and entity2 have different ids'
-    );
-  });
+*/
 
 }());

@@ -52,11 +52,14 @@ define( function ( require ) {
             }
         });
 
-        var _components = {};       // Dictionary of components, indexed by component type
+        var _size = 0;
+        Object.defineProperty( this, 'size', {
+            get: function() {
+                return _size;
+            }
+        });
 
-        // 
-        var updateComponentDependencies = function() {
-        };
+        var _components = {};       // Dictionary of components, indexed by component type
 
         // Methods
 
@@ -68,8 +71,16 @@ define( function ( require ) {
         this.remove = function( options ) {
         };
 
-        // Return the number of components present.
-        this.size = function() {
+        // Find the first occurence of a component with a given type.
+        this.find = function( options ) {
+        };
+
+        // Find all occurences of components with a given type.
+        this.findAll = function( options ) {
+        };
+
+        // Determine if this entity has a component with a given type.
+        this.contains = function( options ) {
         };
 
         // Events
