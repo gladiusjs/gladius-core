@@ -12,7 +12,8 @@ define( function ( require ) {
 
     var Scene = function( engine, options ) {     
     
-        options = options || {};   
+        var that = this;
+        options = options || {};
 
         var _engine = engine;
         Object.defineProperty( this, 'engine', {
@@ -21,9 +22,25 @@ define( function ( require ) {
             }         
         });
 
-        var _entityList = [];
+        var _entities = {};
 
-        this.Entity = function() {  // Make a new entity and associate it with this Scene.
+        this.Entity = function( options ) {
+            options = options || {};
+            options.manager = that;
+
+            return new engine.Entity( options );
+        };
+
+        this.remove = function( options ) {
+        };
+
+        this.find = function( options ) {
+        };
+
+        this.findWith = function( options ) {
+        };
+
+        this.findAllWith = function( options ) {
         };
 
     }

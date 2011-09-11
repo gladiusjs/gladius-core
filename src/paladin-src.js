@@ -4,8 +4,9 @@
 define( function ( require ) {
   var lang = require( './core/lang' ),
       _Math = require( './common/Math' ),
-      // Entity = require( './core/Entity' ),
+      Entity = require( './core/Entity' ),
       Component = require( './core/Component' ),
+      Scene = require( './core/Scene' ),
 
       Paladin, i, args,
 
@@ -84,8 +85,9 @@ define( function ( require ) {
       // Expose Paladin objects, partially
       // applying items needed for their constructors.
       lang.extend(this, {
-        // Entity: partialCtor( Entity, this ),
-        Component: partialCtor( Component, this )(),
+        Entity: partialCtor( Entity, this ),
+        Component: partialCtor( Component, this ),
+        Scene: partialCtor( Scene, this ),
 
         // Expose components,
         // but partially apply the subsytem object

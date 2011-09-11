@@ -10,32 +10,27 @@ define( function ( require ) {
      */
 
     var Component = function( engine, options ) {
-    
-        return function( type, Func, depends, provides ) {            
-            return function( options ) {
-                var component = new Func( options );
 
-                Object.defineProperty( component, 'type', {
-                    get: function() {
-                        return type;
-                    }
-                });
+        option = options || {};
 
-                Object.defineProperty( component, 'depends', {
-                    get: function() {
-                        return depends;
-                    }
-                });
-
-                Object.defineProperty( component, 'provides', {
-                    get: function() {
-                        return provides;
-                    }
-                });
-            
-                return component;
-            };
-        };
+        var _type = options.type || undefined;
+        Object.defineProperty( this, 'type', {
+            get: function() {
+                return _type;
+            }
+        });
+        var _depends = options.depends || [];
+        Object.defineProperty( this, 'depends', {
+            get: function() {
+                return _depends;
+            }
+        });
+        var _provides = options.provides || [];
+        Object.defineProperty( this, 'provides', {
+            get: function() {
+                return _provides;
+            }
+        });
 
     }
 

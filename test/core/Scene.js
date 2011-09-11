@@ -7,7 +7,7 @@
 
   var engine = null;
 
-  module( 'core/Entity', {
+  module( 'core/Scene', {
     setup: function () {
       stop();
 
@@ -23,12 +23,22 @@
   });
 
   test( 'Construction', function () {
-    expect( 1 );
+    expect( 3 );
 
-    var entity = new engine.Entity();
+    var scene = new engine.Scene();
+    ok(
+        scene,
+        'New scene is constructed.'
+    );
+
+    var entity = new scene.Entity();
     ok(
         entity,
         'New entity is constructed.'
+    );
+    ok(
+        entity.manager === scene,
+        'Entity manager is the scene.'
     );
   });
 
