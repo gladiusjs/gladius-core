@@ -22,13 +22,27 @@ define( function ( require ) {
             }         
         });
 
+        var _size = 0;
+        Object.defineProperty( this, 'size', {
+            get: function() {
+                return _size;
+            }
+        });
+
         var _entities = {};
 
         this.Entity = function( options ) {
             options = options || {};
             options.manager = that;
 
-            return new engine.Entity( options );
+            var entity = new engine.Entity( options );
+            
+            if( !_entities.hasOwnProperty( entity.name ) )
+                _entities[entity.name] = [];
+            _entities[entity.name].push( entity );
+            ++ _size;
+
+            return entity;
         };
 
         this.remove = function( options ) {

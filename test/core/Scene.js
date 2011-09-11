@@ -23,14 +23,23 @@
   });
 
   test( 'Construction', function () {
-    expect( 3 );
+    expect( 2 );
 
     var scene = new engine.Scene();
     ok(
         scene,
         'New scene is constructed.'
     );
+    ok(
+        scene.size === 0,
+        'Initial size is 0.'
+    );
+  });
 
+  test( 'Entity', function() {
+    expect( 3 );
+
+    var scene = new engine.Scene();
     var entity = new scene.Entity();
     ok(
         entity,
@@ -39,6 +48,10 @@
     ok(
         entity.manager === scene,
         'Entity manager is the scene.'
+    );
+    ok(
+        scene.size === 1,
+        'Size after entity creation is 1.'
     );
   });
 
