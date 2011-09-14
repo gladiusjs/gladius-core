@@ -11,7 +11,8 @@ define( function ( require ) {
 
     var Entity = function( engine, options ) {     
     
-        options = options || {};   
+        options = options || {};
+        var that = this;
 
         // Members
 
@@ -63,24 +64,34 @@ define( function ( require ) {
 
         // Methods
 
-        // Add a component.
-        this.add = function( options ) {
+        // Add a component and return the previous component of the same type, or null.
+        this.add = function( component ) {            
+            var previousComponent = remove( component.type );
+            _components[type] = component;
+            return previousComponent || null;
         };
 
-        // Remove a component.
-        this.remove = function( options ) {
+        // Remove a component and return it, or null.
+        this.remove = function( type ) {
+            var previousComponent;
+            if( _components.hasOwnProperty( type ) ) {
+                previousComponent = _components[type];
+                delete _components[type];
+            }
+            return previousComponent || null;
         };
 
-        // Find the first occurence of a component with a given type.
-        this.find = function( options ) {
+        // Find the first occurence of a component with a given type and return it, or null.
+        this.find = function( type ) {
+            if( !_components.hasOwnProperty( type ) )
+                return null;
+            
+            return _components[type];
         };
 
-        // Find all occurences of components with a given type.
-        this.findAll = function( options ) {
-        };
-
-        // Determine if this entity has a component with a given type.
+        // Return true if this entity has a component with a given type, or false.
         this.contains = function( type ) {
+            return _components.hasOwnProperty( type );
         };
 
         // Events
