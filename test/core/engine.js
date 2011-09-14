@@ -7,7 +7,7 @@
 
   var engine = null;
 
-  module( 'core/Entity', {
+  module( 'Engine', {
     setup: function () {
       stop();
 
@@ -22,29 +22,16 @@
     }
   });
 
-  test( 'Construction', function() {
-    expect( 1 );
-
-    var entity = new engine.Entity();
-    ok(
-        entity,
-        'New entity is constructed.'
-    );
-  });
-
-  test( 'Id', function() {
+  test( 'GUID', function() {
     expect( 2 );
 
-    var entity1 = new engine.Entity();
     ok(
-        entity1.id === 1,
-        'First entity id is 1.'
+        engine.nextGUID === 1,
+        'First GUID is 1.'
     );
-
-    var entity2 = new engine.Entity();
     ok(
-        entity2.id === 2,
-        'Second entity id is 2.'
+        engine.nextGUID === 2,
+        'Second GUID is 2.'
     );
   });
 

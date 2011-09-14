@@ -37,10 +37,17 @@
   });
 
   test( 'Entity', function() {
-    expect( 3 );
+    expect( 5 );
 
     var scene = new engine.Scene();
-    var entity = new scene.Entity();
+
+    ok(
+        scene.size === 0,
+        'Initial scene size is 0.'
+    );
+
+    var entity = new scene.Entity({ name: 'TestEntity' });
+
     ok(
         entity,
         'New entity is constructed.'
@@ -52,6 +59,13 @@
     ok(
         scene.size === 1,
         'Size after entity creation is 1.'
+    );
+
+    scene.remove( entity );
+   
+    ok(
+        scene.size === 0,
+        'Size afer entity removal is 0.'
     );
   });
 

@@ -15,8 +15,8 @@ define( function ( require ) {
 
         // Members
 
-        var _guid = engine.nextGuid                 // Globally-unique ID
-        Object.defineProperty( this, 'guid', {
+        var _guid = engine.nextGUID;                 // Globally-unique ID
+        Object.defineProperty( this, 'id', {
             get: function() {
                 return _guid;
             }
@@ -80,7 +80,7 @@ define( function ( require ) {
         };
 
         // Determine if this entity has a component with a given type.
-        this.contains = function( options ) {
+        this.contains = function( type ) {
         };
 
         // Events
