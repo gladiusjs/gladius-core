@@ -10,7 +10,7 @@
       TestComponent2 = null,
       TestComponent3 = null;
 
-  module( 'core/Entity', {
+  module( 'core/Scene', {
     setup: function () {
       stop();
 
