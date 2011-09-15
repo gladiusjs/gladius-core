@@ -66,8 +66,10 @@ define( function ( require ) {
 
         // Add a component and return the previous component of the same type, or null.
         this.add = function( component ) {            
-            var previousComponent = remove( component.type );
-            _components[type] = component;
+            var previousComponent = that.remove( component.type );
+            component.owner = that;
+            _components[component.type] = component;
+            ++ _size;
             return previousComponent || null;
         };
 
@@ -77,6 +79,7 @@ define( function ( require ) {
             if( _components.hasOwnProperty( type ) ) {
                 previousComponent = _components[type];
                 delete _components[type];
+                -- _size;
             }
             return previousComponent || null;
         };

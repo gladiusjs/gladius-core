@@ -5,14 +5,43 @@
 
 (function() {
 
-  var engine = null;
+  var engine = null,
+      TestComponent1 = null,
+      TestComponent2 = null,
+      TestComponent3 = null;
 
-  module( 'core/Scene', {
+  module( 'core/Entity', {
     setup: function () {
       stop();
 
       paladin.create( { debug: true }, function( instance ) {       
           engine = instance;
+
+          TestComponent1 = function( options ) {
+          };
+          TestComponent1.prototype = new engine.Component({
+              type: 'One',
+              depends: [],
+              provides: []
+          });
+          TestComponent1.prototype.constructor = TestComponent1;
+          TestComponent2 = function( options ) {
+          };
+          TestComponent2.prototype = new engine.Component({
+              type: 'One',
+              depends: [],
+              provides: []
+          });
+          TestComponent2.prototype.constructor = TestComponent2;
+          TestComponent3 = function( options ) {
+          };
+          TestComponent3.prototype = new engine.Component({
+              type: 'Two',
+              depends: [],
+              provides: []
+          });
+          TestComponent3.prototype.constructor = TestComponent3;
+
           start();
       });
     },
@@ -66,6 +95,35 @@
     ok(
         scene.size === 0,
         'Size afer entity removal is 0.'
+    );
+  });
+
+  test( 'Add a component to an entity', function() {
+    expect( 4 );
+
+    var scene = new engine.Scene();
+    var entity = new scene.Entity();
+    var component = new TestComponent1();
+
+    entity.add( component );
+    equal(
+        1,
+        entity.size,
+        'Entity has size 1'
+    );
+    ok(
+        entity.contains( component.type ),
+        'Entity contains component of correct type'
+    );
+    equal(
+        component,
+        entity.find( component.type ),
+        'Can find component in entity'
+    );
+    equal(
+        entity.find( component.type ).owner,
+        entity,
+        'Owner is set correctly'
     );
   });
 

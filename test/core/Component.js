@@ -23,26 +23,13 @@
   });
 
   test( 'Construction', function () {
-    expect( 0 );
+    expect( 2 );
 
     var TestComponent = function( options ) {
-
-        var _owner = null;
-        Object.defineProperty( this, 'owner', {
-            get: function() {
-                return _owner;
-            },
-            set: function( value ) {
-                if( value != _owner )
-                    _owner = value;
-            }
-        });
-
     };
     TestComponent.prototype = new engine.Component({
         type: 'Test',
-        depends: [],
-        provides: ['Test']
+        depends: []
     });
     TestComponent.prototype.constructor = TestComponent;
 
@@ -56,16 +43,6 @@
         testComponent.depends,
         [],
         'TestComponent depends is correct.'
-    );
-    same(
-        testComponent.provides,
-        ['Test'],
-        'TestComponent provides is correct.'
-    );
-    testComponent.owner = 0;
-    same( testComponent.owner,
-          0,
-          'TestComponent has owner 0.'
     );
 
   });

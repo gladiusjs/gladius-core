@@ -19,18 +19,32 @@ define( function ( require ) {
                 return _type;
             }
         });
+
         var _depends = options.depends || [];
         Object.defineProperty( this, 'depends', {
             get: function() {
                 return _depends;
             }
         });
-        var _provides = options.provides || [];
-        Object.defineProperty( this, 'provides', {
+
+        var _owner = null;
+        Object.defineProperty( this, 'owner', {
             get: function() {
-                return _provides;
+                return _owner;
+            },
+            set: function( value ) {
+                if( value != _owner ) {
+                    _owner = value;
+                    onOwnerChanged( value );
+                }
             }
         });
+
+        // Events
+
+        var onOwnerChanged = function() {
+            console.log( 'Component owner changed' );
+        };
 
     }
 
