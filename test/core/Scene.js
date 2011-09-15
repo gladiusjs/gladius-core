@@ -21,24 +21,21 @@
           };
           TestComponent1.prototype = new engine.Component({
               type: 'Apple',
-              depends: [],
-              provides: []
+              depends: []
           });
           TestComponent1.prototype.constructor = TestComponent1;
           TestComponent2 = function( options ) {
           };
           TestComponent2.prototype = new engine.Component({
               type: 'Apple',
-              depends: [],
-              provides: []
+              depends: []
           });
           TestComponent2.prototype.constructor = TestComponent2;
           TestComponent3 = function( options ) {
           };
           TestComponent3.prototype = new engine.Component({
               type: 'Orange',
-              depends: [],
-              provides: []
+              depends: []
           });
           TestComponent3.prototype.constructor = TestComponent3;
 
