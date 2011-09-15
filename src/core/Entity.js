@@ -79,6 +79,7 @@ define( function ( require ) {
             if( _components.hasOwnProperty( type ) ) {
                 previousComponent = _components[type];
                 delete _components[type];
+                previousComponent.owner = null;
                 -- _size;
             }
             return previousComponent || null;

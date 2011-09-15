@@ -23,7 +23,7 @@
   });
 
   test( 'Construction', function () {
-    expect( 2 );
+    expect( 3 );
 
     var TestComponent = function( options ) {
     };
@@ -43,6 +43,10 @@
         testComponent.depends,
         [],
         'TestComponent depends is correct.'
+    );
+    ok(
+        !testComponent.owner,
+        'Component owner is not set'
     );
 
   });

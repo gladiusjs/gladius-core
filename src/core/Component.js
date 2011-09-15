@@ -43,7 +43,6 @@ define( function ( require ) {
         // Events
 
         var onOwnerChanged = function() {
-            console.log( 'Component owner changed' );
         };
 
     }
