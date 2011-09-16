@@ -27,7 +27,7 @@
 
     var TestComponent = function( options ) {
     };
-    TestComponent.prototype = new engine.Component({
+    TestComponent.prototype = new engine.core.Component({
         type: 'Test',
         depends: []
     });

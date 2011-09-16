@@ -9,7 +9,7 @@ define( function ( require ) {
      * A component provides contains data and logic for a specific game function.
      */
 
-    var Component = function( engine, options ) {
+    var Component = function( options ) {
 
         option = options || {};
 

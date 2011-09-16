@@ -36,7 +36,7 @@ define( function ( require ) {
             options = options || {};
             options.manager = that;
 
-            var entity = new engine.Entity( options );
+            var entity = new engine.core.Entity( options );
 
             // Index by id            
             _entitiesById[entity.id] = entity;

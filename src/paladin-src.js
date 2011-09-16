@@ -3,10 +3,11 @@
 
 define( function ( require ) {
   var lang = require( './core/lang' ),
-      _Math = require( './common/Math' ),
+//      _Math = require( './common/Math' ),
       Entity = require( './core/Entity' ),
       Component = require( './core/Component' ),
       Scene = require( './core/Scene' ),
+      Transform = require( './core/component/Transform' ),
 
       Paladin, i, args,
 
@@ -85,18 +86,13 @@ define( function ( require ) {
       // Expose Paladin objects, partially
       // applying items needed for their constructors.
       lang.extend(this, {
-        Entity: partialCtor( Entity, this ),
-        Component: partialCtor( Component, this ),
-        Scene: partialCtor( Scene, this ),
-
-        // Expose components,
-        // but partially apply the subsytem object
-        // for this instance to each constructor.
-        component: {
-          // Camera: partialCtor( CameraComponent, this ),
-          // Model: partialCtor( ModelComponent, this ),
-          // Speaker: partialCtor( SpeakerComponent, this ),
-          // Light: null
+        core: {
+            Entity: partialCtor( Entity, this ),
+            Component: Component,
+            Scene: partialCtor( Scene, this ),
+            component: {
+                Transform: Transform
+            }
         }
       });
 
@@ -105,7 +101,7 @@ define( function ( require ) {
             throw 'Assertion failed: ' + message;
       }
 
-      this.math = new _Math();
+//      this.math = new _Math();
 
       // Create music Speaker singleton
       // this.sound.music = new this.component.Speaker();

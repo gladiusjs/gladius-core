@@ -39,6 +39,8 @@
         '}' +
       '} );' +
       'requirejs(["paladin-src"])</' + 'script>');
+
+    document.write( '<script src="' + path + 'common/Math.js"></' + 'script>' );
   }
 
   var paladin = this.paladin || ( this.paladin = {} );

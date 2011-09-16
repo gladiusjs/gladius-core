@@ -19,21 +19,21 @@
 
           TestComponent1 = function( options ) {
           };
-          TestComponent1.prototype = new engine.Component({
+          TestComponent1.prototype = new engine.core.Component({
               type: 'Apple',
               depends: []
           });
           TestComponent1.prototype.constructor = TestComponent1;
           TestComponent2 = function( options ) {
           };
-          TestComponent2.prototype = new engine.Component({
+          TestComponent2.prototype = new engine.core.Component({
               type: 'Apple',
               depends: []
           });
           TestComponent2.prototype.constructor = TestComponent2;
           TestComponent3 = function( options ) {
           };
-          TestComponent3.prototype = new engine.Component({
+          TestComponent3.prototype = new engine.core.Component({
               type: 'Orange',
               depends: []
           });
@@ -51,7 +51,7 @@
   test( 'Construction', function () {
     expect( 2 );
 
-    var scene = new engine.Scene();
+    var scene = new engine.core.Scene();
     ok(
         scene,
         'New scene is constructed.'
@@ -65,7 +65,7 @@
   test( 'Entity', function() {
     expect( 5 );
 
-    var scene = new engine.Scene();
+    var scene = new engine.core.Scene();
 
     ok(
         scene.size === 0,
@@ -78,8 +78,9 @@
         entity,
         'New entity is constructed.'
     );
-    ok(
-        entity.manager === scene,
+    equal(
+        entity.manager,
+        scene,
         'Entity manager is the scene.'
     );
     ok(
@@ -98,7 +99,7 @@
   test( 'Add a component to an entity', function() {
     expect( 9 );
 
-    var scene = new engine.Scene();
+    var scene = new engine.core.Scene();
     var entity = new scene.Entity();
     var component = new TestComponent1();
 
@@ -153,7 +154,7 @@
   test( 'Add multiple components, same type', function() {
     expect( 2 );
 
-    var scene = new engine.Scene();
+    var scene = new engine.core.Scene();
     var entity = new scene.Entity();
 
     // These components are both of type 'Apple'
@@ -178,7 +179,7 @@
   test( 'Add multiple components, different types', function() {
     expect( 7 );
 
-    var scene = new engine.Scene();
+    var scene = new engine.core.Scene();
     var entity = new scene.Entity();
 
     // These components have different types, 'Apple' and 'Orange'

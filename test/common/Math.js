@@ -26,11 +26,11 @@
     expect( 2 );
 
     ok(
-        engine.math,
+        math,
         'Math found'
     );
     ok(
-        engine.math.ARRAY_TYPE,
+        math.ARRAY_TYPE,
         'Found ARRAY_TYPE'
     );
   });
@@ -38,13 +38,13 @@
   test( 'Vector2', function() {
     expect( 4 );
     
-    var vec2 = new engine.math.Vector2( 1, 2 );
+    var vec2 = new math.Vector2( 1, 2 );
     ok(
         vec2,
         'Construct a Vector2 instance'
     );
     ok(
-        vec2 instanceof engine.math.ARRAY_TYPE,
+        vec2 instanceof math.ARRAY_TYPE,
         'vec2 is an instance of ARRAY_TYPE'
     );
     ok(
@@ -60,9 +60,9 @@
   test( 'Vector2 operations', function() {
     expect( 1 );
 
-    var vec2 = new engine.math.Vector2( 1, 1 );
+    var vec2 = new math.Vector2( 1, 1 );
     ok(
-        Math.sqrt( 2 ) === engine.math.vector2.length( vec2 ),
+        Math.sqrt( 2 ) === math.vector2.length( vec2 ),
         'Length of [1, 1]'
     );
   });
@@ -70,13 +70,13 @@
   test( 'Vector3', function() {
     expect( 4 );
     
-    var vec3 = new engine.math.Vector3( 1, 2, 3 );
+    var vec3 = new math.Vector3( 1, 2, 3 );
     ok(
         vec3,
         'Construct a Vector3 instance'
     );
     ok(
-        vec3 instanceof engine.math.ARRAY_TYPE,
+        vec3 instanceof math.ARRAY_TYPE,
         'vec3 is an instance of ARRAY_TYPE'
     );
     ok(
@@ -92,13 +92,13 @@
   test( 'Vector4', function() {
     expect( 4 );
     
-    var vec4 = new engine.math.Vector4( 1, 2, 3, 4 );
+    var vec4 = new math.Vector4( 1, 2, 3, 4 );
     ok(
         vec4,
         'Construct a Vector4 instance'
     );
     ok(
-        vec4 instanceof engine.math.ARRAY_TYPE,
+        vec4 instanceof math.ARRAY_TYPE,
         'vec4 is an instance of ARRAY_TYPE'
     );
     ok(
@@ -115,7 +115,7 @@
     expect( 1 );
 
     ok(
-        engine.math.x[0] === 1.0 && engine.math.x[1] === 0.0 && engine.math.x[2] === 0.0 && engine.math.x[3] === 0.0,
+        math.x[0] === 1.0 && math.x[1] === 0.0 && math.x[2] === 0.0 && math.x[3] === 0.0,
         'x'
     );
   });

@@ -2,8 +2,6 @@
   nomen: false */
 /*global define: false, console: false, window: false, setTimeout: false */
 
-define( function ( require ) {
-
   var _Math = function( options ) {
 
     var FLOAT_ARRAY_ENUM = {
@@ -126,6 +124,4 @@ define( function ( require ) {
 
   }  
 
-  return _Math;
-
-});
+window.math = new _Math();
