@@ -73,7 +73,7 @@ define( function ( require ) {
                 if( 0 === _entitiesByName[name].length )
                     delete _entitiesByName[name];
                 return entity;
-            };
+            }
         };
 
         // Remove the given entity
@@ -157,7 +157,7 @@ define( function ( require ) {
                             return _entitiesByName[name][i];
                     }
                 }
-            };
+            }
 
             return null;
         };
@@ -170,7 +170,7 @@ define( function ( require ) {
         var onEntityRemoved = function() {
         };
 
-    }
+    };
 
     return Scene;
 

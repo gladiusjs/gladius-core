@@ -109,7 +109,7 @@ define( function ( require ) {
         var onComponentRemoved = function() {
         };
 
-    }
+    };
 
     return Entity;
 

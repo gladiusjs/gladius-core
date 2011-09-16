@@ -45,7 +45,7 @@ define( function ( require ) {
         var onOwnerChanged = function() {
         };
 
-    }
+    };
 
     return Component;
 
