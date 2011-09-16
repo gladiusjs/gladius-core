@@ -10,15 +10,16 @@
 
 PALADIN := paladin
 SRC_DIR := ./src
+TEST_DIR := ./test
 DIST_DIR := ./dist
 EXTERNAL_DIR := ./external
 PALADIN_SRC := $(SRC_DIR)/$(PALADIN).js
 PALADIN_DIST := $(DIST_DIR)/$(PALADIN).js
 PALADIN_MIN := $(DIST_DIR)/$(PALADIN).min.js
 TOOLS_DIR := ./tools
-TESTS_DIR := $(DIST_DIR)/test
+DIST_TEST_DIR := $(DIST_DIR)/test
 
-CORE_FILES := $(SRC_DIR)/paladin.js $(wildcard $(SRC_DIR)/core/*.js) $(wildcard $(SRC_DIR)/input/*.js)
+CORE_FILES := $(SRC_DIR)/paladin.js $(wildcard $(SRC_DIR)/core/*.js) $(wildcard $(SRC_DIR)/core/component/*.js)
 
 SUBSYSTEM_FILES := \
 
@@ -43,11 +44,11 @@ $(PALADIN_MIN): $(DIST_DIR) $(PALADIN_SRC)
 	@@echo "Building $(PALADIN_MIN)"
 	@@$(call compile,$(PALADIN_MIN))
 
-tests: $(DIST_DIR) $(PALADIN_MIN)
-	@@echo "Creating tests in $(TESTS_DIR)"
+test: $(DIST_DIR) $(PALADIN_MIN)
+	@@echo "Creating tests in $(DIST_TEST_DIR)"
 	@@mv $(PALADIN_MIN) $(PALADIN_DIST)
-	@@cp -R $(SRC_DIR)/tests $(TESTS_DIR)
-	@@echo "Starting web server in $(TESTS_DIR), browse to http://localhost:9914/ (ctrl+c to stop)..."
+	@@cp -R $(TEST_DIR) $(DIST_TEST_DIR)
+	@@echo "Starting web server in $(DIST_TEST_DIR), browse to http://localhost:9914/ (ctrl+c to stop)..."
 	@@cd $(DIST_DIR) && python ../$(TOOLS_DIR)/test_server.py
 
 clean:
