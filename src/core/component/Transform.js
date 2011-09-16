@@ -5,11 +5,20 @@
 define( function ( require ) {
 
     var Component = require( 'core/Component' );
-    var _Math = require( 'common/Math' );
 
     var Transform = function( options ) {
 
         option = options || {};
+
+        var _position = new math.Vector3( math.vector3.zero );
+        Object.defineProperty( this, 'position', {
+            get: function() {
+                return _position;
+            },
+            set: function( value ) {
+                
+            }
+        });
 
     };
     Transform.prototype = new Component({

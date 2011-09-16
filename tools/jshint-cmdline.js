@@ -1,4 +1,4 @@
-/*jshint indent: 2, strict: false */
+/*jshint indent: 4, strict: false */
 /*global require: false, process: false, console: false */
 
 // Read js file

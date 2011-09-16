@@ -3,7 +3,6 @@
 
 define( function ( require ) {
   var lang = require( './core/lang' ),
-//      _Math = require( './common/Math' ),
       Entity = require( './core/Entity' ),
       Component = require( './core/Component' ),
       Scene = require( './core/Scene' ),
@@ -100,8 +99,6 @@ define( function ( require ) {
         if( !condition )
             throw 'Assertion failed: ' + message;
       }
-
-//      this.math = new _Math();
 
       // Create music Speaker singleton
       // this.sound.music = new this.component.Speaker();

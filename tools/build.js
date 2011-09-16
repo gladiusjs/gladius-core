@@ -39,10 +39,6 @@
   include: [
             'paladin',
             'paladin-src',
-            'dummy',
-            'graphics/cubicvr',
-            'physics/default',
-            'sound/default'
            ],
 
   // Wraps the built file in a closure and exports paladin as a global.

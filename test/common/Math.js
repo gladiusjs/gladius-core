@@ -111,12 +111,39 @@
     );
   });
 
-  test( 'Constants', function() {
+  test( 'Equality', function() {
     expect( 1 );
 
+    var v1 = new math.Vector2( 0.0, 0.0 );
+    var v2 = new math.Vector2( 0.0, 0.0 );
     ok(
-        math.x[0] === 1.0 && math.x[1] === 0.0 && math.x[2] === 0.0 && math.x[3] === 0.0,
-        'x'
+        v1 === v2,
+        'Two identical vectors are equal'
+    );
+  });
+
+  test( 'Vector2 constants', function() {
+    expect( 4 );
+
+    deepEqual(
+        math.vector2.x,
+        new math.Vector2( 1.0, 0.0 ),
+        'Vector2.x'
+    );
+    deepEqual(
+        math.vector2.y,
+        new math.Vector2( 0.0, 1.0 ),
+        'Vector2.y'
+    );
+    deepEqual(
+        math.vector2.zero,
+        new math.Vector2( 0.0, 0.0 ),
+        'Vector2.zero'
+    );
+    deepEqual(
+        math.vector2.one,
+        new math.Vector2( 1.0, 1.0 ),
+        'Vector2.one'
     );
   });
 

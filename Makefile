@@ -18,24 +18,18 @@ PALADIN_MIN := $(DIST_DIR)/$(PALADIN).min.js
 TOOLS_DIR := ./tools
 TESTS_DIR := $(DIST_DIR)/test
 
-CUBICVR_LIB := $(EXTERNAL_DIR)/CubicVR.js/dist/CubicVR.js
-
 CORE_FILES := $(SRC_DIR)/paladin.js $(wildcard $(SRC_DIR)/core/*.js) $(wildcard $(SRC_DIR)/input/*.js)
 
 SUBSYSTEM_FILES := \
 
 compile = node $(TOOLS_DIR)/node_modules/uglify-js/bin/uglifyjs -o $(1) $(PALADIN_DIST)
 
-complete = cat $(PALADIN_MIN) $(CUBICVR_LIB) > $(1)
+complete = cat $(PALADIN_MIN) > $(1)
 
 jshint = echo "Linting $(1)" ; node $(TOOLS_DIR)/jshint-cmdline.js $(1)
 
 all: $(DIST_DIR) $(PALADIN_DIST) $(PALADIN_MIN)
 	@@echo "Finished, see $(DIST_DIR)"
-
-$(CUBICVR_LIB):
-	@@echo "Creating $(CUBICVR_LIB)"
-	@@cd $(EXTERNAL_DIR)/CubicVR.js && make
 
 $(DIST_DIR):
 	@@echo "Creating $(DIST_DIR)"

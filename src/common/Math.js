@@ -4,12 +4,16 @@
 
   var _Math = function( options ) {
 
+    var assert = function( condition, message ) {
+        if( !condition )
+            throw message;
+    };
+
     var FLOAT_ARRAY_ENUM = {
         Float32: Float32Array,
-        Float64: Float64Array,
-        Array: Array
+        Float64: Float64Array
     };
-    const FLOAT_ARRAY_TYPE = FLOAT_ARRAY_ENUM.Float64;
+    const FLOAT_ARRAY_TYPE = FLOAT_ARRAY_ENUM.Float32;
 
     Object.defineProperty( this, 'ARRAY_TYPE', {
         get: function() {
@@ -26,12 +30,10 @@
             elements = args;
         }
 
-        /*
-        assert( elements.length === dim,
+        assert( elements.length >= dim,
                 'Invalid number of elements: ' + args.length );
-        */
 
-        var vector = new FLOAT_ARRAY_TYPE( dim );
+        var vector = new FLOAT_ARRAY_TYPE( args );
         for( var i = 0; i < dim; ++ i )
             vector[i] = elements[i];
 
@@ -72,38 +74,38 @@
 
     };
 
-    const _x = new this.Vector4( 1.0, 0.0, 0.0, 0.0 );
-    Object.defineProperty( this, 'x', {
+    var _x = new this.Vector4( 1.0, 0.0, 0.0, 0.0 );
+    var _y = new this.Vector4( 0.0, 1.0, 0.0, 0.0 );
+    var _z = new this.Vector4( 0.0, 0.0, 1.0, 0.0 );
+    var _w = new this.Vector4( 0.0, 0.0, 0.0, 1.0 );
+    var _0 = new this.Vector4( 0.0, 0.0, 0.0, 0.0 );
+    var _1 = new this.Vector4( 1.0, 1.0, 1.0, 1.0 );
+
+    var _vector2_x = _x.subarray( 0, 2 );
+    Object.defineProperty( this.vector2, 'x', {
         get: function() {
-            return _x;
+            return _vector2_x;
         }
     });
-    Object.defineProperty( this, 'u', {
+
+    const _vector2_y = _y.subarray( 0, 2 );
+    Object.defineProperty( this.vector2, 'y', {
         get: function() {
-            return _x;
+            return _vector2_y;
         }
     });
-    const _y = new this.Vector4( 0.0, 1.0, 0.0, 0.0 );
-    Object.defineProperty( this, 'y', {
+
+    const _vector2_0 = _0.subarray( 0, 2 );
+    Object.defineProperty( this.vector2, 'zero', {
         get: function() {
-            return _y;
+            return _vector2_0;
         }
     });
-    Object.defineProperty( this, 'v', {
+
+    const _vector2_1 = _1.subarray( 0, 2 );
+    Object.defineProperty( this.vector2, 'one', {
         get: function() {
-            return _y;
-        }
-    });
-    const _z = new this.Vector4( 0.0, 0.0, 1.0, 0.0 );
-    Object.defineProperty( this, 'z', {
-        get: function() {
-            return _z;
-        }
-    });
-    const _w = new this.Vector4( 0.0, 0.0, 0.0, 1.0 );
-    Object.defineProperty( this, 'w', {
-        get: function() {
-            return _w;
+            return _vector2_1;
         }
     });
 
