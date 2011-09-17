@@ -3,7 +3,7 @@
     url = git://github.com/cjcliffe/CubicVR.js.git
 [submodule "external/ammo.js"]
     path = external/ammo.js
-    url = https://github.com/kripken/ammo.js.git
+    url = git://github.com/kripken/ammo.js.git
 [submodule "tools/qunit"]
     path = tools/qunit
-    url = https://github.com/jquery/qunit.git
+    url = git://github.com/jquery/qunit.git
