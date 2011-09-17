@@ -20,7 +20,7 @@ define( function ( require ) {
             }
         });
 
-        var _depends = options.depends || [];
+        var _depends = options.depends || {};
         Object.defineProperty( this, 'depends', {
             get: function() {
                 return _depends;

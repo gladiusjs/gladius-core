@@ -262,14 +262,14 @@ var _Math = function( options ) {
 
     };
 
-    var _x = new this.Vector4( 1.0, 0.0, 0.0, 0.0 );
-    var _y = new this.Vector4( 0.0, 1.0, 0.0, 0.0 );
-    var _z = new this.Vector4( 0.0, 0.0, 1.0, 0.0 );
-    var _w = new this.Vector4( 0.0, 0.0, 0.0, 1.0 );
-    var _0 = new this.Vector4( 0.0, 0.0, 0.0, 0.0 );
-    var _1 = new this.Vector4( 1.0, 1.0, 1.0, 1.0 );
+    const _x = new this.Vector4( 1.0, 0.0, 0.0, 0.0 );
+    const _y = new this.Vector4( 0.0, 1.0, 0.0, 0.0 );
+    const _z = new this.Vector4( 0.0, 0.0, 1.0, 0.0 );
+    const _w = new this.Vector4( 0.0, 0.0, 0.0, 1.0 );
+    const _0 = new this.Vector4( 0.0, 0.0, 0.0, 0.0 );
+    const _1 = new this.Vector4( 1.0, 1.0, 1.0, 1.0 );
 
-    var _vector2_x = _x.subarray( 0, 2 );
+    const _vector2_x = _x.subarray( 0, 2 );
     Object.defineProperty( this.vector2, 'x', {
         get: function() {
             return _vector2_x;
@@ -304,6 +304,13 @@ var _Math = function( options ) {
     Object.defineProperty( this.vector2, 'one', {
         get: function() {
             return _vector2_1;
+        }
+    });
+    
+    const _quaternion_0 = new this.Quaternion( 0, 0, 0, 1 );
+    Object.defineProperty( this.quaternion, 'zero', {
+        get: function() {
+            return _quaternion_0;
         }
     });
 

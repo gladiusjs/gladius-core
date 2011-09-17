@@ -28,8 +28,7 @@
         var TestComponent = function( options ) {
         };
         TestComponent.prototype = new engine.core.Component({
-            type: 'Test',
-            depends: []
+            type: 'Test'
         });
         TestComponent.prototype.constructor = TestComponent;
 
@@ -41,7 +40,7 @@
         );
         same(
                 testComponent.depends,
-                [],
+                {},
                 'TestComponent depends is correct.'
         );
         ok(
