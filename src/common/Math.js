@@ -35,7 +35,7 @@
         assert( elements.length >= dim,
                 'Invalid number of elements: ' + args.length );
 
-        var vector = new FLOAT_ARRAY_TYPE( args );
+        var vector = new FLOAT_ARRAY_TYPE( dim );
         for( var i = 0; i < dim; ++ i )
             vector[i] = elements[i];
 
@@ -115,7 +115,7 @@
         },
 
         multiply: function( v, s ) {
-            var w = new that.Vector2( v );
+            var w = new that.Vector2( v[0], v[1] );
 
             for( var i = 0; i < w.length; ++ i )
                 w[i] *= s;

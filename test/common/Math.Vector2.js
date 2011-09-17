@@ -13,7 +13,7 @@
   });
 
   test( 'Basic', function() {
-    expect( 4 );
+    expect( 5 );
     
     var vec2 = new math.Vector2( 1, 2 );
     ok(
@@ -23,6 +23,10 @@
     ok(
         vec2 instanceof math.ARRAY_TYPE,
         'vec2 is an instance of ARRAY_TYPE'
+    );
+    deepEqual(
+        new math.ARRAY_TYPE( [1, 2] ),
+        new math.Vector2( 1, 2 )
     );
     ok(
         2 === vec2.length,
@@ -56,6 +60,17 @@
         math.vector2.one,
         new math.Vector2( 1.0, 1.0 ),
         'Vector2.one'
+    );
+  });
+
+  test( 'Clone', function() {
+    expect( 1 );
+
+    var vec1 = new math.Vector2( 0, 1 );
+    deepEqual(
+        new math.Vector2( vec1 ),
+        vec1,
+        'Clone of vector is the same'
     );
   });
 
@@ -120,6 +135,24 @@
     ok(
         math.vector2.equal( vec1, vec3 ),
         '(2, 2) -= (1, 1)'
+    );
+  });
+
+  test( 'Scalar multiplication', function() {
+    expect( 2 );
+
+    var vec1 = new math.Vector2( 2, 3 );
+    deepEqual(
+        math.vector2.multiply( vec1, 2 ),
+        new math.Vector2( 4, 6 ),
+        '(2, 3) * 2 = (4, 6)'
+    );
+    
+    math.vector2.imultiply( vec1, 3 );
+    deepEqual(
+        vec1,
+        new math.Vector2( 6, 9 ),
+        '(2, 3) *= 3'
     );
   });
 
