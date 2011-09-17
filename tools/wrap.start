@@ -14,7 +14,7 @@
 
 (function () {
 
-  // Bail if there is already a paladin in the page.
-  if ( this.paladin ) {
+  // Bail if there is already a gladius in the page.
+  if ( this.gladius ) {
     return;
   }

@@ -11,13 +11,13 @@ define( function ( require ) {
       Paladin, i, args,
 
       // Expose the API on the global object. Part of if may already
-      // exist, mainly paladin.ready from paladin.js. Check tools/wrap.start
-      // for protections against overwriting an existing paladin in the page,
-      // for when paladin is built for deployment.
-      global = window.paladin || ( window.paladin = {} );
+      // exist, mainly gladius.ready from gladius.js. Check tools/wrap.start
+      // for protections against overwriting an existing gladius in the page,
+      // for when gladius is built for deployment.
+      global = window.gladius || ( window.gladius = {} );
 
   // Utility to bridge the gap between constructor functions
-  // that need to know the paladin instance.
+  // that need to know the gladius instance.
   function partialCtor( Func, instance ) {
     return function ( options ) {
       return new Func( instance, options );
@@ -139,7 +139,7 @@ define( function ( require ) {
   };
 
   // Any default subsystems that should be created if
-  // caller to paladin.create() does not explicitly ask for
+  // caller to gladius.create() does not explicitly ask for
   // subsystems in the options.
   global.subsystems = {
     // physics: 'physics/default',
@@ -147,7 +147,7 @@ define( function ( require ) {
     // sound: 'sound/default'
   };
 
-  // Call any callbacks waiting for paladin to be available.
+  // Call any callbacks waiting for gladius to be available.
   if ( global._waitingCreates ) {
     for ( i = 0; (args = global._waitingCreates[i]); i++ ) {
       global.create.apply(global, args);
