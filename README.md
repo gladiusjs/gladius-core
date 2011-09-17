@@ -1,12 +1,14 @@
-# Paladin
+# Gladius
 
-Paladin is Mozilla's movement to provide open source gaming technology for the web.
+Gladius is a game engine, written entirely in JavaScript, and designed to run in the browser. We leverage existing web technologies whenever possible and where gaps exist in support for games, we develop new solutions.
 
-## Version Number
+## Version
 
-Paladin follows the Semantic Versioning Specification. See http://semver.org for full details.
+Gladius follows the Semantic Versioning Specification. See http://semver.org for full details.
 
 ## Reporting Issues
+
+Please report issues through the github project. Questions and discussions happen in #paladin on irc.mozilla.org, and on the paladin-dev mailing list at https://groups.google.com/group/paladin-dev.
 
 ## Build and Test
 
