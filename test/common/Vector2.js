@@ -12,7 +12,7 @@
     }
   });
 
-  test( 'Vector2 basic', function() {
+  test( 'Basic', function() {
     expect( 4 );
     
     var vec2 = new math.Vector2( 1, 2 );
@@ -34,62 +34,7 @@
     );
   });
 
-  test( 'Vector2 equality', function() {
-    expect( 2 );
-
-    var vec1 = new math.Vector2( 1, 1 );
-    var vec2 = new math.Vector2( 1, 1 );
-    var vec3 = new math.Vector2( 2, 3 );
-
-    ok(
-        math.vector2.equal( vec1, vec2 ),
-        'Two identical vectors are equal'
-    );
-    ok(
-        !math.vector2.equal( vec1, vec3 ),
-        'Two different vectors are not equal'
-    );
-  });
-
-  test( 'Vector2 operations', function() {
-    expect( 6 );
-
-    var vec1 = new math.Vector2( 1, 1 );
-    var vec2 = new math.Vector2( 1, 1 );
-    var vec3 = new math.Vector2( 2, 3 );
-    ok(
-        Math.sqrt( 2 ) === math.vector2.length( vec1 ),
-        'Length of [1, 1]'
-    );
-    ok(
-        math.vector2.equal( vec1, vec2 ),
-        'Two identical vectors are equal'
-    );
-    ok(
-        !math.vector2.equal( vec1, vec3 ),
-        'Two different vectors are not equal'
-    );
-    
-    var vec4 = new math.Vector2( 2, 2 );
-    ok(
-        math.vector2.equal( vec4, math.vector2.add( vec1, vec2 ) ),
-        'Vector addition'
-    );
-
-    var vec5 = new math.Vector2( 1, 2 );
-    ok(
-        math.vector2.equal( vec5, math.vector2.subtract( vec3, vec2 ) ),
-        'Vector subtraction'
-    );
-
-    math.vector2.iadd( vec1, vec2 );
-    ok(
-        math.vector2.equal( vec1, vec4 ),
-        'In-place add'
-    );
-  });
-
-  test( 'Vector2 constants', function() {
+  test( 'Constants', function() {
     expect( 4 );
 
     deepEqual(
@@ -111,6 +56,70 @@
         math.vector2.one,
         new math.Vector2( 1.0, 1.0 ),
         'Vector2.one'
+    );
+  });
+
+  test( 'Equality', function() {
+    expect( 2 );
+
+    var vec1 = new math.Vector2( 1, 1 );
+    var vec2 = new math.Vector2( 1, 1 );
+    var vec3 = new math.Vector2( 2, 3 );
+
+    ok(
+        math.vector2.equal( vec1, vec2 ),
+        'Two identical vectors are equal'
+    );
+    ok(
+        !math.vector2.equal( vec1, vec3 ),
+        'Two different vectors are not equal'
+    );
+  });
+
+  test( 'Length', function() {
+    expect( 1 );
+
+    var vec1 = new math.Vector2( 1, 1 );
+    ok(
+        Math.sqrt( 2 ) === math.vector2.length( vec1 ),
+        '|(1, 1)| = sqrt(2)'
+    );
+  });
+
+  test( 'Addition', function() {
+    expect( 2 );
+
+    var vec1 = new math.Vector2( 1, 1 );
+    var vec2 = new math.Vector2( 1, 1 );
+    var vec3 = new math.Vector2( 2, 2 );
+
+    ok(
+        math.vector2.equal( vec3, math.vector2.add( vec1, vec2 ) ),
+        '(1,1) + (1,1) = (2,2)'
+    );
+
+    math.vector2.iadd( vec1, vec2 );
+    ok(
+        math.vector2.equal( vec1, vec3 ),
+        '(1, 1) += (1, 1)'
+    );
+  });
+
+  test( 'Subtraction', function() {
+    expect( 2 );
+
+    var vec1 = new math.Vector2( 1, 1 );
+    var vec2 = new math.Vector2( 1, 1 );
+    var vec3 = new math.Vector2( 2, 2 );
+    ok(
+        math.vector2.equal( vec1, math.vector2.subtract( vec3, vec2 ) ),
+        '(2, 2) - (1, 1) = (1, 1)'
+    );
+
+    math.vector2.isubtract( vec3, vec2 );
+    ok(
+        math.vector2.equal( vec1, vec3 ),
+        '(2, 2) -= (1, 1)'
     );
   });
 
