@@ -4,6 +4,8 @@
 
   var _Math = function( options ) {
 
+    var that = this;
+
     var assert = function( condition, message ) {
         if( !condition )
             throw message;
@@ -40,23 +42,104 @@
         return vector;
     };
 
+    this.vector = {
+
+        iadd: function( v1, v2 ) {
+            assert( v1.length === v2.length,
+                'v1 and v2 must have the same number of components' );
+
+            for( var i = 0; i < v1.length; ++ i )
+                v1[i] += v2[i]
+
+            return v1;
+        },
+
+        equal: function( v1, v2 ) {
+            if( v1.length != v2.length )
+                return false;
+            var dim = v1.length;
+            for( var i = 0; i < dim; ++ i ) {
+                if( v1[i] != v2[i] )
+                    return false
+            }
+            
+            return true;
+        },
+
+        imultiply: function( v, s ) {
+            for( var i = 0; i < v.length; ++ i )
+                v[i] *= s;
+
+            return v
+        },
+
+        isubtract: function( v1, v2 ) {
+            assert( v1.length === v2.length,
+                'v1 and v2 must have the same number of components' );
+
+            for( var i = 0; i < v1.length; ++ i )
+                v1[i] -= v2[i]
+
+            return v1;
+        }
+
+    };
+
     this.Vector2 = function() {
         return Vector( 2, arguments );
     };
     this.vector2 = {
 
-        add: function() {},
+        add: function( v1, v2 ) {
+            assert( v1.length === v2.length,
+                'v1 and v2 must have the same number of components' );
+
+            return new that.Vector2(
+                v1[0] + v2[0],
+                v1[1] + v2[1]
+            );
+        },
+
+        iadd: this.vector.iadd,
+
         angle: function() {},
-        cross: function() {},
+
+        cross: function() {},        
+
         dot: function() {},
-        equal: function() {},
+
+        equal: this.vector.equal,
+
         length: function( v ) {
             return Math.sqrt( v[0] * v[0] + v[1] * v[1] );
         },
-        multiply: function() {},
+
+        multiply: function( v, s ) {
+            var w = new that.Vector2( v );
+
+            for( var i = 0; i < w.length; ++ i )
+                w[i] *= s;
+
+            return w;
+        },
+
+        imultiply: this.vector.imultiply,
+
         normal: function() {},
+
         normalize: function() {},
-        subtract: function() {}
+
+        subtract: function( v1, v2 ) {
+            assert( v1.length === v2.length,
+                'v1 and v2 must have the same number of components' );
+
+            return new that.Vector2(
+                v1[0] - v2[0],
+                v1[1] - v2[1]
+            );
+        },
+
+        isubtract: this.vector.isubtract
 
     };
 
@@ -64,6 +147,7 @@
         return Vector( 3, arguments );
     };
     this.vector3 = {
+
 
     };
 
