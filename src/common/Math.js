@@ -2,7 +2,7 @@
   nomen: false */
 /*global define: false, console: false, window: false, setTimeout: false */
 
-  var _Math = function( options ) {
+var _Math = function( options ) {
 
     var that = this;
 
@@ -12,8 +12,8 @@
     };
 
     var FLOAT_ARRAY_ENUM = {
-        Float32: Float32Array,
-        Float64: Float64Array
+            Float32: Float32Array,
+            Float64: Float64Array
     };
     const FLOAT_ARRAY_TYPE = FLOAT_ARRAY_ENUM.Float32;
 
@@ -42,131 +42,240 @@
         return vector;
     };
 
-    this.vector = {
+    var vector = {
 
-        iadd: function( v1, v2 ) {
-            assert( v1.length === v2.length,
+            iadd: function( v1, v2 ) {
+                assert( v1.length === v2.length,
                 'v1 and v2 must have the same number of components' );
 
-            for( var i = 0; i < v1.length; ++ i )
-                v1[i] += v2[i]
+                for( var i = 0; i < v1.length; ++ i )
+                    v1[i] += v2[i]
 
-            return v1;
-        },
+                return v1;
+            },
 
-        equal: function( v1, v2 ) {
-            if( v1.length != v2.length )
-                return false;
-            var dim = v1.length;
-            for( var i = 0; i < dim; ++ i ) {
-                if( v1[i] != v2[i] )
-                    return false
+            equal: function( v1, v2 ) {
+                if( v1.length != v2.length )
+                    return false;
+                var dim = v1.length;
+                for( var i = 0; i < dim; ++ i ) {
+                    if( v1[i] != v2[i] )
+                        return false
+                }
+
+                return true;
+            },
+
+            imultiply: function( v, s ) {
+                for( var i = 0; i < v.length; ++ i )
+                    v[i] *= s;
+
+                return v
+            },
+
+            isubtract: function( v1, v2 ) {
+                assert( v1.length === v2.length,
+                'v1 and v2 must have the same number of components' );
+
+                for( var i = 0; i < v1.length; ++ i )
+                    v1[i] -= v2[i]
+
+                return v1;
             }
-            
-            return true;
-        },
-
-        imultiply: function( v, s ) {
-            for( var i = 0; i < v.length; ++ i )
-                v[i] *= s;
-
-            return v
-        },
-
-        isubtract: function( v1, v2 ) {
-            assert( v1.length === v2.length,
-                'v1 and v2 must have the same number of components' );
-
-            for( var i = 0; i < v1.length; ++ i )
-                v1[i] -= v2[i]
-
-            return v1;
-        }
 
     };
 
     this.Vector2 = function() {
-        return Vector( 2, arguments );
+        if( 0 === arguments.length )
+            return Vector( 2, [0, 0] );
+        else
+            return Vector( 2, arguments );
     };
     this.vector2 = {
 
-        add: function( v1, v2 ) {
-            assert( v1.length === v2.length,
+            add: function( v1, v2 ) {
+                assert( v1.length === v2.length,
                 'v1 and v2 must have the same number of components' );
 
-            return new that.Vector2(
-                v1[0] + v2[0],
-                v1[1] + v2[1]
-            );
-        },
+                return new that.Vector2(
+                        v1[0] + v2[0],
+                        v1[1] + v2[1],
+                        v1[2] + v2[2]
+                );
+            },
 
-        iadd: this.vector.iadd,
+            iadd: vector.iadd,
 
-        angle: function() {},
+            angle: function( v1, v2 ) {
+            },
 
-        cross: function() {},        
+            cross: function( v1, v2 ) {
+            },
 
-        dot: function() {},
+            dot: function( v1, v2 ) {
+            },
 
-        equal: this.vector.equal,
+            equal: vector.equal,
 
-        length: function( v ) {
-            return Math.sqrt( v[0] * v[0] + v[1] * v[1] );
-        },
+            length: function( v ) {
+                return Math.sqrt( v[0] * v[0] + v[1] * v[1] );
+            },
 
-        multiply: function( v, s ) {
-            var w = new that.Vector2( v[0], v[1] );
+            multiply: function( v, s ) {
+                var w = new that.Vector2( v[0], v[1] );
 
-            for( var i = 0; i < w.length; ++ i )
-                w[i] *= s;
+                for( var i = 0; i < w.length; ++ i )
+                    w[i] *= s;
 
-            return w;
-        },
+                return w;
+            },
 
-        imultiply: this.vector.imultiply,
+            imultiply: vector.imultiply,
 
-        normal: function() {},
+            normal: function( v ) {
+            },
 
-        normalize: function() {},
+            normalize: function( v ) {
+            },
 
-        subtract: function( v1, v2 ) {
-            assert( v1.length === v2.length,
+            inormalize: function( v ) {
+            },
+
+            subtract: function( v1, v2 ) {
+                assert( v1.length === v2.length,
                 'v1 and v2 must have the same number of components' );
 
-            return new that.Vector2(
-                v1[0] - v2[0],
-                v1[1] - v2[1]
-            );
-        },
+                return new that.Vector2(
+                        v1[0] - v2[0],
+                        v1[1] - v2[1],
+                        v1[2] - v2[2]
+                );
+            },
 
-        isubtract: this.vector.isubtract
+            isubtract: vector.isubtract
 
     };
 
     this.Vector3 = function() {
-        return Vector( 3, arguments );
+        if( 0 === arguments.length )
+            return Vector( 3, [0, 0, 0] );
+        else
+            return Vector( 3, arguments );
     };
     this.vector3 = {
 
+            add: function( v1, v2 ) {
+            },
+
+            iadd: vector.iadd,
+
+            angle: function( v1, v2 ) {
+            },
+
+            cross: function( v1, v2 ) {
+            },
+
+            dot: function( v1, v2 ) {
+            },
+
+            equal: vector.equal,
+
+            length: function( v ) {
+            },
+
+            multiply: function( v, s ) {
+            },
+
+            imultiply: vector.imultiply,
+
+            normalize: function( v ) {
+            },
+
+            inormalize: function( v ) {
+            },
+
+            subtract: function( v1, v2 ) {
+            },
+
+            isubtract: vector.isubtract
 
     };
 
     this.Vector4 = function() {
-        return Vector( 4, arguments );
+        if( 0 === arguments.length )
+            return Vector( 4, [0, 0, 0, 0] );
+        else
+            return Vector( 4, arguments );
     };
     this.vector4 = {
 
+            add: function( v1, v2 ) {
+            },
+
+            iadd: vector.iadd,
+
+            angle: function( v1, v2 ) {
+            },
+
+            dot: function( v1, v2 ) {
+            },
+
+            equal: vector.equal,
+
+            length: function( v ) {
+            },
+
+            multiply: function( v, s ) {
+            },
+
+            imultiply: vector.imultiply,
+
+            normalize: function( v ) {
+            },
+
+            inormalize: function( v ) {
+            },
+
+            subtract: function( v1, v2 ) {
+            },
+
+            isubtract: vector.isubtract
+
     };
 
-    var _x = new this.Vector4( 1.0, 0.0, 0.0, 0.0 );
-    var _y = new this.Vector4( 0.0, 1.0, 0.0, 0.0 );
-    var _z = new this.Vector4( 0.0, 0.0, 1.0, 0.0 );
-    var _w = new this.Vector4( 0.0, 0.0, 0.0, 1.0 );
-    var _0 = new this.Vector4( 0.0, 0.0, 0.0, 0.0 );
-    var _1 = new this.Vector4( 1.0, 1.0, 1.0, 1.0 );
+    this.Quaternion = function() {
+        if( 0 === arguments.length )
+            return Vector( 4, [0, 0, 0, 1] );
+        else
+            return Vector( 4, arguments );
+    };
+    this.quaternion = {
 
-    var _vector2_x = _x.subarray( 0, 2 );
+            length: this.vector4.length,
+
+            normalize: this.vector4.normalize,
+
+            inormalize: this.vector4.inormalize,
+
+            multiply: function( q1, q2 ) {
+            }
+
+    };
+
+    const _x = new this.Vector4( 1.0, 0.0, 0.0, 0.0 );
+    const _y = new this.Vector4( 0.0, 1.0, 0.0, 0.0 );
+    const _z = new this.Vector4( 0.0, 0.0, 1.0, 0.0 );
+    const _w = new this.Vector4( 0.0, 0.0, 0.0, 1.0 );
+    const _0 = new this.Vector4( 0.0, 0.0, 0.0, 0.0 );
+    const _1 = new this.Vector4( 1.0, 1.0, 1.0, 1.0 );
+
+    const _vector2_x = _x.subarray( 0, 2 );
     Object.defineProperty( this.vector2, 'x', {
+        get: function() {
+            return _vector2_x;
+        }
+    });
+    Object.defineProperty( this.vector2, 'u', {
         get: function() {
             return _vector2_x;
         }
@@ -174,6 +283,11 @@
 
     const _vector2_y = _y.subarray( 0, 2 );
     Object.defineProperty( this.vector2, 'y', {
+        get: function() {
+            return _vector2_y;
+        }
+    });
+    Object.defineProperty( this.vector2, 'v', {
         get: function() {
             return _vector2_y;
         }
@@ -192,6 +306,13 @@
             return _vector2_1;
         }
     });
+    
+    const _quaternion_0 = new this.Quaternion( 0, 0, 0, 1 );
+    Object.defineProperty( this.quaternion, 'zero', {
+        get: function() {
+            return _quaternion_0;
+        }
+    });
 
     this.Matrix2 = function() {
     };
@@ -208,6 +329,6 @@
     this.matrix4 = {
     };
 
-  }  
+}  
 
 window.math = new _Math();

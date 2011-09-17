@@ -5,34 +5,34 @@
 
 (function() {
 
-  var engine = null;
+    var engine = null;
 
-  module( 'Engine', {
-    setup: function () {
-      stop();
+    module( 'Engine', {
+        setup: function () {
+            stop();
 
-      gladius.create( { debug: true }, function( instance ) {       
-          engine = instance;
-          start();
-      });
-    },
+            gladius.create( { debug: true }, function( instance ) {       
+                engine = instance;
+                start();
+            });
+        },
 
-    teardown: function () {
-      engine = null;
-    }
-  });
+        teardown: function () {
+            engine = null;
+        }
+    });
 
-  test( 'GUID', function() {
-    expect( 2 );
+    test( 'GUID', function() {
+        expect( 2 );
 
-    ok(
-        engine.nextGUID === 1,
-        'First GUID is 1.'
-    );
-    ok(
-        engine.nextGUID === 2,
-        'Second GUID is 2.'
-    );
-  });
+        ok(
+                engine.nextGUID === 1,
+                'First GUID is 1.'
+        );
+        ok(
+                engine.nextGUID === 2,
+                'Second GUID is 2.'
+        );
+    });
 
 }());

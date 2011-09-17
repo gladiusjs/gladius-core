@@ -24,16 +24,16 @@
     //plugin in a non-browser env, but the file should not error out if included
     //in a file, then loaded in a non-browser env.
     var supportsInOrderExecution = typeof document !== "undefined" &&
-                                   typeof window !== "undefined" &&
-                                   (document.createElement("script").async ||
-                               (window.opera && Object.prototype.toString.call(window.opera) === "[object Opera]") ||
-                               //If Firefox 2 does not have to be supported, then
-                               //a better check may be:
-                               //('mozIsLocallyAvailable' in window.navigator)
-                               ("MozAppearance" in document.documentElement.style)),
-        readyRegExp = /^(complete|loaded)$/,
-        waiting = [],
-        cached = {};
+    typeof window !== "undefined" &&
+    (document.createElement("script").async ||
+            (window.opera && Object.prototype.toString.call(window.opera) === "[object Opera]") ||
+            //If Firefox 2 does not have to be supported, then
+            //a better check may be:
+            //('mozIsLocallyAvailable' in window.navigator)
+            ("MozAppearance" in document.documentElement.style)),
+            readyRegExp = /^(complete|loaded)$/,
+            waiting = [],
+            cached = {};
 
     function loadResource(name, req, onLoad) {
         req([name], function (value) {
@@ -50,7 +50,7 @@
     //has finished downloading.
     function scriptCacheCallback(evt) {
         var node = evt.currentTarget || evt.srcElement, i,
-            moduleName, resource;
+        moduleName, resource;
 
         if (evt.type === "load" || readyRegExp.test(node.readyState)) {
             //Pull out the name of the module and the context.

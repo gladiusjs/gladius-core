@@ -5,50 +5,49 @@
 
 (function() {
 
-  var engine = null;
+    var engine = null;
 
-  module( 'core/Component', {
-    setup: function () {
-      stop();
+    module( 'core/Component', {
+        setup: function () {
+            stop();
 
-      gladius.create( { debug: true }, function( instance ) {       
-          engine = instance;
-          start();
-      });
-    },
+            gladius.create( { debug: true }, function( instance ) {       
+                engine = instance;
+                start();
+            });
+        },
 
-    teardown: function () {
-      engine = null;
-    }
-  });
-
-  test( 'Construction', function () {
-    expect( 3 );
-
-    var TestComponent = function( options ) {
-    };
-    TestComponent.prototype = new engine.core.Component({
-        type: 'Test',
-        depends: []
+        teardown: function () {
+            engine = null;
+        }
     });
-    TestComponent.prototype.constructor = TestComponent;
 
-    var testComponent = new TestComponent();
-    same(
-        testComponent.type,
-        'Test',
-        'TestComponent has correct type.'        
-    );
-    same(
-        testComponent.depends,
-        [],
-        'TestComponent depends is correct.'
-    );
-    ok(
-        !testComponent.owner,
-        'Component owner is not set'
-    );
+    test( 'Construction', function () {
+        expect( 3 );
 
-  });
+        var TestComponent = function( options ) {
+        };
+        TestComponent.prototype = new engine.core.Component({
+            type: 'Test'
+        });
+        TestComponent.prototype.constructor = TestComponent;
+
+        var testComponent = new TestComponent();
+        same(
+                testComponent.type,
+                'Test',
+                'TestComponent has correct type.'        
+        );
+        same(
+                testComponent.depends,
+                {},
+                'TestComponent depends is correct.'
+        );
+        ok(
+                !testComponent.owner,
+                'Component owner is not set'
+        );
+
+    });
 
 }());

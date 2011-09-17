@@ -11,7 +11,7 @@ define( function ( require ) {
      */
 
     var Scene = function( engine, options ) {     
-    
+
         var that = this;
         options = options || {};
 
@@ -80,7 +80,7 @@ define( function ( require ) {
         this.remove = function( entity ) {
             if( entity ) {
                 _removeById( entity.id );
-        
+
                 if( entity.name && _entitiesByName.hasOwnProperty( entity.name ) ) {
                     var i = _entitiesByName[entity.name].indexOf( entity );
                     if( -1 != i ) {
@@ -99,7 +99,7 @@ define( function ( require ) {
 
                 if( entity )
                     _removeById( entity.id );
-             }
+            }
         };
 
         // Remove all entities with the given name
@@ -117,7 +117,7 @@ define( function ( require ) {
             if( name && _entitiesByName.hasOwnProperty( name ) ) {
                 return _entitiesByNames[name][0];
             }
-           
+
             return null;
         };
 
@@ -129,7 +129,7 @@ define( function ( require ) {
                         return entity;
                 }
             }
-            
+
             return null;
         };
 
@@ -143,7 +143,7 @@ define( function ( require ) {
                 }
                 return result;
             }
-        
+
             return [];
         };
 

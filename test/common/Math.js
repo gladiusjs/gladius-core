@@ -5,34 +5,34 @@
 
 (function() {
 
-  var engine = null;
+    var engine = null;
 
-  module( 'common/Math', {
-    setup: function () {
-      stop();
+    module( 'common/Math', {
+        setup: function () {
+            stop();
 
-      gladius.create( { debug: true }, function( instance ) {       
-          engine = instance;
-          start();
-      });
-    },
+            gladius.create( { debug: true }, function( instance ) {       
+                engine = instance;
+                start();
+            });
+        },
 
-    teardown: function () {
-      engine = null;
-    }
-  });
+        teardown: function () {
+            engine = null;
+        }
+    });
 
-  test( 'Basic', function() {
-    expect( 2 );
+    test( 'Basic', function() {
+        expect( 2 );
 
-    ok(
-        math,
-        'Math found'
-    );
-    ok(
-        math.ARRAY_TYPE,
-        'Found ARRAY_TYPE'
-    );
-  });
+        ok(
+                math,
+                'Math found'
+        );
+        ok(
+                math.ARRAY_TYPE,
+                'Found ARRAY_TYPE'
+        );
+    });
 
 }());
