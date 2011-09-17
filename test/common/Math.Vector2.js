@@ -38,6 +38,16 @@
     );
   });
 
+  test( 'Defaults', function() {
+    expect( 1 );
+
+    deepEqual(
+        new math.Vector2(),
+        new math.Vector2( 0, 0 ),
+        'Default vector is the zero vector'
+    );
+  });
+
   test( 'Constants', function() {
     expect( 4 );
 
