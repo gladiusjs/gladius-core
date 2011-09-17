@@ -10,7 +10,7 @@ define( function ( require ) {
      */
 
     var Entity = function( engine, options ) {     
-    
+
         options = options || {};
         var that = this;
 
@@ -89,7 +89,7 @@ define( function ( require ) {
         this.find = function( type ) {
             if( !_components.hasOwnProperty( type ) )
                 return null;
-            
+
             return _components[type];
         };
 

@@ -16,7 +16,7 @@ define( function ( require ) {
                 return _position;
             },
             set: function( value ) {
-                
+
             }
         });
 
