@@ -53,6 +53,11 @@ var _Math = function( options ) {
 
                 return v1;
             },
+            
+            clear: function( v ) {
+                for( var i = 0; i < v.length; ++ i )
+                    v[i] = 0;
+            },
 
             equal: function( v1, v2 ) {
                 if( v1.length != v2.length )
@@ -122,12 +127,12 @@ var _Math = function( options ) {
             },
 
             multiply: function( v, s ) {
-                var w = new that.Vector2( v[0], v[1] );
+                var r = new that.Vector2( v );
 
-                for( var i = 0; i < w.length; ++ i )
-                    w[i] *= s;
+                for( var i = 0; i < 2; ++ i )
+                    r[i] *= s;
 
-                return w;
+                return r;
             },
 
             imultiply: vector.imultiply,
@@ -223,6 +228,7 @@ var _Math = function( options ) {
             equal: vector.equal,
 
             length: function( v ) {
+                return Math.sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3] );
             },
 
             multiply: function( v, s ) {
@@ -231,9 +237,22 @@ var _Math = function( options ) {
             imultiply: vector.imultiply,
 
             normalize: function( v ) {
+                var l = that.vector4.length( v );
+                var r = new that.Vector4( v );
+                
+                for( var i = 0; i < 4; ++ i )
+                    r[i] /= length;
+                
+                return r;
             },
 
             inormalize: function( v ) {
+                var l = that.vector4.length( v );
+                
+                for( var i = 0; i < 4; ++ i )
+                    v[i] /= length;
+                
+                return v;
             },
 
             subtract: function( v1, v2 ) {
@@ -258,6 +277,25 @@ var _Math = function( options ) {
             inormalize: this.vector4.inormalize,
 
             multiply: function( q1, q2 ) {
+                var r = new that.Quaternion();
+                
+                r[0] = q1[3] * q2[0] + q1[0] * q2[3] + q1[1] * q2[2] - q1[2] * q2[1];   // x
+                r[1] = q1[3] * q2[1] - q1[0] * q2[2] + q1[1] * q2[3] + q1[2] * q2[0];   // y
+                r[2] = q1[3] * q2[2] + q1[0] * q2[1] - q1[1] * q2[0] + q1[2] * q2[3];   // z
+                r[3] = q1[3] * q2[3] - q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2];   // w
+                
+                return r;
+            },
+    
+            imultiply: function( q1, q2 ) {
+                var t1 = new that.Quaternion( q1 );
+                
+                q1[0] = t1[3] * q2[0] + t1[0] * q2[3] + t1[1] * q2[2] - t1[2] * q2[1];   // x
+                q1[1] = t1[3] * q2[1] - t1[0] * q2[2] + t1[1] * q2[3] + t1[2] * q2[0];   // y
+                q1[2] = t1[3] * q2[2] + t1[0] * q2[1] - t1[1] * q2[0] + t1[2] * q2[3];   // z
+                q1[3] = t1[3] * q2[3] - t1[0] * q2[0] - t1[1] * q2[1] - t1[2] * q2[2];   // w
+                
+                return q1;
             }
 
     };
@@ -307,27 +345,202 @@ var _Math = function( options ) {
         }
     });
     
-    const _quaternion_0 = new this.Quaternion( 0, 0, 0, 1 );
-    Object.defineProperty( this.quaternion, 'zero', {
+    const _quaternion_identity = new this.Quaternion( 0, 0, 0, 1 );
+    Object.defineProperty( this.quaternion, 'identity', {
         get: function() {
-            return _quaternion_0;
+            return _quaternion_identity;
         }
     });
+    
+    var Matrix = function( dim, args ) {
+        var elements = null;
+        if( 1 === args.length ) {
+            elements = args[0];
+        }
+        else {
+            elements = args;
+        }
+
+        assert( elements.length >= dim,
+                'Invalid number of elements: ' + args.length );
+
+        var matrix = new FLOAT_ARRAY_TYPE( dim );
+        for( var i = 0; i < dim; ++ i )
+            vector[i] = elements[i];
+
+        return matrix;
+    };
+    
+    var matrix = {
+
+        clear: function( m ) {
+            for( var i = 0; i < m.length; ++ i )
+                m[i] = 0;
+        },
+        
+        equal: function( m1, m2 ) {
+            if( m1.length != m2.length )
+                return false;
+            var dim = m1.length;
+            for( var i = 0; i < dim; ++ i ) {
+                if( m1[i] != m2[i] )
+                    return false
+            }
+
+            return true;
+        }
+        
+    };
 
     this.Matrix2 = function() {
+        if( 0 === arguments.length )
+            return Matrix( 4, [0, 0,
+                               0, 0] );
+        else
+            return Matrix( 4, arguments );
     };
+    
     this.matrix2 = {
     };
 
     this.Matrix3 = function() {
+        if( 0 === arguments.length )
+            return Matrix( 9, [0, 0, 0,
+                               0, 0, 0,
+                               0, 0, 0] );
+        else
+            return Matrix( 9, arguments );
     };
+    
     this.matrix3 = {
     };
 
     this.Matrix4 = function() {
+        if( 0 === arguments.length )
+            return Matrix( 16, [0, 0, 0, 0,
+                               0, 0, 0, 0,
+                               0, 0, 0, 0,
+                               0, 0, 0, 0] );
+        else
+            return Matrix( 16, arguments );
     };
+    
+    // Construct a 4x4 translation matrix from a Vector3.
+    this.TranslationMatrix4 = function() {
+        if( 0 === arguments.length )
+            return Matrix( 16, that.matrix4.identity );
+        else if( 1 === arguments.length ) {
+            var v = arguments[0];
+            var x = v[0],
+            y = v[1],
+            z = v[2];
+            return Matrix( 16, [1, 0, 0, x,
+                                0, 1, 0, y,
+                                0, 0, 1, z,
+                                0, 0, 0, 1] );
+        } else
+            return Matrix( 16, arguments );       
+    };
+    
+    // Construct a 4x4 scale matrix from a Vector3.
+    this.ScaleMatrix4 = function() {
+        if( 0 === arguments.length )
+            return Matrix( 16, that.matrix4.identity );
+        else if( 1 === arguments.length ) {
+            var v = arguments[0];
+            var x = v[0],
+                y = v[1],
+                z = v[2];
+            return Matrix( 16, [x, 0, 0, 0,
+                                0, y, 0, 0,
+                                0, 0, z, 0,
+                                0, 0, 0, 1] );
+        } else
+            return Matrix( 16, arguments );
+    };
+    
+    // Construct a 4x4 rotation matrix from a Quaternion.
+    this.RotationMatrix4 = function() {
+        if( 0 === arguments.length )
+            return Matrix( 16, that.matrix4.identity );
+        else if( 1 === arguments.length ) {
+            var v = arguments[0];
+            var x = v[0],
+                y = v[1],
+                z = v[2],
+                w = v[3];
+            return Matrix( 16, [1 - 2*y*y - 2*z*z, 2*x*y - 2*w*z, 2*x*z + 2*w*y, 0,
+                                2*x*y + 2*w*z, 1-2*x*x - 2*x*x, 2*y*z + 2*w*x, 0,
+                                2*x*z - 2*w*y, 2*y*z - 2*w*x, 1-2*x*x - 2*y*y, 0,
+                                0, 0, 0, 1] );
+        } else
+            return Matrix( 16, arguments );
+    };
+    
     this.matrix4 = {
+            
+        clear: matrix.clear,
+        
+        equal: matrix.equal,
+
+        multiply: function( m1, m2 ) {
+            var r = new that.Matrix4();
+            
+            r[0] = a[0]*b[0] + a[1]*b[4] + a[2]*b[8] + a[3]*b[12];
+            r[1] = a[0]*b[1] + a[1]*b[5] + a[2]*b[9] + a[3]*b[13];
+            r[2] = a[0]*b[2] + a[1]*b[6] + a[2]*b[10] + a[3]*b[14];
+            r[3] = a[0]*b[3] + a[1]*b[7] + a[2]*b[11] + a[3]*b[15];            
+            r[4] = a[4]*b[0] + a[5]*b[4] + a[6]*b[8] + a[7]*b[12];
+            r[5] = a[4]*b[1] + a[5]*b[5] + a[6]*b[9] + a[7]*b[13];
+            r[6] = a[4]*b[2] + a[5]*b[6] + a[6]*b[10] + a[7]*b[14];
+            r[7] = a[4]*b[3] + a[5]*b[7] + a[6]*b[11] + a[7]*b[15];
+            r[8] = a[8]*b[0] + a[9]*b[4] + a[10]*b[8] + a[11]*b[12];
+            r[9] = a[8]*b[1] + a[9]*b[5] + a[10]*b[9] + a[11]*b[13];
+            r[10] = a[8]*b[2] + a[9]*b[6] + a[10]*b[10] + a[11]*b[14];
+            r[11] = a[8]*b[3] + a[9]*b[7] + a[10]*b[11] + a[11]*b[15];
+            r[12] = a[12]*b[0] + a[13]*b[4] + a[14]*b[8] + a[15]*b[12];
+            r[13] = a[12]*b[1] + a[13]*b[5] + a[14]*b[9] + a[15]*b[13];
+            r[14] = a[12]*b[2] + a[13]*b[6] + a[14]*b[10] + a[15]*b[14];
+            r[15] = a[12]*b[3] + a[13]*b[7] + a[14]*b[11] + a[15]*b[15];
+
+            return r;
+        },
+        
+        imultiply: function( m1, m2 ) {
+            var r = new that.Matrix4( m1 );
+            
+            r[0] = a[0]*b[0] + a[1]*b[4] + a[2]*b[8] + a[3]*b[12];
+            r[1] = a[0]*b[1] + a[1]*b[5] + a[2]*b[9] + a[3]*b[13];
+            r[2] = a[0]*b[2] + a[1]*b[6] + a[2]*b[10] + a[3]*b[14];
+            r[3] = a[0]*b[3] + a[1]*b[7] + a[2]*b[11] + a[3]*b[15];            
+            r[4] = a[4]*b[0] + a[5]*b[4] + a[6]*b[8] + a[7]*b[12];
+            r[5] = a[4]*b[1] + a[5]*b[5] + a[6]*b[9] + a[7]*b[13];
+            r[6] = a[4]*b[2] + a[5]*b[6] + a[6]*b[10] + a[7]*b[14];
+            r[7] = a[4]*b[3] + a[5]*b[7] + a[6]*b[11] + a[7]*b[15];
+            r[8] = a[8]*b[0] + a[9]*b[4] + a[10]*b[8] + a[11]*b[12];
+            r[9] = a[8]*b[1] + a[9]*b[5] + a[10]*b[9] + a[11]*b[13];
+            r[10] = a[8]*b[2] + a[9]*b[6] + a[10]*b[10] + a[11]*b[14];
+            r[11] = a[8]*b[3] + a[9]*b[7] + a[10]*b[11] + a[11]*b[15];
+            r[12] = a[12]*b[0] + a[13]*b[4] + a[14]*b[8] + a[15]*b[12];
+            r[13] = a[12]*b[1] + a[13]*b[5] + a[14]*b[9] + a[15]*b[13];
+            r[14] = a[12]*b[2] + a[13]*b[6] + a[14]*b[10] + a[15]*b[14];
+            r[15] = a[12]*b[3] + a[13]*b[7] + a[14]*b[11] + a[15]*b[15];
+
+            return r;
+
+        }
+
     };
+    
+    const _matrix4_identity = new this.Matrix4( [1, 0, 0, 0,
+                                                 0, 1, 0, 0,
+                                                 0, 0, 1, 0,
+                                                 0, 0, 0, 1]);
+    Object.defineProperty( this.matrix4, 'identity', {
+        get: function() {
+            return _matrix4_identity;
+        }
+    });
 
 }  
 
