@@ -96,6 +96,7 @@ var _Math = function( options ) {
         else
             return Vector( 2, arguments );
     };
+    
     this.vector2 = {
 
             add: function( v1, v2 ) {
@@ -167,6 +168,7 @@ var _Math = function( options ) {
         else
             return Vector( 3, arguments );
     };
+    
     this.vector3 = {
 
             add: function( v1, v2 ) {
@@ -212,6 +214,7 @@ var _Math = function( options ) {
         else
             return Vector( 4, arguments );
     };
+    
     this.vector4 = {
 
             add: function( v1, v2 ) {
@@ -268,6 +271,7 @@ var _Math = function( options ) {
         else
             return Vector( 4, arguments );
     };
+    
     this.quaternion = {
 
             length: this.vector4.length,
