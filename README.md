@@ -10,6 +10,10 @@ Gladius follows the Semantic Versioning Specification. See http://semver.org for
 
 Please report issues through the github project. Questions and discussions happen in #paladin on irc.mozilla.org, and on the paladin-dev mailing list at https://groups.google.com/group/paladin-dev.
 
+## Getting Started
+
+Make sure to clone all submodules. This can be done using 'make submodule'.
+
 ## Build and Test
 
 No building is needed for development workflows. To build the engine for distribution, run make in the top-level
