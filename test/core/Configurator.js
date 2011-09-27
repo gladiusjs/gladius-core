@@ -33,17 +33,34 @@
         );
     });
     
-    /***
-     * --snip
-     * The configurator should accept a default configuration that is defined
-     * somewhere internally that contains sane defaults for most configuration
-     * parameters.
-     * --/snip
-     *
-     * I assume that we like black box testing and the way I see it, this can't
-     * be directly tested without letting the test suite peer into the insides
-     * of gladius. --northWind
-     */
+    // Test default configuration loading
+    test( 'Default configuration loading', function() {
+        var defaultConfig = {
+            '/'             :   'firstVal',
+            '/foo'          :   'secondVal',
+            '/foo/bar'      :   'thirdVal',
+            '/hello'        :   'fourthVal',
+            '/hello/world'  :   'fifthVal',
+            '/hello/world2' :   'sixthVal'
+        };
+        
+        // didn't use Object.keys, not sure which browsers implement it
+        var keys = [];
+        for ( var p in defaultConfig ) {
+            if ( defaultConfig.hasOwnProperty( p )) {
+                keys.push(p);
+            }
+        }
+        
+        expect( keys.length );
+        
+        // For now assuming that construction is nasty
+        var config = new Configurator( defaultConfig );
+        
+        for ( var key in keys ) {
+            equal( defaultConfig[key], config.get(key), 'Retrieved default configuration value ' + defaultConfig[key] + ' through key ' + key + ' successfully.');
+        }
+    });
     
     // Test Get/Set
     test( 'Get and set', function() {
@@ -126,21 +143,4 @@
         childConfigs[0].set( '/', fourth_val );
         equal( fourth_val, engine.configurator.get( '/foo', fourth_val ), 'Read value from engine configurator set through first child configurator successfully' );
     });
-    
-    // Path separator test
-    // Pre--
-    //  Pathed configurator
-    test('Path Separation -- "/"', function(){
-        // First
-    });
-    
-    // Default configuration test -- JSON
-    // Pre--
-    //  Set/Get
-    test('')
-    
-    // Load configurations from URL
-    // eg engine.configurator.load( URL );
-    test('')
-
 }());
