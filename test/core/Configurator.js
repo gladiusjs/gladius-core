@@ -86,65 +86,45 @@
         }
     });
     
-    // Helper for getPath tests
-    var getPathTestHelper = function() {
-        var keyVals = [
-                ['/foo', 'val1'],
-                ['/bar', 'val2']
-            ],
-            
-            childConfigs = [];
-            
-        for ( var i = 0; i < keyVals.length; ++ i ) {
-            childConfigs.push( engine.configurator.getPath( keyVals[i][0] ) );
-        };
+    test( 'getPath and separator apprehension', function() {
         
-        var ret = [keyVals, childConfigs];
+        var childConfigs = [];
         
-        return ret;
-    }
-    
-    // Pathed
-    test( 'getPath and separator apprehension, set through parent', function() {
+        childConfigs.push( engine.configurator.getPath( '/foo' ) );
+        childConfigs.push( engine.configurator.getPath( '/foo/bar' ) );
         
-        // Set through parent configurator, retrieve through child configurators
-        var temp = getPathTestHelper(),
+        expect( 10 );
         
-            keyVals = temp[0],            
-            childConfigs = temp[1];
+        equal( engine.configurator.get( '/foo' ), '' )
+        equal( engine.configurator.get( '/foo/bar' ), '' )
+        equal( childConfigs[0].get( '/' ), '' )
+        equal( childConfigs[1].get( '/' ), '' )
         
-        expect( keyVals.length );
+        // Set through engine configurator to first child
+        var first_val = 'first_val';
+        engine.configurator.set( '/foo', first_val );
+        equal( first_val, childConfigs[0].get( '/' ), 'Read value from first child configurator set through engine configurator successfully' );
         
-        for ( var i = 0; i < keyVals.length; ++ i ) {
-            engine.configurator.set( keyVals[i][0], keyVals[i][1] );
-            
-            equal(
-                childConfigs[i].get( '/' ),
-                keyVals[i][1],
-                'Key ' + keyVals[i][0] + ' set to ' + keyVals[i][1] + ' through parent configurator and retrieved through child configurator successfully'
-            );
-        }
-    });
-    
-    test( 'getPath and separator apprehension, set through child', function() {
+        // Set through engine configurator to second child
+        var fifth_val = 'fifth_val';
+        engine.configurator.set( '/foo/bar', fifth_val );
+        equal( fifth_val, childConfigs[1].get( '/' ), 'Read value from second child configurator set through engine configurator successfully' );
         
-        // Set through child configurators, retrieve through parent configurator
-        var temp = getPathTestHelper(),
+        // Set through first child configurator
+        var second_val = 'second_val';
+        childConfigs[0].set( '/bar', second_val)
+        equal( second_val, childConfigs[1].get( '/' ), 'Read value from second child configurator set through first child configurator successfully' );
         
-            keyVals = temp[0],            
-            childConfigs = temp[1];
+        // Set through second child configurator
+        var third_val = 'third_val';
+        childConfigs[1].set( '/', third_val )
+        equal( third_val, childConfigs[0].get( '/bar' ), 'Read value from first child configurator set through second child configurator successfully' );
+        equal( third_val, engine.configurator.get( '/foo/bar' ), 'Read value from engine configurator set through second child configurator successfully' );
         
-        expect( keyVals.length );
-        
-        for ( var i = 0; i < keyVals.length; ++ i ) {
-            childConfigs[i].set( '/', keyVals[i][1] )
-            
-            equal(
-                engine.configurator.get( keyVals[i][0] ),
-                keyVals[i][1],
-                'Key ' + keyVals[i][0] + ' set to ' + keyVals[i][1] + ' through child configurator and retrieved through parent configurator successfully'
-            );
-        }
+        // Set through first child configurator
+        var fourth_val = 'fourth_val';
+        childConfigs[0].set( '/', fourth_val );
+        equal( fourth_val, engine.configurator.get( '/foo', fourth_val ), 'Read value from engine configurator set through first child configurator successfully' );
     });
     
     // Path separator test
