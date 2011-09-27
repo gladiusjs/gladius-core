@@ -7,3 +7,6 @@
 [submodule "tools/qunit"]
     path = tools/qunit
     url = git://github.com/jquery/qunit.git
+[submodule "external/gladius.math"]
+	path = external/gladius.math
+	url = git@github.com:alankligman/gladius.math.git
