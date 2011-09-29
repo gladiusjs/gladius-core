@@ -29,7 +29,7 @@
         
         ok(
             engine.configurator,
-            'Configurator was created'
+            'Engine creates configurator'
         );
     });
     
@@ -58,7 +58,8 @@
         var config = new Configurator( defaultConfig );
         
         for ( var key in keys ) {
-            equal( defaultConfig[key], config.get(key), 'Retrieved default configuration value ' + defaultConfig[key] + ' through key ' + key + ' successfully.');
+            var val = config.get( key );
+            equal( defaultConfig[key], val, 'Retrieve default configuration value, expected ' + defaultConfig[key] + ', found ' + val + ', through key ' + key);
         }
     });
     
@@ -86,19 +87,23 @@
         for ( var i = 0; i < keyVals.length; ++ i ) {
             engine.configurator.set( keyVals[i][0], keyVals[i][1] );
             
+            var val = engine.configurator.get( keyVals[i][0] );
+            
             equal(
-                engine.configurator.get( keyVals[i][0] ),
+                val,
                 keyVals[i][1],
-                'Key ' + keyVals[i][0] + ' correctly set to ' + keyVals[i][1]
+                'Value of key ' + keyVals[i][0] + ', expected ' + keyVals[i][1] + ', found ' + val
             );
             
             // Reset values then test
             engine.configurator.set( keyVals[i][0], keyVals[i][2] );
             
+            val = engine.configurator.get( keyVals[i][0] );
+            
             equal(
-                engine.configurator.get( keyVals[i][0] ),
+                val,
                 keyVals[i][2],
-                'Key ' + keyVals[i][0] + ' correctly reset to ' + keyVals[i][2]
+                'Value of key ' + keyVals[i][0] + ' reset, expected ' + keyVals[i][2] + ', found ' + val
             );
         }
     });
@@ -121,28 +126,28 @@
         // Set through engine configurator to first child
         var first_val = 'first_val';
         engine.configurator.set( '/foo', first_val );
-        equal( first_val, childConfigs[0].get( '/' ), 'Read value from first child configurator set through engine configurator successfully' );
+        equal( first_val, childConfigs[0].get( '/' ), 'Read value from first child configurator set through engine configurator' );
         
         // Set through engine configurator to second child
         var fifth_val = 'fifth_val';
         engine.configurator.set( '/foo/bar', fifth_val );
-        equal( fifth_val, childConfigs[1].get( '/' ), 'Read value from second child configurator set through engine configurator successfully' );
+        equal( fifth_val, childConfigs[1].get( '/' ), 'Read value from second child configurator set through engine configurator' );
         
         // Set through first child configurator
         var second_val = 'second_val';
         childConfigs[0].set( '/bar', second_val)
-        equal( second_val, childConfigs[1].get( '/' ), 'Read value from second child configurator set through first child configurator successfully' );
+        equal( second_val, childConfigs[1].get( '/' ), 'Read value from second child configurator set through first child configurator' );
         
         // Set through second child configurator
         var third_val = 'third_val';
         childConfigs[1].set( '/', third_val )
-        equal( third_val, childConfigs[0].get( '/bar' ), 'Read value from first child configurator set through second child configurator successfully' );
-        equal( third_val, engine.configurator.get( '/foo/bar' ), 'Read value from engine configurator set through second child configurator successfully' );
+        equal( third_val, childConfigs[0].get( '/bar' ), 'Read value from first child configurator set through second child configurator' );
+        equal( third_val, engine.configurator.get( '/foo/bar' ), 'Read value from engine configurator set through second child configurator' );
         
         // Set through first child configurator
         var fourth_val = 'fourth_val';
         childConfigs[0].set( '/', fourth_val );
-        equal( fourth_val, engine.configurator.get( '/foo', fourth_val ), 'Read value from engine configurator set through first child configurator successfully' );
+        equal( fourth_val, engine.configurator.get( '/foo', fourth_val ), 'Read value from engine configurator set through first child configurator' );
     });
     
     // Test listen/ignore
