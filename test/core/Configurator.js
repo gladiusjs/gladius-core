@@ -164,21 +164,27 @@
         
         // ignored path
         var testKey2 = '/listener';
-        engine.configurator.set( testKey2, 'IF_YOU_SEE_ME_THEN_SOMETHING_BROKE' );
+        childConfig.listen( function( path ) {
+            ok(false, 'Listener called unexpectedly, received path ' + path)
+        });
+        engine.configurator.set( testKey2, 'NoOneShouldCareThatIWasSet:) -- 1' );
         
         
-        // NON WORKING CODE
         // Test ignore after listen on creation
-        var testKey2 = '/listener/should/not/get/called';
         childConfig.ignore();
         
-        childConfig = engine.configurator.getPath( '/', function( path ) {
-            ok(false, 'Ignored listener called incorrectly')
+        childConfig = engine.configurator.getPath( '/listener/should', function( path ) {
+            ok(false, 'Ignored listener called incorrectly, received path ' + path);
         });
         childConfig.ignore();
-        engine.configurator.set( testKey2, 'BAR' );
+        engine.configurator.set( testKey1, 'NoOneShouldCareThatIWasSet:) -- 2' );
         
-        
+        // Test ignore after listen post-creation
+        childConfig.listen( function( path ) {
+            ok(false, 'Ignored listener called incorrectly, received path ' + path);
+        });
+        childConfig.ignore()
+        engine.configurator.set( testKey1, 'NoOneShouldCareThatIWasSet:) -- 3' );
     });
     // Test load
     // Test store
