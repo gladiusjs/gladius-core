@@ -54,7 +54,7 @@
         
         expect( keys.length );
         
-        // For now assuming that construction is nasty
+        // For now assuming that Configurator() is accessible
         var config = new Configurator( defaultConfig );
         
         for ( var key in keys ) {
@@ -103,6 +103,7 @@
         }
     });
     
+    // Test getPath
     test( 'getPath and separator apprehension', function() {
         
         var childConfigs = [];
@@ -143,4 +144,11 @@
         childConfigs[0].set( '/', fourth_val );
         equal( fourth_val, engine.configurator.get( '/foo', fourth_val ), 'Read value from engine configurator set through first child configurator successfully' );
     });
+    
+    // Test listen/ignore
+    test( 'Listen/ignore', function() {
+        
+    });
+    // Test load
+    // Test store
 }());
