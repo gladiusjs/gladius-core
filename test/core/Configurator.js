@@ -33,36 +33,6 @@
         );
     });
     
-    // Test default configuration loading
-    test( 'Default configuration loading', function() {
-        var defaultConfig = {
-            '/'             :   'firstVal',
-            '/foo'          :   'secondVal',
-            '/foo/bar'      :   'thirdVal',
-            '/hello'        :   'fourthVal',
-            '/hello/world'  :   'fifthVal',
-            '/hello/world2' :   'sixthVal'
-        };
-        
-        // didn't use Object.keys, not sure which browsers implement it
-        var keys = [];
-        for ( var p in defaultConfig ) {
-            if ( defaultConfig.hasOwnProperty( p )) {
-                keys.push(p);
-            }
-        }
-        
-        expect( keys.length );
-        
-        // For now assuming that Configurator() is accessible
-        var config = new Configurator( defaultConfig );
-        
-        for ( var key in keys ) {
-            var val = config.get( key );
-            equal( defaultConfig[key], val, 'Retrieve default configuration value, expected ' + defaultConfig[key] + ', found ' + val + ', through key ' + key);
-        }
-    });
-    
     // Test Get/Set
     test( 'Get and set', function() {
         expect( 12 );
@@ -105,6 +75,36 @@
                 keyVals[i][2],
                 'Value of key ' + keyVals[i][0] + ' reset, expected ' + keyVals[i][2] + ', found ' + val
             );
+        }
+    });
+    
+    // Test default configuration loading
+    test( 'Default configuration loading', function() {
+        var defaultConfig = {
+            '/'             :   'firstVal',
+            '/foo'          :   'secondVal',
+            '/foo/bar'      :   'thirdVal',
+            '/hello'        :   'fourthVal',
+            '/hello/world'  :   'fifthVal',
+            '/hello/world2' :   'sixthVal'
+        };
+        
+        // didn't use Object.keys, not sure which browsers implement it
+        var keys = [];
+        for ( var p in defaultConfig ) {
+            if ( defaultConfig.hasOwnProperty( p )) {
+                keys.push(p);
+            }
+        }
+        
+        expect( keys.length );
+        
+        // For now assuming that Configurator() is accessible
+        var config = new Configurator( defaultConfig );
+        
+        for ( var key in keys ) {
+            var val = config.get( key );
+            equal( defaultConfig[key], val, 'Retrieve default configuration value, expected ' + defaultConfig[key] + ', found ' + val + ', through key ' + key);
         }
     });
     
