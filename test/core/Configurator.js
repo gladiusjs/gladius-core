@@ -147,6 +147,32 @@
     
     // Test listen/ignore
     test( 'Listen/ignore', function() {
+        // Test listen on creation -- listen-able path
+        var testKey1 = '/listener/should/get/called';
+        var childConfig = engine.configurator.getPath( '/listener/should', function( path ) {
+            var myTestKey = '/get/called';
+            equal( myTestKey, path, 'Root-bound listener found ' + path + ', expected ' + myTestKey);
+            start();
+        });
+        stop();
+        engine.configurator.set( testKey1, 'ALERT!' );
+        
+        // ignored path
+        var testKey2 = '/listener';
+        engine.configurator.set( testKey2, 'IF_YOU_SEE_ME_THEN_SOMETHING_BROKE' );
+        
+        
+        // NON WORKING CODE
+        // Test ignore after listen on creation
+        var testKey2 = '/listener/should/not/get/called';
+        childConfig.ignore();
+        
+        childConfig = engine.configurator.getPath( '/', function( path ) {
+            ok(false, 'Ignored listener called incorrectly')
+        });
+        childConfig.ignore();
+        engine.configurator.set( testKey2, 'BAR' );
+        
         
     });
     // Test load
