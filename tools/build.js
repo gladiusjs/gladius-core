@@ -38,6 +38,7 @@
   // not be found by the AST analysis done in the optimizer.
   include: [
             'gladius',
+			'common/Math',
             'gladius-src',
            ],
 
