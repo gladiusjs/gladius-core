@@ -3,6 +3,7 @@
 
 define( function ( require ) {
     var lang = require( './core/lang' ),
+    Configurator = require( './core/Configurator' ),
     Entity = require( './core/Entity' ),
     Component = require( './core/Component' ),
     Scene = require( './core/Scene' ),
@@ -37,6 +38,9 @@ define( function ( require ) {
 
         this.options = options || {};
         this.debug = this.options.debug ? console.log : function () {};
+        this.configurator = new Configurator(
+            this.options.defaultConfiguration ? this.options.defaultConfiguration : {}
+        );
         // this.tasker = new Tasker();
         // this.messenger = new Messenger( this.tasker );
 
