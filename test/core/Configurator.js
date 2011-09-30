@@ -113,19 +113,11 @@
             '/hello/world'  :   'fifthVal',
             '/hello/world2' :   'sixthVal'
         };
-        
-        // didn't use Object.keys, not sure which browsers implement it
-        var keys = [];
-        for ( var p in defaultConfig ) {
-            if ( defaultConfig.hasOwnProperty( p )) {
-                keys.push(p);
-            }
-        }
-        
+            
         // For now assuming that Configurator() is accessible
-        var config = new Configurator( defaultConfig );
-        
-        for ( var key in keys ) {
+        var config = new engine.configurator.constructor( defaultConfig );
+                    
+        for ( var key in defaultConfig ) {
             var val = config.get( key );
             equal( defaultConfig[key], val, 'Retrieve default configuration value, expected ' + defaultConfig[key] + ', found ' + val + ', through key ' + key);
         }
