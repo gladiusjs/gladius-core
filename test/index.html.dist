@@ -5,10 +5,7 @@
 	<link rel="stylesheet" href="../tools/qunit/qunit/qunit.css" type="text/css" media="screen">
     <script src="../tools/qunit/qunit/qunit.js"></script>   
 
-    <!-- To test the dist file, uncomment the line below and comment out
-         the src/gladius.js script. -->
-    <!-- script src="../dist/gladius.js"></script -->    
-	<script src="../src/gladius.js"></script>
+	<script src="../gladius.js"></script>
 
     <script src="core/engine.js"></script>
     <script src="common/Math.js"></script>

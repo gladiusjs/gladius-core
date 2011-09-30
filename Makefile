@@ -49,9 +49,10 @@ test: $(DIST_DIR) $(GLADIUS_MIN)
 	@@echo "Creating tests in $(DIST_TEST_DIR)"
 	@@mv $(GLADIUS_MIN) $(GLADIUS_DIST)
 	@@cp -R $(TEST_DIR) $(DIST_DIR)
+	@@mv $(DIST_TEST_DIR)/index.html.dist $(DIST_TEST_DIR)/index.html
 	@@mkdir -p $(DIST_TOOLS_DIR)/qunit
 	@@cp -R $(TOOLS_DIR)/qunit/qunit $(DIST_TOOLS_DIR)/qunit
-	@@echo "Starting web server in $(DIST_TEST_DIR), browse to http://localhost:9914/ (ctrl+c to stop)..."
+	@@echo "Starting web server in $(DIST_DIR), browse to http://localhost:9914/ (ctrl+c to stop)..."
 	@@cd $(DIST_DIR) && python ../$(TOOLS_DIR)/test_server.py
 
 clean:

@@ -12,7 +12,7 @@ try:
   except ImportError:
     from http.server import HTTPServer, SimpleHTTPRequestHandler
    
-    httpd = HTTPServer(('localhost', 9914), SimpleHTTPRequestHandler)
+    httpd = HTTPServer(('localhost', PORT), SimpleHTTPRequestHandler)
     httpd.serve_forever()
 except KeyboardInterrupt:
   pass
