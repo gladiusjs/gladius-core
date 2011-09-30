@@ -49,33 +49,18 @@ define( function ( require ) {
                 }
             });
             
-            // Add a listener to this node's list of listeners
-            self.addListener = function( clientId, listener ) {
-                self.listeners[clientId] = listener;
-            };
-            
-            // Remove an existing listener
-            self.removeListener = function( clientId ) {
-                if ( self.listeners[clientId] != undefined ) {
-                    delete self.listeners[clientId];
-                }
-            }
-        };
-        
-        // Client front-end functions
-        
-        // Get a value based on a given path
-        self.get = function( path ) {
-            var rv = '';
-            
-            if ( path.length > 0 ) {
+            // Traverse the node tree given a path
+            self.traverse = function( path ) {
+                
+                var rv = undefined;
+                
                 if ( path.length == 1 && path.charAt( 0 ) == '/' ) {
-                    rv = self.node.value;
+                    rv = self;
                 } else {
                     
                     // Parse path and traverse the node tree
                     var pathElems = path.split('/');
-                    var curNode = self.node;
+                    var curNode = self;
                     var successful = true;
                     for ( var i = 0; successful && i < pathElems.length; ++ i ) {
                         var curElem = pathElems[i];
@@ -95,12 +80,44 @@ define( function ( require ) {
                     }
                     
                     if ( successful ) {
-                        rv = curNode.value;
+                        rv = curNode;
                     }
                 }
+                
+                return rv;
+            };
+            
+            // Add a listener to this node's list of listeners
+            self.addListener = function( clientId, listener ) {
+                self.listeners[clientId] = listener;
+            };
+            
+            // Remove an existing listener
+            self.removeListener = function( clientId ) {
+                if ( self.listeners[clientId] != undefined ) {
+                    delete self.listeners[clientId];
+                }
+            };
+        };
+        
+        // Client front-end functions
+        
+        // Get a value based on a given path
+        self.get = function( path ) {
+            var rv = '';
+            
+            var targetNode = self.node.traverse( path );
+            
+            if ( targetNode !== undefined ) {
+                rv = targetNode.value;
             }
             
             return rv;
+        };
+        
+        // Set a value based on a given path
+        self.set = function( path, value ) {
+            
         };
 
         // Create internal tree
