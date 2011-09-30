@@ -39,8 +39,6 @@
                 '}' +
                 '} );' +
                 'requirejs(["gladius-src"])</' + 'script>');
-
-        document.write( '<script src="' + path + 'common/Math.js"></' + 'script>' );
     }
 
     var gladius = this.gladius || ( this.gladius = {} );

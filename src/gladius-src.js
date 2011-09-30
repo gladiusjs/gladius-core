@@ -3,10 +3,11 @@
 
 define( function ( require ) {
     var lang = require( './core/lang' ),
+    _Math = require( './common/Math' ),  
     Entity = require( './core/Entity' ),
     Component = require( './core/Component' ),
     Scene = require( './core/Scene' ),
-    Transform = require( './core/component/Transform' ),
+    // Transform = require( './core/component/Transform' ),
 
     Paladin, i, args,
 
@@ -48,6 +49,13 @@ define( function ( require ) {
                 sIds.push('./' + subsystems[prop]);
             }
         }
+        
+        var _math = new _Math();
+        Object.defineProperty( this, 'math', {
+            get: function() {
+                return _math;
+            }
+        });        
 
         var _nextGUID = 0;
         Object.defineProperty( this, 'nextGUID', {
@@ -90,11 +98,11 @@ define( function ( require ) {
                     Component: Component,
                     Scene: partialCtor( Scene, this ),
                     component: {
-                        Transform: Transform
+//                        Transform: Transform
                     }
                 }
             });
-
+            
             this.assert = function( condition, message ) {
                 if( !condition )
                     throw 'Assertion failed: ' + message;

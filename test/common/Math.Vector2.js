@@ -6,9 +6,22 @@
 (function() {
 
     var engine = null;
+    var math = null;
 
     module( 'common/Math/Vector2', {
         setup: function () {
+            stop();
+
+            gladius.create( { debug: true }, function( instance ) {       
+                engine = instance;
+                math = engine.math;
+                start();
+            });
+        },
+
+        teardown: function () {
+            engine = null;
+            math = null;
         }
     });
 
