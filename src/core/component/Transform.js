@@ -5,6 +5,8 @@
 define( function ( require ) {
 
     return function( engine ) {
+        
+        var math = engine.math;
 
         var Transform = function( options ) {
 
