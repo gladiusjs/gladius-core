@@ -166,13 +166,13 @@
     
     // Test listen/ignore
     test( 'Listen/ignore', function() {
-        expect( 1 );
+        expect( 2 );
         
         // Test listen on creation -- listen-able path
         var testKey1 = '/listener/should/get/called';
         var childConfig = engine.configurator.getPath( '/listener/should', function( path ) {
             var myTestKey = '/get/called';
-            equal( myTestKey, path, 'Root-bound listener found ' + path + ', expected ' + myTestKey);
+            equal( myTestKey, path, 'Root-bound listener found ' + path + ', expected ' + myTestKey );
             start();
         });
         stop();
@@ -194,6 +194,15 @@
         });
         childConfig.ignore();
         engine.configurator.set( testKey1, 'NoOneShouldCareThatIWasSet:) -- 2' );
+        
+        // Test listen post-creation
+        childConfig.listen( function( path ) {
+            var myTestKey = '/get/called';
+            equal( myTestKey, path, 'Child-bound listener found ' + path + ', expected ' + myTestKey );
+            start();
+        });
+        stop();
+        engine.configurator.set( testKey1, 'ALERT!' );
         
         // Test ignore after listen post-creation
         childConfig.listen( function( path ) {
