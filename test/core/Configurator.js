@@ -78,6 +78,21 @@
         }
     });
     
+    // Test JSON object loading
+    test( 'Set and apply JSON object', function() {
+        expect( 2 );
+        
+        var myJSON = {
+            '/foo'      : 'value',
+            '/foo/bar'  : 'otherValue'
+        };
+        
+        engine.configurator.set( myJSON );
+        
+        equal( engine.configurator.get( '/foo' ), 'value', 'Retrieved value ' + myJSON['/foo'] + ' through key /foo' );
+        equal( engine.configurator.get( '/foo/bar' ), 'otherValue', 'Retrieved value ' + myJSON['/foo/bar'] + ' through key /foo/bar' );
+    });
+    
     // Test default configuration loading
     test( 'Default configuration loading', function() {
         var defaultConfig = {
@@ -152,6 +167,8 @@
     
     // Test listen/ignore
     test( 'Listen/ignore', function() {
+        expect( 1 );
+        
         // Test listen on creation -- listen-able path
         var testKey1 = '/listener/should/get/called';
         var childConfig = engine.configurator.getPath( '/listener/should', function( path ) {
