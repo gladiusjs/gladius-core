@@ -84,20 +84,34 @@ define( function ( require ) {
         self.notify = function ( childName ) {
             
         };
-        
-        // Add a listener to this node's list of listeners
-        self.addListener = function( clientId, listener ) {
-            self.listeners[clientId] = listener;
-        };
-        
-        // Remove an existing listener
-        self.removeListener = function( clientId ) {
-            if ( self.listeners[clientId] != undefined ) {
-                delete self.listeners[clientId];
-            }
-        };
     };
-
+    
+    /**
+     * More or less unique id generator
+     *
+     * Borrowed from Sagi Shkedy's Technical Blog
+     * http://blog.shkedy.com/2007/01/createing-guids-with-client-side.html
+     */
+    var _incCounter = 0;
+    function uniqueId() {
+        
+        var result, i, j;
+        result = '';
+        
+        for(j=0; j<32; j++)
+        {
+            if( j == 8 || j == 12|| j == 16|| j == 20) {
+                result = result + '-';
+            }
+            
+            i = Math.floor(Math.random()*16).toString(16).toUpperCase() + _incCounter;
+            result = result + i;
+            
+            ++ _incCounter;
+        }
+        
+        return result;
+    };
     
     /* Configurator
      *
@@ -107,47 +121,65 @@ define( function ( require ) {
      * Initially written by Hasan (northWind) Kamal-Al-Deen
      */
     var Configurator = function( defaultConfiguration ) {
-
+        
         var self = this;
         
-        defaultConfiguration = defaultConfiguration || {};
-        
-        // Client front-end functions
-        
-        // Get a value based on a given path
-        self.get = function( path ) {
-            var rv = '';
+        var init = function() {
+            var self = this;
             
-            var targetNode = self.node.traverse( path );
+            self.constructor = Configurator;    // TODO: FIXME Dirty Dirty Hack
+            self.id = uniqueId();
             
-            if ( targetNode !== undefined ) {
-                rv = targetNode.value;
-            }
-            
-            return rv;
-        };
-        
-        // Set a value based on a given path
-        self.set = function( path, value ) {
-            var targetNode = self.node.traverse( path, true );
-            
-            targetNode.value = value;
-        };
-        
-        // Update configuration with given json object
-        self.update = function( json ) {
-            for ( var key in json ) {
-                if (json.hasOwnProperty( key )) {   // Performance Note: perhaps protecting against the prototype is not required?
-                    self.set( key, json[key] )
+            // Get a value based on a given path
+            self.get = function( path ) {
+                var rv = '';
+                
+                var targetNode = self.node.traverse( path );
+                
+                if ( targetNode !== undefined ) {
+                    rv = targetNode.value;
                 }
-            }
+                
+                return rv;
+            };
+            
+            // Set a value based on a given path
+            self.set = function( path, value ) {
+                var targetNode = self.node.traverse( path, true );
+                
+                targetNode.value = value;
+            };
+            
+            // Update configuration with given json object
+            self.update = function( json ) {
+                for ( var key in json ) {
+                    if (json.hasOwnProperty( key )) {   // Performance Note: perhaps protecting against the prototype is not required?
+                        self.set( key, json[key] )
+                    }
+                }
+            };
+            
+            // Get a new configurator client for a node reachable using the given path.
+            // If provided, associate listenerFunc with the newly created configurator client.
+            self.getPath = function( path, listenerFunc ) {
+                var targetNode = self.node.traverse( path, true ),
+                    rv = new init();
+                
+                rv.node = targetNode;
+                
+                if ( listenerFunc ) {
+                    targetNode.listeners[rv.id] = listenerFunc;
+                }
+                
+                return rv;
+            };
         };
         
-        // TODO: FIXME Dirty Dirty Hack
-        self.constructor = Configurator;
+        init.apply(self);
         
-        // Associate client front end with tree root
-        self.node = new ConfNode( 'ROOT', undefined );
+        self.node = new ConfNode( 'ROOT', undefined );  // Associate client front end with tree root
+        
+        defaultConfiguration = defaultConfiguration || {};
         
         // Load default configuration
         self.update( defaultConfiguration );
