@@ -30,7 +30,7 @@ define( function ( require ) {
                 
                     // Meaningful change, notify parent
                     if ( parent ) {
-                        parent.notify( self.name );
+                        parent.notify( self.name, '/', value );
                     }
                     
                     _value = value;
@@ -80,9 +80,27 @@ define( function ( require ) {
             return rv;
         };
         
-        // Notify that a value under a child node has changed
-        self.notify = function ( childName ) {
+        // Notifies us that a value stored somewhere in the subtree rooted by
+        // this node has changed.
+        self.notify = function ( childName, path, newVal ) {
             
+            if ( self.parent ) {
+                // Clean last slash if present
+                if ( path.length == 1 && path.charAt( 0 ) == '/' ) {
+                    path = '';
+                }
+                
+                // Build up the path
+                path = '/' + childName + path;
+                
+                // Call all of our listeners
+                for ( var key in self.listeners ) {
+                    // is hasOwnProperty desired here? Seems unnecessary
+                    self.listeners[key]( path );
+                }
+                
+                self.parent.notify( self.name, path, newVal );
+            }
         };
     };
     
@@ -172,6 +190,24 @@ define( function ( require ) {
                 }
                 
                 return rv;
+            };
+            
+            // Remove listener currently associated with client.
+            self.ignore = function() {
+                var curListener = self.node.listeners[self.id];
+                if ( curListener ) {
+                    delete self.node.listeners[self.id];
+                }
+            };
+            
+            // Set listener function for this client. If another listener is
+            // associated with this client then that listener is first removed.
+            self.listen = function( listenerFunc ) {
+                if ( listenerFunc ) {
+                    self.ignore();
+                    
+                    self.node.listeners[self.id] = listenerFunc;
+                }
             };
         };
         
