@@ -117,7 +117,11 @@ define( function ( require ) {
         
         // Set a value based on a given path
         self.set = function( path, value ) {
+            var targetNode = self.node.traverse( path );
             
+            if ( targetNode !== undefined ) {
+                targetNode.value = value;
+            }
         };
 
         // Create internal tree
