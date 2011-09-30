@@ -3,6 +3,14 @@
 /*global gladius: false, document: false, window: false, module: false, start,
   test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false */
 
+/***
+ * Configurator Test Suite
+ *
+ * A test suite for the Configurator subsystem.
+ *
+ * Initially written by Hasan (northWind) Kamal-Al-Deen
+ */
+
 (function() {
 
     var engine = null;
