@@ -13,7 +13,7 @@ define( function ( require ) {
      * Initially written by Hasan (northWind) Kamal-Al-Deen
      */
 
-    var Configurator = function( engine, defaultConfiguration ) {
+    var Configurator = function( defaultConfiguration ) {
 
         var self = this;
         
@@ -50,7 +50,7 @@ define( function ( require ) {
             });
             
             // Traverse the node tree given a path
-            self.traverse = function( path ) {
+            self.traverse = function( path, doCreatePath ) {
                 
                 var rv = undefined;
                 
@@ -71,6 +71,10 @@ define( function ( require ) {
                             var nextNode = curNode.children[curElem];
                             if ( nextNode != undefined ) {
                                 curNode = nextNode;
+                            } else if ( doCreatePath ) {
+                                nextNode = new ConfNode( curElem, curNode );
+                                curNode.children[curElem] = nextNode;
+                                curNode = nextNode;
                             } else {
                                 // Path leads nowhere, leave
                                 successful = false;
@@ -85,6 +89,11 @@ define( function ( require ) {
                 }
                 
                 return rv;
+            };
+            
+            // Notify that a value under a child node has changed
+            self.notify = function ( childName ) {
+                
             };
             
             // Add a listener to this node's list of listeners
@@ -117,17 +126,28 @@ define( function ( require ) {
         
         // Set a value based on a given path
         self.set = function( path, value ) {
-            var targetNode = self.node.traverse( path );
+            var targetNode = self.node.traverse( path, true );
             
-            if ( targetNode !== undefined ) {
-                targetNode.value = value;
+            targetNode.value = value;
+        };
+        
+        // Update configuration with given json object
+        self.update = function( json ) {
+            for ( var key in json ) {
+                if (json.hasOwnProperty( key )) {   // Performance Note: perhaps protecting against the prototype is not required?
+                    self.set( key, json[key] )
+                }
             }
         };
-
-        // Create internal tree
-        // Associate client front end with tree root
         
-        // Return client
+        // TODO: FIXME Dirty Dirty Hack
+        self.constructor = Configurator;
+        
+        // Associate client front end with tree root
+        self.node = new ConfNode( 'ROOT', undefined );
+        
+        // Load default configuration
+        self.update( defaultConfiguration );
     };
 
     return Configurator;
