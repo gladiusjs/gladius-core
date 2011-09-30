@@ -95,6 +95,8 @@
     
     // Test default configuration loading
     test( 'Default configuration loading', function() {
+        expect( 6 );
+        
         var defaultConfig = {
             '/'             :   'firstVal',
             '/foo'          :   'secondVal',
@@ -112,8 +114,6 @@
             }
         }
         
-        expect( keys.length );
-        
         // For now assuming that Configurator() is accessible
         var config = new Configurator( defaultConfig );
         
@@ -125,13 +125,12 @@
     
     // Test getPath
     test( 'getPath and separator apprehension', function() {
+        expect( 10 );
         
         var childConfigs = [];
         
         childConfigs.push( engine.configurator.getPath( '/foo' ) );
         childConfigs.push( engine.configurator.getPath( '/foo/bar' ) );
-        
-        expect( 10 );
         
         equal( engine.configurator.get( '/foo' ), '' )
         equal( engine.configurator.get( '/foo/bar' ), '' )
