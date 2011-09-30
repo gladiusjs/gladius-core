@@ -87,7 +87,7 @@
     });
     
     // Test JSON object loading
-    test( 'Set and apply JSON object', function() {
+    test( 'Update and apply JSON object', function() {
         expect( 2 );
         
         var myJSON = {
@@ -95,7 +95,7 @@
             '/foo/bar'  : 'otherValue'
         };
         
-        engine.configurator.set( myJSON );
+        engine.configurator.update( myJSON );
         
         equal( engine.configurator.get( '/foo' ), 'value', 'Retrieved value ' + myJSON['/foo'] + ' through key /foo' );
         equal( engine.configurator.get( '/foo/bar' ), 'otherValue', 'Retrieved value ' + myJSON['/foo/bar'] + ' through key /foo/bar' );
@@ -210,6 +210,7 @@
         childConfig.ignore()
         engine.configurator.set( testKey1, 'NoOneShouldCareThatIWasSet:) -- 3' );
     });
+    
     // Test load
     // Test store
 }());
