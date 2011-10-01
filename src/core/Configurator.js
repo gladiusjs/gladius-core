@@ -172,7 +172,7 @@ define( function ( require ) {
             // Update configuration with given json object
             this.update = function( json ) {
                 for ( var key in json ) {
-                    if ( json.hasOwnProperty( key ) ) {   // Performance Note: perhaps protecting against the prototype is not required?
+                    if ( json.hasOwnProperty( key ) ) {
                         this.set( key, json[key] );
                     }
                 }
