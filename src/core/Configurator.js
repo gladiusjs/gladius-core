@@ -140,83 +140,75 @@ define( function ( require ) {
      *
      * Initially written by Hasan (northWind) Kamal-Al-Deen
      */
-    var Configurator = function( defaultConfiguration ) {
+    var Configurator = function( defaultConfiguration, node ) {
+        
+        defaultConfiguration = defaultConfiguration || {};
         
         var self = this;
         
-        var init = function() {
-            var self = this;
+        this.node = node || new ConfNode( 'ROOT' );
+        
+        this.constructor = Configurator;    // TODO: FIXME Dirty Dirty Hack
+        this.id = uniqueId();
+        
+        // Get a value based on a given path
+        this.get = function( path ) {
+            var rv = '',
+                targetNode = this.node.traverse( path );
             
-            this.constructor = Configurator;    // TODO: FIXME Dirty Dirty Hack
-            this.id = uniqueId();
+            if ( targetNode !== undefined ) {
+                rv = targetNode.value;
+            }
             
-            // Get a value based on a given path
-            this.get = function( path ) {
-                var rv = '',
-                    targetNode = this.node.traverse( path );
-                
-                if ( targetNode !== undefined ) {
-                    rv = targetNode.value;
-                }
-                
-                return rv;
-            };
-            
-            // Set a value based on a given path
-            this.set = function( path, value ) {
-                var targetNode = this.node.traverse( path, true );
-                
-                targetNode.value = value;
-            };
-            
-            // Update configuration with given json object
-            this.update = function( json ) {
-                for ( var key in json ) {
-                    if ( json.hasOwnProperty( key ) ) {
-                        this.set( key, json[key] );
-                    }
-                }
-            };
-            
-            // Get a new configurator client for a node reachable using the given path.
-            // If provided, associate listenerFunc with the newly created configurator client.
-            this.getPath = function( path, listenerFunc ) {
-                var targetNode = this.node.traverse( path, true ),
-                    rv = new init();
-                
-                rv.node = targetNode;
-                
-                if ( listenerFunc ) {
-                    targetNode.listeners[rv.id] = listenerFunc;
-                }
-                
-                return rv;
-            };
-            
-            // Remove listener currently associated with client.
-            this.ignore = function() {
-                var curListener = this.node.listeners[this.id];
-                if ( curListener ) {
-                    delete this.node.listeners[this.id];
-                }
-            };
-            
-            // Set listener function for this client. If another listener is
-            // associated with this client then that listener is first removed.
-            this.listen = function( listenerFunc ) {
-                if ( listenerFunc ) {
-                    this.ignore();
-                    
-                    this.node.listeners[this.id] = listenerFunc;
-                }
-            };
+            return rv;
         };
         
-        init.apply(this);
+        // Set a value based on a given path
+        this.set = function( path, value ) {
+            var targetNode = this.node.traverse( path, true );
+            
+            targetNode.value = value;
+        };
         
-        this.node = new ConfNode( 'ROOT', undefined );  // Associate client front end with tree root
+        // Update configuration with given json object
+        this.update = function( json ) {
+            for ( var key in json ) {
+                if ( json.hasOwnProperty( key ) ) {
+                    this.set( key, json[key] );
+                }
+            }
+        };
         
-        defaultConfiguration = defaultConfiguration || {};
+        // Get a new configurator client for a node reachable using the given path.
+        // If provided, associate listenerFunc with the newly created configurator client.
+        this.getPath = function( path, listenerFunc ) {
+            var targetNode = this.node.traverse( path, true ),
+                rv = new Configurator( {}, targetNode );
+            
+            if ( listenerFunc ) {
+                targetNode.listeners[rv.id] = listenerFunc;
+            }
+            
+            return rv;
+        };
+        
+        // Remove listener currently associated with client.
+        this.ignore = function() {
+            var curListener = this.node.listeners[this.id];
+            if ( curListener ) {
+                delete this.node.listeners[this.id];
+            }
+        };
+        
+        // Set listener function for this client. If another listener is
+        // associated with this client then that listener is first removed.
+        this.listen = function( listenerFunc ) {
+            if ( listenerFunc ) {
+                this.ignore();
+                
+                this.node.listeners[this.id] = listenerFunc;
+            }
+        };
         
         // Load default configuration
         this.update( defaultConfiguration );
