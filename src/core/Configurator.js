@@ -52,7 +52,7 @@ define( function ( require ) {
                     curNode = this,
                     successful = true;
                     
-                for ( var i = 0; successful && i < pathElems.length; ++ i ) {
+                for ( var i = 0, iMax = pathElems.length; successful && i < iMax; ++ i ) {
                     var curElem = pathElems[i];
                     
                     if ( curElem !== '' ) {
@@ -151,9 +151,8 @@ define( function ( require ) {
             
             // Get a value based on a given path
             this.get = function( path ) {
-                var rv = '';
-                
-                var targetNode = this.node.traverse( path );
+                var rv = '',
+                    targetNode = this.node.traverse( path );
                 
                 if ( targetNode !== undefined ) {
                     rv = targetNode.value;

@@ -53,7 +53,7 @@
         ];
         
         // All keys initially return the empty string
-        for ( var i = 0; i < keyVals.length; ++ i ) {
+        for ( var i = 0, iMax = keyVals.length; i < iMax; ++ i ) {
             equal(
                 engine.configurator.get(keyVals[i][0]),
                 '',
@@ -62,7 +62,7 @@
         }
         
         // Set all keys then test
-        for ( var i = 0; i < keyVals.length; ++ i ) {
+        for ( var i = 0, iMax = keyVals.length; i < iMax; ++ i ) {
             engine.configurator.set( keyVals[i][0], keyVals[i][1] );
             
             var val = engine.configurator.get( keyVals[i][0] );
