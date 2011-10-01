@@ -13,14 +13,14 @@ define( function ( require ) {
         
         var self = this;
         
-        self.name = name;
-        self.parent = parent;
-        self.children = {};
-        self.listeners = {};
+        this.name = name;
+        this.parent = parent;
+        this.children = {};
+        this.listeners = {};
         
         // Node's configuration value
         var _value = '';
-        Object.defineProperty( self, 'value', {
+        Object.defineProperty( this, 'value', {
             get: function() {
                 return _value;
             },
@@ -30,7 +30,7 @@ define( function ( require ) {
                 
                     // Meaningful change, notify parent
                     if ( parent ) {
-                        parent.notify( self.name, '/', value );
+                        parent.notify( this.name, '/', value );
                     }
                     
                     _value = value;
@@ -39,17 +39,17 @@ define( function ( require ) {
         });
         
         // Traverse the node tree given a path
-        self.traverse = function( path, doCreatePath ) {
+        this.traverse = function( path, doCreatePath ) {
             
             var rv;
             
             if ( path.length == 1 && path.charAt( 0 ) == '/' ) {
-                rv = self;
+                rv = this;
             } else {
                 
                 // Parse path and traverse the node tree
                 var pathElems = path.split('/');
-                var curNode = self;
+                var curNode = this;
                 var successful = true;
                 for ( var i = 0; successful && i < pathElems.length; ++ i ) {
                     var curElem = pathElems[i];
@@ -82,9 +82,9 @@ define( function ( require ) {
         
         // Notifies us that a value stored somewhere in the subtree rooted by
         // this node has changed.
-        self.notify = function ( childName, path, newVal ) {
+        this.notify = function ( childName, path, newVal ) {
             
-            if ( self.parent ) {
+            if ( this.parent ) {
                 // Clean last slash if present
                 if ( path.length == 1 && path.charAt( 0 ) == '/' ) {
                     path = '';
@@ -94,12 +94,12 @@ define( function ( require ) {
                 path = '/' + childName + path;
                 
                 // Call all of our listeners
-                for ( var key in self.listeners ) {
+                for ( var key in this.listeners ) {
                     // is hasOwnProperty desired here? Seems unnecessary
-                    self.listeners[key]( path );
+                    this.listeners[key]( path );
                 }
                 
-                self.parent.notify( self.name, path, newVal );
+                this.parent.notify( this.name, path, newVal );
             }
         };
     };
@@ -145,14 +145,14 @@ define( function ( require ) {
         var init = function() {
             var self = this;
             
-            self.constructor = Configurator;    // TODO: FIXME Dirty Dirty Hack
-            self.id = uniqueId();
+            this.constructor = Configurator;    // TODO: FIXME Dirty Dirty Hack
+            this.id = uniqueId();
             
             // Get a value based on a given path
-            self.get = function( path ) {
+            this.get = function( path ) {
                 var rv = '';
                 
-                var targetNode = self.node.traverse( path );
+                var targetNode = this.node.traverse( path );
                 
                 if ( targetNode !== undefined ) {
                     rv = targetNode.value;
@@ -162,25 +162,25 @@ define( function ( require ) {
             };
             
             // Set a value based on a given path
-            self.set = function( path, value ) {
-                var targetNode = self.node.traverse( path, true );
+            this.set = function( path, value ) {
+                var targetNode = this.node.traverse( path, true );
                 
                 targetNode.value = value;
             };
             
             // Update configuration with given json object
-            self.update = function( json ) {
+            this.update = function( json ) {
                 for ( var key in json ) {
                     if (json.hasOwnProperty( key )) {   // Performance Note: perhaps protecting against the prototype is not required?
-                        self.set( key, json[key] );
+                        this.set( key, json[key] );
                     }
                 }
             };
             
             // Get a new configurator client for a node reachable using the given path.
             // If provided, associate listenerFunc with the newly created configurator client.
-            self.getPath = function( path, listenerFunc ) {
-                var targetNode = self.node.traverse( path, true ),
+            this.getPath = function( path, listenerFunc ) {
+                var targetNode = this.node.traverse( path, true ),
                     rv = new init();
                 
                 rv.node = targetNode;
@@ -193,32 +193,32 @@ define( function ( require ) {
             };
             
             // Remove listener currently associated with client.
-            self.ignore = function() {
-                var curListener = self.node.listeners[self.id];
+            this.ignore = function() {
+                var curListener = this.node.listeners[this.id];
                 if ( curListener ) {
-                    delete self.node.listeners[self.id];
+                    delete this.node.listeners[this.id];
                 }
             };
             
             // Set listener function for this client. If another listener is
             // associated with this client then that listener is first removed.
-            self.listen = function( listenerFunc ) {
+            this.listen = function( listenerFunc ) {
                 if ( listenerFunc ) {
-                    self.ignore();
+                    this.ignore();
                     
-                    self.node.listeners[self.id] = listenerFunc;
+                    this.node.listeners[this.id] = listenerFunc;
                 }
             };
         };
         
-        init.apply(self);
+        init.apply(this);
         
-        self.node = new ConfNode( 'ROOT', undefined );  // Associate client front end with tree root
+        this.node = new ConfNode( 'ROOT', undefined );  // Associate client front end with tree root
         
         defaultConfiguration = defaultConfiguration || {};
         
         // Load default configuration
-        self.update( defaultConfiguration );
+        this.update( defaultConfiguration );
     };
 
     return Configurator;
