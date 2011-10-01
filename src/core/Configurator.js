@@ -48,9 +48,10 @@ define( function ( require ) {
             } else {
                 
                 // Parse path and traverse the node tree
-                var pathElems = path.split('/');
-                var curNode = this;
-                var successful = true;
+                var pathElems = path.split('/'),
+                    curNode = this,
+                    successful = true;
+                    
                 for ( var i = 0; successful && i < pathElems.length; ++ i ) {
                     var curElem = pathElems[i];
                     

@@ -112,10 +112,10 @@
             '/hello'        :   'fourthVal',
             '/hello/world'  :   'fifthVal',
             '/hello/world2' :   'sixthVal'
-        };
+        },
             
-        // For now assuming that Configurator() is accessible
-        var config = new engine.configurator.constructor( defaultConfig );
+            // For now assuming that Configurator() is accessible
+            config = new engine.configurator.constructor( defaultConfig );
                     
         for ( var key in defaultConfig ) {
             var val = config.get( key );
@@ -127,7 +127,14 @@
     test( 'getPath and separator apprehension', function() {
         expect( 10 );
         
-        var childConfigs = [];
+        var childConfigs = [],
+            vals = [
+                'first_val',
+                'second_val',
+                'third_val',
+                'fourth_val',
+                'fifth_val'
+            ];
         
         childConfigs.push( engine.configurator.getPath( '/foo' ) );
         childConfigs.push( engine.configurator.getPath( '/foo/bar' ) );
@@ -138,30 +145,25 @@
         equal( childConfigs[1].get( '/' ), '' )
         
         // Set through engine configurator to first child
-        var first_val = 'first_val';
-        engine.configurator.set( '/foo', first_val );
-        equal( first_val, childConfigs[0].get( '/' ), 'Read value from first child configurator set through engine configurator' );
+        engine.configurator.set( '/foo', vals[0] );
+        equal( vals[0], childConfigs[0].get( '/' ), 'Read value from first child configurator set through engine configurator' );
         
         // Set through engine configurator to second child
-        var fifth_val = 'fifth_val';
-        engine.configurator.set( '/foo/bar', fifth_val );
-        equal( fifth_val, childConfigs[1].get( '/' ), 'Read value from second child configurator set through engine configurator' );
+        engine.configurator.set( '/foo/bar', vals[4] );
+        equal( vals[4], childConfigs[1].get( '/' ), 'Read value from second child configurator set through engine configurator' );
         
         // Set through first child configurator
-        var second_val = 'second_val';
-        childConfigs[0].set( '/bar', second_val)
-        equal( second_val, childConfigs[1].get( '/' ), 'Read value from second child configurator set through first child configurator' );
+        childConfigs[0].set( '/bar', vals[1])
+        equal( vals[1], childConfigs[1].get( '/' ), 'Read value from second child configurator set through first child configurator' );
         
         // Set through second child configurator
-        var third_val = 'third_val';
-        childConfigs[1].set( '/', third_val )
-        equal( third_val, childConfigs[0].get( '/bar' ), 'Read value from first child configurator set through second child configurator' );
-        equal( third_val, engine.configurator.get( '/foo/bar' ), 'Read value from engine configurator set through second child configurator' );
+        childConfigs[1].set( '/', vals[2] )
+        equal( vals[2], childConfigs[0].get( '/bar' ), 'Read value from first child configurator set through second child configurator' );
+        equal( vals[2], engine.configurator.get( '/foo/bar' ), 'Read value from engine configurator set through second child configurator' );
         
         // Set through first child configurator
-        var fourth_val = 'fourth_val';
-        childConfigs[0].set( '/', fourth_val );
-        equal( fourth_val, engine.configurator.get( '/foo', fourth_val ), 'Read value from engine configurator set through first child configurator' );
+        childConfigs[0].set( '/', vals[3] );
+        equal( vals[3], engine.configurator.get( '/foo', vals[3] ), 'Read value from engine configurator set through first child configurator' );
     });
     
     // Test listen/ignore
@@ -169,8 +171,9 @@
         expect( 2 );
         
         // Test listen on creation -- listen-able path
-        var testKey1 = '/listener/should/get/called';
-        var childConfig = engine.configurator.getPath( '/listener/should', function( path ) {
+        var testKey1 = '/listener/should/get/called',
+            testKey2 = '/listener',
+            childConfig = engine.configurator.getPath( '/listener/should', function( path ) {
             var myTestKey = '/get/called';
             equal( myTestKey, path, 'Root-bound listener found ' + path + ', expected ' + myTestKey );
             start();
@@ -179,7 +182,6 @@
         engine.configurator.set( testKey1, 'ALERT!' );
         
         // ignored path
-        var testKey2 = '/listener';
         childConfig.listen( function( path ) {
             ok(false, 'Listener called unexpectedly, received path ' + path)
         });
