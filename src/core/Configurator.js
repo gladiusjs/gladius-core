@@ -43,7 +43,7 @@ define( function ( require ) {
             
             var rv;
             
-            if ( path.length == 1 && path.charAt( 0 ) == '/' ) {
+            if ( path.length === 1 && path.charAt( 0 ) === '/' ) {
                 rv = this;
             } else {
                 
@@ -86,7 +86,7 @@ define( function ( require ) {
             
             if ( this.parent ) {
                 // Clean last slash if present
-                if ( path.length == 1 && path.charAt( 0 ) == '/' ) {
+                if ( path.length === 1 && path.charAt( 0 ) === '/' ) {
                     path = '';
                 }
                 
@@ -118,7 +118,7 @@ define( function ( require ) {
         
         for(j=0; j<32; j++)
         {
-            if( j == 8 || j == 12|| j == 16|| j == 20) {
+            if( j === 8 || j === 12|| j === 16|| j === 20) {
                 result = result + '-';
             }
             
