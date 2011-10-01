@@ -96,8 +96,9 @@ define( function ( require ) {
                 
                 // Call all of our listeners
                 for ( var key in this.listeners ) {
-                    // is hasOwnProperty desired here? Seems unnecessary
-                    this.listeners[key]( path );
+                    if ( this.listeners.hasOwnProperty( key ) ) {
+                        this.listeners[key]( path );
+                    }
                 }
                 
                 this.parent.notify( this.name, path, newVal );
@@ -171,7 +172,7 @@ define( function ( require ) {
             // Update configuration with given json object
             this.update = function( json ) {
                 for ( var key in json ) {
-                    if (json.hasOwnProperty( key )) {   // Performance Note: perhaps protecting against the prototype is not required?
+                    if ( json.hasOwnProperty( key ) ) {   // Performance Note: perhaps protecting against the prototype is not required?
                         this.set( key, json[key] );
                     }
                 }

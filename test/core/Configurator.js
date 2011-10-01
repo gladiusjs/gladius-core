@@ -118,8 +118,10 @@
             config = new engine.configurator.constructor( defaultConfig );
                     
         for ( var key in defaultConfig ) {
-            var val = config.get( key );
-            equal( defaultConfig[key], val, 'Retrieve default configuration value, expected ' + defaultConfig[key] + ', found ' + val + ', through key ' + key);
+            if ( defaultConfig.hasOwnProperty( key ) ) {
+                var val = config.get( key );
+                equal( defaultConfig[key], val, 'Retrieve default configuration value, expected ' + defaultConfig[key] + ', found ' + val + ', through key ' + key);
+            }
         }
     });
     
