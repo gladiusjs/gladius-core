@@ -41,7 +41,7 @@ define( function ( require ) {
         // Traverse the node tree given a path
         self.traverse = function( path, doCreatePath ) {
             
-            var rv = undefined;
+            var rv;
             
             if ( path.length == 1 && path.charAt( 0 ) == '/' ) {
                 rv = self;
@@ -54,11 +54,11 @@ define( function ( require ) {
                 for ( var i = 0; successful && i < pathElems.length; ++ i ) {
                     var curElem = pathElems[i];
                     
-                    if ( curElem != '' ) {
+                    if ( curElem !== '' ) {
                         
                         // Look for name in children of current node
                         var nextNode = curNode.children[curElem];
-                        if ( nextNode != undefined ) {
+                        if ( nextNode !== undefined ) {
                             curNode = nextNode;
                         } else if ( doCreatePath ) {
                             nextNode = new ConfNode( curElem, curNode );
@@ -129,7 +129,7 @@ define( function ( require ) {
         }
         
         return result;
-    };
+    }
     
     /* Configurator
      *
@@ -172,7 +172,7 @@ define( function ( require ) {
             self.update = function( json ) {
                 for ( var key in json ) {
                     if (json.hasOwnProperty( key )) {   // Performance Note: perhaps protecting against the prototype is not required?
-                        self.set( key, json[key] )
+                        self.set( key, json[key] );
                     }
                 }
             };
