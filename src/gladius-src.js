@@ -3,13 +3,13 @@
 
 define( function ( require ) {
     var lang = require( './core/lang' ),
-    _Math = require( './common/Math' ),  
-    Entity = require( './core/Entity' ),
-    Component = require( './core/Component' ),
-    Scene = require( './core/Scene' ),
-    // Transform = require( './core/component/Transform' ),
+        _Math = require( './common/Math' ),  
+        Entity = require( './core/Entity' ),
+        Component = require( './core/Component' ),
+        Scene = require( './core/Scene' ),
+        // Transform = require( './core/component/Transform' ),
 
-    Paladin, i, args,
+    Gladius, i, args,
 
     // Expose the API on the global object. Part of if may already
     // exist, mainly gladius.ready from gladius.js. Check tools/wrap.start

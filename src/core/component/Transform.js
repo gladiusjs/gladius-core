@@ -63,6 +63,8 @@ define( function ( require ) {
         });
         Transform.prototype.constructor = Transform;
         
+        return Transform;
+        
     };
 
 });
