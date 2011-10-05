@@ -18,18 +18,6 @@
     <script src="core/Component.js"></script>
     <script src="core/Scene.js"></script>
     <script src="core/component/Logic.js"></script>
-    <script id="logic-script-1" type="application/gladius">
-      log( "hello universe!" );
-
-      var numUpdates = 0;
-      script.update = function() {
-          ++numUpdates;
-          log( "update " + numUpdates );
-          script.updates = numUpdates;
-      }; //update
-
-      script.updates = 0;
-    </script>
     <style>
       #test-canvas {
         width: 300px;

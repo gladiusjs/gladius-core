@@ -5,7 +5,8 @@
 
 (function() {
 
-    var engine = null;
+    var engine = null,
+        logicScript = null;
 
     module( 'core/Logic', {
         setup: function () {
@@ -13,12 +14,24 @@
 
             gladius.create( { debug: true }, function( instance ) {       
                 engine = instance;
+
+                logicScript = '';
+                logicScript += 'log( "hello universe!" ); \n';
+                logicScript += 'var numUpdates = 0; \n';
+                logicScript += 'script.update = function() { \n';
+                logicScript += '    ++numUpdates; \n';
+                logicScript += '    log( "update " + numUpdates ); \n';
+                logicScript += '    script.updates = numUpdates; \n';
+                logicScript += '}; //update \n';
+                logicScript += 'script.updates = 0; \n';
+
                 start();
             });
         },
 
         teardown: function () {
             engine = null;
+            logicScript = null;
         }
     });
 
@@ -30,10 +43,10 @@
         ok( undefined === logic.script && undefined === logic.updateFunction, "Empty logic component" );
     });
 
-    test( 'Initialization', function () {
+    test( 'Initialization from text', function () {
         expect( 2 );
         var logic = new engine.core.component.Logic({
-            script: document.getElementById( 'logic-script-1' ),
+            script: logicScript,
         });
         var script = logic.namespace.script;
         ok( script.updates === undefined, "Namespace does not contain an 'updates' var" );
@@ -44,7 +57,7 @@
     test( 'Updating', function () {
         expect( 1 );
         var logic = new engine.core.component.Logic({
-            script: document.getElementById( 'logic-script-1' ),
+            script: logicScript,
         });
         var script = logic.namespace.script;
         logic.start();
