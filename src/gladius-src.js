@@ -7,7 +7,7 @@ define( function ( require ) {
         Entity = require( './core/Entity' ),
         Component = require( './core/Component' ),
         Scene = require( './core/Scene' ),
-        // Transform = require( './core/component/Transform' ),
+        Transform = require( './core/component/Transform' ),
 
     Gladius, i, args,
 
@@ -90,7 +90,7 @@ define( function ( require ) {
             // this.physics = subs.physics;
             // this.sound = subs.sound;
 
-            // Expose Paladin objects, partially
+            // Expose engine objects, partially
             // applying items needed for their constructors.
             lang.extend(this, {
                 core: {
@@ -98,8 +98,21 @@ define( function ( require ) {
                     Component: Component,
                     Scene: partialCtor( Scene, this ),
                     component: {
-//                        Transform: Transform
-                    }
+                        Transform: partialCtor( Transform, this )
+                    },
+                    resource: {}
+                },
+                graphics: {
+                    component: {},
+                    resource: {}
+                },
+                physics: {
+                    component: {},
+                    resource: {}
+                },
+                sound: {
+                    component: {},
+                    resource: {}
                 }
             });
             
@@ -123,14 +136,14 @@ define( function ( require ) {
                 this.options.setup( this );
             }
 
-            // Let caller know the Paladin instance is ready.
+            // Let caller know the engine instance is ready.
             if (callback) {
                 callback(this);
             }
         }));
     }; //Paladin
 
-    // Set up common properties for all Paladin instances
+    // Set up common properties for all engine instances
     Gladius.prototype = {
 
             run: function () {
@@ -141,7 +154,7 @@ define( function ( require ) {
             }
     };
 
-    // Export the public API for creating Paladin instances.
+    // Export the public API for creating engine instances.
     global.create = function ( options, callback ) {
         return new Gladius( options, callback );
     };
