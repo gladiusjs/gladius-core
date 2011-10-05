@@ -11,6 +11,7 @@ define( function ( require ) {
         var Transform = function( options ) {
 
             option = options || {};
+            var that = this;
 
             var _position = math.Vector3( math.vector3.zero );        
             Object.defineProperty( this, 'position', {
@@ -51,18 +52,20 @@ define( function ( require ) {
                 }
             });
             
-            // True if the cached transform is valid, false otherwise.
-            var _valid = true;
-            
-            var _absolute = math.transform.fixed( _position, _rotation, _scale );
-            var _relative = math.matrix4.inverse( _absolute );
+            var _absolute = null;
+            var _relative = null;
             
             Object.defineProperty( this, 'absolute', {
                 get: function() {
-                    if( !_valid ) {
-                        _absolute = math.transform.fixed( _position, _rotation, _scale );
-                        _relative = math.matrix4.inverse( _absolute );
-                        _valid = true;
+                    if( !_absolute ) {
+                        math.transform.fixed(   // Compute fixed transform
+                                math.vector3.equal( _position, math.vector3.zero ) ? null : _position, 
+                                math.vector3.equal( _rotation, math.vector3.zero ) ? null : _rotation, 
+                                math.vector3.equal( _scale, math.vector3.one ) ? null : _scale, 
+                                _absolute
+                        );
+                        if( that.owner && that.owner.contains( that.type ) )
+                            math.matrix4.multiply( that.owner.find( that.type ).absolute, _absolute, _absolute ); // Apply parent transform
                     }
 
                     return _absolute;
@@ -71,15 +74,25 @@ define( function ( require ) {
             
             Object.defineProperty( this, 'relative', {
                 get: function() {
-                    if( !_valid ) {
-                        _absolute = math.transform.fixed( _position, _rotation, _scale );
-                        _relative = math.matrix4.inverse( _absolute );
-                        _valid = true;
+                    if( !_relative ) {
+                        if( !_absolute ) {  // Relative transform is computed from the absolute transform, so check it now
+                            math.transform.fixed(
+                                    math.vector3.equal( _position, math.vector3.zero ) ? null : _position, 
+                                    math.vector3.equal( _rotation, math.vector3.zero ) ? null : _rotation, 
+                                    math.vector3.equal( _scale, math.vector3.one ) ? null : _scale, 
+                                    _absolute
+                            );
+                        }
+                        if( that.owner && that.owner.contains( that.type ) )
+                            math.matrix4.multiply( that.owner.find( that.type ).absolute, _absolute, _absolute ); // Apply parent transform
+                        math.matrix4.inverse( _absolute, _relative );
                     }
 
                     return _relative;                    
                 }
             });
+            
+            // Events          
 
         };
         Transform.prototype = new engine.Component({
