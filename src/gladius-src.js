@@ -7,6 +7,7 @@ define( function ( require ) {
         Entity = require( './core/Entity' ),
         Component = require( './core/Component' ),
         Scene = require( './core/Scene' ),
+        Logic = require( './core/component/Logic' ),
         // Transform = require( './core/component/Transform' ),
 
     Gladius, i, args,
@@ -99,9 +100,12 @@ define( function ( require ) {
                     Scene: partialCtor( Scene, this ),
                     component: {
 //                        Transform: Transform
+                        Logic: partialCtor( Logic, this )
                     }
                 }
             });
+
+            this.core.component.Logic = this.core.component.Logic();
             
             this.assert = function( condition, message ) {
                 if( !condition )
@@ -128,7 +132,7 @@ define( function ( require ) {
                 callback(this);
             }
         }));
-    }; //Paladin
+    }; //Gladius
 
     // Set up common properties for all Paladin instances
     Gladius.prototype = {
