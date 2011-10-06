@@ -29,7 +29,14 @@ define( function ( require ) {
         });
 
 //      ** Vector Functions **
-        var Vector = function( dim, elements ) {
+        var Vector = function( dim, args ) {
+            var elements = null;
+            if( 1 === args.length ) {
+                elements = args[0];
+            } else {
+                elements = args;
+            }
+            
             var vector = new FLOAT_ARRAY_TYPE( dim );
             for( var i = 0; i < dim; ++ i ) {
                 vector[i] = elements[i];
@@ -414,12 +421,24 @@ define( function ( require ) {
                 return _vector2_0;
             }
         });
+        var _vector3_0 = _0.subarray( 0, 3 );
+        Object.defineProperty( this.vector3, 'zero', {
+            get: function() {
+                return _vector3_0;
+            }
+        });
 
         // Unit (1) Vector
         var _vector2_1 = _1.subarray( 0, 2 );
         Object.defineProperty( this.vector2, 'one', {
             get: function() {
                 return _vector2_1;
+            }
+        });
+        var _vector3_1 = _1.subarray( 0, 3 );
+        Object.defineProperty( this.vector3, 'one', {
+            get: function() {
+                return _vector3_1;
             }
         });
 

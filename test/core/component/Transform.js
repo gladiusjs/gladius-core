@@ -27,8 +27,6 @@
 
         var transform = new engine.core.component.Transform();
         
-        console.log( transform );
-        
         equal(
             transform.type,
             'Transform',
