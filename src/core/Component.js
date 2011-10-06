@@ -10,7 +10,7 @@ define( function ( require ) {
      */
 
     var Component = function( options ) {
-
+        
         option = options || {};
 
         var _type = options.type || undefined;
