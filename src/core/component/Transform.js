@@ -5,8 +5,9 @@
 define( function ( require ) {
 
     return function( engine ) {
-                
+        
         var math = engine.math;
+        var Component = require( '../Component' );
 
         var Transform = function( options ) {
 
@@ -94,8 +95,8 @@ define( function ( require ) {
             
             // Events          
 
-        };       
-        Transform.prototype = new engine.core.Component({
+        };
+        Transform.prototype = new Component({
             type: 'Transform'
         });
         Transform.prototype.constructor = Transform;

@@ -94,11 +94,11 @@ define( function ( require ) {
             // applying items needed for their constructors.
             lang.extend(this, {
                 core: {
-                    Entity: partialCtor( Entity, this ),
+                    Entity: Entity( this ),
                     Component: Component,
-                    Scene: partialCtor( Scene, this ),
+                    Scene: Scene( this ),
                     component: {
-                        Transform: partialCtor( Transform, this )
+                        Transform: Transform( this )
                     },
                     resource: {}
                 },
