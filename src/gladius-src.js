@@ -8,7 +8,7 @@ define( function ( require ) {
         Component = require( './core/Component' ),
         Scene = require( './core/Scene' ),
         Logic = require( './core/component/Logic' ),
-        // Transform = require( './core/component/Transform' ),
+        Transform = require( './core/component/Transform' ),
 
     Gladius, i, args,
 
@@ -91,22 +91,33 @@ define( function ( require ) {
             // this.physics = subs.physics;
             // this.sound = subs.sound;
 
-            // Expose Paladin objects, partially
+            // Expose engine objects, partially
             // applying items needed for their constructors.
             lang.extend(this, {
                 core: {
-                    Entity: partialCtor( Entity, this ),
+                    Entity: Entity( this ),
                     Component: Component,
-                    Scene: partialCtor( Scene, this ),
+                    Scene: Scene( this ),
                     component: {
-//                        Transform: Transform
-                        Logic: partialCtor( Logic, this )
-                    }
+                        Logic: Logic( this ),
+                        Transform: Transform( this )
+                    },
+                    resource: {}
+                },
+                graphics: {
+                    component: {},
+                    resource: {}
+                },
+                physics: {
+                    component: {},
+                    resource: {}
+                },
+                sound: {
+                    component: {},
+                    resource: {}
                 }
             });
 
-            this.core.component.Logic = this.core.component.Logic();
-            
             this.assert = function( condition, message ) {
                 if( !condition )
                     throw 'Assertion failed: ' + message;
@@ -127,14 +138,14 @@ define( function ( require ) {
                 this.options.setup( this );
             }
 
-            // Let caller know the Paladin instance is ready.
+            // Let caller know the engine instance is ready.
             if (callback) {
                 callback(this);
             }
         }));
     }; //Gladius
 
-    // Set up common properties for all Paladin instances
+    // Set up common properties for all engine instances
     Gladius.prototype = {
 
             run: function () {
@@ -145,7 +156,7 @@ define( function ( require ) {
             }
     };
 
-    // Export the public API for creating Paladin instances.
+    // Export the public API for creating engine instances.
     global.create = function ( options, callback ) {
         return new Gladius( options, callback );
     };

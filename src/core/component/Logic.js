@@ -6,6 +6,8 @@ define( function ( require ) {
 
     return function( engine ) {
 
+        var Component = require( '../Component' );
+
         var Logic = function( options ) {
 
             option = options || {};
@@ -63,7 +65,7 @@ define( function ( require ) {
                 get: function() { return defaultNamespace; }
             });
         };
-        Logic.prototype = new engine.core.Component({
+        Logic.prototype = new Component({
             type: 'Logic'
         });
         Logic.prototype.constructor = Logic;
