@@ -3,7 +3,7 @@
 
 define( function ( require ) {
     var lang = require( './core/lang' ),
-        _Math = require( './common/Math' ),  
+        _Math = require( '../external/gladius.math/src/Math' ),  
         Entity = require( './core/Entity' ),
         Component = require( './core/Component' ),
         Scene = require( './core/Scene' ),
