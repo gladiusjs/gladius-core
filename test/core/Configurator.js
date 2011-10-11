@@ -114,8 +114,8 @@
             '/hello/world2' :   'sixthVal'
         },
             
-            // For now assuming that Configurator() is accessible
-            config = new engine.configurator.constructor( defaultConfig );
+        // Apparently this is legal
+        config = new engine.configurator.constructor( defaultConfig );
                     
         for ( var key in defaultConfig ) {
             if ( defaultConfig.hasOwnProperty( key ) ) {

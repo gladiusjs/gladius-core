@@ -148,7 +148,6 @@ define( function ( require ) {
         
         this.node = node || new ConfNode( 'ROOT' );
         
-        this.constructor = Configurator;    // TODO: FIXME Dirty Dirty Hack
         this.id = uniqueId();
         
         // Get a value based on a given path
