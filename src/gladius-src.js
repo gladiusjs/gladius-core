@@ -9,6 +9,8 @@ define( function ( require ) {
         Scene = require( './core/Scene' ),
         Transform = require( './core/component/Transform' ),
 
+        Text = require( './core/resource/Text' ),
+
     Gladius, i, args,
 
     // Expose the API on the global object. Part of if may already
@@ -16,14 +18,6 @@ define( function ( require ) {
     // for protections against overwriting an existing gladius in the page,
     // for when gladius is built for deployment.
     global = window.gladius || ( window.gladius = {} );
-
-    // Utility to bridge the gap between constructor functions
-    // that need to know the gladius instance.
-    function partialCtor( Func, instance ) {
-        return function ( options ) {
-            return new Func( instance, options );
-        };
-    }
 
     /***
      * Gladius
@@ -96,11 +90,14 @@ define( function ( require ) {
                 core: {
                     Entity: Entity( this ),
                     Component: Component,
+                    Resource: null,
                     Scene: Scene( this ),
                     component: {
                         Transform: Transform( this )
                     },
-                    resource: {}
+                    resource: {
+                        Text: Text( this )
+                    }
                 },
                 graphics: {
                     component: {},
