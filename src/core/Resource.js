@@ -9,27 +9,46 @@ define( function ( require ) {
             option = options || {};
 
             var _type = options.type || undefined;
-            Object.defineProperty( this, 'type', {
-                get: function() {
-                    return _type;
-                }
-            });
-
             var _cache = options.cache || null;
-            Object.defineProperty( this, 'cache', {
-                get: function() {
-                    return _cache;
-                }
-            });
-
             var _load = options.load || null;
-            Object.defineProperty( this, 'load', {
-                get: function() {
-                    return _load;
-                }
-            });
 
-            // Events
+            var Constructor = function( options ) {
+            
+                options = options || {};
+
+                var _url = options.url || null;
+
+                var _ok = options.ok || function( instance ) {};
+                var _error = options.error || function( error ) {};
+
+                _cache = options.cache || _cache; 
+                _load = options.load || _load;
+
+                if( _url && _cache && _cache.contains( _url ) ) {
+                    _ok( _cache.find( _url ) );
+                } else if( _load ) {
+                    _load({
+                        url: _url,
+                        onComplete: function( object ) {
+                            if( _url && _cache ) {
+                                _cache.add({
+                                    url: _url,
+                                    object: _object
+                                });
+                            }
+                            _ok( object );
+                        },
+                        onError: function() {
+                            _error( 'unable to load resource' );
+                        }
+                    });
+                } else {
+                    _error( 'resource creation failed' );
+                }
+
+            };
+
+            return Constructor;
 
         };
 

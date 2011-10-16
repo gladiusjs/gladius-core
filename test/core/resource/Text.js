@@ -26,8 +26,8 @@
         expect( 0 );
 
         var text;
-        new engine.core.resource.Text({
-            url: 'http://test.com',
+        engine.core.resource.Text({
+            url: './',
             ok: function( instance ) {
                 text = instance;
             }

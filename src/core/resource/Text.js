@@ -7,45 +7,31 @@ define( function ( require ) {
     return function( engine ) {
 
         var Resource = require( '../Resource' );
-        
-        var Text = function( options ) {
 
-            option = options || {};
+        var TextLoader = function( options ) {
+            options = options || {};
 
-            var _ok = options.ok || function( instance ) {};
-            var _error = options.error || function( error ) {};
-            
-            var _cache = options.cache || this.cache;
-            var _load = options.load || this.load;
-            var _url = options.url || null;
-            var _object;
+            var onComplete = options.onComplete,
+                onError = options.onError,
+                url = options.url;
 
-            if( _url && _cache && _cache.contains( _url ) ) {
-                _object = _cache.find( _url );
-                _ok( _object );
-            } else if( _load ) {
-                _object = _load( _url );
-                if( _url && _cache ) {
-                    _cache.add({
-                        url: _url,
-                        object: _object
-                    });
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.open( 'GET', url, true );
+            xmlhttp.onreadystatechange = function() {
+                if( 4 != xmlhttp.readyState ) {
+                    return;
                 }
-                _ok( _object );
-            } else {
-                _error( 'resource creation failed' );
-            }
-
+                console.log( 'response: ', xmlhttp.responseText );
+                onComplete( xmlhttp.responseText );
+            };
+            xmlhttp.send( null );
         };
-        Text.prototype = new Resource({
+        
+        var Text = new Resource({
             type: 'Text',
-            cache: null,
-            load: function( url ) {
-                console.log( 'loading: ' + url );
-                return {};
-            }
+            load: TextLoader,
+            cache: null
         });
-        Text.prototype.constructor = Text;
         
         return Text;
         
