@@ -9,6 +9,8 @@ define( function ( require ) {
         Scene = require( './core/Scene' ),
         Transform = require( './core/component/Transform' ),
 
+        Text = require( './core/resource/Text' ),
+
     Gladius, i, args,
 
     // Expose the API on the global object. Part of if may already
@@ -93,7 +95,9 @@ define( function ( require ) {
                     component: {
                         Transform: Transform( this )
                     },
-                    resource: {}
+                    resource: {
+                        Text: Text( this )
+                    }
                 },
                 graphics: {
                     component: {},

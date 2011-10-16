@@ -4,8 +4,6 @@
 
 define( function ( require ) {
 
-    return function( options ) {
-
         var Resource = function( options ) {
 
             option = options || {};
@@ -16,15 +14,25 @@ define( function ( require ) {
                     return _type;
                 }
             });
-            
+
             var _cache = options.cache || null;
+            Object.defineProperty( this, 'cache', {
+                get: function() {
+                    return _cache;
+                }
+            });
+
+            var _load = options.load || null;
+            Object.defineProperty( this, 'load', {
+                get: function() {
+                    return _load;
+                }
+            });
 
             // Events
 
         };
 
         return Resource;
-
-    };
 
 });
