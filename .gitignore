@@ -1,3 +1,5 @@
 .*.swp
 *~
 /dist/
+.DS_Store
+.project
