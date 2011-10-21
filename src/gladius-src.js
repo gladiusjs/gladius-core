@@ -3,7 +3,9 @@
 
 define( function ( require ) {
     var lang = require( './core/lang' ),
-        _Math = require( '../external/gladius.math/src/Math' ),  
+        
+        _Math = require( 'math/math-require' ),
+    
         Entity = require( './core/Entity' ),
         Component = require( './core/Component' ),
         Scene = require( './core/Scene' ),
@@ -44,12 +46,13 @@ define( function ( require ) {
             }
         }
         
+
         var _math = new _Math();
         Object.defineProperty( this, 'math', {
             get: function() {
                 return _math;
             }
-        });        
+        });
 
         var _nextGUID = 0;
         Object.defineProperty( this, 'nextGUID', {
