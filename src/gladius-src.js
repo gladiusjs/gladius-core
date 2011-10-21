@@ -9,6 +9,7 @@ define( function ( require ) {
         Entity = require( './core/Entity' ),
         Component = require( './core/Component' ),
         Scene = require( './core/Scene' ),
+        Logic = require( './core/component/Logic' ),
         Transform = require( './core/component/Transform' ),
 
         Text = require( './core/resource/Text' ),
@@ -96,6 +97,7 @@ define( function ( require ) {
                     Resource: null,
                     Scene: Scene( this ),
                     component: {
+                        Logic: Logic( this ),
                         Transform: Transform( this )
                     },
                     resource: {
@@ -115,7 +117,7 @@ define( function ( require ) {
                     resource: {}
                 }
             });
-            
+
             this.assert = function( condition, message ) {
                 if( !condition )
                     throw 'Assertion failed: ' + message;
@@ -141,7 +143,7 @@ define( function ( require ) {
                 callback(this);
             }
         }));
-    }; //Paladin
+    }; //Gladius
 
     // Set up common properties for all engine instances
     Gladius.prototype = {
