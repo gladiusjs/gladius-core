@@ -7,9 +7,9 @@ define( function ( require ) {
     var Task = function( options ) {
         
         options = options || {};
+        options.schedule = options.schedule || true;
 
-        this.CONTINUE = 0;
-        this.COMPLETE = 1;
+        this.COMPLETE = 0;
 
         var _scheduler = options.scheduler || null;
         Object.defineProperty( this, 'scheduler', {
@@ -35,7 +35,7 @@ define( function ( require ) {
             }
         });
 
-        var _active = options.active || true;
+        var _active = false;
         Object.defineProperty( this, 'active', {
             get: function() {
                 return _active;
@@ -50,12 +50,25 @@ define( function ( require ) {
             get: function() {
                 return _scheduled;
             },
-            set: function( value ) {
-                _scheduled = value;
-            }
         });
 
-        _scheduler.add( this );
+        this.suspend = function() {
+            if( _active ) {
+                _active = false;
+                _scheduler.remove( this );
+            }
+        };
+
+        this.resume = function() {
+            if( !_active ) {
+                _active = true;
+                _scheduler.add( this );
+            }
+        };
+
+        if( options.schedule ) {
+            this.resume();
+        }
 
     };
 

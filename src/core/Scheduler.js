@@ -29,15 +29,25 @@ define( function ( require ) {
                 return task;
             };
 
-            this.run = function() {
+            // Return the next runnable task, or null.
+            var dequeue = function() {
                 while( _queue.length > 0 ) {
                     var task = _queue.shift();
+                    task.scheduled = false;
                     if( task.active ) {
-                        task.callback();
-                        if( task.active ) {
-                            _queue.push( task );
-                        }
-                        break;
+                        return task;
+                    }
+                }
+                return null;
+            };
+
+            this.run = function() {
+                var task = dequeue();
+                if( task ) {
+                    task.callback();
+                    if( task.active ) {
+                        task.scheduled = true;
+                        _queue.push( task );
                     }
                 }
 
@@ -45,12 +55,16 @@ define( function ( require ) {
             };
 
             this.add = function( task ) { 
-                task.active = true;
-                _queue.push( task );
+                if( !task.scheduled ) {
+                    task.scheduled = true;
+                    _queue.push( task );
+                }
             };
 
             this.remove = function( task ) {
-                task.active = false;
+                if( task.scheduled ) {
+                    task.scheduled = false;
+                }
             };
 
         };
