@@ -10,7 +10,7 @@ define( function ( require ) {
         Component = require( './core/Component' ),
         Scene = require( './core/Scene' ),
         Transform = require( './core/component/Transform' ),
-
+        Scheduler = require( './core/Scheduler' ),
         Text = require( './core/resource/Text' ),
 
     Gladius, i, args,
@@ -34,8 +34,6 @@ define( function ( require ) {
 
         this.options = options || {};
         this.debug = this.options.debug ? console.log : function () {};
-        // this.tasker = new Tasker();
-        // this.messenger = new Messenger( this.tasker );
 
         // Init instance of each subsystem and store reference as subsystem name
         subsystems = this.options.subsystems || global.subsystems;
@@ -66,6 +64,13 @@ define( function ( require ) {
                 else {
                     return ++ _nextGUID;
                 }
+            }
+        });
+
+        var _scheduler = new Scheduler();
+        Object.defineProperty( this, 'scheduler', {
+            get: function() {
+                return _scheduler;
             }
         });
 
@@ -150,7 +155,7 @@ define( function ( require ) {
                 if ( this.options.run ) {
                     this.options.run( this );
                 }
-                // this.tasker.run();
+                this.scheduler.run();
             }
     };
 

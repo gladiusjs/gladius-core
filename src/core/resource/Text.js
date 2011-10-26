@@ -21,7 +21,6 @@ define( function ( require ) {
                 if( 4 != xmlhttp.readyState ) {
                     return;
                 }
-                console.log( 'response: ', xmlhttp.responseText );
                 onComplete( xmlhttp.responseText );
             };
             xmlhttp.send( null );
