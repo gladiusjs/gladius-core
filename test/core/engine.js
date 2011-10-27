@@ -26,11 +26,12 @@
         expect( 2 );
 
         ok(
-                engine.nextGUID === 1,
+                // id === 1 is given to configurator
+                engine.nextGUID === 2,
                 'First GUID is 1.'
         );
         ok(
-                engine.nextGUID === 2,
+                engine.nextGUID === 3,
                 'Second GUID is 2.'
         );
     });

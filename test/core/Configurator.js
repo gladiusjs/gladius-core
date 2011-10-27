@@ -113,29 +113,30 @@
             '/hello/world'  :   'fifthVal',
             '/hello/world2' :   'sixthVal'
         },
-            
-        // Apparently this is legal
-        config = new engine.configurator.constructor( defaultConfig );
-                    
+
+        config = new engine.core.Configurator( defaultConfig );
+
         for ( var key in defaultConfig ) {
             if ( defaultConfig.hasOwnProperty( key ) ) {
                 var val = config.get( key );
-                equal( defaultConfig[key], val, 'Retrieve default configuration value, expected ' + defaultConfig[key] + ', found ' + val + ', through key ' + key);
+                equal( val, defaultConfig[key], 'Retrieve default configuration value, expected ' + defaultConfig[key] + ', found ' + val + ', through key ' + key);
             }
         }
     });
     
     // Test getPath
     test( 'getPath and separator apprehension', function() {
-        expect( 10 );
-        
-        var childConfigs = [],
+        expect( 21 );
+
+        var rootConfig = engine.core.Configurator(),
+            childConfigs = [],
             vals = [
                 'first_val',
                 'second_val',
                 'third_val',
                 'fourth_val',
-                'fifth_val'
+                'fifth_val',
+                'sixth_val'
             ];
         
         childConfigs.push( engine.configurator.getPath( '/foo' ) );
@@ -143,29 +144,47 @@
         
         equal( engine.configurator.get( '/foo' ), '' )
         equal( engine.configurator.get( '/foo/bar' ), '' )
+        equal( rootConfig.get( '/foo' ), '' )
+        equal( rootConfig.get( '/foo/bar' ), '' )
         equal( childConfigs[0].get( '/' ), '' )
         equal( childConfigs[1].get( '/' ), '' )
-        
-        // Set through engine configurator to first child
+
+        // We will test Configurator's ability to read and write through the
+        // engine configurator, getPath() configurators and
+        // engine.core.Configurator() configurators
+
+        // Set through engine configurator
         engine.configurator.set( '/foo', vals[0] );
-        equal( vals[0], childConfigs[0].get( '/' ), 'Read value from first child configurator set through engine configurator' );
-        
-        // Set through engine configurator to second child
+        equal( rootConfig.get( '/foo' ), vals[0] );
+        equal( childConfigs[0].get( '/' ), vals[0], 'Read value from first child configurator set through engine configurator' );
+
+        // Set through engine configurator
         engine.configurator.set( '/foo/bar', vals[4] );
-        equal( vals[4], childConfigs[1].get( '/' ), 'Read value from second child configurator set through engine configurator' );
-        
+        equal( rootConfig.get( '/foo/bar' ), vals[4] );
+        equal( childConfigs[1].get( '/' ), vals[4], 'Read value from second child configurator set through engine configurator' );
+
         // Set through first child configurator
-        childConfigs[0].set( '/bar', vals[1])
-        equal( vals[1], childConfigs[1].get( '/' ), 'Read value from second child configurator set through first child configurator' );
-        
+        childConfigs[0].set( '/bar', vals[1]);
+        equal( rootConfig.get( '/foo/bar' ), vals[1] );
+        equal( engine.configurator.get( '/foo/bar' ), vals[1] );
+        equal( childConfigs[1].get( '/' ), vals[1], 'Read value from second child configurator set through first child configurator' );
+
         // Set through second child configurator
         childConfigs[1].set( '/', vals[2] )
-        equal( vals[2], childConfigs[0].get( '/bar' ), 'Read value from first child configurator set through second child configurator' );
-        equal( vals[2], engine.configurator.get( '/foo/bar' ), 'Read value from engine configurator set through second child configurator' );
-        
+        equal( rootConfig.get( '/foo/bar' ), vals[2] );
+        equal( engine.configurator.get( '/foo/bar' ), vals[2], 'Read value from engine configurator set through second child configurator' );
+        equal( childConfigs[0].get( '/bar' ), vals[2], 'Read value from first child configurator set through second child configurator' );
+
         // Set through first child configurator
         childConfigs[0].set( '/', vals[3] );
-        equal( vals[3], engine.configurator.get( '/foo', vals[3] ), 'Read value from engine configurator set through first child configurator' );
+        equal( rootConfig.get( '/foo' ), vals[3] );
+        equal( engine.configurator.get( '/foo' ), vals[3], 'Read value from engine configurator set through first child configurator' );
+
+        // Set through engine.core.Configurator() constructed instance
+        rootConfig.set( '/foo/bar', vals[5] );
+        equal( engine.configurator.get( '/foo/bar' ), vals[5] );
+        equal( childConfigs[0].get( '/bar' ), vals[5] );
+        equal( childConfigs[1].get( '/' ), vals[5] );
     });
     
     // Test listen/ignore
@@ -178,7 +197,7 @@
             testKey3 = '/listener',
             childConfig = engine.configurator.getPath( '/listener/should', function( path ) {
                 var myTestKey = '/get/called';
-                equal( myTestKey, path, '/listener/should listener found ' + path + ', expected ' + myTestKey );
+                equal( path, myTestKey, '/listener/should listener found ' + path + ', expected ' + myTestKey );
                 start();
             });
         stop();
@@ -187,7 +206,7 @@
         // try again at /listener/should level
         childConfig.listen( function( path ) {
             var myTestKey = '/';
-            equal( myTestKey, path, '/listener/should bound listener found ' + path + ', expected ' + myTestKey );
+            equal( path, myTestKey, '/listener/should bound listener found ' + path + ', expected ' + myTestKey );
             start();
         });
         stop();
@@ -212,7 +231,7 @@
         // Test listen post-creation
         childConfig.listen( function( path ) {
             var myTestKey = '/get/called';
-            equal( myTestKey, path, 'Child-bound listener found ' + path + ', expected ' + myTestKey );
+            equal( path, myTestKey, 'Child-bound listener found ' + path + ', expected ' + myTestKey );
             start();
         });
         stop();

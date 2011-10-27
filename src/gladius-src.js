@@ -38,9 +38,7 @@ define( function ( require ) {
 
         this.options = options || {};
         this.debug = this.options.debug ? console.log : function () {};
-        this.configurator = new Configurator(
-            this.options.defaultConfiguration ? this.options.defaultConfiguration : {}
-        );
+
         // this.tasker = new Tasker();
         // this.messenger = new Messenger( this.tasker );
 
@@ -68,6 +66,11 @@ define( function ( require ) {
             }
         });
 
+        this.configurator = new Configurator(
+            this,
+            this.options.defaultConfiguration ? this.options.defaultConfiguration : {}
+        );
+
         // Fetch the subsystems. These can potentially be async operations.
         // In a build, they are async, but do not result in any network
         // requests for the subsystems bundled in the build.
@@ -90,6 +93,7 @@ define( function ( require ) {
             // applying items needed for their constructors.
             lang.extend(this, {
                 core: {
+                    Configurator: partialCtor( Configurator, this ),
                     Entity: partialCtor( Entity, this ),
                     Component: Component,
                     Scene: partialCtor( Scene, this ),

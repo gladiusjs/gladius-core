@@ -106,49 +106,43 @@ define( function ( require ) {
         };
     };
     
-    /**
-     * More or less unique id generator
-     *
-     * Borrowed from Sagi Shkedy's Technical Blog
-     * http://blog.shkedy.com/2007/01/createing-guids-with-client-side.html
-     */
-    var _incCounter = 0;
-    function uniqueId() {
-        
-        var result, i, j;
-        result = '';
-        
-        for(j=0; j<32; j++)
-        {
-            if( j === 8 || j === 12|| j === 16|| j === 20) {
-                result = result + '-';
-            }
-            
-            i = Math.floor(Math.random()*16).toString(16).toUpperCase() + _incCounter;
-            result = result + i;
-            
-            ++ _incCounter;
-        }
-        
-        return result;
-    }
-    
     /* Configurator
      *
      * Loads and stores configuration data. Allows external code to listen for
      * changes in configuration subtrees.
      *
+     * In Gladius, a configurator can be obtained in 3 ways:
+     *      1) engine.configurator
+     *              Engine instance, can be used directly.
+     *
+     *      2) < Configurator_Instance >.getPath( ... )
+     *              Returns a new Configurator instance rooted at a given path
+     *              relative to the engine instance registry root.
+     *
+     *      3) engine.core.Configurator( defaultConfig )
+     *              Returns a new instance rooted at the registry root for
+     *              the engine instance being used. If a JSON object is passed
+     *              into defaultConfig, the registry values contained within it
+     *              are merged with the engine instance registry.
+     *
+     *              This is akin to calling:
+     *                 var newConfInstance = engine.configurator.getPath( '/' );
+     *                 newConfInstance.update( myJSON );
+     *
      * Initially written by Hasan (northWind) Kamal-Al-Deen
      */
-    var Configurator = function( defaultConfiguration, node ) {
+    var Configurator = function( engine, defaultConfiguration ) {
         
         defaultConfiguration = defaultConfiguration || {};
         
         var self = this;
         
-        this.node = node || new ConfNode( 'ROOT' );
+        // Pickup or initialize registry tree
+        this.node = engine.rootConfNode ?
+            engine.rootConfNode :
+            ( engine.rootConfNode = new ConfNode( 'ROOT' ) );
         
-        this.id = uniqueId();
+        this.id = engine.nextGUID;
         
         // Get a value based on a given path
         this.get = function( path ) {
@@ -178,16 +172,20 @@ define( function ( require ) {
             }
         };
         
-        // Get a new configurator client for a node reachable using the given path.
-        // If provided, associate listenerFunc with the newly created configurator client.
-        // The listener func should accept upto 3 parameters:
-        //      path, newVal, oldVal
-        //      path -- the relative path to the changing value
-        //      newVal -- the value the given path has been set to
-        //      oldVal -- the prior value of the given path
+        /**
+         * Get a new configurator client for a node reachable using the given path.
+         * If provided, associate listenerFunc with the newly created configurator client.
+         * The listener func should accept upto 3 parameters:
+         *      path, newVal, oldVal
+         *      path -- the relative path to the changed value
+         *      newVal -- the value the given path has been set to
+         *      oldVal -- the prior value of the given path
+         */
         this.getPath = function( path, listenerFunc ) {
             var targetNode = this.node.traverse( path, true ),
-                rv = new Configurator( {}, targetNode );
+                rv = new Configurator( engine, {} );
+
+            rv.node = targetNode;
             
             if ( listenerFunc ) {
                 targetNode.listeners[rv.id] = listenerFunc;
@@ -206,6 +204,7 @@ define( function ( require ) {
         
         // Set listener function for this client. If another listener is
         // associated with this client then that listener is first removed.
+        // See getPath() for listenerFunc parameter descriptions.
         this.listen = function( listenerFunc ) {
             if ( listenerFunc ) {
                 this.ignore();
