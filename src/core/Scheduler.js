@@ -12,11 +12,13 @@ define( function ( require ) {
 
             var _queue = [],
                 _nextTaskId = 0,
+                _messageName = 'zero-timeout-message',
+                _running = false,
                 that = this;
 
             Object.defineProperty( this, 'nextTaskId', {
                 get: function() {
-                    return _nextTaskId ++;
+                    return ++ _nextTaskId;
                 }
             });
 
@@ -28,6 +30,18 @@ define( function ( require ) {
 
                 return task;
             };
+
+            var handleMessage = function( event ) {
+                if( event.source == window && event.data == _messageName ) {
+                    event.stopPropagation();
+                    if( !_running ) {
+                        _running = true;
+                        that.run();
+                        _running = false;
+                    }
+                }
+            };
+            window.addEventListener( 'message', handleMessage, true );
 
             // Return the next runnable task, or null.
             var dequeue = function() {
@@ -43,6 +57,7 @@ define( function ( require ) {
 
             this.run = function() {
                 var task = dequeue();
+                console.log( task );
                 if( task ) {
                     task.callback();
                     if( task.active ) {
@@ -51,13 +66,16 @@ define( function ( require ) {
                     }
                 }
 
-                setTimeout( that.run, 0 );
+                if( _queue.length > 0 ) {
+                    window.postMessage( _messageName, '*' );
+                }
             };
 
             this.add = function( task ) { 
                 if( !task.scheduled ) {
                     task.scheduled = true;
                     _queue.push( task );
+                    window.postMessage( _messageName, '*' );
                 }
             };
 
