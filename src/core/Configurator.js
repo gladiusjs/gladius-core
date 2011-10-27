@@ -38,6 +38,30 @@ define( function ( require ) {
             }
         });
         
+        // Notifies us that a value stored somewhere in the subtree rooted by
+        // this node has changed.
+        this.notify = function ( childName, path, newVal ) {
+            
+            if ( this.parent ) {
+                // Clean last slash if present
+                if ( path.length === 1 && path.charAt( 0 ) === '/' ) {
+                    path = '';
+                }
+                
+                // Build up the path
+                path = '/' + childName + path;
+                
+                // Call all of our listeners
+                for ( var key in this.listeners ) {
+                    if ( this.listeners.hasOwnProperty( key ) ) {
+                        this.listeners[key]( path );
+                    }
+                }
+                
+                this.parent.notify( this.name, path, newVal );
+            }
+        };
+        
         // Traverse the node tree given a path
         this.traverse = function( path, doCreatePath ) {
             
@@ -79,30 +103,6 @@ define( function ( require ) {
             }
             
             return rv;
-        };
-        
-        // Notifies us that a value stored somewhere in the subtree rooted by
-        // this node has changed.
-        this.notify = function ( childName, path, newVal ) {
-            
-            if ( this.parent ) {
-                // Clean last slash if present
-                if ( path.length === 1 && path.charAt( 0 ) === '/' ) {
-                    path = '';
-                }
-                
-                // Build up the path
-                path = '/' + childName + path;
-                
-                // Call all of our listeners
-                for ( var key in this.listeners ) {
-                    if ( this.listeners.hasOwnProperty( key ) ) {
-                        this.listeners[key]( path );
-                    }
-                }
-                
-                this.parent.notify( this.name, path, newVal );
-            }
         };
     };
     
