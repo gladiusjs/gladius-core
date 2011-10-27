@@ -170,31 +170,41 @@
     
     // Test listen/ignore
     test( 'Listen/ignore', function() {
-        expect( 2 );
+        expect( 3 );
         
         // Test listen on creation -- listen-able path
         var testKey1 = '/listener/should/get/called',
-            testKey2 = '/listener',
+            testKey2 = '/listener/should',
+            testKey3 = '/listener',
             childConfig = engine.configurator.getPath( '/listener/should', function( path ) {
-            var myTestKey = '/get/called';
-            equal( myTestKey, path, 'Root-bound listener found ' + path + ', expected ' + myTestKey );
-            start();
-        });
+                var myTestKey = '/get/called';
+                equal( myTestKey, path, '/listener/should listener found ' + path + ', expected ' + myTestKey );
+                start();
+            });
         stop();
         engine.configurator.set( testKey1, 'ALERT!' );
         
+        // try again at /listener/should level
+        childConfig.listen( function( path ) {
+            var myTestKey = '/';
+            equal( myTestKey, path, '/listener/should bound listener found ' + path + ', expected ' + myTestKey );
+            start();
+        });
+        stop();
+        engine.configurator.set( testKey2, 'ALERT!' );
+        
         // ignored path
         childConfig.listen( function( path ) {
-            ok(false, 'Listener called unexpectedly, received path ' + path)
+            ok( false, 'Listener called unexpectedly, received path ' + path );
         });
-        engine.configurator.set( testKey2, 'NoOneShouldCareThatIWasSet:) -- 1' );
+        engine.configurator.set( testKey3, 'NoOneShouldCareThatIWasSet:) -- 1' );
         
         
         // Test ignore after listen on creation
         childConfig.ignore();
         
-        childConfig = engine.configurator.getPath( '/listener/should', function( path ) {
-            ok(false, 'Ignored listener called incorrectly, received path ' + path);
+        childConfig = engine.configurator.getPath( testKey2, function( path ) {
+            ok( false, 'Ignored listener called incorrectly, received path ' + path );
         });
         childConfig.ignore();
         engine.configurator.set( testKey1, 'NoOneShouldCareThatIWasSet:) -- 2' );
@@ -210,7 +220,7 @@
         
         // Test ignore after listen post-creation
         childConfig.listen( function( path ) {
-            ok(false, 'Ignored listener called incorrectly, received path ' + path);
+            ok( false, 'Ignored listener called incorrectly, received path ' + path );
         });
         childConfig.ignore()
         engine.configurator.set( testKey1, 'NoOneShouldCareThatIWasSet:) -- 3' );

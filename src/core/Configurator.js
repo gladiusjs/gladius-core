@@ -27,38 +27,38 @@ define( function ( require ) {
             
             set: function( value ) {
                 if ( _value !==  value ) {  // Additionally check if incoming value is string?
-                
-                    // Meaningful change, notify parent
-                    if ( parent ) {
-                        parent.notify( this.name, '/', value );
-                    }
-                    
+
+                    var oldVal = _value;
+
+                    // Set to new value before notifying
                     _value = value;
+                    this.notify( '/', value, oldVal );
                 }
             }
         });
         
         // Notifies us that a value stored somewhere in the subtree rooted by
         // this node has changed.
-        this.notify = function ( childName, path, newVal ) {
-            
+        this.notify = function ( path, newVal, oldVal ) {
+
+            // Tell our listeners
+            for ( var key in this.listeners ) {
+                if ( this.listeners.hasOwnProperty( key ) ) {
+                    this.listeners[key]( path, newVal, oldVal );
+                }
+            }
+
+            // Pass up the notification
             if ( this.parent ) {
-                // Clean last slash if present
-                if ( path.length === 1 && path.charAt( 0 ) === '/' ) {
-                    path = '';
-                }
-                
+
                 // Build up the path
-                path = '/' + childName + path;
-                
-                // Call all of our listeners
-                for ( var key in this.listeners ) {
-                    if ( this.listeners.hasOwnProperty( key ) ) {
-                        this.listeners[key]( path );
-                    }
+                if ( path.length === 1 && path === '/' ) {
+                    path = path + this.name;
+                } else {
+                    path = '/' + this.name + path;
                 }
-                
-                this.parent.notify( this.name, path, newVal );
+
+                this.parent.notify( path, newVal, oldVal );
             }
         };
         
@@ -180,6 +180,11 @@ define( function ( require ) {
         
         // Get a new configurator client for a node reachable using the given path.
         // If provided, associate listenerFunc with the newly created configurator client.
+        // The listener func should accept upto 3 parameters:
+        //      path, newVal, oldVal
+        //      path -- the relative path to the changing value
+        //      newVal -- the value the given path has been set to
+        //      oldVal -- the prior value of the given path
         this.getPath = function( path, listenerFunc ) {
             var targetNode = this.node.traverse( path, true ),
                 rv = new Configurator( {}, targetNode );
