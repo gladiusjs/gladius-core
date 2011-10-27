@@ -57,7 +57,6 @@ define( function ( require ) {
 
             this.run = function() {
                 var task = dequeue();
-                console.log( task );
                 if( task ) {
                     task.callback();
                     if( task.active ) {
