@@ -38,6 +38,7 @@
                     !task.scheduled,
                     'Task is not scheduled while it is running'
                 );
+
                 if( ++ counter >= 10 ) {
                     ok( true, 'Counter value is correct' );
                     setTimeout( function() {
@@ -46,11 +47,13 @@
                             'Task is inactive and not scheduled'
                         );
                     });
+
                     start();
                     return this.COMPLETE;
                 }
             }
         });
+
     });
 
 }());
