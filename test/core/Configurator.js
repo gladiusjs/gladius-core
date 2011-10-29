@@ -299,7 +299,7 @@
      *  - Recursively clears all configuration options.
      */
     test( 'clear', function() {
-        expect( 7 );
+        expect( 15 );
 
         var config = engine.configurator.getPath( '/_clear_test/' ),
             key1 = '/foo/bar',
@@ -326,6 +326,21 @@
         equal( config.get( key1 ), '' );
         equal( config.get( key2 ), '' );
         equal( config.get( key3 ), '' );
+
+        // Ensure that clearing deeper elements doesn't affect parent elements
+        config.set( key1, val1 );
+        config.set( key2, val2 );
+        config.set( key3, val3 );
+
+        equal( config.get( key1 ), val1 );
+        equal( config.get( key2 ), val2 );
+        equal( config.get( key3 ), val3 );
+
+        var config2 = config.getPath( '/foo' );
+        config2.clear();
+        equal( config.get( key1 ), '' );
+        equal( config.get( key2 ), '' );
+        equal( config.get( key3 ), val3 );
     });
 
     /**
@@ -353,7 +368,7 @@
      *              local storage. This is a blocking/synchronous operation.
      */
     test( 'local store/load', function() {
-        expect( 29 );
+        expect( 37 );
 
         var testPath = '/_localstoreload_test/',
             config = engine.configurator.getPath( testPath ),
@@ -437,6 +452,24 @@
 
         engine2 = null;
         config2 = null;
+
+        // Now test that local storage can be overwritten
+        equal( config.get( key2 ), val2 );
+
+        config.set( key2, val3 );
+
+        equal( config.get( key2 ), val3 );
+        config.store();
+        config.clear();
+
+        equal( config.get( key1 ), '' );
+        equal( config.get( key2 ), '' );
+        equal( config.get( key3 ), '' );
+
+        config.load();
+        equal( config.get( key1 ), val1 );
+        equal( config.get( key2 ), val3 );
+        equal( config.get( key3 ), val3 );
     });
 
     // TODO: load xhr type
