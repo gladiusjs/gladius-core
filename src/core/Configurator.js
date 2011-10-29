@@ -104,6 +104,30 @@ define( function ( require ) {
             
             return rv;
         };
+
+        // Serializes this node and all of its children as JSON
+        this.getJSON = function() {
+            var rv = {};
+
+            if ( _value !== '' ) {
+                rv['/'] = _value;
+            }
+
+            for ( var childKey in this.children ) {
+                if ( this.children.hasOwnProperty( childKey ) ) {
+                    var child = this.children[childKey],
+                        childJSON = child.getJSON(),
+                        childJSONKeys = Object.keys( childJSON );
+
+                    for ( var k = 0, kmaxlen = childJSONKeys.length; k < kmaxlen; ++k ) {
+                        rv['/' + child.name + childJSONKeys[k]] =
+                            childJSON[childJSONKeys[k]];
+                    }
+                }
+            }
+
+            return rv;
+        };
     };
     
     /* Configurator
@@ -220,6 +244,9 @@ define( function ( require ) {
          *
          *     - Returns a JSON representation of this configurator instance.
          */
+        this.getJSON = function() {
+            return this.node.getJSON();
+        };
 
         /**
          * clear()

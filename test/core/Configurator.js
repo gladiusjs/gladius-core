@@ -270,10 +270,10 @@
         equal( 0, jsonKeys.length );
 
         var jsonExpected = {
-            '/foo'          : 'fooVal',
-            '/foo/bar1'     : 'bar1Val',
-            '/foo/bar2'     : 'bar2Val',
-            '/hello'        : 'helloVal'
+            '/foo/'         : 'fooVal',
+            '/foo/bar1/'    : 'bar1Val',
+            '/foo/bar2/'    : 'bar2Val',
+            '/hello/'       : 'helloVal'
         };
         var expectedKeys = Object.keys( jsonExpected );
         for ( var i = 0, maxlen = expectedKeys.length; i < maxlen; ++i ) {
