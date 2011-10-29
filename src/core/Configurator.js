@@ -354,7 +354,7 @@ define( function ( require ) {
             var jsonKeys = Object.keys( targetJSON ),
                 targetStr = '{ ';
 
-            for ( var i = 0, maxlen = jsonKeys.length; i < maxlen; ++i ) {
+            for ( i = 0, maxlen = jsonKeys.length; i < maxlen; ++i ) {
                 targetStr += '"' + jsonKeys[i] + '": ' + '"' + targetJSON[jsonKeys[i]] + '"';
                 if ( i < maxlen - 1 ) {
                     targetStr += ', ';
