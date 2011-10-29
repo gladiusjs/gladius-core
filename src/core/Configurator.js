@@ -212,7 +212,45 @@ define( function ( require ) {
                 this.node.listeners[this.id] = listenerFunc;
             }
         };
-        
+
+        // Load/Store Specifcations
+
+        /**
+         * getJSON()
+         *
+         *     - Returns a JSON representation of this configurator instance.
+         */
+
+        /**
+         * clear()
+         *  - Recursively clears all configuration options.
+         */
+
+        /**
+         * store()
+         *
+         *  - Stores configuration options to local storage.
+         */
+
+        /**
+         * load( [ clearBeforeLoad ][ , URL [ , callback ] ] )
+         *
+         *  - Loads registry either from a url or from local storage ( cookie )
+         *      - If clearBeforeLoad is true, this configurator's configuration
+         *          options are cleared before new ones are loaded
+         *          - If false, contents are not cleared prior and any colliding
+         *               configuration options are overwritten, this is the default.
+         *      - If a URL is provided then an asynchronous XHR request is made
+         *          to the given URL. The function expects a JSON object result.
+         *          - If a callback is provided, it will be called when the
+         *              JSON object has been retrieved and the configurator
+         *              has been updated.
+         *              - The callback should accept the configurator instance
+         *                  as its only parameter.
+         *          - If no URL is provided then configuration is loaded from
+         *              local storage. This is a blocking/synchronous operation.
+         */
+
         // Load default configuration
         this.update( defaultConfiguration );
     };
