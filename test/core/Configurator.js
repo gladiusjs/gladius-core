@@ -454,5 +454,47 @@
         equal( config.get( key3 ), '' );
     });
 
+    // Store preserves unaffected config data
+    test( 'merge store', function() {
+        var testPath = '/_mergestore_test/',
+            config = engine.configurator.getPath( testPath ),
+            key1 = '/foo/fixed',
+            key2 = '/foo/volatile',
+            key3 = '/foo/volatile/key1',
+            val1 = 'val1',
+            val2 = 'val2',
+            val3 = 'val3';
+
+        equal( config.get( key1 ), '' );
+        equal( config.get( key2 ), '' );
+        equal( config.get( key3 ), '' );
+        config.set( key1, val1 );
+        config.set( key2, val2 );
+        config.set( key3, val3 );
+        equal( config.get( key1 ), val1 );
+        equal( config.get( key2 ), val2 );
+        equal( config.get( key3 ), val3 );
+
+        config.store();
+        config.load( true );
+        equal( config.get( key1 ), val1 );
+        var volatileConfig = config.getPath( key2 ),
+            key4 = '/',
+            key5 = '/key1',
+            val4 = 'val4',
+            val5 = 'val5';
+        volatileConfig.set( key4, val4 );
+        volatileConfig.set( key5, val5 );
+
+        equal( volatileConfig.get( key4 ), val4 );
+        equal( volatileConfig.get( key5 ), val5 );
+        volatileConfig.store();
+        config.load( true );
+
+        equal( config.get( key1 ), val1 );
+        equal( config.get( key2 ), val4 );
+        equal( config.get( key3 ), val5 );
+    });
+
     // TODO: load xhr type
 }());
