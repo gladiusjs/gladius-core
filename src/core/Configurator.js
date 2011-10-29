@@ -146,12 +146,10 @@ define( function ( require ) {
         this.getParentPath = function() {
             rv = '';
 
-            if ( this.parent ) {
-                var node = this;
-                while ( node ) {
-                    parentPath = '/' + node.name + parentPath;
-                    node = node.parent;
-                }
+            var node = this;
+            while ( node && node.parent ) {
+                rv = '/' + node.name + rv;
+                node = node.parent;
             }
 
             return rv;
