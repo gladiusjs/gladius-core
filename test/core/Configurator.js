@@ -456,6 +456,8 @@
 
     // Store preserves unaffected config data
     test( 'merge store', function() {
+        expect( 12 );
+
         var testPath = '/_mergestore_test/',
             config = engine.configurator.getPath( testPath ),
             key1 = '/foo/fixed',

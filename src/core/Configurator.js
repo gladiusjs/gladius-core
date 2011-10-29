@@ -189,6 +189,19 @@ define( function ( require ) {
             _gladiusCookieName = 'gladius_registry',
             _gladiusCookieLifetime = 365,
 
+            // Privates
+            _getStoredJSON = function() {
+                // TODO HACK this is extremely dangerous
+                // Do we have any dependencies that handle JSON parsing?
+                // Do browsers reliably provide native JSON parsing?
+                var cookie = readCookie( _gladiusCookieName );
+                if ( !cookie ) {
+                    cookie = '';
+                }
+
+                return eval( '(' + unescape( cookie ) + ')' );
+            },
+
             // TODO: These should be moved into the networking system
             // Cookie manipulation functions, slightly modified.
             // Originally found on Peter-Paul Koch's site, quirksmode
@@ -316,32 +329,43 @@ define( function ( require ) {
          *  - Stores configuration options to local storage.
          */
         this.store = function() {
-            var rv = {},
-                json = this.getJSON(),
+            var targetJSON = {},
+                myJSON = this.getJSON(),
                 parentPath = this.node.getParentPath();
 
-            for ( var jsonKey in json ) {
-                if ( json.hasOwnProperty( jsonKey ) ) {
-                    rv[parentPath + jsonKey] = json[jsonKey];
+            for ( var jsonKey in myJSON ) {
+                if ( myJSON.hasOwnProperty( jsonKey ) ) {
+                    targetJSON[parentPath + jsonKey] = myJSON[jsonKey];
+                }
+            }
+
+            // Load existing myJSON and merge/filter
+            var loadedJSON = _getStoredJSON(),
+                loadedJSONKeys = Object.keys( loadedJSON );
+
+            for ( var i = 0, maxlen = loadedJSONKeys.length; i < maxlen; ++i ) {
+                var loadedJSONKey = loadedJSONKeys[i];
+                if ( loadedJSONKey.indexOf( parentPath ) !== 0 ) {
+                    targetJSON[loadedJSONKey] = loadedJSON[loadedJSONKey];
                 }
             }
 
             // Stringify JSON
-            var jsonKeys = Object.keys( rv ),
-                rvStr = '{ ';
+            var jsonKeys = Object.keys( targetJSON ),
+                targetStr = '{ ';
 
             for ( var i = 0, maxlen = jsonKeys.length; i < maxlen; ++i ) {
-                rvStr += '"' + jsonKeys[i] + '": ' + '"' + rv[jsonKeys[i]] + '"';
+                targetStr += '"' + jsonKeys[i] + '": ' + '"' + targetJSON[jsonKeys[i]] + '"';
                 if ( i < maxlen - 1 ) {
-                    rvStr += ', ';
+                    targetStr += ', ';
                 }
             }
 
-            rvStr += ' }';
-            rvStr = escape( rvStr );    // paranoid
+            targetStr += ' }';
+            targetStr = escape( targetStr );    // paranoid
 
             // Store
-            createCookie( _gladiusCookieName, rvStr, _gladiusCookieLifetime);
+            createCookie( _gladiusCookieName, targetStr, _gladiusCookieLifetime);
         };
 
         /**
@@ -368,19 +392,11 @@ define( function ( require ) {
                 this.clear();
             }
 
-            var loadedJSON;
+            var loadedJSON = null;
             if ( URL ) {
                 // unimplemented
             } else {
-                // TODO HACK this is extremely dangerous
-                // Do we have any dependencies that handle JSON parsing?
-                // Do browsers reliably provide native JSON parsing?
-                var cookie = readCookie( _gladiusCookieName );
-                if ( !cookie ) {
-                    cookie = '';
-                }
-
-                loadedJSON = eval( '(' + unescape( cookie ) + ')' );
+                loadedJSON = _getStoredJSON();
             }
 
             // Create the parent path
