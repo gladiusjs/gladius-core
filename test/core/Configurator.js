@@ -304,23 +304,28 @@
         var config = engine.configurator.getPath( '/_clear_test/' ),
             key1 = '/foo/bar',
             key2 = '/foo/bar2',
+            key3 = '/',
             val1 = 'val1',
-            val2 = 'val2';
+            val2 = 'val2',
+            val3 = 'val3';
 
-        equal( config.get( '/' ), '' );
         equal( config.get( key1 ), '' );
         equal( config.get( key2 ), '' );
+        equal( config.get( key3 ), '' );
 
         config.set( key1, val1 );
         config.set( key2, val2 );
+        config.set( key3, val3 );
 
         equal( config.get( key1 ), val1 );
         equal( config.get( key2 ), val2 );
+        equal( config.get( key3 ), val3 );
 
         config.clear();
 
         equal( config.get( key1 ), '' );
         equal( config.get( key2 ), '' );
+        equal( config.get( key3 ), '' );
     });
 
     /**
@@ -336,7 +341,7 @@
      *      - If clearBeforeLoad is true, this configurator's configuration
      *          options are cleared before new ones are loaded
      *          - If false, contents are not cleared prior and any colliding
-     *               configuration options are overwritten
+     *               configuration options are overwritten, this is the default.
      *      - If a URL is provided then an asynchronous XHR request is made
      *          to the given URL. The function expects a JSON object result.
      *          - If a callback is provided, it will be called when the
@@ -347,7 +352,92 @@
      *          - If no URL is provided then configuration is loaded from
      *              local storage. This is a blocking/synchronous operation.
      */
+    test( 'local store/load', function() {
+        expect( 29 );
 
-    // Test load
-    // Test store
+        var testPath = '/_localstoreload_test/',
+            config = engine.configurator.getPath( testPath ),
+            key1 = '/foo/bar',
+            key2 = '/foo/bar2',
+            key3 = '/',
+            key4 = '/other',
+            val1 = 'val1',
+            val2 = 'val2',
+            val3 = 'val3',
+            val4 = 'val4';
+
+        equal( config.get( key1 ), '' );
+        equal( config.get( key2 ), '' );
+        equal( config.get( key3 ), '' );
+
+        config.set( key1, val1 );
+        config.set( key2, val2 );
+        config.set( key3, val3 );
+
+        equal( config.get( key1 ), val1 );
+        equal( config.get( key2 ), val2 );
+        equal( config.get( key3 ), val3 );
+
+        config.store();
+        config.clear();
+
+        equal( config.get( key1 ), '' );
+        equal( config.get( key2 ), '' );
+        equal( config.get( key3 ), '' );
+
+        // Load values back then test
+        config.set( key4, val4 );
+
+        equal( config.get( key4 ), val4 );
+        config.load( true );
+        equal( config.get( key4 ), '' );
+
+        equal( config.get( key1 ), val1 );
+        equal( config.get( key2 ), val2 );
+        equal( config.get( key3 ), val3 );
+
+        // Now load values non-destructively
+        config.clear();
+
+        equal( config.get( key1 ), '' );
+        equal( config.get( key2 ), '' );
+        equal( config.get( key3 ), '' );
+        equal( config.get( key4 ), '' );
+
+        config.set( key4, val4 );
+
+        equal( config.get( key4 ), val4 );
+
+        config.load();
+        equal( config.get( key4 ), val4 );
+
+        equal( config.get( key1 ), val1 );
+        equal( config.get( key2 ), val2 );
+        equal( config.get( key3 ), val3 );
+
+        // Now attempt to load from second engine instance
+        stop();
+
+        var engine2 = null, config2 = null;
+        gladius.create( { debug: true }, function( instance ) {
+            engine2 = instance;
+            config2 = engine2.configurator.getPath( testPath );
+            start();
+        });
+
+        equal( config2.get( key1 ), '' );
+        equal( config2.get( key2 ), '' );
+        equal( config2.get( key3 ), '' );
+
+        config2.load();
+
+        equal( config2.get( key1 ), val1 );
+        equal( config2.get( key2 ), val2 );
+        equal( config2.get( key3 ), val3 );
+
+        engine2 = null;
+        config2 = null;
+    });
+
+    // TODO: load xhr type
 }());
