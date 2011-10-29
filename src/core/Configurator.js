@@ -375,9 +375,12 @@ define( function ( require ) {
                 // TODO HACK this is extremely dangerous
                 // Do we have any dependencies that handle JSON parsing?
                 // Do browsers reliably provide native JSON parsing?
-                loadedJSON = eval(
-                    '(' + unescape( readCookie( _gladiusCookieName ) ) + ')'
-                );
+                var cookie = readCookie( _gladiusCookieName );
+                if ( !cookie ) {
+                    cookie = '';
+                }
+
+                loadedJSON = eval( '(' + unescape( cookie ) + ')' );
             }
 
             // Create the parent path
