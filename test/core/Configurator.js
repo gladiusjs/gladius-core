@@ -298,6 +298,30 @@
      * clear()
      *  - Recursively clears all configuration options.
      */
+    test( 'clear', function() {
+        expect( 7 );
+
+        var config = engine.configurator.getPath( '/_clear_test/' ),
+            key1 = '/foo/bar',
+            key2 = '/foo/bar2',
+            val1 = 'val1',
+            val2 = 'val2';
+
+        equal( config.get( '/' ), '' );
+        equal( config.get( key1 ), '' );
+        equal( config.get( key2 ), '' );
+
+        config.set( key1, val1 );
+        config.set( key2, val2 );
+
+        equal( config.get( key1 ), val1 );
+        equal( config.get( key2 ), val2 );
+
+        config.clear();
+
+        equal( config.get( key1 ), '' );
+        equal( config.get( key2 ), '' );
+    });
 
     /**
      * store()
