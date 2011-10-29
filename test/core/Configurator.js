@@ -244,7 +244,86 @@
         childConfig.ignore()
         engine.configurator.set( testKey1, 'NoOneShouldCareThatIWasSet:) -- 3' );
     });
-    
+
+    // Load/Store Specifcations
+
+    /**
+     * getJSON()
+     *
+     *     - Returns a JSON representation of this configurator instance.
+     */
+    test( 'getJSON', function() {
+        expect( 5 );
+
+        var config = engine.configurator.getPath( '/_getjson_test/');
+
+        if ( !Object.keys ) {
+            Object.keys = function( o ) {
+                rv = Array();
+
+                for ( var key in o ) {
+                    if ( o.hasOwnProperty( key ) ) {
+                        rv.push( key );
+                    }
+                }
+
+                return rv;
+            }
+        }
+
+        var json = config.getJSON();
+        var jsonKeys = Object.keys( json );
+        equal( 0, jsonKeys.length );
+
+        var jsonExpected = {
+            '/foo'          : 'fooVal',
+            '/foo/bar1'     : 'bar1Val',
+            '/foo/bar2'     : 'bar2Val',
+            '/hello'        : 'helloVal'
+        };
+        var expectedKeys = Object.keys( jsonExpected );
+        for ( var i = 0, maxlen = expectedKeys.length; i < maxlen; ++i ) {
+            config.set( expectedKeys[i], jsonExpected[expectedKeys[i]] );
+        }
+        var jsonActual = config.getJSON();
+        for ( var i = 0, maxlen = expectedKeys.length; i < maxlen; ++i ) {
+            equal(
+                jsonActual[expectedKeys[i]],
+                jsonExpected[expectedKeys[i]]
+            );
+        }
+    });
+
+    /**
+     * clear()
+     *  - Recursively clears all configuration options.
+     */
+
+    /**
+     * store()
+     *
+     *  - Stores configuration options to local storage.
+     */
+
+    /**
+     * load( [ clearBeforeLoad ][ , URL [ , callback ] ] )
+     *
+     *  - Loads registry either from a url or from local storage ( cookie )
+     *      - If clearBeforeLoad is true, this configurator's configuration
+     *          options are cleared before new ones are loaded
+     *          - If false, contents are not cleared prior and any colliding
+     *               configuration options are overwritten
+     *      - If a URL is provided then an asynchronous XHR request is made
+     *          to the given URL. The function expects a JSON object result.
+     *          - If a callback is provided, it will be called when the
+     *              JSON object has been retrieved and the configurator
+     *              has been updated.
+     *              - The callback should accept the configurator instance
+     *                  as its only parameter.
+     *          - If no URL is provided then configuration is loaded from
+     *              local storage. This is a blocking/synchronous operation.
+     */
+
     // Test load
     // Test store
 }());
