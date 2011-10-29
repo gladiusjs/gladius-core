@@ -368,7 +368,7 @@
      *              local storage. This is a blocking/synchronous operation.
      */
     test( 'local store/load', function() {
-        expect( 37 );
+        expect( 43 );
 
         var testPath = '/_localstoreload_test/',
             config = engine.configurator.getPath( testPath ),
@@ -470,6 +470,20 @@
         equal( config.get( key1 ), val1 );
         equal( config.get( key2 ), val3 );
         equal( config.get( key3 ), val3 );
+
+        // Test that parent element values aren't affected by deeper element loads
+        var config3 = config.getPath( key2 );
+        config.clear();
+
+        equal( config.get( key1 ), '' );
+        equal( config.get( key2 ), '' );
+        equal( config.get( key3 ), '' );
+
+        config3.load();
+
+        equal( config.get( key1 ), '' );
+        equal( config.get( key2 ), val3 );
+        equal( config.get( key3 ), '' );
     });
 
     // TODO: load xhr type
