@@ -107,15 +107,15 @@ define( function ( require ) {
 
         // Serializes this node and all of its children as JSON
         this.getJSON = function() {
-            var rv = {};
+            var rv = {}, children = this.children;
 
             if ( _value !== '' ) {
                 rv['/'] = _value;
             }
 
-            for ( var childKey in this.children ) {
-                if ( this.children.hasOwnProperty( childKey ) ) {
-                    var child = this.children[childKey],
+            for ( var childKey in children ) {
+                if ( children.hasOwnProperty( childKey ) ) {
+                    var child = children[childKey],
                         childJSON = child.getJSON(),
                         childJSONKeys = Object.keys( childJSON );
 
@@ -123,6 +123,34 @@ define( function ( require ) {
                         rv['/' + child.name + childJSONKeys[k]] =
                             childJSON[childJSONKeys[k]];
                     }
+                }
+            }
+
+            return rv;
+        };
+
+        // Clears this node and all child nodes
+        this.clear = function() {
+            var children = this.children;
+
+            this.value = '';
+
+            for ( var childKey in children ) {
+                if ( children.hasOwnProperty( childKey ) ) {
+                    children[childKey].clear();
+                }
+            }
+        };
+
+        // Builds a parent path for this node
+        this.getParentPath = function() {
+            rv = '';
+
+            if ( this.parent ) {
+                var node = this;
+                while ( node ) {
+                    parentPath = '/' + node.name + parentPath;
+                    node = node.parent;
                 }
             }
 
@@ -158,9 +186,38 @@ define( function ( require ) {
     var Configurator = function( engine, defaultConfiguration ) {
         
         defaultConfiguration = defaultConfiguration || {};
-        
-        var self = this;
-        
+
+        var self = this,
+            _gladiusCookieName = 'gladius_registry',
+            _gladiusCookieLifetime = 365,
+
+            // TODO: These should be moved into the networking system
+            // Cookie manipulation functions, slightly modified.
+            // Originally found on Peter-Paul Koch's site, quirksmode
+            // http://www.quirksmode.org/js/cookies.html
+            createCookie = function(name,value,days) {
+                if (days) {
+                    var date = new Date();
+                    date.setTime(date.getTime()+(days*24*60*60*1000));
+                    var expires = "; expires="+date.toGMTString();
+                }
+                else var expires = "";
+                document.cookie = name+"="+value+expires+"; path=/";
+            },
+            readCookie = function(name) {
+                var nameEQ = name + "=";
+                var ca = document.cookie.split(';');
+                for(var i=0;i < ca.length;i++) {
+                    var c = ca[i];
+                    while (c.charAt(0)==' ') c = c.substring(1,c.length);
+                    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+                }
+                return null;
+            },
+            eraseCookie = function(name) {
+                createCookie(name,"",-1);
+            };
+
         // Pickup or initialize registry tree
         this.node = engine.rootConfNode ?
             engine.rootConfNode :
@@ -179,14 +236,14 @@ define( function ( require ) {
             
             return rv;
         };
-        
+
         // Set a value based on a given path
         this.set = function( path, value ) {
             var targetNode = this.node.traverse( path, true );
             
             targetNode.value = value;
         };
-        
+
         // Update configuration with given json object
         this.update = function( json ) {
             for ( var key in json ) {
@@ -195,7 +252,7 @@ define( function ( require ) {
                 }
             }
         };
-        
+
         /**
          * Get a new configurator client for a node reachable using the given path.
          * If provided, associate listenerFunc with the newly created configurator client.
@@ -237,8 +294,6 @@ define( function ( require ) {
             }
         };
 
-        // Load/Store Specifcations
-
         /**
          * getJSON()
          *
@@ -252,12 +307,43 @@ define( function ( require ) {
          * clear()
          *  - Recursively clears all configuration options.
          */
+        this.clear = function() {
+            this.node.clear();
+        }
 
         /**
          * store()
          *
          *  - Stores configuration options to local storage.
          */
+        this.store = function() {
+            var rv = {},
+                json = this.getJSON(),
+                parentPath = this.node.getParentPath();
+
+            for ( var jsonKey in json ) {
+                if ( json.hasOwnProperty( jsonKey ) ) {
+                    rv[parentPath + jsonKey] = json[jsonKey];
+                }
+            }
+
+            // Stringify JSON
+            var jsonKeys = Object.keys( rv ),
+                rvStr = '{ ';
+
+            for ( var i = 0, maxlen = jsonKeys.length; i < maxlen; ++i ) {
+                rvStr += '"' + jsonKeys[i] + '": ' + '"' + rv[jsonKeys[i]] + '"';
+                if ( i < maxlen - 1 ) {
+                    rvStr += ', ';
+                }
+            }
+
+            rvStr += ' }';
+            rvStr = escape( rvStr );    // paranoid
+
+            // Store
+            createCookie( _gladiusCookieName, rvStr, _gladiusCookieLifetime);
+        };
 
         /**
          * load( [ clearBeforeLoad ][ , URL [ , callback ] ] )
@@ -274,9 +360,48 @@ define( function ( require ) {
          *              has been updated.
          *              - The callback should accept the configurator instance
          *                  as its only parameter.
+         *              - The callback will not be called if no URL is provided.
          *          - If no URL is provided then configuration is loaded from
          *              local storage. This is a blocking/synchronous operation.
          */
+        this.load = function( clearBeforeLoad, URL, callback ) {
+            if ( clearBeforeLoad ) {
+                this.clear();
+            }
+
+            var loadedJSON;
+            if ( URL ) {
+                // unimplemented
+            } else {
+                // TODO HACK this is extremely dangerous
+                // Do we have any dependencies that handle JSON parsing?
+                // Do browsers reliably provide native JSON parsing?
+                loadedJSON = eval(
+                    '(' + unescape( readCookie( _gladiusCookieName ) ) + ')'
+                );
+            }
+
+            // Create the parent path
+            var parentPath = this.node.getParentPath(),
+                parentPathLen = parentPath.length;
+
+            // Find relevant values and set them
+            for ( jsonKey in loadedJSON ) {
+                if ( loadedJSON.hasOwnProperty( jsonKey ) ) {
+                    if ( jsonKey.indexOf( parentPath ) === 0 ) {
+
+                        // Found valid string, set internal value
+                        this.set(
+                            jsonKey.substr(
+                                parentPathLen,
+                                jsonKey.length - parentPathLen
+                            ),
+                            loadedJSON[ jsonKey ]
+                        );
+                    }
+                }
+            }
+        };
 
         // Load default configuration
         this.update( defaultConfiguration );
