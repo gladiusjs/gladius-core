@@ -191,9 +191,6 @@ define( function ( require ) {
 
             // Privates
             _getStoredJSON = function() {
-                // TODO HACK this is extremely dangerous
-                // Do we have any dependencies that handle JSON parsing?
-                // Do browsers reliably provide native JSON parsing?
                 var cookie = readCookie( _gladiusCookieName );
                 if ( !cookie ) {
                     cookie = '{}';
