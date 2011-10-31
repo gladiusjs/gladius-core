@@ -196,10 +196,10 @@ define( function ( require ) {
                 // Do browsers reliably provide native JSON parsing?
                 var cookie = readCookie( _gladiusCookieName );
                 if ( !cookie ) {
-                    cookie = '';
+                    cookie = '{}';
                 }
 
-                return eval( '(' + unescape( cookie ) + ')' );
+                return JSON.parse( unescape( cookie ) );
             },
 
             // TODO: These should be moved into the networking system
@@ -331,7 +331,8 @@ define( function ( require ) {
         this.store = function() {
             var targetJSON = {},
                 myJSON = this.getJSON(),
-                parentPath = this.node.getParentPath();
+                parentPath = this.node.getParentPath(),
+                targetStr = null;
 
             for ( var jsonKey in myJSON ) {
                 if ( myJSON.hasOwnProperty( jsonKey ) ) {
@@ -351,18 +352,7 @@ define( function ( require ) {
             }
 
             // Stringify JSON
-            var jsonKeys = Object.keys( targetJSON ),
-                targetStr = '{ ';
-
-            for ( i = 0, maxlen = jsonKeys.length; i < maxlen; ++i ) {
-                targetStr += '"' + jsonKeys[i] + '": ' + '"' + targetJSON[jsonKeys[i]] + '"';
-                if ( i < maxlen - 1 ) {
-                    targetStr += ', ';
-                }
-            }
-
-            targetStr += ' }';
-            targetStr = escape( targetStr );    // paranoid
+            targetStr = escape( JSON.stringify( targetJSON ) );    // paranoid
 
             // Store
             createCookie( _gladiusCookieName, targetStr, _gladiusCookieLifetime);
