@@ -4,11 +4,13 @@
 
 define( function ( require ) {
 
-    var CubicVR = require( 'CubicVR.js/CubicVR' );
+    return function( options ) {
 
-    var Mesh = function( options ) {
+        options = options || {};
+        options.size = options.size || 1.0;
+
+        // Build a JSON mesh definition here
+
     };
-
-    return Mesh;
 
 });

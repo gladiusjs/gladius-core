@@ -28,7 +28,6 @@ define( function ( require ) {
         
         var Text = new Resource({
             type: 'Text',
-            load: TextLoader,
             cache: null
         });
         

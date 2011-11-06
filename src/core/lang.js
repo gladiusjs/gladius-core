@@ -14,6 +14,10 @@ if ( !Array.prototype.remove ) {
     };
 }
 
+if( !window.BlobBuilder ) {
+    window.BlobBuilder = window.MozBlobBuilder;
+}
+
 define( function ( require ) {
 
     return {
@@ -32,4 +36,5 @@ define( function ( require ) {
             } //for
         } //extend
     };
+
 });

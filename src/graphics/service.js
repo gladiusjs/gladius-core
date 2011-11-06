@@ -4,7 +4,10 @@
 
 define( function ( require ) {
     
-    // var CubicVR = require( 'CubicVR.js/CubicVR' );
+    var CubicVR = require( 'CubicVR.js/CubicVR' ),
+
+        Resource = require( '../core/Resource' ),
+        Mesh = require( './resource/Mesh' );
    
     return function( engine ) {
         
@@ -13,14 +16,25 @@ define( function ( require ) {
         
         var Graphics = function( options ) {
             
-            // Render a given scene, for all its active cameras and
-            // their outputs.
             this.render = function( options ) {
-                
+             
             }
-            
+
+            this.resource = {
+
+                Light: null,
+                Material: null,
+                Mesh: new Resource({
+                    type: 'Mesh',
+                    object: Mesh
+                }),
+                Shader: null,
+                Texture: null
+
+            };
+
         }
-        
+
         return Graphics;
         
     }

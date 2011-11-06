@@ -4,26 +4,42 @@
 
 define( function ( require ) {
 
-        var Resource = function( options ) {
+        return function( options ) {
 
             option = options || {};
 
             var _type = options.type || undefined;
             var _cache = options.cache || null;
-            var _load = options.load || null;
+            var _object = options.object;
 
-            var Constructor = function( options ) {
+            var Resource = function( options ) {
             
                 options = options || {};
 
-                var _url = options.url || null;
+                var _source = options.source || null;
+                if( !_source ) {
+                    var _constructor = options.constructor || null;
+                    var _parameters = options.parameters || {};
+                }
 
-                var _ok = options.ok || function( instance ) {};
-                var _error = options.error || function( error ) {};
+                var _onComplete = options.inComplete || function( resource ) {};
+                var _onError = options.onError || function( error ) {};
 
                 _cache = options.cache || _cache; 
-                _load = options.load || _load;
 
+                var object;
+                if( _source ) {
+                    if( _cache && _cache.contains( _source ) ) {
+                        // Find the object in the cache
+                    } else {
+                        // Fetch the object from its source
+                    }
+                }
+                if( !object && _constructor ) {
+                    // Fetch the constructor
+                }
+
+/*
                 if( _url && _cache && _cache.contains( _url ) ) {
                     _ok( _cache.find( _url ) );
                 } else if( _load ) {
@@ -45,13 +61,12 @@ define( function ( require ) {
                 } else {
                     _error( 'resource creation failed' );
                 }
+*/
 
             };
 
-            return Constructor;
+            return Resource;
 
         };
-
-        return Resource;
 
 });
