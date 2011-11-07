@@ -24,7 +24,7 @@
     });
 
     test( 'Basic', function () {
-        expect( 0 );        
+        expect( 1 );        
 
         var f = function() {
             return 2;
@@ -35,7 +35,11 @@
                 return 2;
             },
             onComplete: function( result ) {
-                console.log( result );
+                same(
+                    2,
+                    result,
+                    'Result is 2'
+                );
             }
         });
     });

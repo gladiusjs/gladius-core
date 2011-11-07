@@ -6,15 +6,20 @@ define( function( require ) {
 
     var lang = require( './lang' );
 
-    var threadLogic = function __thread( id ) {
+    var threadWorker = function __thread( id ) {
 
-        var log = function( message ) {
-            self.postMessage({
-                method: '__worker_log',
-                thread: id,
-                log: message
-            });
-        };
+        var console = {
+
+            log: function() {
+                var message = Array.prototype.slice.call( arguments ).join( '\n' );
+                self.postMessage({
+                    method: '__worker_log',
+                    thread: id,
+                    log: message
+                });
+            }
+
+        }
         
         var _dispatch = function ( request ) {
             var f = new Function( request.call );
@@ -35,7 +40,7 @@ define( function( require ) {
                 case '__worker_start':
                     break;
                 default:
-                    log( 'ignoring unknown message from thread' );
+                    console.log( 'ignoring unknown message from thread' );
                     break;
             }
         };
@@ -47,6 +52,7 @@ define( function( require ) {
             method: '__worker_started',
             thread: id
         });
+        console.log( 'started' );
 
     };
 
@@ -60,7 +66,7 @@ define( function( require ) {
         var that = this;
 
         var _script = new BlobBuilder();
-        _script.append( threadLogic.toString() );
+        _script.append( threadWorker.toString() );
         _script.append( '__thread(' + _id + ');' );
         var _scriptUrl = window.URL.createObjectURL( _script.getBlob() );
         var _worker = new Worker( _scriptUrl );
@@ -69,7 +75,7 @@ define( function( require ) {
             var message = event.data;
             switch( message.method ) {
                 case '__worker_started':
-                    console.log( 'thread' + message.thread + ' is running' );
+                    // console.log( 'thread' + message.thread + ' is running' );
                     _pool.ready( that );
                     break;
                 /*

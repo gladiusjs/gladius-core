@@ -27,41 +27,21 @@ define( function ( require ) {
 
                 _cache = options.cache || _cache; 
 
-                var object;
+                var instance;
                 if( _source ) {
                     if( _cache && _cache.contains( _source ) ) {
-                        // Find the object in the cache
+                        // Find the instance in the cache and return it
                     } else {
-                        // Fetch the object from its source
+                        // Fetch the instance from its source
                     }
                 }
-                if( !object && _constructor ) {
-                    // Fetch the constructor
+                if( !instance && _constructor ) {
+                    // Use the constructor to build an instance of object
                 }
 
-/*
-                if( _url && _cache && _cache.contains( _url ) ) {
-                    _ok( _cache.find( _url ) );
-                } else if( _load ) {
-                    _load({
-                        url: _url,
-                        onComplete: function( object ) {
-                            if( _url && _cache ) {
-                                _cache.add({
-                                    url: _url,
-                                    object: _object
-                                });
-                            }
-                            _ok( object );
-                        },
-                        onError: function() {
-                            _error( 'unable to load resource' );
-                        }
-                    });
-                } else {
-                    _error( 'resource creation failed' );
+                if( _cache ) {
+                    // Cache the instance that we fetched or constructed
                 }
-*/
 
             };
 
