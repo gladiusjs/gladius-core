@@ -23,7 +23,7 @@
         }
     });
 
-    test( 'Basic', function () {
+    asyncTest( 'Basic', function () {
         expect( 1 );        
 
         var f = function() {
@@ -40,6 +40,7 @@
                     result,
                     'Result is 2'
                 );
+                start();
             }
         });
     });
