@@ -55,21 +55,6 @@ define( function ( require ) {
             }
         });
 
-        var _nextGUID = 0;
-        Object.defineProperty( this, 'nextGUID', {
-            get: function() {
-                if( this.options.debug ) {
-                    var nextGUID = ++ _nextGUID;
-                    if( _nextGUID < nextGUID )
-                        this.debug( 'GUID overflow' );
-                    return nextGUID;
-                }
-                else {
-                    return ++ _nextGUID;
-                }
-            }
-        });
-
         var _scheduler = new Scheduler();
         Object.defineProperty( this, 'scheduler', {
             get: function() {

@@ -12,46 +12,64 @@ define( function( require ) {
 
             log: function() {
                 var message = Array.prototype.slice.call( arguments ).join( '\n' );
-                self.postMessage({
-                    method: '__worker_log',
-                    thread: id,
+                send( '__log', {
                     log: message
                 });
             }
 
         }
-        
-        var _dispatch = function ( request ) {
-            var f = new Function( request.call );
-            return f();
+
+        var assert = function( message ) {
+            
         };
 
+        var _exposed = {};
+        var expose = function( f, alias ) {
+            assert( f.name || alias );
+            var name = f.name || alias;
+            _exposed[ name ] = f;
+        };
+
+        var send = function( method, request ) {
+            request = request || {};
+            self.postMessage({
+                method: method,
+                thread: id,
+                request: request
+            });
+        };
+        
         self.onmessage = function( event ) {
             var message = event.data;
-            switch( message.method ) {
-                case '__worker_dispatch':
-                    var result = _dispatch( message.request );
-                    self.postMessage({
-                        method: '__worker_dispatch_complete',
-                        thread: id,
-                        result: result
-                    });
-                    break;
-                case '__worker_start':
-                    break;
-                default:
-                    console.log( 'ignoring unknown message from thread' );
-                    break;
+            if( _exposed[ message.method ] ) {
+                _exposed[ message.method ]( message.request );
+            } else {
+                console.log( 'ignoring unknown method ' + message.method + ' from thread' );
             }
         };
 
         self.onerror = function( error ) {
         };
 
-        self.postMessage({
-            method: '__worker_started',
-            thread: id
-        });
+        var handle_dispatch = function __dispatch( message ) {
+            // TD: Try/catch here to handle errors
+            var f = new Function( message.call );
+            var result = f();
+            send( '__result', {
+                result: result
+            });
+        };
+        expose( handle_dispatch );
+
+        var handle_run = function __run() {                
+        };
+        expose( handle_run );
+
+        var handle_terminate = function __terminate() {
+        };
+        expose( handle_terminate );
+
+        send( '__ready' );
         console.log( 'started' );
 
     };
@@ -67,39 +85,61 @@ define( function( require ) {
 
         var _script = new BlobBuilder();
         _script.append( threadWorker.toString() );
-        _script.append( '__thread(' + _id + ');' );
+        _script.append( '__thread(\'' + _id + '\');' );
         var _scriptUrl = window.URL.createObjectURL( _script.getBlob() );
         var _worker = new Worker( _scriptUrl );
 
+        var _exposed = {};
+        var expose = function( f, alias ) {
+            assert( f.name || alias );
+            var name = f.name || alias;
+            _exposed[ name ] = f;
+        };
+
+        var send = function( method, request ) {
+            request = request || {};
+            _worker.postMessage({
+                method: method,
+                request: request
+            });
+        };
+
         _worker.onmessage = function( event ) {
             var message = event.data;
-            switch( message.method ) {
-                case '__worker_started':
-                    // console.log( 'thread' + message.thread + ' is running' );
-                    _pool.ready( that );
-                    break;
-                /*
-                case '__worker_terminated':
-                    console.log( 'thread' + message.thread + ' terminated' );
-                    break;
-                */
-                case '__worker_dispatch_complete':
-                    console.log( 'thread' + message.thread + ' dispatch completed' );
-                    _request.result = message.result;
-                    that.dispatchComplete( _request );
-                    break;
-                case '__worker_log':
-                    console.log( '[thread' + message.thread + '] ' + message.log );
-                    break;
-                default:
-                    console.log( 'ignoring unknown message from thread' + message.thread );
+            if( _exposed[ message.method ] ) {
+                _exposed[ message.method ]( message.request );
+            } else {
+                console.log( 'ignoring unknown method ' + message.method + ' from worker' );
             }
         };
 
         _worker.onerror = function( error ) {
         };
 
-        this.dispatchRequest = function( options ) {
+        var handle_result = function __result( message ) {
+            if( _request.onComplete ) {
+                _request.onComplete( message.result );
+            }
+            _request = null;
+            handle_ready();
+        };
+        expose( handle_result );
+
+        var handle_ready = function __ready() {
+            _pool.ready( that );
+        };
+        expose( handle_ready );
+
+        var handle_error = function __error( message ) {
+        };
+        expose( handle_error );
+
+        var handle_log = function __log( message ) {
+            console.log( '[thread:' + _id + '] ' + message.log );
+        };
+        expose( handle_log );
+
+        this.dispatch = function( options ) {
             options = options || {};
 
             _request = options;
@@ -110,27 +150,13 @@ define( function( require ) {
             f.remove( f.length - 1 );
             f = f.join( '\n' );
 
-            _worker.postMessage({
-                method: '__worker_dispatch',
-                request: {
-                    call: f,
-                    parameters: options.parameters
-                }
+            send( '__dispatch', {
+                call: f,
+                parameters: options.parameters
             });
         };
 
-        this.dispatchComplete = function( request ) {
-            if( request.onComplete ) {
-                request.onComplete( request.result );
-            }
-            _request = null;
-            _pool.ready( that );
-        };
-
-        _worker.postMessage({
-            method: '__worker_start'
-        });
-
+        send( '__run' )
     };
 
     var ThreadPool = function( options ) {
@@ -141,13 +167,12 @@ define( function( require ) {
         var _threads = [];
         var _queuedRequests = [];
         var _readyThreads = [];
-        var _nextID = 0;
 
         // External API
         this.call = function( options ) {
             if( _readyThreads.length > 0 ) {
                 var thread = _readyThreads.shift();
-                thread.dispatchRequest( options );
+                thread.dispatch( options );
             } else {
                 _queuedRequests.push( options );
             }
@@ -158,7 +183,7 @@ define( function( require ) {
             // TD: make sure this is one of our threads, and that it's not on the ready queue
             if( _queuedRequests.length > 0 ) {
                 var options = _queuedRequests.shift();
-                thread.dispatchRequest( options );
+                thread.dispatch( options );
             } else {
                 _readyThreads.push( thread );
             }
@@ -166,7 +191,7 @@ define( function( require ) {
 
         for( var i = 0; i < options.size; ++ i ) {
             _threads.push( new Thread({
-                id: _nextID ++,
+                id: window.guid(),
                 pool: this
             }) );
         }

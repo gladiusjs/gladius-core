@@ -18,7 +18,7 @@ define( function ( require ) {
 
             // Members
 
-            var _guid = engine.nextGUID;                 // Globally-unique ID
+            var _guid = window.guid();                 // Globally-unique ID
             Object.defineProperty( this, 'id', {
                 get: function() {
                     return _guid;

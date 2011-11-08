@@ -26,12 +26,12 @@
         expect( 2 );
 
         ok(
-                engine.nextGUID === 1,
-                'First GUID is 1.'
+                window.guid,
+                'window.guid is defined'
         );
         ok(
-                engine.nextGUID === 2,
-                'Second GUID is 2.'
+                window.guid(),
+                'window.guid returns a value'
         );
     });
 
