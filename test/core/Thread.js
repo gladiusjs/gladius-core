@@ -26,14 +26,11 @@
     asyncTest( 'Basic', function () {
         expect( 1 );        
 
-        var f = function() {
-            return 2;
-        }
-
         engine.threadPool.call({
             call: function() {
                 return 2;
             },
+            parameters: [ 1, 1 ],
             onComplete: function( result ) {
                 same(
                     2,

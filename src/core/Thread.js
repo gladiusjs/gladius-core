@@ -53,11 +53,12 @@ define( function( require ) {
 
         var handle_dispatch = function __dispatch( message ) {
             // TD: Try/catch here to handle errors
-            var f = new Function( message.call );
-            var result = f();
+            var f = new Function( ['console', 'assert'], message.call );
+            var result = f.apply( null, [ console, assert ].concat( message.parameters ) );
             send( '__result', {
                 result: result
             });
+            send( '__ready' );
         };
         expose( handle_dispatch );
 
@@ -65,12 +66,7 @@ define( function( require ) {
         };
         expose( handle_run );
 
-        var handle_terminate = function __terminate() {
-        };
-        expose( handle_terminate );
-
         send( '__ready' );
-        console.log( 'started' );
 
     };
 
@@ -79,7 +75,13 @@ define( function( require ) {
         options = options || {};
 
         var _id = options.id;
+        Object.defineProperty( this, 'id', {
+            get: function() {
+                return _id;
+            }
+        });
         var _pool = options.pool;
+        var _ready = options.ready;
         var _request = null;
         var that = this;
 
@@ -121,12 +123,11 @@ define( function( require ) {
                 _request.onComplete( message.result );
             }
             _request = null;
-            handle_ready();
         };
         expose( handle_result );
 
         var handle_ready = function __ready() {
-            _pool.ready( that );
+            _ready( that );
         };
         expose( handle_ready );
 
@@ -156,6 +157,10 @@ define( function( require ) {
             });
         };
 
+        this.terminate = function() {
+            _worker.terminate();
+        };
+
         send( '__run' )
     };
 
@@ -164,23 +169,19 @@ define( function( require ) {
         options = options || {};
         options.size = options.size || 1;
 
-        var _threads = [];
+        var _threads = {};
         var _queuedRequests = [];
         var _readyThreads = [];
+        var _terminate = false;
 
-        // External API
-        this.call = function( options ) {
-            if( _readyThreads.length > 0 ) {
-                var thread = _readyThreads.shift();
-                thread.dispatch( options );
-            } else {
-                _queuedRequests.push( options );
+        var ready = function( thread ) {
+            assert( _threads[thread.id], 'thread ' + thread.id + ' does not belong to this thread pool' );
+            if( _terminate ) {
+                thread.terminate();
+                delete _threads[thread.id];
+                return;
             }
-        };
 
-        // Thread API
-        this.ready = function( thread ) {
-            // TD: make sure this is one of our threads, and that it's not on the ready queue
             if( _queuedRequests.length > 0 ) {
                 var options = _queuedRequests.shift();
                 thread.dispatch( options );
@@ -189,11 +190,36 @@ define( function( require ) {
             }
         };
 
+        // External API
+
+        this.call = function( options ) {
+            assert( !_terminate, 'call invoked on terminated thread pool' );
+            if( _readyThreads.length > 0 ) {
+                var thread = _readyThreads.shift();
+                thread.dispatch( options );
+            } else {
+                _queuedRequests.push( options );
+            }
+        };
+
+        this.terminate = function( options ) {
+            options = options || {};
+            options.force = options.force || false;
+            this._ready = [];
+            if( options.force ) {
+                for( var i = 0, l = _threads.length; i < l; ++ i ) {
+                    _threads[i].terminate();
+                }
+            }
+        };
+
         for( var i = 0; i < options.size; ++ i ) {
-            _threads.push( new Thread({
-                id: window.guid(),
-                pool: this
-            }) );
+            var id = window.guid();
+            _threads[id] = new Thread({
+                id: id,
+                pool: this,
+                ready: ready
+            });
         }
 
     }
