@@ -33,13 +33,24 @@ define( function ( require ) {
                         // Find the instance in the cache and return it
                     } else {
                         // Fetch the instance from its source
+                        var xhr = new XMLHttpRequest();
+                        xhr.open( 'GET', url, true );
+                        xhr.onreadystatechange = function() {
+                            if( 4 != xhr.readyState ) {
+                                return;
+                            }
+                            var response = JSON.parseString( xhr.responseText );
+                            instance = new _object( response.source );
+                            _onComplete( _instance );
+                        };
+                        xhr.send( null );
                     }
                 }
                 if( !instance && _constructor ) {
                     // Use the constructor to build an instance of object
                 }
 
-                if( _cache ) {
+                if( _cache && instance ) {
                     // Cache the instance that we fetched or constructed
                 }
 
