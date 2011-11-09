@@ -4,6 +4,8 @@
 
 define( function ( require ) {
 
+    var Resource = require( '../Resource' );
+
     // source.text : script body
     // source.parameters : parameter names
     var Script = function( source ) {
@@ -13,20 +15,18 @@ define( function ( require ) {
         source.parameters = source.parameters || [];
 
         var _script = new Function( source.parameters, source.text );
-        Object.defineProperty( this, 'call', {
+        Object.defineProperty( this, 'f', {
             get: function() {
-                return _script.call;
-            }
-        });
-        Object.defineProperty( this, 'apply', {
-            get: function() {
-                return _script.apply;
+                return _script;
             }
         });
 
     };
 
-    return Script;
+    return new Resource({
+        type: 'Script',
+        object: Script
+    });
 
 });
 

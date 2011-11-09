@@ -22,7 +22,7 @@ define( function ( require ) {
                     var _parameters = options.parameters || {};
                 }
 
-                var _onComplete = options.inComplete || function( resource ) {};
+                var _onComplete = options.onComplete || function( instance ) {};
                 var _onError = options.onError || function( error ) {};
 
                 _cache = options.cache || _cache; 
@@ -34,14 +34,14 @@ define( function ( require ) {
                     } else {
                         // Fetch the instance from its source
                         var xhr = new XMLHttpRequest();
-                        xhr.open( 'GET', url, true );
+                        xhr.open( 'GET', _source, true );
                         xhr.onreadystatechange = function() {
                             if( 4 != xhr.readyState ) {
                                 return;
                             }
-                            var response = JSON.parseString( xhr.responseText );
+                            var response = JSON.parse( xhr.responseText );
                             instance = new _object( response.source );
-                            _onComplete( _instance );
+                            _onComplete( instance );
                         };
                         xhr.send( null );
                     }
