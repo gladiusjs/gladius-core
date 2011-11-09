@@ -4,8 +4,6 @@
 
 define( function ( require ) {
 
-    return function( engine ) {
-
         var Resource = require( '../Resource' );
 
         var TextLoader = function( options ) {
@@ -32,7 +30,5 @@ define( function ( require ) {
         });
         
         return Text;
-        
-    };
 
 });

@@ -7,6 +7,9 @@ define( function ( require ) {
     var CubicVR = require( 'CubicVR.js/CubicVR' );
 
     var Mesh = function( options ) {
+        
+        options = options || {};
+        
     };
 
     return Mesh;
