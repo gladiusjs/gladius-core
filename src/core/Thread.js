@@ -23,6 +23,7 @@ define( function( require ) {
             
         };
 
+        // Exposed functions are searched (by name) when looking for message handlers.
         var _exposed = {};
         var expose = function( f, alias ) {
             assert( f.name || alias );
@@ -53,8 +54,9 @@ define( function( require ) {
 
         var handle_dispatch = function __dispatch( message ) {
             // TD: Try/catch here to handle errors
-            var f = new Function( ['console', 'assert'], message.call );
-            var result = f.apply( null, [ console, assert ].concat( message.parameters ) );
+            var f = new Function( ['console', 'assert', 'parameters'], 'var f = ' + message.call + '; return f.apply( null, parameters );' );
+            console.log( f );
+            var result = f.apply( null, [ console, assert, message.parameters ] );
             send( '__result', {
                 result: result
             });
@@ -91,6 +93,7 @@ define( function( require ) {
         var _scriptUrl = window.URL.createObjectURL( _script.getBlob() );
         var _worker = new Worker( _scriptUrl );
 
+        // Exposed functions are searched (by name) when looking for message handlers.
         var _exposed = {};
         var expose = function( f, alias ) {
             assert( f.name || alias );
@@ -146,11 +149,6 @@ define( function( require ) {
             _request = options;
 
             var f = options.call.toString();
-            f = f.split( '\n' );
-            f.remove( 0 );
-            f.remove( f.length - 1 );
-            f = f.join( '\n' );
-
             send( '__dispatch', {
                 call: f,
                 parameters: options.parameters
@@ -192,7 +190,7 @@ define( function( require ) {
 
         // External API
 
-        this.call = function( options ) {
+        this.dispatch = function( options ) {
             assert( !_terminate, 'call invoked on terminated thread pool' );
             if( _readyThreads.length > 0 ) {
                 var thread = _readyThreads.shift();
