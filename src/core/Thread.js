@@ -55,7 +55,6 @@ define( function( require ) {
         var handle_dispatch = function __dispatch( message ) {
             // TD: Try/catch here to handle errors
             var f = new Function( ['console', 'assert', 'parameters'], 'var f = ' + message.call + '; return f.apply( null, parameters );' );
-            console.log( f );
             var result = f.apply( null, [ console, assert, message.parameters ] );
             send( '__result', {
                 result: result
