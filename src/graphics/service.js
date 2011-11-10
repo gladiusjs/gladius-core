@@ -24,10 +24,7 @@ define( function ( require ) {
 
                 Light: null,
                 Material: null,
-                Mesh: new Resource({
-                    type: 'Mesh',
-                    object: Mesh
-                }),
+                Mesh: Mesh,
                 Shader: null,
                 Texture: null
 

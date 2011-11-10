@@ -4,14 +4,23 @@
 
 define( function ( require ) {
 
+    var Resource = require( '../../core/Resource' );
     var CubicVR = require( 'CubicVR.js/CubicVR' );
 
-    var Mesh = function( options ) {
+    // source.points
+    // source.faces
+    // source.uv
+    var Mesh = function( source ) {
         
-        options = options || {};
+        source = source || {};
+
+        var _cvrMesh = new CubicVR.Mesh( source );
         
     };
 
-    return Mesh;
+    return new Resource({
+        type: 'Mesh',
+        object: Mesh
+    });
 
 });
