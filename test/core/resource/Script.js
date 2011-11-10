@@ -30,7 +30,7 @@
             onComplete: function( instance ) {
                 same(
                     3,
-                    instance.f( 1, 2 ),
+                    instance.run( 1, 2 ),
                     'Function runs and returns correct value'
                 );
                 start();

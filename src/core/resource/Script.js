@@ -15,7 +15,7 @@ define( function ( require ) {
         source.parameters = source.parameters || [];
 
         var _script = new Function( source.parameters, source.text );
-        Object.defineProperty( this, 'f', {
+        Object.defineProperty( this, 'run', {
             get: function() {
                 return _script;
             }
