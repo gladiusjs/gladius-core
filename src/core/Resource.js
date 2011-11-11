@@ -31,6 +31,8 @@ define( function ( require ) {
                 if( _source ) {
                     if( _cache && _cache.contains( _source ) ) {
                         // Find the instance in the cache and return it
+                        instance = _cache.find( _source );                        
+                        _onComplete( instance );
                     } else {
                         // Fetch the instance from its source
                         var xhr = new XMLHttpRequest();
@@ -41,19 +43,20 @@ define( function ( require ) {
                             }
                             var response = JSON.parse( xhr.responseText );
                             instance = new _object( response.source );
+                            if( _cache ) _cache.add( instance );
                             _onComplete( instance );
                         };
                         xhr.send( null );
                     }
+                    return;
                 }
                 if( !instance && _constructor ) {
                     // Use the constructor to build an instance of object
+                    instance = _constructor.apply( null, _parameters );
+                    if( _cache ) _cache.add( instance );
+                    _onComplete( instance );
+                    return;
                 }
-
-                if( _cache && instance ) {
-                    // Cache the instance that we fetched or constructed
-                }
-
             };
 
             return Resource;
