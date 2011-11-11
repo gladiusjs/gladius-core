@@ -4,7 +4,7 @@
 
 define( function ( require ) {
 
-    var Resource = require( '../../core/Resource' );
+    var Resource = require( '../../core/resource' );
     var CubicVR = require( 'CubicVR.js/CubicVR' );
 
     // source.points

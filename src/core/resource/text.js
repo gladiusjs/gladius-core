@@ -4,7 +4,7 @@
 
 define( function ( require ) {
 
-        var Resource = require( '../Resource' );
+        var Resource = require( '../resource' );
 
         var TextLoader = function( options ) {
             options = options || {};

@@ -3,19 +3,20 @@
 
 define( function ( require ) {
     var lang = require( './core/lang' ),
-        
         _Math = require( 'math/math-require' ),
+        ThreadPool = require( './core/thread' ),
+        Scheduler = require( './core/scheduler' ),
 
+    // Services
         Graphics = require( './graphics/service' ),
     
-        ThreadPool = require( './core/Thread' ),
-        Entity = require( './core/Entity' ),
-        Component = require( './core/Component' ),
-        Scene = require( './core/Scene' ),
-        Transform = require( './core/component/Transform' ),
-        Scheduler = require( './core/Scheduler' ),
-        Text = require( './core/resource/Text' ),
-        Script = require( './core/resource/Script' ),
+    // Core
+        Scene = require( './core/scene' ),
+        Component = require( './core/component' ),
+        Entity = require( './core/entity' ),
+        Transform = require( './core/component/transform' ),
+        Text = require( './core/resource/text' ),
+        Script = require( './core/resource/script' ),
 
     Gladius, i, args,
 

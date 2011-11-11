@@ -6,8 +6,8 @@ define( function ( require ) {
     
     var CubicVR = require( 'CubicVR.js/CubicVR' ),
 
-        Resource = require( '../core/Resource' ),
-        Mesh = require( './resource/Mesh' );
+        Resource = require( '../core/resource' ),
+        Mesh = require( './resource/mesh' );
    
     return function( engine ) {
         

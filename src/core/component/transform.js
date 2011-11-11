@@ -7,7 +7,7 @@ define( function ( require ) {
     return function( engine ) {
         
         var math = engine.math;
-        var Component = require( '../Component' );
+        var Component = require( '../component' );
 
         var Transform = function( options ) {
 

@@ -4,7 +4,7 @@
 
 define( function ( require ) {
 
-    var Resource = require( '../Resource' );
+    var Resource = require( '../resource' );
 
     // source.text : script body
     // source.parameters : parameter names
