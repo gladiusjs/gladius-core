@@ -166,10 +166,10 @@ define( function ( require ) {
 
             // Events
 
-            var onEntityAdded = function() {
+            var onEntityAdded = function onentityadded() {
             };
 
-            var onEntityRemoved = function() {
+            var onEntityRemoved = function onentityremoved() {
             };
 
         };

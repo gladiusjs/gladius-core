@@ -189,6 +189,7 @@ define( function( require ) {
 
         // External API
 
+        // Dispatch work to this pool; Will be picked up by the first available thread
         this.dispatch = function( options ) {
             assert( !_terminate, 'call invoked on terminated thread pool' );
             if( _readyThreads.length > 0 ) {
@@ -199,6 +200,7 @@ define( function( require ) {
             }
         };
 
+        // Terminate this pool; force: true terminate immediately
         this.terminate = function( options ) {
             options = options || {};
             options.force = options.force || false;
@@ -209,6 +211,22 @@ define( function( require ) {
                 }
             }
         };
+
+        // Change the number of threads in the pool
+        var resize = function( size ) {
+            // TD: not implemented
+        }
+
+        Object.defineProperty( this, 'size', {
+            get: function() {
+                return _threads.length;
+            },
+            set: function( value ) {
+                var size = _threads.length;
+                resize( value );
+                return size;
+            }
+        });
 
         for( var i = 0; i < options.size; ++ i ) {
             var id = window.guid();

@@ -93,7 +93,10 @@ define( function ( require ) {
                 }
             });
             
-            // Events          
+            // Events
+
+            var onValidChanged = function onvalidchanged() {
+            };
 
         };
         Transform.prototype = new Component({

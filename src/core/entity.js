@@ -102,13 +102,13 @@ define( function ( require ) {
 
             // Events
 
-            var onParentChanged = function() {
+            var onParentChanged = function onparentchanged() {
             };
 
-            var onComponentAdded = function() {
+            var onComponentAdded = function oncomponentadded() {
             };
 
-            var onComponentRemoved = function() {
+            var onComponentRemoved = function oncomponentremoved() {
             };
 
         };
