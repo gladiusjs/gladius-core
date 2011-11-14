@@ -4,6 +4,8 @@
 
 define( function ( require ) {
 
+    var Event = require( './event' );
+
     /* Scene
      *
      * A Scene is a collection of Entities (and their Components). It also provides
@@ -165,11 +167,28 @@ define( function ( require ) {
             };
 
             // Events
-
-            var onEntityAdded = function onentityadded() {
+            var _entityAdded = new Event();
+            Object.defineProperty( this, 'entityAdded', {
+                get: function() {
+                    return _entityAdded;
+                }
+            });
+            var onEntityAdded = function( options ) {
+                if( _entityAdded ) {
+                    _entityAdded.dispatch( options );
+                }
             };
 
-            var onEntityRemoved = function onentityremoved() {
+            var _entityRemoved = new Event();
+            Object.defineProperty( this, 'entityRemoved', {
+                get: function() {
+                    return _entityRemoved;
+                }
+            });
+            var onEntityRemoved = function( options ) {
+                if( _entityRemoved ) {
+                    _entityRemoved.dispatch( options );
+                }
             };
 
         };

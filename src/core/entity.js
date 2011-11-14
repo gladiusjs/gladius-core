@@ -4,6 +4,8 @@
 
 define( function ( require ) {
 
+    var Event = require( './event' );
+
     /* Entity
      *
      * An entity is a collection of entity components under a single globally unique identifier.
@@ -102,7 +104,16 @@ define( function ( require ) {
 
             // Events
 
-            var onParentChanged = function onparentchanged() {
+            var _parentChanged = new Event();
+            Object.defineProperty( this, 'parentChanged', {
+                get: function() {
+                    return _parentChanged;
+                }
+            });
+            var onParentChanged = function( options ) {
+                if( _parentChanged ) {
+                    _parentChanged.dispatch( options );
+                }
             };
 
             var onComponentAdded = function oncomponentadded() {
