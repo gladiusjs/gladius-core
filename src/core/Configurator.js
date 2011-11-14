@@ -11,7 +11,7 @@ define( function ( require ) {
      */
     var ConfNode = function( name, parent ) {
         
-        var self = this;
+        var that = this;
         
         this.name = name;
         this.parent = parent;
@@ -185,7 +185,7 @@ define( function ( require ) {
         
         defaultConfiguration = defaultConfiguration || {};
 
-        var self = this,
+        var that = this,
             _gladiusCookieName = 'gladius_registry',
             _gladiusCookieLifetime = 365,
 
