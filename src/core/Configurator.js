@@ -107,7 +107,8 @@ define( function ( require ) {
 
         // Serializes this node and all of its children as JSON
         this.getJSON = function() {
-            var rv = {}, children = this.children;
+            var rv = {},
+                children = this.children;
 
             if ( _value !== '' ) {
                 rv['/'] = _value;
