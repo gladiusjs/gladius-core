@@ -162,25 +162,7 @@ define( function ( require ) {
      * Loads and stores configuration data. Allows external code to listen for
      * changes in configuration subtrees.
      *
-     * In Gladius, a configurator can be obtained in 3 ways:
-     *      1) engine.configurator
-     *              Engine instance, can be used directly.
-     *
-     *      2) < Configurator_Instance >.getPath( ... )
-     *              Returns a new Configurator instance rooted at a given path
-     *              relative to the engine instance registry root.
-     *
-     *      3) engine.core.Configurator( defaultConfig )
-     *              Returns a new instance rooted at the registry root for
-     *              the engine instance being used. If a JSON object is passed
-     *              into defaultConfig, the registry values contained within it
-     *              are merged with the engine instance registry.
-     *
-     *              This is akin to calling:
-     *                 var newConfInstance = engine.configurator.getPath( '/' );
-     *                 newConfInstance.update( myJSON );
-     *
-     * Initially written by Hasan (northWind) Kamal-Al-Deen
+     * In Gladius, a configurator can be obtained in 3 ways.
      */
     var Configurator = function( engine, defaultConfiguration ) {
         
