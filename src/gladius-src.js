@@ -37,6 +37,9 @@ define( function ( require ) {
         subsystems, prop;
 
         this.options = options || {};
+        if ( !this.options.defaultConfiguration )   this.options.defaultConfiguration = {};
+        if ( !this.options.cookieName )             this.options.cookieName = 'gladius_registry';
+        if ( !this.options.cookieLifetime )         this.options.cookieLifetime = 365;
         this.debug = this.options.debug ? console.log : function () {};
 
         // this.tasker = new Tasker();
@@ -66,10 +69,7 @@ define( function ( require ) {
             }
         });
 
-        this.configurator = new Configurator(
-            this,
-            this.options.defaultConfiguration ? this.options.defaultConfiguration : {}
-        );
+        this.configurator = new Configurator( this );
 
         // Fetch the subsystems. These can potentially be async operations.
         // In a build, they are async, but do not result in any network

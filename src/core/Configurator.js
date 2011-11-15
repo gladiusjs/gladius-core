@@ -156,7 +156,7 @@ define( function ( require ) {
             return rv;
         };
     };
-    
+
     /* Configurator
      *
      * Loads and stores configuration data. Allows external code to listen for
@@ -164,17 +164,17 @@ define( function ( require ) {
      *
      * In Gladius, a configurator can be obtained in 3 ways.
      */
-    var Configurator = function( engine, defaultConfiguration ) {
-        
-        defaultConfiguration = defaultConfiguration || {};
+    var Configurator = function( engine, options ) {
+
+        options = options || {};
+
+        if ( !options.defaultConfiguration )    options.defaultConfiguration = {};
+        if ( !options.cookieName )              options.cookieName =  engine.options.cookieName;
+        if ( !options.cookieLifetime )          options.cookieLifetime = engine.options.cookieLifetime;
 
         var that = this,
-            _gladiusCookieName = 'gladius_registry',
-            _gladiusCookieLifetime = 365,
-
-            // Privates
             _getStoredJSON = function() {
-                var cookie = window.gladiusCookie.readCookie( _gladiusCookieName );
+                var cookie = window.gladiusCookie.readCookie( options.cookieName );
                 if ( !cookie ) {
                     cookie = '{}';
                 }
@@ -228,7 +228,10 @@ define( function ( require ) {
          */
         this.getPath = function( path, listenerFunc ) {
             var targetNode = this.node.traverse( path, true ),
-                rv = new Configurator( engine, {} );
+                rv = new Configurator( engine, {
+                    cookieName: options.cookieName,
+                    cookieLifetime: options.cookieLifetime
+                } );
 
             rv.node = targetNode;
             
@@ -307,7 +310,7 @@ define( function ( require ) {
             targetStr = escape( JSON.stringify( targetJSON ) );    // paranoid
 
             // Store
-            window.gladiusCookie.createCookie( _gladiusCookieName, targetStr, _gladiusCookieLifetime );
+            window.gladiusCookie.createCookie( options.cookieName, targetStr, options.cookieLifetime );
         };
 
         /**
@@ -364,7 +367,7 @@ define( function ( require ) {
         };
 
         // Load default configuration
-        this.update( defaultConfiguration );
+        this.update( options.defaultConfiguration );
     };
 
     return Configurator;
