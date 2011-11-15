@@ -112,14 +112,32 @@ define( function ( require ) {
             });
             var onParentChanged = function( options ) {
                 if( _parentChanged ) {
-                    _parentChanged.dispatch( options );
+                    _parentChanged( options );
                 }
             };
 
-            var onComponentAdded = function oncomponentadded() {
+            var _componentAdded = new Event();
+            Object.defineProperty( this, 'componentAdded', {
+                get: function() {
+                    return _componentAdded;
+                }
+            });
+            var onComponentAdded = function() {
+                if( _componentAdded ) {
+                    _componentAdded( options );
+                }
             };
 
-            var onComponentRemoved = function oncomponentremoved() {
+            var _componentRemoved = new Event();
+            Object.defineProperty( this, 'componentRemoved', {
+                get: function() {
+                    return _componentRemoved;
+                }
+            });
+            var onComponentRemoved = function() {
+                if( _componentRemoved ) {
+                    _componentRemoved( options );
+                }
             };
 
         };

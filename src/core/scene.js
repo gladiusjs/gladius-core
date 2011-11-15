@@ -175,7 +175,7 @@ define( function ( require ) {
             });
             var onEntityAdded = function( options ) {
                 if( _entityAdded ) {
-                    _entityAdded.dispatch( options );
+                    _entityAdded( options );
                 }
             };
 
@@ -187,7 +187,7 @@ define( function ( require ) {
             });
             var onEntityRemoved = function( options ) {
                 if( _entityRemoved ) {
-                    _entityRemoved.dispatch( options );
+                    _entityRemoved( options );
                 }
             };
 

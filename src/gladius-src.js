@@ -6,6 +6,7 @@ define( function ( require ) {
         _Math = require( 'math/math-require' ),
         ThreadPool = require( './core/thread' ),
         Scheduler = require( './core/scheduler' ),
+        Event = require( './core/event' ),
 
     // Services
         Graphics = require( './graphics/service' ),
@@ -95,6 +96,7 @@ define( function ( require ) {
             // Expose engine objects, partially
             // applying items needed for their constructors.
             lang.extend(this, {
+                Event: Event,
                 core: {
                     Entity: Entity( this ),
                     Component: Component,

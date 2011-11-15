@@ -36,7 +36,7 @@ define( function ( require ) {
         var bind = function( handler ) {
             handler = prepareHandler( handler );
             if( !_subscribers[handler[_handlerProperty]] ) {
-                _subscribers[handler[_handleProperty]] = handler;
+                _subscribers[handler[_handlerProperty]] = handler;
             }
         };
         Object.defineProperty( dispatch, 'bind', {
@@ -49,8 +49,8 @@ define( function ( require ) {
         // Unbind a callback from this event
         var unbind = function( handler ) {
             if( handler.hasOwnProperty( _handlerProperty ) &&
-                    _subscribers[handler[_handleProperty]] ) {
-                delete _subscribers[handler[_handleProperty]];
+                    _subscribers[handler[_handlerProperty]] ) {
+                delete _subscribers[handler[_handlerProperty]];
             }
         };
         Object.defineProperty( dispatch, 'unbind', {
