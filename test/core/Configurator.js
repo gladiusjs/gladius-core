@@ -7,8 +7,6 @@
  * Configurator Test Suite
  *
  * A test suite for the Configurator subsystem.
- *
- * Initially written by Hasan (northWind) Kamal-Al-Deen
  */
 
 (function() {
