@@ -4,6 +4,8 @@
 
 define( function ( require ) {
 
+    var Event = require( './event' );
+
     var Component = function( options ) {
         
         option = options || {};
@@ -37,7 +39,16 @@ define( function ( require ) {
 
         // Events
 
+        var _ownerChanged = new Event();
+        Object.defineProperty( this, 'ownerChanged', {
+            get: function() {
+                return _ownerChanged;
+            }
+        });
         var onOwnerChanged = function() {
+            if( _ownerChanged ) {
+                _ownerChanged( options );
+            }
         };
 
     };
