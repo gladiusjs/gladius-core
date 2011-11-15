@@ -65,10 +65,10 @@ define( function ( require ) {
         // Traverse the node tree given a path
         this.traverse = function( path, doCreatePath ) {
             
-            var rv;
+            var targetNode;
             
             if ( path.length === 1 && path.charAt( 0 ) === '/' ) {
-                rv = this;
+                targetNode = this;
             } else {
                 
                 // Parse path and traverse the node tree
@@ -98,11 +98,11 @@ define( function ( require ) {
                 }
                 
                 if ( successful ) {
-                    rv = curNode;
+                    targetNode = curNode;
                 }
             }
             
-            return rv;
+            return targetNode;
         };
 
         // Serializes this node and all of its children as JSON
