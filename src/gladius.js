@@ -23,7 +23,9 @@
         // tag since in dev, it will be a blocking script tag,
         // so latest tag is the one for this script.
         var scripts = document.getElementsByTagName( 'script' ),
-        path = scripts[scripts.length - 1].src;
+        path = scripts[scripts.length - 1].src,
+        common = [ "Math.js", "Cookie.js" ];
+
         path = path.split( '/' );
         path.pop();
         path = path.join( '/' ) + '/';
@@ -40,7 +42,9 @@
                 '} );' +
                 'requirejs(["gladius-src"])</' + 'script>');
 
-        document.write( '<script src="' + path + 'common/Math.js"></' + 'script>' );
+        for ( var i = 0, maxlen = common.length; i < maxlen; ++i ) {
+            document.write( '<script src="' + path + 'common/' + common[i] + '"></' + 'script>' );
+        }
     }
 
     var gladius = this.gladius || ( this.gladius = {} );
