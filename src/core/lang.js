@@ -14,8 +14,20 @@ if ( !Array.prototype.remove ) {
     };
 }
 
+if( !window.URL ) {
+    if( window.webkitURL ) {
+        window.URL = window.webkitURL;
+    }
+}
+
 if( !window.BlobBuilder ) {
-    window.BlobBuilder = window.MozBlobBuilder;
+    if( window.MozBlobBuilder ) {
+        window.BlobBuilder = window.MozBlobBuilder;
+    } else if( window.WebKitBlobBuilder ) {
+        window.BlobBuilder = window.WebKitBlobBuilder;
+    } else {
+        console.log( 'BlobBuilder is not supported' );
+    }
 }
 
 if( !window.assert ) {
