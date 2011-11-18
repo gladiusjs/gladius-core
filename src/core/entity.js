@@ -122,9 +122,9 @@ define( function ( require ) {
                     return _componentAdded;
                 }
             });
-            var onComponentAdded = function() {
+            var onComponentAdded = function( component ) {
                 if( _componentAdded ) {
-                    _componentAdded( options );
+                    _componentAdded( component );
                 }
             };
 
@@ -134,9 +134,9 @@ define( function ( require ) {
                     return _componentRemoved;
                 }
             });
-            var onComponentRemoved = function() {
+            var onComponentRemoved = function( component ) {
                 if( _componentRemoved ) {
-                    _componentRemoved( options );
+                    _componentRemoved( component );
                 }
             };
 

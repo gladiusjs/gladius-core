@@ -8,13 +8,12 @@ define( function ( require ) {
 
         var _id = window.guid();
         var _subscribers = {};
-        var _handlerProperty = '__handlerId';
 
         // Bind the handler to an id, if it doesn't already have one
         var prepareHandler = function( handler ) {
-            if( !handler.hasOwnProperty( _handlerProperty ) ) {
+            if( !handler.hasOwnProperty( '__id' ) ) {
                 var id = window.guid();
-                Object.defineProperty( handler, _handlerProperty, {
+                Object.defineProperty( handler, '__id', {
                     get: function() {
                         return id;
                     },
@@ -35,8 +34,8 @@ define( function ( require ) {
         // Bind a callback to this event
         var bind = function( handler ) {
             handler = prepareHandler( handler );
-            if( !_subscribers[handler[_handlerProperty]] ) {
-                _subscribers[handler[_handlerProperty]] = handler;
+            if( !_subscribers[handler.__id] ) {
+                _subscribers[handler.__id] = handler;
             }
         };
         Object.defineProperty( dispatch, 'bind', {
@@ -48,9 +47,9 @@ define( function ( require ) {
 
         // Unbind a callback from this event
         var unbind = function( handler ) {
-            if( handler.hasOwnProperty( _handlerProperty ) &&
-                    _subscribers[handler[_handlerProperty]] ) {
-                delete _subscribers[handler[_handlerProperty]];
+            if( handler.hasOwnProperty( '__id' ) &&
+                    _subscribers[handler.__id] ) {
+                delete _subscribers[handler.__id];
             }
         };
         Object.defineProperty( dispatch, 'unbind', {

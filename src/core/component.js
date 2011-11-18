@@ -45,7 +45,7 @@ define( function ( require ) {
                 return _ownerChanged;
             }
         });
-        var onOwnerChanged = function() {
+        var onOwnerChanged = function( options ) {
             if( _ownerChanged ) {
                 _ownerChanged( options );
             }
