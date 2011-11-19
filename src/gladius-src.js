@@ -77,20 +77,6 @@ define( function ( require ) {
         // In a build, they are async, but do not result in any network
         // requests for the services bundled in the build.
         require(sIds, lang.bind(this, function () {
-            // Create a property on the instance's service object for
-            // each service, based on the name given the services options object.
-            var subs = this.service = {},
-            i;
-            for (i = 0; i < arguments.length; i++) {
-                var s = arguments[i]( this );
-                subs[ sNames[i] ] = new s();
-            }
-
-            // Hmm, graphics is also on this, instead of always
-            // referenced on service? sound too?
-            this.graphics = subs.graphics;
-            // this.physics = subs.physics;
-            // this.sound = subs.sound;
 
             // Expose engine objects, partially
             // applying items needed for their constructors.
@@ -109,7 +95,23 @@ define( function ( require ) {
                     }
                 },
             });
-            
+ 
+            // Create a property on the instance's service object for
+            // each service, based on the name given the services options object.
+            var subs = this.service = {},
+            i;
+            for (i = 0; i < arguments.length; i++) {
+                var s = arguments[i]( this );
+                subs[ sNames[i] ] = new s();
+            }
+
+            // Hmm, graphics is also on this, instead of always
+            // referenced on service? sound too?
+            this.graphics = subs.graphics;
+            // this.physics = subs.physics;
+            // this.sound = subs.sound;
+
+           
             this.assert = function( condition, message ) {
                 if( !condition )
                     throw 'Assertion failed: ' + message;
@@ -135,7 +137,7 @@ define( function ( require ) {
                 callback(this);
             }
         }));
-    }; //Paladin
+    }; //Gladius
 
     // Set up common properties for all engine instances
     Gladius.prototype = {
@@ -159,7 +161,7 @@ define( function ( require ) {
     // services in the options.
     global.services = {
             // physics: 'physics/default',
-            graphics: 'graphics/service',
+            // graphics: 'graphics/service',
             // sound: 'sound/default'
     };
 
