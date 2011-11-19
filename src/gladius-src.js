@@ -16,7 +16,6 @@ define( function ( require ) {
         Component = require( './core/component' ),
         Entity = require( './core/entity' ),
         Transform = require( './core/component/transform' ),
-        Text = require( './core/resource/text' ),
         Script = require( './core/resource/script' ),
 
     Gladius, i, args,
@@ -106,7 +105,6 @@ define( function ( require ) {
                         Transform: Transform( this )
                     },
                     resource: {
-                        Text: Text,
                         Script: Script,
                     }
                 },
