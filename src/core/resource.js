@@ -52,7 +52,7 @@ define( function ( require ) {
                 }
                 if( !instance && _constructor ) {
                     // Use the constructor to build an instance of object
-                    instance = _constructor.apply( null, _parameters );
+                    instance = new _object( _constructor.apply( null, _parameters ) );
                     if( _cache ) _cache.add( instance );
                     _onComplete( instance );
                     return;
