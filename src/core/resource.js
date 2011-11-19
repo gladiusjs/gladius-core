@@ -18,7 +18,7 @@ define( function ( require ) {
 
                 var _source = options.source || null;
                 if( !_source ) {
-                    var _constructor = options.constructor || null;
+                    var _script = options.script || null;
                     var _parameters = options.parameters || {};
                 }
 
@@ -50,9 +50,9 @@ define( function ( require ) {
                     }
                     return;
                 }
-                if( !instance && _constructor ) {
-                    // Use the constructor to build an instance of object
-                    instance = new _object( _constructor.apply( null, _parameters ) );
+                if( !instance && _script ) {
+                    // Use the script to build an instance of object
+                    instance = new _object( _script.apply( null, _parameters ) );
                     if( _cache ) _cache.add( instance );
                     _onComplete( instance );
                     return;

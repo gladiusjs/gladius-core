@@ -36,7 +36,7 @@
                 'Handler is called with correct data'
             );
         };
-        event.bind( handler );
+        event.subscribe( handler );
         event( data );
     });
 
@@ -56,11 +56,11 @@
                 'Second handler is called'
             );
         };
-        event.bind( handler1 );
-        event.bind( handler2 );
+        event.subscribe( handler1 );
+        event.subscribe( handler2 );
         event();
 
-        event.unbind( handler2 );
+        event.unsubscribe( handler2 );
         event();
     });
 

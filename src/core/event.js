@@ -32,29 +32,29 @@ define( function ( require ) {
         };
 
         // Bind a callback to this event
-        var bind = function( handler ) {
+        var subscribe = function( handler ) {
             handler = prepareHandler( handler );
             if( !_subscribers[handler.__id] ) {
                 _subscribers[handler.__id] = handler;
             }
         };
-        Object.defineProperty( dispatch, 'bind', {
+        Object.defineProperty( dispatch, 'subscribe', {
             get: function() {
-                return bind;
+                return subscribe;
             },
             enumerable: false
         });
 
-        // Unbind a callback from this event
-        var unbind = function( handler ) {
+        // Unsubscribe a callback from this event
+        var unsubscribe = function( handler ) {
             if( handler.hasOwnProperty( '__id' ) &&
                     _subscribers[handler.__id] ) {
                 delete _subscribers[handler.__id];
             }
         };
-        Object.defineProperty( dispatch, 'unbind', {
+        Object.defineProperty( dispatch, 'unsubscribe', {
             get: function() {
-                return unbind;
+                return unsubscribe;
             },
             enumerable: false
         });
