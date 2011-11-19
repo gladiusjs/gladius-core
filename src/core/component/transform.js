@@ -24,8 +24,8 @@ define( function ( require ) {
             var _relative = null;
 
             var _cache = math.Matrix4();
-            var _cached = false;
-            var _recompile = true;
+            var _cached = false;    // True if the cached version of our fixed transform is valid, false otherwise
+            var _recompile = true;  // True if we need to recompile the absolute transform, false otherwise
 
             var matrix = function() {
                 if( _cached ) {

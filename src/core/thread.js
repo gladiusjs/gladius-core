@@ -156,6 +156,7 @@ define( function( require ) {
 
         this.terminate = function() {
             _worker.terminate();
+            window.URL.revokeObjectURL( _scriptUrl );
         };
 
         send( '__run' )

@@ -41,8 +41,12 @@ define( function ( require ) {
                 },
                 set: function( value ) {
                     if( value != this && value != _parent ) {
+                        var previous = _parent;
                         _parent = value;
-                        // TODO: raise an event containing the new parent.
+                        onParentChanged({
+                            previous: previous,
+                            new: value
+                        });
                     }
                 }
             });
@@ -74,6 +78,7 @@ define( function ( require ) {
                 component.owner = that;
                 _components[component.type] = component;
                 ++ _size;
+                onComponentAdded( component );
                 return previousComponent || null;
             };
 
@@ -85,6 +90,7 @@ define( function ( require ) {
                     delete _components[type];
                     previousComponent.owner = null;
                     -- _size;
+                    onComponentRemoved( previousComponent );
                 }
                 return previousComponent || null;
             };
