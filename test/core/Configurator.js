@@ -483,19 +483,23 @@
             val2 = 'val2',
             val3 = 'val3';
 
-        equal( config.get( key1 ), '' );
-        equal( config.get( key2 ), '' );
-        equal( config.get( key3 ), '' );
+        var msg = function( key ) { return 'Initial value for key ' + key + ' should be empty' };
+        equal( config.get( key1 ), '', msg( key1 ) );
+        equal( config.get( key2 ), '', msg( key2 ) );
+        equal( config.get( key3 ), '', msg( key3 ) );
+
         config.set( key1, val1 );
         config.set( key2, val2 );
         config.set( key3, val3 );
-        equal( config.get( key1 ), val1 );
-        equal( config.get( key2 ), val2 );
-        equal( config.get( key3 ), val3 );
+
+        msg = function( key, val ) { return 'Post-set, value for key ' + key + ' should be ' + val };
+        equal( config.get( key1 ), val1, msg( key1, val1 ) );
+        equal( config.get( key2 ), val2, msg( key2, val2 ) );
+        equal( config.get( key3 ), val3, msg( key3, val3 ) );
 
         config.store();
         config.load( true );
-        equal( config.get( key1 ), val1 );
+        equal( config.get( key1 ), val1, 'Post-store-and-destructive-load, value for key ' + key1 + ' should be ' + val1 );
         var volatileConfig = config.getPath( key2 ),
             key4 = '/',
             key5 = '/key1',
@@ -504,15 +508,16 @@
         volatileConfig.set( key4, val4 );
         volatileConfig.set( key5, val5 );
 
-        equal( volatileConfig.get( key4 ), val4 );
-        equal( volatileConfig.get( key5 ), val5 );
+        msg = function( key, val ) { return 'Created volatile conf at path ' + key2 + ', value for key ' + key + ' set through volatile conf should be ' + val };
+        equal( volatileConfig.get( key4 ), val4, msg( key4, val4 ) );
+        equal( volatileConfig.get( key5 ), val5, msg( key5, val5 ) );
+
         volatileConfig.store();
         config.load( true );
 
-        equal( config.get( key1 ), val1 );
-        equal( config.get( key2 ), val4 );
-        equal( config.get( key3 ), val5 );
+        msg = function( key, val ) { return 'Post-store-through-volatile-conf-and-load-through-conf, value for key ' + key + ' retrieved through conf should be ' + val}
+        equal( config.get( key1 ), val1, msg( key1, val1 ) );
+        equal( config.get( key2 ), val4, msg( key2, val4 ) );
+        equal( config.get( key3 ), val5, msg( key3, val5 ) );
     });
-
-    // TODO: load xhr type
 }());
