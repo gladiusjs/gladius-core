@@ -299,38 +299,44 @@
             val2 = 'val2',
             val3 = 'val3';
 
-        equal( config.get( key1 ), '' );
-        equal( config.get( key2 ), '' );
-        equal( config.get( key3 ), '' );
+        var msg = function( key ) { return 'Initial value for key ' + key + ' should be empty' };
+        equal( config.get( key1 ), '', msg( key1 ) );
+        equal( config.get( key2 ), '', msg( key2 ) );
+        equal( config.get( key3 ), '', msg( key3 ) );
 
         config.set( key1, val1 );
         config.set( key2, val2 );
         config.set( key3, val3 );
 
-        equal( config.get( key1 ), val1 );
-        equal( config.get( key2 ), val2 );
-        equal( config.get( key3 ), val3 );
+        msg = function( key, val ) { return 'Post-set, value for ' + key + ' should be ' + val };
+        equal( config.get( key1 ), val1, msg( key1, val1 ) );
+        equal( config.get( key2 ), val2, msg( key2, val2 ) );
+        equal( config.get( key3 ), val3, msg( key3, val3 ) );
 
         config.clear();
 
-        equal( config.get( key1 ), '' );
-        equal( config.get( key2 ), '' );
-        equal( config.get( key3 ), '' );
+        msg = function( key ) { return 'Post-clear, value for ' + key + ' should be empty' };
+        equal( config.get( key1 ), '', msg( key1 ) );
+        equal( config.get( key2 ), '', msg( key2 ) );
+        equal( config.get( key3 ), '', msg( key3 ) );
 
         // Ensure that clearing deeper elements doesn't affect parent elements
         config.set( key1, val1 );
         config.set( key2, val2 );
         config.set( key3, val3 );
 
-        equal( config.get( key1 ), val1 );
-        equal( config.get( key2 ), val2 );
-        equal( config.get( key3 ), val3 );
+        msg = function( key, val ) { return 'Reset elements, value for ' + key + ' should be ' + val };
+        equal( config.get( key1 ), val1, msg( key1, val1 ) );
+        equal( config.get( key2 ), val2, msg( key2, val2 ) );
+        equal( config.get( key3 ), val3, msg( key3, val3 ) );
 
         var config2 = config.getPath( '/foo' );
         config2.clear();
-        equal( config.get( key1 ), '' );
-        equal( config.get( key2 ), '' );
-        equal( config.get( key3 ), val3 );
+
+        msg = function( key, val ) { return 'Cleared /foo branch, value for key ' + key + ' should be ' + ( val ? val : 'empty' )};
+        equal( config.get( key1 ), '', msg( key1, '' ) );
+        equal( config.get( key2 ), '', msg( key2, '' ) );
+        equal( config.get( key3 ), val3, msg( key3, val3 ) );
     });
 
     // Test load/store to/from local storage
