@@ -7,7 +7,7 @@
 
     var engine = null;
 
-    module( 'common/Math', {
+    module( 'core/Transform', {
         setup: function () {
             stop();
 
@@ -22,17 +22,17 @@
         }
     });
 
-    test( 'Basic', function() {
-        expect( 2 );
+    test( 'Construction', function () {
+        expect( 0 );
 
-        ok(
-                math,
-                'Math found'
+        var transform = new engine.core.component.Transform();
+        
+        equal(
+            transform.type,
+            'Transform',
+            'Transform has correct type.'
         );
-        ok(
-                math.ARRAY_TYPE,
-                'Found ARRAY_TYPE'
-        );
+
     });
 
 }());

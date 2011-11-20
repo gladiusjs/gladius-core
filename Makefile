@@ -18,8 +18,9 @@ GLADIUS_DIST := $(DIST_DIR)/$(GLADIUS).js
 GLADIUS_MIN := $(DIST_DIR)/$(GLADIUS).min.js
 TOOLS_DIR := ./tools
 DIST_TEST_DIR := $(DIST_DIR)/test
+DIST_TOOLS_DIR := $(DIST_DIR)/tools
 
-CORE_FILES := $(SRC_DIR)/gladius.js $(wildcard $(SRC_DIR)/core/*.js) $(wildcard $(SRC_DIR)/core/component/*.js)
+CORE_FILES := $(SRC_DIR)/gladius.js $(wildcard $(SRC_DIR)/common/*.js) $(wildcard $(SRC_DIR)/core/*.js) $(wildcard $(SRC_DIR)/core/component/*.js)
 
 SUBSYSTEM_FILES := \
 
@@ -47,8 +48,11 @@ $(GLADIUS_MIN): $(DIST_DIR) $(GLADIUS_SRC)
 test: $(DIST_DIR) $(GLADIUS_MIN)
 	@@echo "Creating tests in $(DIST_TEST_DIR)"
 	@@mv $(GLADIUS_MIN) $(GLADIUS_DIST)
-	@@cp -R $(TEST_DIR) $(DIST_TEST_DIR)
-	@@echo "Starting web server in $(DIST_TEST_DIR), browse to http://localhost:9914/ (ctrl+c to stop)..."
+	@@cp -R $(TEST_DIR) $(DIST_DIR)
+	@@mv $(DIST_TEST_DIR)/index.html.dist $(DIST_TEST_DIR)/index.html
+	@@mkdir -p $(DIST_TOOLS_DIR)/qunit
+	@@cp -R $(TOOLS_DIR)/qunit/qunit $(DIST_TOOLS_DIR)/qunit
+	@@echo "Starting web server in $(DIST_DIR), browse to http://localhost:9914/ (ctrl+c to stop)..."
 	@@cd $(DIST_DIR) && python ../$(TOOLS_DIR)/test_server.py
 
 clean:

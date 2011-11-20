@@ -23,8 +23,7 @@
         // tag since in dev, it will be a blocking script tag,
         // so latest tag is the one for this script.
         var scripts = document.getElementsByTagName( 'script' ),
-        path = scripts[scripts.length - 1].src,
-        common = [ "Math.js", "Cookie.js" ];
+        path = scripts[scripts.length - 1].src;
 
         path = path.split( '/' );
         path.pop();
@@ -36,15 +35,12 @@
         document.write('<script>requirejs.config( { baseUrl: "' + path + '",' +
                 'paths: {' +
                 // Paths are relative to baseUrl
-                '  "external": "../external"' + 
+                '  "external": "../external",' +
+                '  "math": "../external/gladius.math/src"' +
                 //'  "CubicVR.js": "../external/CubicVR.js"' +
                 '}' +
                 '} );' +
                 'requirejs(["gladius-src"])</' + 'script>');
-
-        for ( var i = 0, maxlen = common.length; i < maxlen; ++i ) {
-            document.write( '<script src="' + path + 'common/' + common[i] + '"></' + 'script>' );
-        }
     }
 
     var gladius = this.gladius || ( this.gladius = {} );

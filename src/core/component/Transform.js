@@ -4,96 +4,105 @@
 
 define( function ( require ) {
 
-    var Component = require( 'core/Component' );
-
-    var Transform = function( options ) {
-
-        option = options || {};
-
-        var _position = new math.Vector3( math.vector3.zero );  // x, y z        
-        Object.defineProperty( this, 'position', {
-            get: function() {
-                return _position;
-            },
-            set: function( value ) {
-                if( !math.vector3.equal( value, _position ) )
-                    _position = value;
-            }
-        });
+    return function( engine ) {
         
-        var _rotation = new math.Quaternion( math.quaternion.identity );    // x, y, z, w
-        Object.defineProperty( this, 'rotation', {
-            get: function() {
-                return _rotation;
-            },
-            set: function( value ) {
-                if( 4 === value.length ) {  // quaternion
-                    if( !math.quaternion.equal( value, _rotation ) )
+        var math = engine.math;
+        var Component = require( '../Component' );
+
+        var Transform = function( options ) {
+
+            option = options || {};
+            var that = this;
+
+            var _position = math.Vector3( math.vector3.zero );        
+            Object.defineProperty( this, 'position', {
+                get: function() {
+                    return math.Vector3( _position );
+                },
+                set: function( value ) {
+                    if( !math.vector3.equal( value, _position ) ) {                       
+                        _position = value;
+                        _valid = false;
+                    }
+                }
+            });
+
+            var _rotation = math.Vector3( math.vector3.zero );
+            Object.defineProperty( this, 'rotation', {
+                get: function() {
+                    return math.Vector3( _rotation );
+                },
+                set: function( value ) {
+                    if( !math.vector3.equal( value, _rotation ) ) {
                         _rotation = value;
-                } else if( 3 === value.length ) {   // euler angles
-                    var c1 = Math.cos((Math.PI / 180.0) * value[0] / 2.0);
-                    var s1 = Math.sin((Math.PI / 180.0) * value[0] / 2.0);
-                    var c2 = Math.cos((Math.PI / 180.0) * value[1] / 2.0);
-                    var s2 = Math.sin((Math.PI / 180.0) * value[1] / 2.0);
-                    var c3 = Math.cos((Math.PI / 180.0) * value[2] / 2.0);
-                    var s3 = Math.sin((Math.PI / 180.0) * value[2] / 2.0);
-                    var c1c2 = c1 * c2;
-                    var s1s2 = s1 * s2;
-                    
-                    _rotation[0] = c1c2 * s3 + s1s2 * c3;
-                    _rotation[1] = s1 * c2 * c3 + c1 * s2 * s3;
-                    _rotation[2] = c1 * s2 * c3 - s1 * c2 * s3;
-                    _rotation[3] = c1c2 * c3 - s1s2 * s3;                    
+                        _valid = false;
+                    }
                 }
-            }
-        });
-        
-        var _scale = new math.Vector3( math.vector3.one );  // x, y, z
-        Object.defineProperty( this, 'scale', {
-            get: function() {
-                return _scale;
-            },
-            set: function( value ) {
-                if( !math.vector3.equal( value, _scale ) )
-                    _scale = value;
-            }
-        });
-        
-        var _local = null;
-        Object.defineProperty( this, 'local', {
-            get: function() {
-                /*
-                if( !_local ) {
-                    _local = math.matrix4.multiply( math.RotationMatrix4( _rotation ),
-                                                    math.ScaleMatrix4( _scale ) );
-                    math.matrix4.imultiply( _local,
-                                            math.TranslationMatrix4( _position ) );
-                }
-                return _local;
-                */
-            }
-        });
-        
-        var _world = null;
-        Object.defineProperty( this, 'world', {
-            get: function() {
-                /*
-                if( !_world ) {
-                    _world = math.matrix4.multiply( math.RotationMatrix4( _rotation ),
-                                                    math.ScaleMatrix4( _scale ) );
-                    math.matrix4.imultiply( _world,
-                                            math.TranslationMatrix4( _position ) );
-                }
-                return _world;
-                */
-            }
-        });
-    };
-    Transform.prototype = new Component({
-        type: 'Transform'
-    });
-    Transform.prototype.constructor = Transform;
+            });
 
-    return Transform;
+            var _scale = new math.Vector3( math.vector3.one );
+            Object.defineProperty( this, 'scale', {
+                get: function() {
+                    return math.Vector3( _scale );
+                },
+                set: function( value ) {
+                    if( !math.vector3.equal( value, _scale ) ) {
+                        _scale = value;
+                        _valid = false;
+                    }
+                }
+            });
+            
+            var _absolute = null;
+            var _relative = null;
+            
+            Object.defineProperty( this, 'absolute', {
+                get: function() {
+                    if( !_absolute ) {
+                        math.transform.fixed(   // Compute fixed transform
+                                math.vector3.equal( _position, math.vector3.zero ) ? null : _position, 
+                                math.vector3.equal( _rotation, math.vector3.zero ) ? null : _rotation, 
+                                math.vector3.equal( _scale, math.vector3.one ) ? null : _scale, 
+                                _absolute
+                        );
+                        if( that.owner && that.owner.contains( that.type ) )
+                            math.matrix4.multiply( that.owner.find( that.type ).absolute, _absolute, _absolute ); // Apply parent transform
+                    }
+
+                    return _absolute;
+                }
+            });
+            
+            Object.defineProperty( this, 'relative', {
+                get: function() {
+                    if( !_relative ) {
+                        if( !_absolute ) {  // Relative transform is computed from the absolute transform, so check it now
+                            math.transform.fixed(
+                                    math.vector3.equal( _position, math.vector3.zero ) ? null : _position, 
+                                    math.vector3.equal( _rotation, math.vector3.zero ) ? null : _rotation, 
+                                    math.vector3.equal( _scale, math.vector3.one ) ? null : _scale, 
+                                    _absolute
+                            );
+                        }
+                        if( that.owner && that.owner.contains( that.type ) )
+                            math.matrix4.multiply( that.owner.find( that.type ).absolute, _absolute, _absolute ); // Apply parent transform
+                        math.matrix4.inverse( _absolute, _relative );
+                    }
+
+                    return _relative;                    
+                }
+            });
+            
+            // Events          
+
+        };
+        Transform.prototype = new Component({
+            type: 'Transform'
+        });
+        Transform.prototype.constructor = Transform;
+        
+        return Transform;
+        
+    };
 
 });

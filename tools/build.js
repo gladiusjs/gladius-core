@@ -11,7 +11,8 @@
   // This setup assumes CubicVR.js is the built output,
   // so this build file assumes make has already run in CubicVR.js
   paths: {
-    'CubicVR.js/CubicVR': '../external/CubicVR.js/dist/CubicVR'
+    'CubicVR.js/CubicVR': '../external/CubicVR.js/dist/CubicVR',
+    'math': '../external/gladius.math/src'
   },
 
   // Use has branch trimming in the build to remove the document.write
@@ -38,7 +39,7 @@
   // not be found by the AST analysis done in the optimizer.
   include: [
             'gladius',
-            'gladius-src',
+            'gladius-src'
            ],
 
   // Wraps the built file in a closure and exports gladius as a global.

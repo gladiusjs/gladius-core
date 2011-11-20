@@ -4,13 +4,8 @@
 
 define( function ( require ) {
 
-    /* Component
-     *
-     * A component provides contains data and logic for a specific game function.
-     */
-
     var Component = function( options ) {
-
+        
         option = options || {};
 
         var _type = options.type || undefined;

@@ -4,27 +4,27 @@
 
 
 define( function ( require ) {
-    
+
     /* Configuration Node
      * 
      * Structure for storing configuration settings
      */
     var ConfNode = function( name, parent ) {
-        
+
         var that = this;
-        
+
         this.name = name;
         this.parent = parent;
         this.children = {};
         this.listeners = {};
-        
+
         // Node's configuration value
         var _value = '';
         Object.defineProperty( this, 'value', {
             get: function() {
                 return _value;
             },
-            
+
             set: function( value ) {
                 if ( _value !==  value ) {  // Additionally check if incoming value is string?
 
@@ -36,7 +36,7 @@ define( function ( require ) {
                 }
             }
         });
-        
+
         // Notifies us that a value stored somewhere in the subtree rooted by
         // this node has changed.
         this.notify = function ( path, newVal, oldVal ) {
@@ -61,26 +61,26 @@ define( function ( require ) {
                 this.parent.notify( path, newVal, oldVal );
             }
         };
-        
+
         // Traverse the node tree given a path
         this.traverse = function( path, doCreatePath ) {
-            
+
             var targetNode;
-            
+
             if ( path.length === 1 && path.charAt( 0 ) === '/' ) {
                 targetNode = this;
             } else {
-                
+
                 // Parse path and traverse the node tree
                 var pathElems = path.split('/'),
                     curNode = this,
                     successful = true;
-                    
+
                 for ( var i = 0, iMax = pathElems.length; successful && i < iMax; ++ i ) {
                     var curElem = pathElems[i];
-                    
+
                     if ( curElem !== '' ) {
-                        
+
                         // Look for name in children of current node
                         var nextNode = curNode.children[curElem];
                         if ( nextNode !== undefined ) {
@@ -96,12 +96,12 @@ define( function ( require ) {
                         }
                     }
                 }
-                
+
                 if ( successful ) {
                     targetNode = curNode;
                 }
             }
-            
+
             return targetNode;
         };
 
@@ -157,218 +157,221 @@ define( function ( require ) {
         };
     };
 
-    /* Configurator
-     *
-     * Loads and stores configuration data. Allows external code to listen for
-     * changes in configuration subtrees.
-     *
-     * In Gladius, a configurator can be obtained in 3 ways.
-     */
-    var Configurator = function( engine, options ) {
+    return function( engine ) {
 
-        options = options || {};
+        /* Configurator
+         *
+         * Loads and stores configuration data. Allows external code to listen for
+         * changes in configuration subtrees.
+         *
+         * In Gladius, a configurator can be obtained in 3 ways.
+         */
+        var Configurator = function( options ) {
 
-        if ( !options.defaultConfiguration )    options.defaultConfiguration = {};
-        if ( !options.cookieName )              options.cookieName =  engine.options.cookieName;
-        if ( !options.cookieLifetime )          options.cookieLifetime = engine.options.cookieLifetime;
+            options = options || {};
 
-        var that = this,
-            _getStoredJSON = function() {
-                var cookie = window.gladiusCookie.readCookie( options.cookieName );
-                if ( !cookie ) {
-                    cookie = '{}';
+            if ( !options.defaultConfiguration )    options.defaultConfiguration = {};
+            if ( !options.cookieName )              options.cookieName =  engine.options.cookieName;
+            if ( !options.cookieLifetime )          options.cookieLifetime = engine.options.cookieLifetime;
+
+            var that = this,
+                _getStoredJSON = function() {
+                    var cookie = window.gladiusCookie.readCookie( options.cookieName );
+                    if ( !cookie ) {
+                        cookie = '{}';
+                    }
+
+                    return JSON.parse( unescape( cookie ) );
+                };
+
+            // Pickup or initialize registry tree
+            this.node = engine.rootConfNode ?
+                engine.rootConfNode :
+                ( engine.rootConfNode = new ConfNode( 'ROOT' ) );
+
+            this.id = engine.nextGUID;
+
+            // Get a value based on a given path
+            this.get = function( path ) {
+                var rv = '',
+                    targetNode = this.node.traverse( path );
+
+                if ( targetNode !== undefined ) {
+                    rv = targetNode.value;
                 }
 
-                return JSON.parse( unescape( cookie ) );
+                return rv;
             };
 
-        // Pickup or initialize registry tree
-        this.node = engine.rootConfNode ?
-            engine.rootConfNode :
-            ( engine.rootConfNode = new ConfNode( 'ROOT' ) );
-        
-        this.id = engine.nextGUID;
-        
-        // Get a value based on a given path
-        this.get = function( path ) {
-            var rv = '',
-                targetNode = this.node.traverse( path );
-            
-            if ( targetNode !== undefined ) {
-                rv = targetNode.value;
-            }
-            
-            return rv;
-        };
+            // Set a value based on a given path
+            this.set = function( path, value ) {
+                var targetNode = this.node.traverse( path, true );
 
-        // Set a value based on a given path
-        this.set = function( path, value ) {
-            var targetNode = this.node.traverse( path, true );
-            
-            targetNode.value = value;
-        };
+                targetNode.value = value;
+            };
 
-        // Update configuration with given json object
-        this.update = function( json ) {
-            for ( var key in json ) {
-                if ( json.hasOwnProperty( key ) ) {
-                    this.set( key, json[key] );
-                }
-            }
-        };
-
-        /**
-         * Get a new configurator client for a node reachable using the given path.
-         * If provided, associate listenerFunc with the newly created configurator client.
-         * The listener func should accept upto 3 parameters:
-         *      path, newVal, oldVal
-         *      path -- the relative path to the changed value
-         *      newVal -- the value the given path has been set to
-         *      oldVal -- the prior value of the given path
-         */
-        this.getPath = function( path, listenerFunc ) {
-            var targetNode = this.node.traverse( path, true ),
-                rv = new Configurator( engine, {
-                    cookieName: options.cookieName,
-                    cookieLifetime: options.cookieLifetime
-                } );
-
-            rv.node = targetNode;
-            
-            if ( listenerFunc ) {
-                targetNode.listeners[rv.id] = listenerFunc;
-            }
-            
-            return rv;
-        };
-        
-        // Remove listener currently associated with client.
-        this.ignore = function() {
-            var curListener = this.node.listeners[this.id];
-            if ( curListener ) {
-                delete this.node.listeners[this.id];
-            }
-        };
-        
-        // Set listener function for this client. If another listener is
-        // associated with this client then that listener is first removed.
-        // See getPath() for listenerFunc parameter descriptions.
-        this.listen = function( listenerFunc ) {
-            if ( listenerFunc ) {
-                this.ignore();
-                
-                this.node.listeners[this.id] = listenerFunc;
-            }
-        };
-
-        /**
-         * getJSON()
-         *
-         *     - Returns a JSON representation of this configurator instance.
-         */
-        this.getJSON = function() {
-            return this.node.getJSON();
-        };
-
-        /**
-         * clear()
-         *  - Recursively clears all configuration options.
-         */
-        this.clear = function() {
-            this.node.clear();
-        };
-
-        /**
-         * store()
-         *
-         *  - Stores configuration options to local storage.
-         */
-        this.store = function() {
-            var targetJSON = {},
-                myJSON = this.getJSON(),
-                parentPath = this.node.getParentPath(),
-                targetStr = null;
-
-            for ( var jsonKey in myJSON ) {
-                if ( myJSON.hasOwnProperty( jsonKey ) ) {
-                    targetJSON[parentPath + jsonKey] = myJSON[jsonKey];
-                }
-            }
-
-            // Load existing myJSON and merge/filter
-            var loadedJSON = _getStoredJSON(),
-                loadedJSONKeys = Object.keys( loadedJSON );
-
-            for ( var i = 0, maxlen = loadedJSONKeys.length; i < maxlen; ++i ) {
-                var loadedJSONKey = loadedJSONKeys[i];
-                if ( loadedJSONKey.indexOf( parentPath ) !== 0 ) {
-                    targetJSON[loadedJSONKey] = loadedJSON[loadedJSONKey];
-                }
-            }
-
-            // Stringify JSON
-            targetStr = escape( JSON.stringify( targetJSON ) );    // paranoid
-
-            // Store
-            window.gladiusCookie.createCookie( options.cookieName, targetStr, options.cookieLifetime );
-        };
-
-        /**
-         * load( [ clearBeforeLoad ][ , URL [ , callback ] ] )
-         *
-         *  - Loads registry either from a url or from local storage ( cookie )
-         *      - If clearBeforeLoad is true, this configurator's configuration
-         *          options are cleared before new ones are loaded
-         *          - If false, contents are not cleared prior and any colliding
-         *               configuration options are overwritten, this is the default.
-         *      - If a URL is provided then an asynchronous XHR request is made
-         *          to the given URL. The function expects a JSON object result.
-         *          - If a callback is provided, it will be called when the
-         *              JSON object has been retrieved and the configurator
-         *              has been updated.
-         *              - The callback should accept the configurator instance
-         *                  as its only parameter.
-         *              - The callback will not be called if no URL is provided.
-         *          - If no URL is provided then configuration is loaded from
-         *              local storage. This is a blocking/synchronous operation.
-         */
-        this.load = function( clearBeforeLoad, URL, callback ) {
-            if ( clearBeforeLoad ) {
-                this.clear();
-            }
-
-            var loadedJSON = null;
-            if ( URL ) {
-                // unimplemented
-            } else {
-                loadedJSON = _getStoredJSON();
-            }
-
-            // Create the parent path
-            var parentPath = this.node.getParentPath(),
-                parentPathLen = parentPath.length;
-
-            // Find relevant values and set them
-            for ( var jsonKey in loadedJSON ) {
-                if ( loadedJSON.hasOwnProperty( jsonKey ) ) {
-                    if ( jsonKey.indexOf( parentPath ) === 0 ) {
-
-                        // Found valid string, set internal value
-                        this.set(
-                            jsonKey.substr(
-                                parentPathLen,
-                                jsonKey.length - parentPathLen
-                            ),
-                            loadedJSON[ jsonKey ]
-                        );
+            // Update configuration with given json object
+            this.update = function( json ) {
+                for ( var key in json ) {
+                    if ( json.hasOwnProperty( key ) ) {
+                        this.set( key, json[key] );
                     }
                 }
-            }
+            };
+
+            /**
+             * Get a new configurator client for a node reachable using the given path.
+             * If provided, associate listenerFunc with the newly created configurator client.
+             * The listener func should accept upto 3 parameters:
+             *      path, newVal, oldVal
+             *      path -- the relative path to the changed value
+             *      newVal -- the value the given path has been set to
+             *      oldVal -- the prior value of the given path
+             */
+            this.getPath = function( path, listenerFunc ) {
+                var targetNode = this.node.traverse( path, true ),
+                    rv = new Configurator( engine, {
+                        cookieName: options.cookieName,
+                        cookieLifetime: options.cookieLifetime
+                    } );
+
+                rv.node = targetNode;
+
+                if ( listenerFunc ) {
+                    targetNode.listeners[rv.id] = listenerFunc;
+                }
+
+                return rv;
+            };
+
+            // Remove listener currently associated with client.
+            this.ignore = function() {
+                var curListener = this.node.listeners[this.id];
+                if ( curListener ) {
+                    delete this.node.listeners[this.id];
+                }
+            };
+
+            // Set listener function for this client. If another listener is
+            // associated with this client then that listener is first removed.
+            // See getPath() for listenerFunc parameter descriptions.
+            this.listen = function( listenerFunc ) {
+                if ( listenerFunc ) {
+                    this.ignore();
+
+                    this.node.listeners[this.id] = listenerFunc;
+                }
+            };
+
+            /**
+             * getJSON()
+             *
+             *     - Returns a JSON representation of this configurator instance.
+             */
+            this.getJSON = function() {
+                return this.node.getJSON();
+            };
+
+            /**
+             * clear()
+             *  - Recursively clears all configuration options.
+             */
+            this.clear = function() {
+                this.node.clear();
+            };
+
+            /**
+             * store()
+             *
+             *  - Stores configuration options to local storage.
+             */
+            this.store = function() {
+                var targetJSON = {},
+                    myJSON = this.getJSON(),
+                    parentPath = this.node.getParentPath(),
+                    targetStr = null;
+
+                for ( var jsonKey in myJSON ) {
+                    if ( myJSON.hasOwnProperty( jsonKey ) ) {
+                        targetJSON[parentPath + jsonKey] = myJSON[jsonKey];
+                    }
+                }
+
+                // Load existing myJSON and merge/filter
+                var loadedJSON = _getStoredJSON(),
+                    loadedJSONKeys = Object.keys( loadedJSON );
+
+                for ( var i = 0, maxlen = loadedJSONKeys.length; i < maxlen; ++i ) {
+                    var loadedJSONKey = loadedJSONKeys[i];
+                    if ( loadedJSONKey.indexOf( parentPath ) !== 0 ) {
+                        targetJSON[loadedJSONKey] = loadedJSON[loadedJSONKey];
+                    }
+                }
+
+                // Stringify JSON
+                targetStr = escape( JSON.stringify( targetJSON ) );    // paranoid
+
+                // Store
+                window.gladiusCookie.createCookie( options.cookieName, targetStr, options.cookieLifetime );
+            };
+
+            /**
+             * load( [ clearBeforeLoad ][ , URL [ , callback ] ] )
+             *
+             *  - Loads registry either from a url or from local storage ( cookie )
+             *      - If clearBeforeLoad is true, this configurator's configuration
+             *          options are cleared before new ones are loaded
+             *          - If false, contents are not cleared prior and any colliding
+             *               configuration options are overwritten, this is the default.
+             *      - If a URL is provided then an asynchronous XHR request is made
+             *          to the given URL. The function expects a JSON object result.
+             *          - If a callback is provided, it will be called when the
+             *              JSON object has been retrieved and the configurator
+             *              has been updated.
+             *              - The callback should accept the configurator instance
+             *                  as its only parameter.
+             *              - The callback will not be called if no URL is provided.
+             *          - If no URL is provided then configuration is loaded from
+             *              local storage. This is a blocking/synchronous operation.
+             */
+            this.load = function( clearBeforeLoad, URL, callback ) {
+                if ( clearBeforeLoad ) {
+                    this.clear();
+                }
+
+                var loadedJSON = null;
+                if ( URL ) {
+                    // unimplemented
+                } else {
+                    loadedJSON = _getStoredJSON();
+                }
+
+                // Create the parent path
+                var parentPath = this.node.getParentPath(),
+                    parentPathLen = parentPath.length;
+
+                // Find relevant values and set them
+                for ( var jsonKey in loadedJSON ) {
+                    if ( loadedJSON.hasOwnProperty( jsonKey ) ) {
+                        if ( jsonKey.indexOf( parentPath ) === 0 ) {
+
+                            // Found valid string, set internal value
+                            this.set(
+                                jsonKey.substr(
+                                    parentPathLen,
+                                    jsonKey.length - parentPathLen
+                                ),
+                                loadedJSON[ jsonKey ]
+                            );
+                        }
+                    }
+                }
+            };
+
+            // Load default configuration
+            this.update( options.defaultConfiguration );
         };
 
-        // Load default configuration
-        this.update( options.defaultConfiguration );
-    };
-
-    return Configurator;
+        return Configurator;
+    }
 });

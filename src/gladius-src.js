@@ -3,27 +3,23 @@
 
 define( function ( require ) {
     var lang = require( './core/lang' ),
-    Configurator = require( './core/Configurator' ),
-    Entity = require( './core/Entity' ),
-    Component = require( './core/Component' ),
-    Scene = require( './core/Scene' ),
-    Transform = require( './core/component/Transform' ),
+        _Math = require( 'math/math-require' ),
 
-    Paladin, i, args,
+        Configurator = require( './core/Configurator' ),
+        Entity = require( './core/Entity' ),
+        Component = require( './core/Component' ),
+        Scene = require( './core/Scene' ),
+        Transform = require( './core/component/Transform' ),
+        Scheduler = require( './core/Scheduler' ),
+        Text = require( './core/resource/Text' ),
+
+    Gladius, i, args,
 
     // Expose the API on the global object. Part of if may already
     // exist, mainly gladius.ready from gladius.js. Check tools/wrap.start
     // for protections against overwriting an existing gladius in the page,
     // for when gladius is built for deployment.
     global = window.gladius || ( window.gladius = {} );
-
-    // Utility to bridge the gap between constructor functions
-    // that need to know the gladius instance.
-    function partialCtor( Func, instance ) {
-        return function ( options ) {
-            return new Func( instance, options );
-        };
-    }
 
     /***
      * Gladius
@@ -42,9 +38,6 @@ define( function ( require ) {
         if ( !this.options.cookieLifetime )         this.options.cookieLifetime = 365;
         this.debug = this.options.debug ? console.log : function () {};
 
-        // this.tasker = new Tasker();
-        // this.messenger = new Messenger( this.tasker );
-
         // Init instance of each subsystem and store reference as subsystem name
         subsystems = this.options.subsystems || global.subsystems;
         for ( prop in subsystems ) {
@@ -53,6 +46,14 @@ define( function ( require ) {
                 sIds.push('./' + subsystems[prop]);
             }
         }
+        
+
+        var _math = new _Math();
+        Object.defineProperty( this, 'math', {
+            get: function() {
+                return _math;
+            }
+        });
 
         var _nextGUID = 0;
         Object.defineProperty( this, 'nextGUID', {
@@ -69,7 +70,13 @@ define( function ( require ) {
             }
         });
 
-        this.configurator = new Configurator( this );
+
+        var _scheduler = new Scheduler();
+        Object.defineProperty( this, 'scheduler', {
+            get: function() {
+                return _scheduler;
+            }
+        });
 
         // Fetch the subsystems. These can potentially be async operations.
         // In a build, they are async, but do not result in any network
@@ -89,20 +96,43 @@ define( function ( require ) {
             // this.physics = subs.physics;
             // this.sound = subs.sound;
 
-            // Expose Paladin objects, partially
+            // Expose engine objects, partially
             // applying items needed for their constructors.
             lang.extend(this, {
                 core: {
-                    Configurator: partialCtor( Configurator, this ),
-                    Entity: partialCtor( Entity, this ),
+                    Configurator: Configurator( this ),
+                    Entity: Entity( this ),
                     Component: Component,
-                    Scene: partialCtor( Scene, this ),
+                    Resource: null,
+                    Scene: Scene( this ),
                     component: {
-                        Transform: Transform
+                        Transform: Transform( this )
+                    },
+                    resource: {
+                        Text: Text( this )
                     }
+                },
+                graphics: {
+                    component: {},
+                    resource: {}
+                },
+                physics: {
+                    component: {},
+                    resource: {}
+                },
+                sound: {
+                    component: {},
+                    resource: {}
                 }
             });
-
+            
+            var _configurator = new this.core.Configurator();
+            Object.defineProperty( this, 'configurator', {
+                get: function() {
+                    return _configurator;
+                }
+            });
+            
             this.assert = function( condition, message ) {
                 if( !condition )
                     throw 'Assertion failed: ' + message;
@@ -123,25 +153,25 @@ define( function ( require ) {
                 this.options.setup( this );
             }
 
-            // Let caller know the Paladin instance is ready.
+            // Let caller know the engine instance is ready.
             if (callback) {
                 callback(this);
             }
         }));
     }; //Paladin
 
-    // Set up common properties for all Paladin instances
+    // Set up common properties for all engine instances
     Gladius.prototype = {
 
             run: function () {
                 if ( this.options.run ) {
                     this.options.run( this );
                 }
-                // this.tasker.run();
+                this.scheduler.run();
             }
     };
 
-    // Export the public API for creating Paladin instances.
+    // Export the public API for creating engine instances.
     global.create = function ( options, callback ) {
         return new Gladius( options, callback );
     };

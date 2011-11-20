@@ -112,7 +112,7 @@
             '/hello/world2' :   'sixthVal'
         },
 
-        config = engine.core.Configurator( { defaultConfiguration: defaultConfig } );
+        config = new engine.core.Configurator( { defaultConfiguration: defaultConfig } );
 
         for ( var key in defaultConfig ) {
             if ( defaultConfig.hasOwnProperty( key ) ) {

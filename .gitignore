@@ -2,3 +2,5 @@
 *~
 /dist/
 *.komodoproject
+.DS_Store
+.project
