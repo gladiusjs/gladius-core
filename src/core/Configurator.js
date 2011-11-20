@@ -107,11 +107,11 @@ define( function ( require ) {
 
         // Serializes this node and all of its children as JSON
         this.getJSON = function() {
-            var rv = {},
+            var resultJSON = {},
                 children = this.children;
 
             if ( _value !== '' ) {
-                rv['/'] = _value;
+                resultJSON['/'] = _value;
             }
 
             for ( var childKey in children ) {
@@ -121,13 +121,13 @@ define( function ( require ) {
                         childJSONKeys = Object.keys( childJSON );
 
                     for ( var k = 0, kmaxlen = childJSONKeys.length; k < kmaxlen; ++k ) {
-                        rv['/' + child.name + childJSONKeys[k]] =
+                        resultJSON['/' + child.name + childJSONKeys[k]] =
                             childJSON[childJSONKeys[k]];
                     }
                 }
             }
 
-            return rv;
+            return resultJSON;
         };
 
         // Clears this node and all child nodes
@@ -145,15 +145,15 @@ define( function ( require ) {
 
         // Builds a parent path for this node
         this.getParentPath = function() {
-            rv = '';
+            resultPath = '';
 
             var node = this;
             while ( node && node.parent ) {
-                rv = '/' + node.name + rv;
+                resultPath = '/' + node.name + resultPath;
                 node = node.parent;
             }
 
-            return rv;
+            return resultPath;
         };
     };
 
@@ -193,14 +193,14 @@ define( function ( require ) {
 
             // Get a value based on a given path
             this.get = function( path ) {
-                var rv = '',
+                var resultVal = '',
                     targetNode = this.node.traverse( path );
 
                 if ( targetNode !== undefined ) {
-                    rv = targetNode.value;
+                    resultVal = targetNode.value;
                 }
 
-                return rv;
+                return resultVal;
             };
 
             // Set a value based on a given path
@@ -230,18 +230,18 @@ define( function ( require ) {
              */
             this.getPath = function( path, listenerFunc ) {
                 var targetNode = this.node.traverse( path, true ),
-                    rv = new Configurator( engine, {
+                    resultConf = new Configurator( engine, {
                         cookieName: options.cookieName,
                         cookieLifetime: options.cookieLifetime
                     } );
 
-                rv.node = targetNode;
+                resultConf.node = targetNode;
 
                 if ( listenerFunc ) {
-                    targetNode.listeners[rv.id] = listenerFunc;
+                    targetNode.listeners[resultConf.id] = listenerFunc;
                 }
 
-                return rv;
+                return resultConf;
             };
 
             // Remove listener currently associated with client.
