@@ -373,5 +373,5 @@ define( function ( require ) {
         };
 
         return Configurator;
-    }
+    };
 });
