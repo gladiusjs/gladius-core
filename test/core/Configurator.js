@@ -282,7 +282,7 @@
             equal(
                 jsonActual[expectedKeys[i]],
                 jsonExpected[expectedKeys[i]],
-                'JSON representation of configuration should match expected JSON object'
+                'JSON representation of configuration should match expected JSON object, testing key: ' + expectedKeys[i] + ' expected: ' + jsonExpected[expectedKeys[i]] + ' got: ' + jsonActual[expectedKeys[i]]
             );
         }
     });
