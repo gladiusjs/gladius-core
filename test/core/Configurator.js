@@ -27,8 +27,7 @@
             engine = null;
         }
     });
-    
-    
+
     // Configurator should be automatically created by the Engine
     test( 'Construction', function() {
         expect( 1 );
@@ -38,7 +37,7 @@
             'Engine creates configurator'
         );
     });
-    
+
     // Test Get/Set
     test( 'Get and set', function() {
         expect( 12 );
@@ -101,7 +100,7 @@
     
     // Test default configuration loading
     test( 'Default configuration loading', function() {
-        expect( 6 );
+        expect( 7 );
         
         var defaultConfig = {
             '/'             :   'firstVal',
@@ -120,6 +119,9 @@
                 equal( val, defaultConfig[key], 'Retrieve default configuration value, expected ' + defaultConfig[key] + ', found ' + val + ', through key ' + key);
             }
         }
+
+        // Test that default.js is being loaded.
+        notEqual( config.get( '/gladius/gameID' ), '', 'gameID should not be empty' );
     });
     
     // Test getPath
@@ -341,7 +343,7 @@
 
     // Test load/store to/from local storage
     test( 'local store/load', function() {
-        expect( 43 );
+        expect( 40 );
 
         var testPath = '/_localstoreload_test/',
             config = engine.configurator.getPath( testPath ),
@@ -353,6 +355,15 @@
             val2 = 'val2',
             val3 = 'val3',
             val4 = 'val4';
+
+        // Clear keys
+        stop();
+        config.load( function() {
+            config.clear();
+            config.store( function() {
+                start();
+            });
+        });
 
         var msg = function( key ) { return 'Initial value for key ' + key + ' should be empty' };
         equal( config.get( key1 ), '', msg( key1 ) );
@@ -427,17 +438,7 @@
             start();
         });
 
-        msg = function( key ) { return 'Created gladius2, initial value for key ' + key + ' on gladius2 should be empty'}
-        equal( config2.get( key1 ), '', msg( key1 ) );
-        equal( config2.get( key2 ), '', msg( key2 ) );
-        equal( config2.get( key3 ), '', msg( key3 ) );
-
-        stop();
-        config2.load( function() {
-            start();
-        });
-
-        msg = function( key, val ) { return 'Loaded config through gladius2, value for key ' + key + ' should be ' + val };
+        msg = function( key, val ) { return 'Created gladius2, initial value for key ' + key + ' should be ' + val };
         equal( config2.get( key1 ), val1, msg( key1, val1 ) );
         equal( config2.get( key2 ), val2, msg( key2, val2 ) );
         equal( config2.get( key3 ), val3, msg( key3, val3 ) );
@@ -503,6 +504,15 @@
             val1 = 'val1',
             val2 = 'val2',
             val3 = 'val3';
+
+        // Clear keys
+        stop();
+        config.load( function() {
+            config.clear();
+            config.store( function() {
+                start();
+            });
+        });
 
         var msg = function( key ) { return 'Initial value for key ' + key + ' should be empty' };
         equal( config.get( key1 ), '', msg( key1 ) );

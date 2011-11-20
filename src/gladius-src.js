@@ -29,12 +29,12 @@ define( function ( require ) {
      * and others are prototypes to be used and extended.
      */
     Gladius = function ( options, callback ) {
-        var sNames = [],
+        var that = this,
+        sNames = [],
         sIds = [],
         subsystems, prop;
 
         this.options = options || {};
-        if ( !this.options.defaultConfiguration )   this.options.defaultConfiguration = {};
         if ( !this.options.cookieName )             this.options.cookieName = 'gladius_registry';
         if ( !this.options.cookieLifetime )         this.options.cookieLifetime = 365;
         this.debug = this.options.debug ? console.log : function () {};
@@ -127,7 +127,9 @@ define( function ( require ) {
                 }
             });
             
-            var _configurator = new this.core.Configurator();
+            var _configurator = new this.core.Configurator( {
+                defaultConfiguration: require( './config/default' )
+            });
             Object.defineProperty( this, 'configurator', {
                 get: function() {
                     return _configurator;
@@ -154,10 +156,12 @@ define( function ( require ) {
                 this.options.setup( this );
             }
 
-            // Let caller know the engine instance is ready.
-            if (callback) {
-                callback(this);
-            }
+            // Load any persistent configuration then let caller know the engine instance is ready.
+            this.configurator.load( function() {
+                if ( callback ) {
+                    callback( that );
+                }
+            });
         }));
     }; //Paladin
 
