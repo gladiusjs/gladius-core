@@ -17,7 +17,7 @@
         setup: function () {
             stop();
 
-            gladius.create( { debug: true }, function( instance ) {       
+            gladius.create( { debug: true }, function( instance ) {
                 engine = instance;
                 start();
             });
@@ -126,7 +126,7 @@
     test( 'getPath and separator apprehension', function() {
         expect( 21 );
 
-        var rootConfig = engine.core.Configurator(),
+        var rootConfig = new engine.core.Configurator(),
             childConfigs = [],
             vals = [
                 'first_val',
@@ -140,12 +140,12 @@
         childConfigs.push( engine.configurator.getPath( '/foo' ) );
         childConfigs.push( engine.configurator.getPath( '/foo/bar' ) );
         
-        equal( engine.configurator.get( '/foo' ), '' )
-        equal( engine.configurator.get( '/foo/bar' ), '' )
-        equal( rootConfig.get( '/foo' ), '' )
-        equal( rootConfig.get( '/foo/bar' ), '' )
-        equal( childConfigs[0].get( '/' ), '' )
-        equal( childConfigs[1].get( '/' ), '' )
+        equal( engine.configurator.get( '/foo' ), '', '/foo value through engine conf should be empty string' )
+        equal( engine.configurator.get( '/foo/bar' ), '', '/foo/bar value through engine conf should be empty string' )
+        equal( rootConfig.get( '/foo' ), '', '/foo value through new root conf should be empty string' )
+        equal( rootConfig.get( '/foo/bar' ), '', '/foo/bar value through new root conf should be empty string' )
+        equal( childConfigs[0].get( '/' ), '', '/ value through new /foo conf should be empty string' )
+        equal( childConfigs[1].get( '/' ), '', '/ value through new /foo/bar conf should be empty string' )
 
         // We will test Configurator's ability to read and write through the
         // engine configurator, getPath() configurators and
@@ -153,36 +153,36 @@
 
         // Set through engine configurator
         engine.configurator.set( '/foo', vals[0] );
-        equal( rootConfig.get( '/foo' ), vals[0] );
-        equal( childConfigs[0].get( '/' ), vals[0], 'Read value from first child configurator set through engine configurator' );
+        equal( rootConfig.get( '/foo' ), vals[0], 'Read value from /foo through root conf set through /foo in engine conf' );
+        equal( childConfigs[0].get( '/' ), vals[0], 'Read value from / through /foo conf set through /foo in engine configurator' );
 
         // Set through engine configurator
         engine.configurator.set( '/foo/bar', vals[4] );
-        equal( rootConfig.get( '/foo/bar' ), vals[4] );
-        equal( childConfigs[1].get( '/' ), vals[4], 'Read value from second child configurator set through engine configurator' );
+        equal( rootConfig.get( '/foo/bar' ), vals[4], 'Read value from /foo/bar through root conf set through /foo/bar in engine conf' );
+        equal( childConfigs[1].get( '/' ), vals[4], 'Read value from / through /foo/bar conf set through /foo/bar in engine conf' );
 
         // Set through first child configurator
         childConfigs[0].set( '/bar', vals[1]);
-        equal( rootConfig.get( '/foo/bar' ), vals[1] );
-        equal( engine.configurator.get( '/foo/bar' ), vals[1] );
-        equal( childConfigs[1].get( '/' ), vals[1], 'Read value from second child configurator set through first child configurator' );
+        equal( rootConfig.get( '/foo/bar' ), vals[1], 'Read value from /foo/bar through root conf set through /bar in /foo conf' );
+        equal( engine.configurator.get( '/foo/bar' ), vals[1], 'Read value from /foo/bar through engine conf set through /bar in /foo conf' );
+        equal( childConfigs[1].get( '/' ), vals[1], 'Read value from / through /foo/bar conf set through /bar in /foo conf' );
 
         // Set through second child configurator
         childConfigs[1].set( '/', vals[2] )
-        equal( rootConfig.get( '/foo/bar' ), vals[2] );
-        equal( engine.configurator.get( '/foo/bar' ), vals[2], 'Read value from engine configurator set through second child configurator' );
-        equal( childConfigs[0].get( '/bar' ), vals[2], 'Read value from first child configurator set through second child configurator' );
+        equal( rootConfig.get( '/foo/bar' ), vals[2], 'Read value from /foo/bar through root conf set through / in /foo/bar conf' );
+        equal( engine.configurator.get( '/foo/bar' ), vals[2], 'Read value from /foo/bar through engine conf set through / in /foo/bar conf' );
+        equal( childConfigs[0].get( '/bar' ), vals[2], 'Read value from /bar through /foo conf set through / in /foo/bar conf' );
 
         // Set through first child configurator
         childConfigs[0].set( '/', vals[3] );
-        equal( rootConfig.get( '/foo' ), vals[3] );
-        equal( engine.configurator.get( '/foo' ), vals[3], 'Read value from engine configurator set through first child configurator' );
+        equal( rootConfig.get( '/foo' ), vals[3], 'Read value from /foo through root conf set through / in /foo conf' );
+        equal( engine.configurator.get( '/foo' ), vals[3], 'Read value from /foo through engine conf set through / in /foo conf' );
 
         // Set through engine.core.Configurator() constructed instance
         rootConfig.set( '/foo/bar', vals[5] );
-        equal( engine.configurator.get( '/foo/bar' ), vals[5] );
-        equal( childConfigs[0].get( '/bar' ), vals[5] );
-        equal( childConfigs[1].get( '/' ), vals[5] );
+        equal( engine.configurator.get( '/foo/bar' ), vals[5], 'Read value from /foo/bar through engine conf set through /foo/bar in root conf' );
+        equal( childConfigs[0].get( '/bar' ), vals[5], 'Read value from /bar through /foo conf set through /foo/bar in root conf' );
+        equal( childConfigs[1].get( '/' ), vals[5], 'Read value from / through /foo/bar conf set through /foo/bar in root conf' );
     });
     
     // Test listen/ignore
