@@ -4,6 +4,7 @@
 define( function ( require ) {
     var lang = require( './core/lang' ),
         _Math = require( 'math/math-require' ),
+        _Cookie = require( './common/Cookie' ),     // TODO: to be removed
 
         Configurator = require( './core/Configurator' ),
         Entity = require( './core/Entity' ),
