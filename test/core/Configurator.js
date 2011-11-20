@@ -265,7 +265,7 @@
 
         var json = config.getJSON();
         var jsonKeys = Object.keys( json );
-        equal( 0, jsonKeys.length );
+        equal( 0, jsonKeys.length, 'JSON representation of configuration should be empty' );
 
         var jsonExpected = {
             '/foo/'         : 'fooVal',
@@ -281,7 +281,8 @@
         for ( var i = 0, maxlen = expectedKeys.length; i < maxlen; ++i ) {
             equal(
                 jsonActual[expectedKeys[i]],
-                jsonExpected[expectedKeys[i]]
+                jsonExpected[expectedKeys[i]],
+                'JSON representation of configuration should match expected JSON object'
             );
         }
     });
