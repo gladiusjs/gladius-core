@@ -175,13 +175,25 @@ define( function ( require ) {
             if ( !options.cookieLifetime )          options.cookieLifetime = engine.options.cookieLifetime;
 
             var that = this,
-                _getStoredJSON = function() {
+                _getStoredJSON = function( callback ) {
                     var cookie = window.gladiusCookie.readCookie( options.cookieName );
                     if ( !cookie ) {
                         cookie = '{}';
                     }
 
-                    return JSON.parse( unescape( cookie ) );
+                    callback( JSON.parse( unescape( cookie ) ) );
+                },
+
+                _storeJSON = function( json, callback ) {
+                    // Stringify JSON
+                    var targetStr = escape( JSON.stringify( json ) );    // paranoid
+
+                    // Store
+                    window.gladiusCookie.createCookie( options.cookieName, targetStr, options.cookieLifetime );
+
+                    if ( callback ) {
+                        callback();
+                    }
                 };
 
             // Pickup or initialize registry tree
@@ -284,8 +296,11 @@ define( function ( require ) {
              * store()
              *
              *  - Stores configuration options to local storage.
+             *      - If a callback is provided then it is called once the
+             *          configuration has been loaded.
+             *          - The callback will be passed the configurator object
              */
-            this.store = function() {
+            this.store = function( callback ) {
                 var targetJSON = {},
                     myJSON = this.getJSON(),
                     parentPath = this.node.getParentPath(),
@@ -298,74 +313,69 @@ define( function ( require ) {
                 }
 
                 // Load existing myJSON and merge/filter
-                var loadedJSON = _getStoredJSON(),
-                    loadedJSONKeys = Object.keys( loadedJSON );
+                _getStoredJSON( function( loadedJSON ) {
+                    var loadedJSONKeys = Object.keys( loadedJSON );
 
-                for ( var i = 0, maxlen = loadedJSONKeys.length; i < maxlen; ++i ) {
-                    var loadedJSONKey = loadedJSONKeys[i];
-                    if ( loadedJSONKey.indexOf( parentPath ) !== 0 ) {
-                        targetJSON[loadedJSONKey] = loadedJSON[loadedJSONKey];
+                    for ( var i = 0, maxlen = loadedJSONKeys.length; i < maxlen; ++i ) {
+                        var loadedJSONKey = loadedJSONKeys[i];
+                        if ( loadedJSONKey.indexOf( parentPath ) !== 0 ) {
+                            targetJSON[loadedJSONKey] = loadedJSON[loadedJSONKey];
+                        }
                     }
-                }
 
-                // Stringify JSON
-                targetStr = escape( JSON.stringify( targetJSON ) );    // paranoid
-
-                // Store
-                window.gladiusCookie.createCookie( options.cookieName, targetStr, options.cookieLifetime );
+                    // Store
+                    _storeJSON( targetJSON, function() {
+                        if ( callback ) {
+                            callback( that );
+                        }
+                    });
+                });
             };
 
             /**
-             * load( [ clearBeforeLoad ][ , URL [ , callback ] ] )
+             * load( [ callback( configurator ) ][, clearBeforeLoad ] )
              *
-             *  - Loads registry either from a url or from local storage ( cookie )
+             *  - Loads registry from local storage ( IndexedDB )
+             *      - If a callback is provided then it is called once the
+             *          configuration has been loaded.
+             *          - The callback will be passed the configurator object
              *      - If clearBeforeLoad is true, this configurator's configuration
              *          options are cleared before new ones are loaded
              *          - If false, contents are not cleared prior and any colliding
              *               configuration options are overwritten, this is the default.
-             *      - If a URL is provided then an asynchronous XHR request is made
-             *          to the given URL. The function expects a JSON object result.
-             *          - If a callback is provided, it will be called when the
-             *              JSON object has been retrieved and the configurator
-             *              has been updated.
-             *              - The callback should accept the configurator instance
-             *                  as its only parameter.
-             *              - The callback will not be called if no URL is provided.
-             *          - If no URL is provided then configuration is loaded from
-             *              local storage. This is a blocking/synchronous operation.
              */
-            this.load = function( clearBeforeLoad, URL, callback ) {
+            this.load = function( callback, clearBeforeLoad ) {
                 if ( clearBeforeLoad ) {
                     this.clear();
                 }
 
-                var loadedJSON = null;
-                if ( URL ) {
-                    // unimplemented
-                } else {
-                    loadedJSON = _getStoredJSON();
-                }
+                _getStoredJSON( function( loadedJSON ) {
+                    // Create the parent path
+                    var parentPath = that.node.getParentPath(),
+                        parentPathLen = parentPath.length;
 
-                // Create the parent path
-                var parentPath = this.node.getParentPath(),
-                    parentPathLen = parentPath.length;
+                    // Find relevant values and set them
+                    for ( var jsonKey in loadedJSON ) {
+                        if ( loadedJSON.hasOwnProperty( jsonKey ) ) {
+                            if ( jsonKey.indexOf( parentPath ) === 0 ) {
 
-                // Find relevant values and set them
-                for ( var jsonKey in loadedJSON ) {
-                    if ( loadedJSON.hasOwnProperty( jsonKey ) ) {
-                        if ( jsonKey.indexOf( parentPath ) === 0 ) {
-
-                            // Found valid string, set internal value
-                            this.set(
-                                jsonKey.substr(
-                                    parentPathLen,
-                                    jsonKey.length - parentPathLen
-                                ),
-                                loadedJSON[ jsonKey ]
-                            );
+                                // Found valid string, set internal value
+                                that.set(
+                                    jsonKey.substr(
+                                        parentPathLen,
+                                        jsonKey.length - parentPathLen
+                                    ),
+                                    loadedJSON[ jsonKey ]
+                                );
+                            }
                         }
                     }
-                }
+
+                    // Call callback if provided
+                    if ( callback ) {
+                        callback( that );
+                    }
+                });
             };
 
             // Load default configuration
