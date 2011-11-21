@@ -159,7 +159,7 @@ define( function( require ) {
             window.URL.revokeObjectURL( _scriptUrl );
         };
 
-        send( '__run' )
+        send( '__run' );
     };
 
     var ThreadPool = function( options ) {
