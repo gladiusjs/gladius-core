@@ -16,8 +16,10 @@ define( function ( require ) {
         
         source = source || {};
 
+        this._cvr = {};
+
         var _cvrMesh = new CubicVR.Mesh( source );
-        console.log( _cvrMesh );
+        this.cvr.mesh = _cvrMesh;
         
     };
 
