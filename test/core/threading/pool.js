@@ -27,7 +27,7 @@
         expect( 1 );        
 
         engine.threadPool.dispatch({
-            call: function( a, b ) {
+            callable: function( a, b ) {
                 return a + b;
             },
             parameters: [ 1, 2 ],

@@ -4,7 +4,7 @@
 define( function ( require ) {
     var lang = require( './core/lang' ),
         _Math = require( 'math/math-require' ),
-        ThreadPool = require( './core/thread' ),
+        ThreadPool = require( './core/threading/pool' ),
         Scheduler = require( './core/scheduler' ),
         Event = require( './core/event' ),
 
