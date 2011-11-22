@@ -50,6 +50,9 @@ define( function ( require ) {
             get: function() {
                 return _scheduled;
             },
+            set: function( value ) {
+                _scheduled = value;
+            }
         });
 
         this.suspend = function() {
