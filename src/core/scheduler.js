@@ -4,7 +4,7 @@
 
 define( function ( require ) {
 
-        var Task = require( './Task' );
+        var Task = require( './task' );
 
         var Scheduler = function( options ) {               
 

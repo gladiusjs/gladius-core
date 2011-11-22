@@ -4,6 +4,8 @@
 
 define( function ( require ) {
 
+    var Event = require( './event' );
+
     /* Entity
      *
      * An entity is a collection of entity components under a single globally unique identifier.
@@ -18,7 +20,7 @@ define( function ( require ) {
 
             // Members
 
-            var _guid = engine.nextGUID;                 // Globally-unique ID
+            var _guid = window.guid();                 // Globally-unique ID
             Object.defineProperty( this, 'id', {
                 get: function() {
                     return _guid;
@@ -39,8 +41,12 @@ define( function ( require ) {
                 },
                 set: function( value ) {
                     if( value != this && value != _parent ) {
+                        var previous = _parent;
                         _parent = value;
-                        // TODO: raise an event containing the new parent.
+                        onParentChanged({
+                            previous: previous,
+                            new: value
+                        });
                     }
                 }
             });
@@ -72,6 +78,7 @@ define( function ( require ) {
                 component.owner = that;
                 _components[component.type] = component;
                 ++ _size;
+                onComponentAdded( component );
                 return previousComponent || null;
             };
 
@@ -83,6 +90,7 @@ define( function ( require ) {
                     delete _components[type];
                     previousComponent.owner = null;
                     -- _size;
+                    onComponentRemoved( previousComponent );
                 }
                 return previousComponent || null;
             };
@@ -102,13 +110,40 @@ define( function ( require ) {
 
             // Events
 
-            var onParentChanged = function() {
+            var _parentChanged = new Event();
+            Object.defineProperty( this, 'parentChanged', {
+                get: function() {
+                    return _parentChanged;
+                }
+            });
+            var onParentChanged = function( options ) {
+                if( _parentChanged ) {
+                    _parentChanged( options );
+                }
             };
 
-            var onComponentAdded = function() {
+            var _componentAdded = new Event();
+            Object.defineProperty( this, 'componentAdded', {
+                get: function() {
+                    return _componentAdded;
+                }
+            });
+            var onComponentAdded = function( component ) {
+                if( _componentAdded ) {
+                    _componentAdded( component );
+                }
             };
 
-            var onComponentRemoved = function() {
+            var _componentRemoved = new Event();
+            Object.defineProperty( this, 'componentRemoved', {
+                get: function() {
+                    return _componentRemoved;
+                }
+            });
+            var onComponentRemoved = function( component ) {
+                if( _componentRemoved ) {
+                    _componentRemoved( component );
+                }
             };
 
         };

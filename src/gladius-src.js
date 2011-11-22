@@ -3,15 +3,20 @@
 
 define( function ( require ) {
     var lang = require( './core/lang' ),
-        
         _Math = require( 'math/math-require' ),
+        ThreadPool = require( './core/threading/pool' ),
+        Scheduler = require( './core/scheduler' ),
+        Event = require( './core/event' ),
+
+    // Services
+        Graphics = require( './graphics/service' ),
     
-        Entity = require( './core/Entity' ),
-        Component = require( './core/Component' ),
-        Scene = require( './core/Scene' ),
-        Transform = require( './core/component/Transform' ),
-        Scheduler = require( './core/Scheduler' ),
-        Text = require( './core/resource/Text' ),
+    // Core
+        Scene = require( './core/scene' ),
+        Component = require( './core/component' ),
+        Entity = require( './core/entity' ),
+        Transform = require( './core/component/transform' ),
+        Script = require( './core/resource/script' ),
 
     Gladius, i, args,
 
@@ -24,23 +29,23 @@ define( function ( require ) {
     /***
      * Gladius
      *
-     * This is where we put all of our goodies. Some are instances, like the subsystems,
+     * This is where we put all of our goodies. Some are instances, like the services,
      * and others are prototypes to be used and extended.
      */
     Gladius = function ( options, callback ) {
         var sNames = [],
         sIds = [],
-        subsystems, prop;
+        services, prop;
 
         this.options = options || {};
         this.debug = this.options.debug ? console.log : function () {};
 
-        // Init instance of each subsystem and store reference as subsystem name
-        subsystems = this.options.subsystems || global.subsystems;
-        for ( prop in subsystems ) {
-            if ( subsystems.hasOwnProperty( prop ) ) {
+        // Init instance of each service and store reference as service name
+        services = this.options.services || global.services;
+        for ( prop in services ) {
+            if ( services.hasOwnProperty( prop ) ) {
                 sNames.push(prop);
-                sIds.push('./' + subsystems[prop]);
+                sIds.push('./' + services[prop]);
             }
         }
         
@@ -52,21 +57,6 @@ define( function ( require ) {
             }
         });
 
-        var _nextGUID = 0;
-        Object.defineProperty( this, 'nextGUID', {
-            get: function() {
-                if( this.options.debug ) {
-                    var nextGUID = ++ _nextGUID;
-                    if( _nextGUID < nextGUID )
-                        this.debug( 'GUID overflow' );
-                    return nextGUID;
-                }
-                else {
-                    return ++ _nextGUID;
-                }
-            }
-        });
-
         var _scheduler = new Scheduler();
         Object.defineProperty( this, 'scheduler', {
             get: function() {
@@ -74,27 +64,38 @@ define( function ( require ) {
             }
         });
 
-        // Fetch the subsystems. These can potentially be async operations.
+        var _threadPool = new ThreadPool({
+            size: 2
+        });
+        Object.defineProperty( this, 'threadPool', {
+            get: function() {
+                return _threadPool;
+            }
+        });
+
+        // Fetch the services. These can potentially be async operations.
         // In a build, they are async, but do not result in any network
-        // requests for the subsystems bundled in the build.
+        // requests for the services bundled in the build.
         require(sIds, lang.bind(this, function () {
-            // Create a property on the instance's subsystem object for
-            // each subsystem, based on the name given the subsystems options object.
-            var subs = this.subsystem = {},
+            // Create a property on the instance's service object for
+            // each service, based on the name given the services options object.
+            var subs = this.service = {},
             i;
             for (i = 0; i < arguments.length; i++) {
-                subs[ sNames[i] ] = new arguments[i]( this.options );
+                var s = arguments[i]( this );
+                subs[ sNames[i] ] = new s();
             }
 
             // Hmm, graphics is also on this, instead of always
-            // referenced on subsystem? sound too?
-            // this.graphics = subs.graphics;
+            // referenced on service? sound too?
+            this.graphics = subs.graphics;
             // this.physics = subs.physics;
             // this.sound = subs.sound;
 
             // Expose engine objects, partially
             // applying items needed for their constructors.
             lang.extend(this, {
+                Event: Event,
                 core: {
                     Entity: Entity( this ),
                     Component: Component,
@@ -104,21 +105,9 @@ define( function ( require ) {
                         Transform: Transform( this )
                     },
                     resource: {
-                        Text: Text( this )
+                        Script: Script,
                     }
                 },
-                graphics: {
-                    component: {},
-                    resource: {}
-                },
-                physics: {
-                    component: {},
-                    resource: {}
-                },
-                sound: {
-                    component: {},
-                    resource: {}
-                }
             });
             
             this.assert = function( condition, message ) {
@@ -157,6 +146,7 @@ define( function ( require ) {
                 }
                 this.scheduler.run();
             }
+
     };
 
     // Export the public API for creating engine instances.
@@ -164,12 +154,12 @@ define( function ( require ) {
         return new Gladius( options, callback );
     };
 
-    // Any default subsystems that should be created if
+    // Any default services that should be created if
     // caller to gladius.create() does not explicitly ask for
-    // subsystems in the options.
-    global.subsystems = {
+    // services in the options.
+    global.services = {
             // physics: 'physics/default',
-            // graphics: 'graphics/cubicvr',
+            graphics: 'graphics/service',
             // sound: 'sound/default'
     };
 
