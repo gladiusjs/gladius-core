@@ -13,7 +13,7 @@
 
     var engine = null;
 
-    module( 'Configurator', {
+    module( 'core/Configurator', {
         setup: function () {
             stop();
 
