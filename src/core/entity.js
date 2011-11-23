@@ -45,7 +45,7 @@ define( function ( require ) {
                         _parent = value;
                         onParentChanged({
                             previous: previous,
-                            new: value
+                            current: value
                         });
                     }
                 }

@@ -7,12 +7,13 @@
 
     var engine = null;
 
-    module( 'core/resource/Text', {
+    module( 'core/Thread', {
         setup: function () {
             stop();
 
             gladius.create( { debug: true }, function( instance ) {       
                 engine = instance;
+                engine.run();
                 start();
             });
         },
@@ -22,17 +23,23 @@
         }
     });
 
-    test( '?', function () {
-        expect( 0 );
+    asyncTest( 'Basic', function () {
+        expect( 1 );        
 
-        var text;
-        engine.core.resource.Text({
-            url: './',
-            ok: function( instance ) {
-                text = instance;
+        engine.threadPool.dispatch({
+            callable: function( a, b ) {
+                return a + b;
+            },
+            parameters: [ 1, 2 ],
+            onComplete: function( result ) {
+                equal(
+                    3,
+                    result,
+                    'Result is 3'
+                );
+                start();
             }
         });
-
     });
 
 }());

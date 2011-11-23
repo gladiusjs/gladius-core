@@ -1,7 +1,4 @@
 {
-    "type": "engine.core.Script",
-    "source": {
-        "parameters": ["a", "b"],
-        "text": "return a + b"
-    }
+    "parameters": ["a", "b"],
+    "text": "return a + b"
 }

@@ -7,13 +7,12 @@
 
     var engine = null;
 
-    module( 'core/Thread', {
+    module( 'graphics/resource/Mesh', {
         setup: function () {
             stop();
 
             gladius.create( { debug: true }, function( instance ) {       
                 engine = instance;
-                engine.run();
                 start();
             });
         },
@@ -23,23 +22,17 @@
         }
     });
 
-    asyncTest( 'Basic', function () {
-        expect( 1 );        
+    asyncTest( '?', function () {
+        expect( 1 );
 
-        engine.threadPool.dispatch({
-            call: function( a, b ) {
-                return a + b;
-            },
-            parameters: [ 1, 2 ],
-            onComplete: function( result ) {
-                equal(
-                    3,
-                    result,
-                    'Result is 3'
-                );
+        engine.graphics.resource.Mesh({
+            script: engine.graphics.script.mesh.cube,
+            onComplete: function( instance ) {
+                ok( true );
                 start();
             }
         });
+
     });
 
 }());

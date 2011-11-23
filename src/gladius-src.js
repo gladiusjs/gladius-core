@@ -4,7 +4,7 @@
 define( function ( require ) {
     var lang = require( './core/lang' ),
         _Math = require( 'math/math-require' ),
-        ThreadPool = require( './core/thread' ),
+        ThreadPool = require( './core/threading/pool' ),
         Scheduler = require( './core/scheduler' ),
         Event = require( './core/event' ),
 
@@ -16,7 +16,6 @@ define( function ( require ) {
         Component = require( './core/component' ),
         Entity = require( './core/entity' ),
         Transform = require( './core/component/transform' ),
-        Text = require( './core/resource/text' ),
         Script = require( './core/resource/script' ),
 
     Gladius, i, args,
@@ -92,7 +91,6 @@ define( function ( require ) {
                         Transform: Transform( this )
                     },
                     resource: {
-                        Text: Text,
                         Script: Script,
                     }
                 },

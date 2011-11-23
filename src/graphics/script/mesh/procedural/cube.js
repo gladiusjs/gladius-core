@@ -8,7 +8,7 @@ define( function ( require ) {
 
         options = options || {};
         options.size = options.size || 1.0;
-        var point = size / 2.0;
+        var point = options.size / 2.0;
 
         var mesh =
         {

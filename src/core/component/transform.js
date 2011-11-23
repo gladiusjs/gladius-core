@@ -102,12 +102,12 @@ define( function ( require ) {
 
                 handleOwnerParentChanged({
                     previous: options.previous ? options.previous.parent : null,
-                    new: options.new ? options.new.parent : null
+                    current: options.current ? options.current.parent : null
                 });
 
-                if( options.new ) {
-                    options.new.parentChanged.bind( handleOwnerParentChanged );
-                    if( options.new.parent ) {
+                if( options.current ) {
+                    options.current.parentChanged.bind( handleOwnerParentChanged );
+                    if( options.current.parent ) {
                     }
                 }                
 
@@ -123,11 +123,11 @@ define( function ( require ) {
                     }
                 }
 
-                if( options.new ) {
-                    options.new.componentAdded.bind( handleOwnerParentComponentAdded );
-                    options.new.componentRemoved.bind( handleOwnerParentComponentRemoved );
-                    if( options.new.contains( thisType ) ) {
-                        options.new.find( thisType ).transformChanged.bind( handleParentTransformChanged );
+                if( options.current ) {
+                    options.current.componentAdded.bind( handleOwnerParentComponentAdded );
+                    options.current.componentRemoved.bind( handleOwnerParentComponentRemoved );
+                    if( options.current.contains( thisType ) ) {
+                        options.current.find( thisType ).transformChanged.bind( handleParentTransformChanged );
                     }
                 }
 

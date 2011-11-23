@@ -4,8 +4,10 @@
 
 define( function ( require ) {
 
+    require( 'CubicVR.js/CubicVR' );
+
     var Resource = require( '../../core/resource' );
-    var CubicVR = require( 'CubicVR.js/CubicVR' );
+    var CubicVR = this.CubicVR;
 
     // source.points
     // source.faces
@@ -14,7 +16,10 @@ define( function ( require ) {
         
         source = source || {};
 
+        this._cvr = {};
+
         var _cvrMesh = new CubicVR.Mesh( source );
+        this._cvr.mesh = _cvrMesh;
         
     };
 

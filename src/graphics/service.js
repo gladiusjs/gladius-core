@@ -3,14 +3,16 @@
 /*global define: false, console: false, window: false, setTimeout: false */
 
 define( function ( require ) {
+
+    require( 'CubicVR.js/CubicVR' );
     
-    var CubicVR = require( 'CubicVR.js/CubicVR' ),
+    var CubicVR = this.CubicVR,
 
         Resource = require( '../core/resource' ),
-        Scene = require( '../core/scene' ),
-        Mesh = require( './resource/mesh' );
+        Mesh = require( './resource/mesh' ),
 
-   
+        MeshProceduralCube = require( './script/mesh/procedural/cube' );
+
     return function( engine ) {
 
         var math = engine.math;
@@ -53,7 +55,7 @@ define( function ( require ) {
 
             };
 
-            engine.sceneAdded.bind( function( scene ) {
+            engine.sceneAdded.subscribe( function( scene ) {
                 _scenes.push( scene );
             });
 
@@ -75,6 +77,14 @@ define( function ( require ) {
                 }
             });
      
+            this.script = {
+
+                mesh: {
+                    cube: MeshProceduralCube
+                }
+
+            };
+
         }
 
         return Graphics;
