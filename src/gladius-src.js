@@ -4,7 +4,6 @@
 define( function ( require ) {
     var lang = require( './core/lang' ),
         _Math = require( 'math/math-require' ),
-        _Cookie = require( './common/Cookie' ),     // TODO: to be removed
 
         Configurator = require( './core/Configurator' ),
         Entity = require( './core/Entity' ),
@@ -35,8 +34,6 @@ define( function ( require ) {
         subsystems, prop;
 
         this.options = options || {};
-        if ( !this.options.cookieName )             this.options.cookieName = 'gladius_registry';
-        if ( !this.options.cookieLifetime )         this.options.cookieLifetime = 365;
         this.debug = this.options.debug ? console.log : function () {};
 
         // Init instance of each subsystem and store reference as subsystem name
