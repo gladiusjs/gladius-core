@@ -362,134 +362,137 @@
             config.clear();
             config.store( function() {
                 start();
+
+                var msg = function( key ) { return 'Initial value for key ' + key + ' should be empty' };
+                equal( config.get( key1 ), '', msg( key1 ) );
+                equal( config.get( key2 ), '', msg( key2 ) );
+                equal( config.get( key3 ), '', msg( key3 ) );
+
+                config.set( key1, val1 );
+                config.set( key2, val2 );
+                config.set( key3, val3 );
+
+                msg = function( key, val ) { return 'Post-set, value for key ' + key + ' should be ' + val };
+                equal( config.get( key1 ), val1, msg( key1, val1 ) );
+                equal( config.get( key2 ), val2, msg( key2, val2 ) );
+                equal( config.get( key3 ), val3, msg( key3, val3 ) );
+
+                stop();
+                config.store( function() {
+                    config.clear();
+                    start();
+
+                    msg = function( key ) { return 'Post-store-and-clear, value for key ' + key + ' should be empty'}
+                    equal( config.get( key1 ), '', msg( key1 ) );
+                    equal( config.get( key2 ), '', msg( key2 ) );
+                    equal( config.get( key3 ), '', msg( key3 ) );
+
+                    // Load values back then test
+                    config.set( key4, val4 );
+
+                    equal( config.get( key4 ), val4, 'Set prior to destructive load, value for key ' + key4 + ' should be ' + val4 );
+                    stop();
+                    config.load( function() {
+                        start();
+
+                        equal( config.get( key4 ), '', 'Post-destructive-load, value for key ' + key4 + ' should be empty' );
+
+                        msg = function( key, val ) { return 'Post-destructive-load, value for key ' + key + ' should be ' + val };
+                        equal( config.get( key1 ), val1, msg( key1, val1 ) );
+                        equal( config.get( key2 ), val2, msg( key2, val2 ) );
+                        equal( config.get( key3 ), val3, msg( key3, val3 ) );
+
+                        // Now load values non-destructively
+                        config.clear();
+
+                        msg = function( key ) { return 'Post-clear, value for key ' + key + ' should be empty' };
+                        equal( config.get( key1 ), '', msg( key1 ) );
+                        equal( config.get( key2 ), '', msg( key2 ) );
+                        equal( config.get( key3 ), '', msg( key3 ) );
+                        equal( config.get( key4 ), '', msg( key4 ) );
+
+                        config.set( key4, val4 );
+                        equal( config.get( key4 ), val4, 'Set prior to non-destructive load, value for key ' + key4 + ' should be ' + val4 );
+
+                        stop();
+                        config.load( function() {
+                            start();
+
+                            equal( config.get( key4 ), val4, 'Post-non-destructive-load, value for key ' + key4 + ' should have persisted to be ' + val4 );
+
+                            msg = function( key, val ) { return 'Post-non-destructive-load, value for key ' + key + ' should be ' + val };
+                            equal( config.get( key1 ), val1, msg( key1, val1 ) );
+                            equal( config.get( key2 ), val2, msg( key2, val2 ) );
+                            equal( config.get( key3 ), val3, msg( key3, val3 ) );
+
+                            // Now attempt to load from second engine instance
+                            stop();
+
+                            var engine2 = null, config2 = null;
+                            gladius.create( { debug: true }, function( instance ) {
+                                engine2 = instance;
+                                config2 = engine2.configurator.getPath( testPath );
+                                start();
+
+                                msg = function( key, val ) { return 'Created gladius2, initial value for key ' + key + ' should be ' + val };
+                                equal( config2.get( key1 ), val1, msg( key1, val1 ) );
+                                equal( config2.get( key2 ), val2, msg( key2, val2 ) );
+                                equal( config2.get( key3 ), val3, msg( key3, val3 ) );
+
+                                engine2 = null;
+                                config2 = null;
+
+                                // Now test that local storage can be overwritten
+                                equal( config.get( key2 ), val2, 'Back to gladius1, value for key ' + key2 + ' should be ' + val2 );
+
+                                config.set( key2, val3 );
+
+                                equal( config.get( key2 ), val3, 'Value updated prior to local storage overwrite, value for key ' + key2 + ' should be ' + val3 );
+                                stop();
+                                config.store( function() {
+                                    start();
+                                    config.clear();
+
+                                    msg = function( key ) { return 'Post-local-storage-overwrite-and-clear, value for key ' + key + ' should be empty' };
+                                    equal( config.get( key1 ), '', msg( key1 ) );
+                                    equal( config.get( key2 ), '', msg( key2 ) );
+                                    equal( config.get( key3 ), '', msg( key3 ) );
+
+                                    stop();
+                                    config.load( function() {
+                                        start();
+
+                                        msg = function( key, val ) { return 'Post-load, value for key ' + key + ' should be ' + val };
+                                        equal( config.get( key1 ), val1, msg( key1, val1 ) );
+                                        equal( config.get( key2 ), val3, msg( key2, val3 ) );
+                                        equal( config.get( key3 ), val3, msg( key3, val3 ) );
+
+                                        // Test that parent element values aren't affected by deeper element loads
+                                        var config3 = config.getPath( key2 );
+                                        config.clear();
+
+                                        msg = function( key ) { return 'Post-clear, value for key ' + key + ' should be empty' }
+                                        equal( config.get( key1 ), '', msg( key1 ) );
+                                        equal( config.get( key2 ), '', msg( key2 ) );
+                                        equal( config.get( key3 ), '', msg( key3 ) );
+
+                                        stop();
+                                        config3.load( function() {
+                                            start();
+
+                                            msg = function( key, val ) { return 'Post-load-through-conf-rooted-at ' + key2 + ', value for key ' + key + ' should be ' + ( val ? val : 'empty' ) };
+                                            equal( config.get( key1 ), '', msg( key1, '' ) );
+                                            equal( config.get( key2 ), val3, msg( key2, val3 ) );
+                                            equal( config.get( key3 ), '', msg( key3, '' ) );
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    }, true );
+                } );
             });
         });
-
-        var msg = function( key ) { return 'Initial value for key ' + key + ' should be empty' };
-        equal( config.get( key1 ), '', msg( key1 ) );
-        equal( config.get( key2 ), '', msg( key2 ) );
-        equal( config.get( key3 ), '', msg( key3 ) );
-
-        config.set( key1, val1 );
-        config.set( key2, val2 );
-        config.set( key3, val3 );
-
-        msg = function( key, val ) { return 'Post-set, value for key ' + key + ' should be ' + val };
-        equal( config.get( key1 ), val1, msg( key1, val1 ) );
-        equal( config.get( key2 ), val2, msg( key2, val2 ) );
-        equal( config.get( key3 ), val3, msg( key3, val3 ) );
-
-        stop();
-        config.store( function() {
-            config.clear();
-            start();
-        } );
-
-        msg = function( key ) { return 'Post-store-and-clear, value for key ' + key + ' should be empty'}
-        equal( config.get( key1 ), '', msg( key1 ) );
-        equal( config.get( key2 ), '', msg( key2 ) );
-        equal( config.get( key3 ), '', msg( key3 ) );
-
-        // Load values back then test
-        config.set( key4, val4 );
-
-        equal( config.get( key4 ), val4, 'Set prior to destructive load, value for key ' + key4 + ' should be ' + val4 );
-        stop();
-        config.load( function() {
-            start();
-        }, true );
-        equal( config.get( key4 ), '', 'Post-destructive-load, value for key ' + key4 + ' should be empty' );
-
-        msg = function( key, val ) { return 'Post-destructive-load, value for key ' + key + ' should be ' + val };
-        equal( config.get( key1 ), val1, msg( key1, val1 ) );
-        equal( config.get( key2 ), val2, msg( key2, val2 ) );
-        equal( config.get( key3 ), val3, msg( key3, val3 ) );
-
-        // Now load values non-destructively
-        config.clear();
-
-        msg = function( key ) { return 'Post-clear, value for key ' + key + ' should be empty' };
-        equal( config.get( key1 ), '', msg( key1 ) );
-        equal( config.get( key2 ), '', msg( key2 ) );
-        equal( config.get( key3 ), '', msg( key3 ) );
-        equal( config.get( key4 ), '', msg( key4 ) );
-
-        config.set( key4, val4 );
-        equal( config.get( key4 ), val4, 'Set prior to non-destructive load, value for key ' + key4 + ' should be ' + val4 );
-
-        stop();
-        config.load( function() {
-            start();
-        });
-        equal( config.get( key4 ), val4, 'Post-non-destructive-load, value for key ' + key4 + ' should have persisted to be ' + val4 );
-
-        msg = function( key, val ) { return 'Post-non-destructive-load, value for key ' + key + ' should be ' + val };
-        equal( config.get( key1 ), val1, msg( key1, val1 ) );
-        equal( config.get( key2 ), val2, msg( key2, val2 ) );
-        equal( config.get( key3 ), val3, msg( key3, val3 ) );
-
-        // Now attempt to load from second engine instance
-        stop();
-
-        var engine2 = null, config2 = null;
-        gladius.create( { debug: true }, function( instance ) {
-            engine2 = instance;
-            config2 = engine2.configurator.getPath( testPath );
-            start();
-        });
-
-        msg = function( key, val ) { return 'Created gladius2, initial value for key ' + key + ' should be ' + val };
-        equal( config2.get( key1 ), val1, msg( key1, val1 ) );
-        equal( config2.get( key2 ), val2, msg( key2, val2 ) );
-        equal( config2.get( key3 ), val3, msg( key3, val3 ) );
-
-        engine2 = null;
-        config2 = null;
-
-        // Now test that local storage can be overwritten
-        equal( config.get( key2 ), val2, 'Back to gladius1, value for key ' + key2 + ' should be ' + val2 );
-
-        config.set( key2, val3 );
-
-        equal( config.get( key2 ), val3, 'Value updated prior to local storage overwrite, value for key ' + key2 + ' should be ' + val3 );
-        stop();
-        config.store( function() {
-            start();
-            config.clear();
-        });
-
-        msg = function( key ) { return 'Post-local-storage-overwrite-and-clear, value for key ' + key + ' should be empty' };
-        equal( config.get( key1 ), '', msg( key1 ) );
-        equal( config.get( key2 ), '', msg( key2 ) );
-        equal( config.get( key3 ), '', msg( key3 ) );
-
-        stop();
-        config.load( function() {
-            start();
-        });
-        msg = function( key, val ) { return 'Post-load, value for key ' + key + ' should be ' + val };
-        equal( config.get( key1 ), val1, msg( key1, val1 ) );
-        equal( config.get( key2 ), val3, msg( key2, val3 ) );
-        equal( config.get( key3 ), val3, msg( key3, val3 ) );
-
-        // Test that parent element values aren't affected by deeper element loads
-        var config3 = config.getPath( key2 );
-        config.clear();
-
-        msg = function( key ) { return 'Post-clear, value for key ' + key + ' should be empty' }
-        equal( config.get( key1 ), '', msg( key1 ) );
-        equal( config.get( key2 ), '', msg( key2 ) );
-        equal( config.get( key3 ), '', msg( key3 ) );
-
-        stop();
-        config3.load( function() {
-            start();
-        });
-
-        msg = function( key, val ) { return 'Post-load-through-conf-rooted-at ' + key2 + ', value for key ' + key + ' should be ' + ( val ? val : 'empty' ) };
-        equal( config.get( key1 ), '', msg( key1, '' ) );
-        equal( config.get( key2 ), val3, msg( key2, val3 ) );
-        equal( config.get( key3 ), '', msg( key3, '' ) );
     });
 
     // Store preserves unaffected config data
@@ -511,53 +514,53 @@
             config.clear();
             config.store( function() {
                 start();
+
+                var msg = function( key ) { return 'Initial value for key ' + key + ' should be empty' };
+                equal( config.get( key1 ), '', msg( key1 ) );
+                equal( config.get( key2 ), '', msg( key2 ) );
+                equal( config.get( key3 ), '', msg( key3 ) );
+
+                config.set( key1, val1 );
+                config.set( key2, val2 );
+                config.set( key3, val3 );
+
+                msg = function( key, val ) { return 'Post-set, value for key ' + key + ' should be ' + val };
+                equal( config.get( key1 ), val1, msg( key1, val1 ) );
+                equal( config.get( key2 ), val2, msg( key2, val2 ) );
+                equal( config.get( key3 ), val3, msg( key3, val3 ) );
+
+                stop();
+                config.store( function() {
+                    config.load( function() {
+                        start();
+
+                        equal( config.get( key1 ), val1, 'Post-store-and-destructive-load, value for key ' + key1 + ' should be ' + val1 );
+                        var volatileConfig = config.getPath( key2 ),
+                            key4 = '/',
+                            key5 = '/key1',
+                            val4 = 'val4',
+                            val5 = 'val5';
+                        volatileConfig.set( key4, val4 );
+                        volatileConfig.set( key5, val5 );
+
+                        msg = function( key, val ) { return 'Created volatile conf at path ' + key2 + ', value for key ' + key + ' set through volatile conf should be ' + val };
+                        equal( volatileConfig.get( key4 ), val4, msg( key4, val4 ) );
+                        equal( volatileConfig.get( key5 ), val5, msg( key5, val5 ) );
+
+                        stop();
+                        volatileConfig.store( function() {
+                            config.load( function() {
+                                start();
+
+                                msg = function( key, val ) { return 'Post-store-through-volatile-conf-and-load-through-conf, value for key ' + key + ' retrieved through conf should be ' + val}
+                                equal( config.get( key1 ), val1, msg( key1, val1 ) );
+                                equal( config.get( key2 ), val4, msg( key2, val4 ) );
+                                equal( config.get( key3 ), val5, msg( key3, val5 ) );
+                            }, true );
+                        });
+                    }, true );
+                });
             });
         });
-
-        var msg = function( key ) { return 'Initial value for key ' + key + ' should be empty' };
-        equal( config.get( key1 ), '', msg( key1 ) );
-        equal( config.get( key2 ), '', msg( key2 ) );
-        equal( config.get( key3 ), '', msg( key3 ) );
-
-        config.set( key1, val1 );
-        config.set( key2, val2 );
-        config.set( key3, val3 );
-
-        msg = function( key, val ) { return 'Post-set, value for key ' + key + ' should be ' + val };
-        equal( config.get( key1 ), val1, msg( key1, val1 ) );
-        equal( config.get( key2 ), val2, msg( key2, val2 ) );
-        equal( config.get( key3 ), val3, msg( key3, val3 ) );
-
-        stop();
-        config.store( function() {
-            config.load( function() {
-                start();
-            }, true );
-        });
-
-        equal( config.get( key1 ), val1, 'Post-store-and-destructive-load, value for key ' + key1 + ' should be ' + val1 );
-        var volatileConfig = config.getPath( key2 ),
-            key4 = '/',
-            key5 = '/key1',
-            val4 = 'val4',
-            val5 = 'val5';
-        volatileConfig.set( key4, val4 );
-        volatileConfig.set( key5, val5 );
-
-        msg = function( key, val ) { return 'Created volatile conf at path ' + key2 + ', value for key ' + key + ' set through volatile conf should be ' + val };
-        equal( volatileConfig.get( key4 ), val4, msg( key4, val4 ) );
-        equal( volatileConfig.get( key5 ), val5, msg( key5, val5 ) );
-
-        stop();
-        volatileConfig.store( function() {
-            config.load( function() {
-                start();
-            }, true );
-        });
-
-        msg = function( key, val ) { return 'Post-store-through-volatile-conf-and-load-through-conf, value for key ' + key + ' retrieved through conf should be ' + val}
-        equal( config.get( key1 ), val1, msg( key1, val1 ) );
-        equal( config.get( key2 ), val4, msg( key2, val4 ) );
-        equal( config.get( key3 ), val5, msg( key3, val5 ) );
     });
 }());
