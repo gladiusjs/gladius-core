@@ -16,6 +16,9 @@ define( function ( require ) {
 
             option = options || {};
             var that = this;
+            
+            var _mesh = options.mesh || null;
+            var _material = options.material || null;
 
         };
         Model.prototype = new Component({

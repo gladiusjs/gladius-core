@@ -23,7 +23,7 @@ define( function ( require ) {
             Object.defineProperty( this, 'engine', {
                 get: function() {
                     return _engine;
-                }         
+                }
             });
 
             var _size = 0;
