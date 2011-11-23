@@ -42,7 +42,8 @@ define( function ( require ) {
                                 return;
                             }
                             var response = JSON.parse( xhr.responseText );
-                            instance = new _object( response.source );
+                            console.log( response );                          
+                            instance = new _object( response );
                             if( _cache ) _cache.add( instance );
                             _onComplete( instance );
                         };
