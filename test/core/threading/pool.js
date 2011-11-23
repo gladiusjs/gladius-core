@@ -7,12 +7,13 @@
 
     var engine = null;
 
-    module( 'Engine', {
+    module( 'core/Thread', {
         setup: function () {
             stop();
 
             gladius.create( { debug: true }, function( instance ) {       
                 engine = instance;
+                engine.run();
                 start();
             });
         },
@@ -22,26 +23,23 @@
         }
     });
 
-    test( 'GUID', function() {
-        expect( 2 );
+    asyncTest( 'Basic', function () {
+        expect( 1 );        
 
-        ok(
-                window.guid,
-                'window.guid is defined'
-        );
-        ok(
-                window.guid(),
-                'window.guid returns a value'
-        );
-    });
-
-    test( 'graphics', function() {
-        expect( 1 );
-
-        ok(
-                engine.graphics,
-                'Engine has a graphics service'
-        );
+        engine.threadPool.dispatch({
+            callable: function( a, b ) {
+                return a + b;
+            },
+            parameters: [ 1, 2 ],
+            onComplete: function( result ) {
+                equal(
+                    3,
+                    result,
+                    'Result is 3'
+                );
+                start();
+            }
+        });
     });
 
 }());

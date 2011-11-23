@@ -7,7 +7,7 @@
 
     var engine = null;
 
-    module( 'Engine', {
+    module( 'core/resource/Script', {
         setup: function () {
             stop();
 
@@ -22,26 +22,21 @@
         }
     });
 
-    test( 'GUID', function() {
-        expect( 2 );
-
-        ok(
-                window.guid,
-                'window.guid is defined'
-        );
-        ok(
-                window.guid(),
-                'window.guid returns a value'
-        );
-    });
-
-    test( 'graphics', function() {
+    asyncTest( '?', function () {
         expect( 1 );
 
-        ok(
-                engine.graphics,
-                'Engine has a graphics service'
-        );
+        engine.core.resource.Script({
+            source: 'assets/test-script.json',
+            onComplete: function( instance ) {
+                same(
+                    3,
+                    instance.run( 1, 2 ),
+                    'Function runs and returns correct value'
+                );
+                start();
+            }
+        });
+
     });
 
 }());

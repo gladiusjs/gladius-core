@@ -32,21 +32,4 @@
         );
     });
 
-    test( 'Id', function() {
-        expect( 2 );
-
-        var entity1 = new engine.core.Entity();
-        ok(
-                // id === 1 is given to configurator
-                entity1.id === 2,
-                'First entity id is 1.'
-        );
-
-        var entity2 = new engine.core.Entity();
-        ok(
-                entity2.id === 3,
-                'Second entity id is 2.'
-        );
-    });
-
 }());

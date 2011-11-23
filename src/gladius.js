@@ -34,10 +34,10 @@
         // Set up paths to find scripts.
         document.write('<script>requirejs.config( { baseUrl: "' + path + '",' +
                 'paths: {' +
-                // Paths are relative to baseUrl
+                // Paths are relative to baseUrl; Notice the commas!
                 '  "external": "../external",' +
-                '  "math": "../external/gladius.math/src"' +
-                //'  "CubicVR.js": "../external/CubicVR.js"' +
+                '  "math": "../external/gladius.math/src",' +
+                '  "CubicVR.js": "../external/CubicVR.js"' +
                 '}' +
                 '} );' +
                 'requirejs(["gladius-src"])</' + 'script>');

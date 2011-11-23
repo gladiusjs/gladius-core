@@ -7,7 +7,7 @@
 
     var engine = null;
 
-    module( 'core/resource/Text', {
+    module( 'graphics/resource/Mesh', {
         setup: function () {
             stop();
 
@@ -22,14 +22,14 @@
         }
     });
 
-    test( '?', function () {
-        expect( 0 );
+    asyncTest( '?', function () {
+        expect( 1 );
 
-        var text;
-        engine.core.resource.Text({
-            url: './',
-            ok: function( instance ) {
-                text = instance;
+        engine.graphics.resource.Mesh({
+            script: engine.graphics.script.mesh.cube,
+            onComplete: function( instance ) {
+                ok( true );
+                start();
             }
         });
 
