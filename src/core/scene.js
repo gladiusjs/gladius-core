@@ -124,6 +124,15 @@ define( function ( require ) {
 
                 return null;
             };
+            
+            // Find all entities with the given name and return a (possibly empty) list of entities.
+            this.findAll = function( name ) {
+                if( name && _entitiesByName.hasOwnProperty( name ) ) {
+                    return _entitiesByName[name].slice( 0 );
+                }
+                
+                return [];
+            }
 
             // Find the first entity that has a component with the given type and return it, or null.
             this.findWith = function( type ) {

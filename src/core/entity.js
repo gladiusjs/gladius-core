@@ -121,6 +121,18 @@ define( function ( require ) {
                     _parentChanged( options );
                 }
             };
+            
+            var _managerChanged = new Event();
+            Object.defineProperty( this, 'managerChanged', {
+                get: function() {
+                    return _managerChanged;
+                }
+            });
+            var onManagerChanged = function( options ) {
+                if( _managerChanged ) {
+                    _managerChanged( options );
+                }
+            };
 
             var _componentAdded = new Event();
             Object.defineProperty( this, 'componentAdded', {
