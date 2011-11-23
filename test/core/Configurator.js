@@ -381,9 +381,9 @@
 
         stop();
         config.store( function() {
-            start();
             config.clear();
-        });
+            start();
+        } );
 
         msg = function( key ) { return 'Post-store-and-clear, value for key ' + key + ' should be empty'}
         equal( config.get( key1 ), '', msg( key1 ) );

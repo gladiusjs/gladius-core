@@ -171,29 +171,133 @@ define( function ( require ) {
             options = options || {};
 
             if ( !options.defaultConfiguration )    options.defaultConfiguration = {};
-            if ( !options.cookieName )              options.cookieName =  engine.options.cookieName;
-            if ( !options.cookieLifetime )          options.cookieLifetime = engine.options.cookieLifetime;
 
             var that = this,
-                _getStoredJSON = function( callback ) {
-                    var cookie = window.gladiusCookie.readCookie( options.cookieName );
-                    if ( !cookie ) {
-                        cookie = '{}';
-                    }
+                dbVersion = '0.01',
+                dbName = 'Gladius_Configurator',
+                objectStoreName = 'StoredConfigurations',
 
-                    callback( JSON.parse( unescape( cookie ) ) );
+                // DB opening modes
+                DB_READ_ONLY = 0,
+                DB_READ_WRITE = 1,
+
+                _injectDB = function( dbConsumer ) {
+                    // At the moment, indexedDB.open() fails on locally hosted pages on firefox
+                    // Use python -m SimpleHTTPServer 8000
+                    var req = indexedDB.open( dbName );
+
+                    req.onsuccess = function( event ) {
+                        dbConsumer( req.result );
+                    };
+
+                    req.onerror = function( event ) {
+                        dbConsumer();
+                    };
                 },
 
-                _storeJSON = function( json, callback ) {
-                    // Stringify JSON
-                    var targetStr = escape( JSON.stringify( json ) );    // paranoid
-
-                    // Store
-                    window.gladiusCookie.createCookie( options.cookieName, targetStr, options.cookieLifetime );
-
-                    if ( callback ) {
-                        callback();
+                _ensureObjectStore = function( db, payload ) {
+                    if ( !db ) {
+                        console.log( "Gladius/Configurator-_ensureObjectStore: passed empty db value! Aborting.");
+                        return;
                     }
+
+                    var containsObjectStore = db.objectStoreNames.contains( objectStoreName ),
+                        onerror = function( event ) {
+                            console.log( 'Gladius/Configurator-_ensureObjectStore: encountered error! Aborting.');
+                        },
+
+                        createObjectStore = function() {
+                            var versionRequest = db.setVersion( dbVersion );
+                            versionRequest.onerror = onerror;
+                            versionRequest.onsuccess = function( event ) {
+                                db.createObjectStore( objectStoreName );
+
+                                payload();
+                            };
+                        };
+
+                    // If we don't have requisite object store, create it
+                    if ( containsObjectStore && db.version === dbVersion ) {
+                        payload();
+                    } else {
+                        // Downgrade db version if required
+                        if ( db.version === '' ) {
+                            createObjectStore();
+                        } else {
+                            var versionRequest = db.setVersion( '' );
+                            versionRequest.onerror = onerror;
+                            versionRequest.onsuccess = function( event ) {
+                                // Delete object store if it's around
+                                if ( containsObjectStore ) {
+                                    db.deleteObjectStore( objectStoreName );
+                                }
+                                createObjectStore();
+                            };
+                        }
+                    }
+                },
+
+                _injectObjectStore = function( mode, objectStoreConsumer ) {
+                    _injectDB( function( db ) {
+                        _ensureObjectStore( db, function() {
+                            objectStoreConsumer( db.transaction(
+                                    [objectStoreName],
+                                    mode == DB_READ_ONLY ?  IDBTransaction.READ_ONLY :
+                                                            IDBTransaction.READ_WRITE
+                                ).objectStore( objectStoreName )
+                            );
+                        });
+                    });
+                },
+
+                _getStoredJSON = function( jsonConsumer ) {
+                    _injectObjectStore( DB_READ_ONLY, function( objectStore ) {
+                        var onerror = function( event ) {
+                            jsonConsumer( {} );
+                        };
+
+                        if ( objectStore ) {
+                            // Does objectStore have entry for this gameID?
+                            var req = objectStore.get( engine.configurator.get( '/gladius/gameID' ) );
+                            req.onsuccess = function( event ) {
+                                // Did we find a value?
+                                var result = req.result;
+                                if ( result ) {
+                                    jsonConsumer( JSON.parse( unescape( result ) ) );
+                                } else {
+                                    onerror();
+                                }
+                            };
+
+                            // If not, give out empty json
+                            req.onerror = onerror;
+                        } else {
+                            onerror();
+                        }
+                    } );
+                },
+
+                _storeJSON = function( json, resultConsumer ) {
+                    _injectObjectStore( DB_READ_WRITE, function( objectStore ) {
+                        var onerror = function( event ) {
+                            resultConsumer( false );
+                        };
+
+                        if ( objectStore ) {
+                            var req = objectStore.put(
+                                escape( JSON.stringify( json ) ),
+                                engine.configurator.get( '/gladius/gameID' )
+                            );
+
+                            req.onsuccess = function( event ) {
+                                resultConsumer( true );
+                            };
+
+                            req.onerror = onerror;
+                        } else {
+                            onerror();
+                        }
+                    } );
                 };
 
             // Pickup or initialize registry tree
@@ -313,18 +417,28 @@ define( function ( require ) {
                 }
 
                 // Load existing myJSON and merge/filter
-                _getStoredJSON( function( loadedJSON ) {
-                    var loadedJSONKeys = Object.keys( loadedJSON );
+                _getStoredJSON( function( json ) {
+                    var jsonKeys = Object.keys( json );
 
-                    for ( var i = 0, maxlen = loadedJSONKeys.length; i < maxlen; ++i ) {
-                        var loadedJSONKey = loadedJSONKeys[i];
+                    // Log result of load
+                    if ( jsonKeys.length === 0 ) {
+                        console.log( 'Gladius/Configurator-store: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
+                    }
+
+                    for ( var i = 0, maxlen = jsonKeys.length; i < maxlen; ++i ) {
+                        var loadedJSONKey = jsonKeys[i];
                         if ( loadedJSONKey.indexOf( parentPath ) !== 0 ) {
-                            targetJSON[loadedJSONKey] = loadedJSON[loadedJSONKey];
+                            targetJSON[loadedJSONKey] = json[loadedJSONKey];
                         }
                     }
 
                     // Store
-                    _storeJSON( targetJSON, function() {
+                    _storeJSON( targetJSON, function( storeResult ) {
+                        // Log result of store
+                        if ( !storeResult ) {
+                            console.log( 'Gladius/Configurator-store: DB write failed, parent path: ' + that.node.getParentPath() + '/' );
+                        }
+
                         if ( callback ) {
                             callback( that );
                         }
@@ -349,14 +463,19 @@ define( function ( require ) {
                     this.clear();
                 }
 
-                _getStoredJSON( function( loadedJSON ) {
+                _getStoredJSON( function( json ) {
                     // Create the parent path
                     var parentPath = that.node.getParentPath(),
                         parentPathLen = parentPath.length;
 
+                    // Log result of load
+                    if ( Object.keys( json ).length === 0 ) {
+                        console.log( 'Gladius/Configurator-load: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
+                    }
+
                     // Find relevant values and set them
-                    for ( var jsonKey in loadedJSON ) {
-                        if ( loadedJSON.hasOwnProperty( jsonKey ) ) {
+                    for ( var jsonKey in json ) {
+                        if ( json.hasOwnProperty( jsonKey ) ) {
                             if ( jsonKey.indexOf( parentPath ) === 0 ) {
 
                                 // Found valid string, set internal value
@@ -365,7 +484,7 @@ define( function ( require ) {
                                         parentPathLen,
                                         jsonKey.length - parentPathLen
                                     ),
-                                    loadedJSON[ jsonKey ]
+                                    json[ jsonKey ]
                                 );
                             }
                         }
@@ -381,6 +500,18 @@ define( function ( require ) {
             // Load default configuration
             this.update( options.defaultConfiguration );
         };
+
+        // Taken from Mozilla's docs
+        // https://developer.mozilla.org/en/IndexedDB/IDBDatabase
+        // Taking care of the browser-specific prefixes.
+        if ( !window.indexedDB ) {
+            if ('webkitIndexedDB' in window) {
+               window.indexedDB = window.webkitIndexedDB;
+               window.IDBTransaction = window.webkitIDBTransaction;
+            } else if ('mozIndexedDB' in window) {
+               window.indexedDB = window.mozIndexedDB;
+            }
+        }
 
         return Configurator;
     };
