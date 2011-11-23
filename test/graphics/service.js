@@ -39,9 +39,4 @@
         equal( engine.graphics.scenes.length, 2, 'subsystem grabbed created scenes' );
     });
 
-    test( 'Service tasks', function() {
-        expect( 1 );
-        ok( engine.graphics.renderedFrames > 0, 'render task is running' );
-    });
-
 }());

@@ -14,13 +14,6 @@ define( function ( require ) {
 
     return function( engine ) {
 
-        var __sceneAdded = new Event();
-        Object.defineProperty( engine, 'sceneAdded', {
-            get: function() {
-                return __sceneAdded;
-            }
-        });
-
         var Scene = function( options ) {     
 
             var that = this;
@@ -198,7 +191,7 @@ define( function ( require ) {
                 }
             };
 
-            __sceneAdded( this );
+            engine.sceneAdded( this );
 
         };
 

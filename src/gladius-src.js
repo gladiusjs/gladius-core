@@ -73,6 +73,13 @@ define( function ( require ) {
             }
         });
 
+        var _sceneAdded = new Event();
+        Object.defineProperty( this, 'sceneAdded', {
+            get: function() {
+                return _sceneAdded;
+            }
+        });
+
         // Fetch the services. These can potentially be async operations.
         // In a build, they are async, but do not result in any network
         // requests for the services bundled in the build.
