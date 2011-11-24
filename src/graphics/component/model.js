@@ -15,8 +15,10 @@ define( function ( require ) {
         var Model = function( options ) {
 
             option = options || {};
+
             var _that = this,
-                _mesh = options.mesh;
+                _mesh = options.mesh || null;
+                _material = options.material || null;
 
             Object.defineProperty( this, "mesh", {
                 enumerable: true,
