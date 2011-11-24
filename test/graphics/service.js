@@ -45,6 +45,13 @@
             cameraEntity = new scene.Entity(),
             modelEntity = new scene.Entity();
 
+        // This is very temporary until we have a way to render to multiple things
+        var gl = CubicVR.init( document.getElementById( "test-canvas" ) ),
+            canvas;
+        if ( gl ) {
+            canvas = new CubicVR.getCanvas();
+        } //if
+
         engine.graphics.resource.Mesh({
             script: engine.graphics.script.mesh.cube,
             onComplete: function( instance ) {

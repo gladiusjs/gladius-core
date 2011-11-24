@@ -45,7 +45,16 @@ define( function ( require ) {
 
             this.render = function( options ) {
 
-                var scene, cameras, camera, models, model, transform;
+                var scene,
+                    cameras,
+                    camera,
+                    models,
+                    model,
+                    transform,
+                    gl = CubicVR.GLCore.gl;
+
+                
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
                 for( var si = 0, sl = _scenes.length; si < sl; ++si ) {
                     scene = _scenes[ si ];
