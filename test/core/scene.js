@@ -50,7 +50,7 @@
 
         var sceneAdded = false;
 
-        engine.sceneAdded.bind( function( newScene ) {
+        engine.sceneAdded.subscribe( function( newScene ) {
           sceneAdded = newScene;
         });
 

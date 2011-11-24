@@ -22,6 +22,9 @@ define( function ( require ) {
         Resource = require( '../core/resource' ),
         Mesh = require( './resource/mesh' ),
 
+        Model = require( './component/model' ),
+        Camera = require( './component/camera' ),
+
         MeshProceduralCube = require( './script/mesh/procedural/cube' );
 
     return function( engine ) {
@@ -36,48 +39,43 @@ define( function ( require ) {
                 _renderedFrames = 0,
                 _this = this;
 
-
             engine.sceneAdded.subscribe( function( scene ) {
                 _scenes.push( scene );
             });
 
             this.render = function( options ) {
 
+                var scene, cameras, camera, models, model, transform;
+
                 for( var si = 0, sl = _scenes.length; si < sl; ++si ) {
-                    var scene = _scenes[ si ],
-                        cameras = scene.findAllWith( 'Camera' ),
-                        models = scene.findAllWith( 'Model' );
+                    scene = _scenes[ si ];
+                    cameras = scene.findAllWith( 'Camera' );
+                    models = scene.findAllWith( 'Model' );
+
                     for( var ci = 0, cl = cameras.length; ci < cl; ++ci ) {
-                        var camera = cameras [ ci ];
+                        camera = cameras[ ci ].find( 'Camera' );
+
                         if( camera.active ) {
                             for( var mi = 0, ml = models.length; mi < ml; ++mi ) {
-                                // render( camera, models[ mi ] )
+                              
+                                model = models[ mi ].find( 'Model' );
+                                transform = models[ mi ].find( 'Transform' );
+                                CubicVR.renderObject(
+                                    model.mesh._cvr.mesh,
+                                    camera._cvr.camera,
+                                    transform.absolute
+                                );
+
                             } //for models
                         } //if
+
                     } //for cameras
+
                 } //for scenes
 
                 ++_renderedFrames;
              
             }; //render
-
-            var _stopRenderLoop = false;
-
-            function renderLoop() {
-                _this.render();
-                if ( !_stopRenderLoop ) {
-                    requestAnimFrame( renderLoop );
-                } //if
-            }
-
-            this.startRenderLoop = function() {
-                _stopRenderLoop = false;
-                renderLoop();
-            }; 
-
-            this.stopRenderLoop = function() {
-                _stopRenderLoop = true;
-            };
 
             var _resources = {
 
@@ -109,15 +107,28 @@ define( function ( require ) {
 
             };
 
-            Object.defineProperty( this, "script", {
+            Object.defineProperty( this, 'script', {
                 get: function() {
                     return _scripts;
                 }
             });
 
-            Object.defineProperty( this, "scenes", {
+            Object.defineProperty( this, 'scenes', {
                 get: function() {
                     return _scenes;
+                }
+            });
+
+            var _components = {
+
+                Model: Model( engine ),
+                Camera: Camera( engine )
+
+            };
+
+            Object.defineProperty( this, 'component', {
+                get: function() {
+                    return _components;
                 }
             });
 

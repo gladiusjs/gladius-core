@@ -39,4 +39,33 @@
         equal( engine.graphics.scenes.length, 2, 'subsystem grabbed created scenes' );
     });
 
+    asyncTest( 'Test render', function() {
+        expect( 1 );
+        var scene = new engine.core.Scene(),
+            cameraEntity = new scene.Entity(),
+            modelEntity = new scene.Entity();
+
+        engine.graphics.resource.Mesh({
+            script: engine.graphics.script.mesh.cube,
+            onComplete: function( instance ) {
+
+                var cameraComponent = new engine.graphics.component.Camera();
+                cameraEntity.add( cameraComponent );
+                cameraComponent.active = true;
+
+                modelEntity.add( new engine.graphics.component.Model({
+                    mesh: instance
+                }));
+
+                modelEntity.add( new engine.core.component.Transform() );
+
+                engine.graphics.render();
+
+                ok( true );
+                start();
+            }
+        });
+
+    });
+
 }());
