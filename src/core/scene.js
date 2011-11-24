@@ -137,7 +137,9 @@ define( function ( require ) {
             // Find the first entity that has a component with the given type and return it, or null.
             this.findWith = function( type ) {
                 if( type ) {
-                    for( var entity in _entitiesById ) {
+                    var entity;
+                    for( var entityId in _entitiesById ) {
+                        entity = _entitiesById[ entityId ];
                         if( entity.contains( type ) )
                             return entity;
                     }
@@ -149,8 +151,10 @@ define( function ( require ) {
             // Find all entities with the given component and return a (possibly empty) list of entities.
             this.findAllWith = function( type ) {
                 if( type ) {
-                    var result = [];
-                    for( var entity in _entitiesById ) {
+                    var result = [],
+                        entity;
+                    for( var entityId in _entitiesById ) {
+                        entity = _entitiesById[ entityId ];
                         if( entity.contains( type ) )
                             result.push( entity );
                     }
@@ -199,6 +203,8 @@ define( function ( require ) {
                     _entityRemoved( options );
                 }
             };
+
+            engine.sceneAdded( this );
 
         };
 
