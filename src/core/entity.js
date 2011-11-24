@@ -197,12 +197,12 @@ define( function ( require ) {
             var handleChildAdded = function( child ) {
                 _children[child.id] = child;
             };
-            childAdded.subscribe( handleChildAdded );
+            _childAdded.subscribe( handleChildAdded );
 
             var handleChildRemoved = function( child ) {
                 delete _children[child.id];
             };
-            childRemoved.subscribe( handleChildRemoved );
+            _childRemoved.subscribe( handleChildRemoved );
 
         };
 
