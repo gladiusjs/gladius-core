@@ -7,20 +7,19 @@
 
     var engine = null;
 
-    module( 'graphics/resource/Mesh', {
+    module( 'graphics/component/Model', {
         setup: function () {
             stop();
 
             gladius.create({
-                  debug: true,
-                  services: {
-                      graphics: 'graphics/service'
-                  }
+                debug: true, 
+                services: {
+                    graphics: 'graphics/service'
+                }
               }, function( instance ) {       
-                  engine = instance;
-                  start();
+                engine = instance;
+                start();
             });
-
         },
 
         teardown: function () {
@@ -28,13 +27,18 @@
         }
     });
 
-    asyncTest( '?', function () {
+    asyncTest( 'Attach Mesh', function () {
         expect( 1 );
+
+        var model;
 
         engine.graphics.resource.Mesh({
             script: engine.graphics.script.mesh.cube,
             onComplete: function( instance ) {
-                ok( true );
+                model = new engine.graphics.component.Model({
+                    mesh: instance
+                });
+                equal( instance._cvr.mesh, model.mesh._cvr.mesh, "Model's mesh is correct" );
                 start();
             }
         });
