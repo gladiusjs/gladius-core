@@ -41,15 +41,25 @@ define( function ( require ) {
                 },
                 set: function( value ) {
                     if( value != this && value != _parent ) {
+                        if( _parent ) {
+                            parent.childRemoved( this );
+                        }
+
                         var previous = _parent;
                         _parent = value;
                         onParentChanged({
                             previous: previous,
                             current: value
                         });
+
+                        if( _parent ) {
+                            parent.childAdded( this );
+                        }
                     }
                 }
             });
+
+            var _children = {};
 
             var _manager = options.manager || null;     // Component manager
             Object.defineProperty( this, 'manager', {
@@ -181,6 +191,18 @@ define( function ( require ) {
                     _componentRemoved( component );
                 }
             };
+
+            // Event handlers
+
+            var handleChildAdded = function( child ) {
+                _children[child.id] = child;
+            };
+            childAdded.subscribe( handleChildAdded );
+
+            var handleChildRemoved = function( child ) {
+                delete _children[child.id];
+            };
+            childRemoved.subscribe( handleChildRemoved );
 
         };
 
