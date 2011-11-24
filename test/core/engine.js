@@ -35,13 +35,4 @@
         );
     });
 
-    test( 'graphics', function() {
-        expect( 1 );
-
-        ok(
-                engine.graphics,
-                'Engine has a graphics service'
-        );
-    });
-
 }());
