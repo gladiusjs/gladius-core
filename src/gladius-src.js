@@ -49,7 +49,6 @@ define( function ( require ) {
             }
         }
         
-
         var _math = new _Math();
         Object.defineProperty( this, 'math', {
             get: function() {

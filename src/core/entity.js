@@ -134,6 +134,30 @@ define( function ( require ) {
                 }
             };
 
+            var _childAdded = new Event();
+            Object.defineProperty( this, 'childAdded', {
+                get: function() {
+                    return _childAdded;
+                }
+            });
+            var onChildAdded = function( options ) {
+                if( _childAdded ) {
+                    _childAdded( options );
+                }
+            };
+
+            var _childRemoved = new Event();
+            Object.defineProperty( this, 'childRemoved', {
+                get: function() {
+                    return _childRemoved;
+                }
+            });
+            var onChildRemoved = function( options ) {
+                if( _childRemoved ) {
+                    _childRemoved( options );
+                }
+            };
+
             var _componentAdded = new Event();
             Object.defineProperty( this, 'componentAdded', {
                 get: function() {
