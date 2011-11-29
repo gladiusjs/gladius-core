@@ -189,7 +189,7 @@
     
     // Test listen/ignore
     test( 'Listen/ignore', function() {
-        expect( 3 );
+        expect( 5 );
         
         // Test listen on creation -- listen-able path
         var testKey1 = '/listener/should/get/called',
@@ -227,7 +227,7 @@
         });
         childConfig.ignore();
         engine.configurator.set( testKey1, 'NoOneShouldCareThatIWasSet:) -- 2' );
-        
+
         // Test listen post-creation
         childConfig.listen( function( path ) {
             var myTestKey = '/get/called';
@@ -236,13 +236,33 @@
         });
         stop();
         engine.configurator.set( testKey1, 'ALERT!' );
-        
+
         // Test ignore after listen post-creation
         childConfig.listen( function( path ) {
             ok( false, 'Ignored listener called incorrectly, received path ' + path );
         });
         childConfig.ignore()
         engine.configurator.set( testKey1, 'NoOneShouldCareThatIWasSet:) -- 3' );
+
+        // Test that ignore will ignore the correct listener
+        childConfig.listen( function( path ) {
+            var myTestKey = '/get/called';
+            equal( path, myTestKey, 'Child-bound listener found ' + path + ', expected ' + myTestKey );
+            start();
+        });
+
+        var otherConfig = engine.configurator.getPath( testKey2, function( path ) {
+                var myTestKey = '/get/called';
+                equal( path, myTestKey, 'Child-bound listener found ' + path + ', expected ' + myTestKey );
+                start();
+            }),
+
+            ignoredConfig = engine.configurator.getPath( testKey2, function( path ) {
+                ok( false, 'Ignored listener called incorrectly, received path ' + path );
+            });
+        ignoredConfig.ignore();
+        engine.configurator.set( testKey1, 'Listeners_0_and_1_should_care_that_I_was_set,_2_should_not' );
+        stop( 2 );
     });
 
     // Test getJSON
