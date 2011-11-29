@@ -46,7 +46,13 @@
     });
 
     test( 'Construction', function () {
-        expect( 2 );
+        expect( 3 );
+
+        var sceneAdded = false;
+
+        engine.sceneAdded.subscribe( function( newScene ) {
+          sceneAdded = newScene;
+        });
 
         var scene = new engine.core.Scene();
         ok(
@@ -56,6 +62,10 @@
         ok(
                 scene.size === 0,
                 'Initial size is 0.'
+        );
+        ok(
+                scene == sceneAdded,
+                'New scene delivered through event firing.'
         );
     });
 

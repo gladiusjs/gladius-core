@@ -6,8 +6,6 @@ define( function( require ) {
 
     var Thread = function __thread( id ) {
 
-        var _id = null;
-
         var console = {
 
                 log: function() {

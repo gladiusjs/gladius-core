@@ -7,15 +7,25 @@ define( function ( require ) {
     return function( engine ) {        
         
         var math = engine.math;
-        var Component = require( '../component' );
-        var Event = require( '../event' );
+        var Component = require( '../../core/component' );
+        var Event = require( '../../core/event' );
 
         var thisType = 'Model';
 
         var Model = function( options ) {
 
             option = options || {};
-            var that = this;
+
+            var _that = this,
+                _mesh = options.mesh || null;
+                _material = options.material || null;
+
+            Object.defineProperty( this, "mesh", {
+                enumerable: true,
+                get: function() {
+                    return _mesh;
+                }
+            });
 
         };
         Model.prototype = new Component({
