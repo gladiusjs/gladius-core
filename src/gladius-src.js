@@ -160,7 +160,9 @@ define( function ( require ) {
         };
         
         // Load persistent configuration then proceed with rest of engine startup
-        this.configurator.load( initialize );
+        this.configurator.load( {
+            callback: initialize
+        } );
         
     }; //Gladius
     

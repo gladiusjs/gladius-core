@@ -358,9 +358,9 @@
 
         // Clear keys
         stop();
-        config.load( function() {
+        config.load( { callback: function() {
             config.clear();
-            config.store( function() {
+            config.store( { callback: function() {
                 start();
 
                 var msg = function( key ) { return 'Initial value for key ' + key + ' should be empty' };
@@ -378,7 +378,7 @@
                 equal( config.get( key3 ), val3, msg( key3, val3 ) );
 
                 stop();
-                config.store( function() {
+                config.store( { callback: function() {
                     config.clear();
                     start();
 
@@ -392,7 +392,7 @@
 
                     equal( config.get( key4 ), val4, 'Set prior to destructive load, value for key ' + key4 + ' should be ' + val4 );
                     stop();
-                    config.load( function() {
+                    config.load( { clear: true, callback: function() {
                         start();
 
                         equal( config.get( key4 ), '', 'Post-destructive-load, value for key ' + key4 + ' should be empty' );
@@ -415,7 +415,7 @@
                         equal( config.get( key4 ), val4, 'Set prior to non-destructive load, value for key ' + key4 + ' should be ' + val4 );
 
                         stop();
-                        config.load( function() {
+                        config.load( { callback: function() {
                             start();
 
                             equal( config.get( key4 ), val4, 'Post-non-destructive-load, value for key ' + key4 + ' should have persisted to be ' + val4 );
@@ -449,7 +449,7 @@
 
                                 equal( config.get( key2 ), val3, 'Value updated prior to local storage overwrite, value for key ' + key2 + ' should be ' + val3 );
                                 stop();
-                                config.store( function() {
+                                config.store( { callback: function() {
                                     start();
                                     config.clear();
 
@@ -459,7 +459,7 @@
                                     equal( config.get( key3 ), '', msg( key3 ) );
 
                                     stop();
-                                    config.load( function() {
+                                    config.load( { callback: function() {
                                         start();
 
                                         msg = function( key, val ) { return 'Post-load, value for key ' + key + ' should be ' + val };
@@ -477,22 +477,22 @@
                                         equal( config.get( key3 ), '', msg( key3 ) );
 
                                         stop();
-                                        config3.load( function() {
+                                        config3.load( { callback: function() {
                                             start();
 
                                             msg = function( key, val ) { return 'Post-load-through-conf-rooted-at ' + key2 + ', value for key ' + key + ' should be ' + ( val ? val : 'empty' ) };
                                             equal( config.get( key1 ), '', msg( key1, '' ) );
                                             equal( config.get( key2 ), val3, msg( key2, val3 ) );
                                             equal( config.get( key3 ), '', msg( key3, '' ) );
-                                        });
-                                    });
-                                });
+                                        } } );
+                                    } } );
+                                } } );
                             });
-                        });
-                    }, true );
-                } );
-            });
-        });
+                        } } );
+                    } } );
+                } } );
+            } } );
+        } });
     });
 
     // Store preserves unaffected config data
@@ -510,9 +510,9 @@
 
         // Clear keys
         stop();
-        config.load( function() {
+        config.load( { callback: function() {
             config.clear();
-            config.store( function() {
+            config.store( { callback: function() {
                 start();
 
                 var msg = function( key ) { return 'Initial value for key ' + key + ' should be empty' };
@@ -530,8 +530,8 @@
                 equal( config.get( key3 ), val3, msg( key3, val3 ) );
 
                 stop();
-                config.store( function() {
-                    config.load( function() {
+                config.store( { callback: function() {
+                    config.load( { clear: true, callback: function() {
                         start();
 
                         equal( config.get( key1 ), val1, 'Post-store-and-destructive-load, value for key ' + key1 + ' should be ' + val1 );
@@ -548,19 +548,19 @@
                         equal( volatileConfig.get( key5 ), val5, msg( key5, val5 ) );
 
                         stop();
-                        volatileConfig.store( function() {
-                            config.load( function() {
+                        volatileConfig.store( { callback: function() {
+                            config.load( { clear: true, callback: function() {
                                 start();
 
                                 msg = function( key, val ) { return 'Post-store-through-volatile-conf-and-load-through-conf, value for key ' + key + ' retrieved through conf should be ' + val}
                                 equal( config.get( key1 ), val1, msg( key1, val1 ) );
                                 equal( config.get( key2 ), val4, msg( key2, val4 ) );
                                 equal( config.get( key3 ), val5, msg( key3, val5 ) );
-                            }, true );
-                        });
-                    }, true );
-                });
-            });
-        });
+                            } } );
+                        } } );
+                    } } );
+                } } );
+            } } );
+        } } );
     });
 }());

@@ -397,15 +397,20 @@ define( function ( require ) {
             };
 
             /**
-             * store()
+             * store( parameters )
              *
-             *  - Stores configuration options to local storage.
-             *      - If a callback is provided then it is called once the
-             *          configuration has been loaded.
-             *          - The callback will be passed the configurator object
+             *  Stores configuration options to local storage.
+             *  Accepts an options object with named parameters.
+             *
+             *  Parameters:
+             *  callback    <function>( configurator )
+             *              If a callback is provided then it is called once the
+             *              configuration has been stored. The callback function
+             *              will be passed the configurator object.
              */
-            this.store = function( callback ) {
-                var targetJSON = {},
+            this.store = function( parameters ) {
+                var callback = parameters && parameters.callback,
+                    targetJSON = {},
                     myJSON = this.getJSON(),
                     parentPath = this.node.getParentPath(),
                     targetStr = null;
@@ -447,19 +452,29 @@ define( function ( require ) {
             };
 
             /**
-             * load( [ callback( configurator ) ][, clearBeforeLoad ] )
+             * load( parameters )
              *
-             *  - Loads registry from local storage ( IndexedDB )
-             *      - If a callback is provided then it is called once the
-             *          configuration has been loaded.
-             *          - The callback will be passed the configurator object
-             *      - If clearBeforeLoad is true, this configurator's configuration
-             *          options are cleared before new ones are loaded
-             *          - If false, contents are not cleared prior and any colliding
-             *               configuration options are overwritten, this is the default.
+             *  Loads registry from local storage ( IndexedDB ). Accepts a
+             *  parameters object.
+             *
+             *  Parameters:
+             *  callback:   <function>( configurator )
+             *              If a callback is provided then it is called once the
+             *              configuration has been loaded. The callback will be
+             *              passed the configurator object.
+             *
+             *  clear:      <boolean>
+             *              If clear is true, this configurator's configuration
+             *              options are cleared before new ones are loaded.
+             *              If false, contents are not cleared prior and any
+             *              colliding configuration options are overwritten,
+             *              this is the default.
              */
-            this.load = function( callback, clearBeforeLoad ) {
-                if ( clearBeforeLoad ) {
+            this.load = function( parameters ) {
+                var callback = parameters && parameters.callback,
+                    clear = parameters && parameters.clear;
+
+                if ( clear ) {
                     this.clear();
                 }
 
