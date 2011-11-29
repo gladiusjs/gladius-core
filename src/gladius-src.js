@@ -5,7 +5,7 @@ define( function ( require ) {
     var lang = require( './core/lang' ),
         _Math = require( 'math/math-require' ),
 
-        _Configurator = require( './core/configurator' ),
+        Configurator = require( './core/configurator' ),
         ThreadPool = require( './core/threading/pool' ),
         Scheduler = require( './core/scheduler' ),
         Event = require( './core/event' ),
@@ -44,8 +44,8 @@ define( function ( require ) {
         this.debug = this.options.debug ? console.log : function () {};
 
         // Get configurator up before anything else
-        var Configurator = _Configurator( this ),
-            _configurator = new Configurator( {
+        Configurator = Configurator( this );
+        var _configurator = new Configurator( {
             defaultConfiguration: require( './config/default' )
         });
         Object.defineProperty( this, 'configurator', {
@@ -100,9 +100,6 @@ define( function ( require ) {
             // Fetch the services. These can potentially be async operations.
             // In a build, they are async, but do not result in any network
             // requests for the services bundled in the build.
-
-            // STYLE: lang.bind not required here, references to 'this' in
-            // subsequent lines could be replaced with references to 'that'
             require(sIds, lang.bind(that, function () {
 
                 // Expose engine objects, partially
