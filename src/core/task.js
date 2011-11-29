@@ -7,7 +7,6 @@ define( function ( require ) {
     var Task = function( options ) {
         
         options = options || {};
-        options.schedule = options.schedule || true;
 
         this.COMPLETE = 0;
 
@@ -69,7 +68,7 @@ define( function ( require ) {
             }
         };
 
-        if( options.schedule ) {
+        if( options.hasOwnProperty( 'active' ) ? options.active : true ) {
             this.resume();
         }
 

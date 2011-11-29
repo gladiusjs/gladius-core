@@ -35,7 +35,7 @@ define( function ( require ) {
                     _delta = delta;
                     _time += delta;
                 } else {
-                    _tick.unsubscribe( hanldeTick );
+                    _tick.unsubscribe( handleTick );
                 }
             }
             if( _tick ) {
@@ -49,7 +49,13 @@ define( function ( require ) {
                 }
             };
             
-            var _active = true;
+            var _active = false;
+            Object.defineProperty( this, 'active', {
+                get: function() {
+                    return _active;
+                }            
+            });
+            
             this.suspend = function() {
                 if( _active ) {
                     _active = false;
@@ -67,6 +73,10 @@ define( function ( require ) {
                     }
                 }
             };
+            
+            if( options.hasOwnProperty( 'active' ) ? options.active : true ) {
+                this.resume();
+            }
             
         };
         

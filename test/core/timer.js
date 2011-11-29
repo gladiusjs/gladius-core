@@ -22,13 +22,33 @@
         }
     });
 
-    test( 'Time', function() {
+    test( 'Default start time', function() {
         expect( 1 );
 
         var timer = new engine.Timer();
         ok(
-            timer.time,
-            'Timer time is set'
+            timer.time === 0,
+            'Timer time is 0'
+        );
+    });
+    
+    test( 'Custom start time', function() {
+        expect( 1 );
+        
+        var timer = new engine.Timer({ start: 10 });
+        ok(
+            timer.time === 10,
+            'Timer is 10'
+        );
+    });
+    
+    test( 'Start inactive', function() {
+        expect( 1 );
+        
+        var timer = new engine.Timer({ active: false });
+        ok(
+            !timer.active,
+            'Timer is not active'
         );
     });
 
