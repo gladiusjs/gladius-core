@@ -9,7 +9,7 @@
 
     <script src="core/engine.js"></script>
     <script src="core/lang.js"></script>
-    <script src="core/time.js"></script>
+    <script src="core/timer.js"></script>
     <script src="core/event.js"></script>
     <script src="core/entity.js"></script>
     <script src="core/component.js"></script>

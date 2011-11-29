@@ -11,14 +11,14 @@ define( function ( require ) {
 
         this.COMPLETE = 0;
 
-        var _scheduler = options.scheduler || null;
-        Object.defineProperty( this, 'scheduler', {
+        var _manager = options.manager || null;
+        Object.defineProperty( this, 'manager', {
             get: function() {
-                return _scheduler;
+                return _manager;
             }
         });
 
-        var _id = _scheduler.nextTaskId;
+        var _id = window.guid();
         Object.defineProperty( this, 'id', {
             get: function() {
                 return _id;
@@ -58,14 +58,14 @@ define( function ( require ) {
         this.suspend = function() {
             if( _active ) {
                 _active = false;
-                _scheduler.remove( this );
+                _manager.remove( this );
             }
         };
 
         this.resume = function() {
             if( !_active ) {
                 _active = true;
-                _scheduler.add( this );
+                _manager.add( this );
             }
         };
 

@@ -1,0 +1,112 @@
+/*jshint white: false, strict: false, plusplus: false, onevar: false,
+  nomen: false */
+/*global gladius: false, document: false, window: false, module: false, start,
+  test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false */
+
+(function() {
+
+    var engine = null;
+
+    module( 'core/Timer', {
+        setup: function () {
+            stop();
+
+            gladius.create( { debug: true }, function( instance ) {       
+                engine = instance;
+                start();
+            });
+        },
+
+        teardown: function () {
+            engine = null;
+        }
+    });
+
+    test( 'Time', function() {
+        expect( 1 );
+
+        var timer = new engine.Timer();
+        ok(
+            timer.time,
+            'Timer time is set'
+        );
+    });
+
+    test( 'Normal update', function() {
+        expect( 1 );
+
+        var timer = new engine.Timer(),
+            time = timer.time,
+            delay = 10;
+
+        timer.update( delay );
+        ok(
+            timer.time >= time + delay,
+            'New time after setTimeout is at least ' + delay + ' after initial time'
+        );            
+    });
+
+    test( 'Suspend and resume', function() {
+        expect( 2 );
+        
+        var timer = new engine.Timer({ origin: 0 }),
+            time = timer.time,
+            delay = 10;
+        
+        timer.suspend();
+        timer.update( delay );
+        
+        ok(
+            timer.time === time,
+            'Timer time is unchanged after update'
+        );
+
+        timer.resume();
+        timer.update( delay );
+        ok(
+            timer.time >= time + delay,
+            'Timer time is updated'
+        );
+    });
+    
+    test( 'Delta', function() {
+        expect( 2 );
+        
+        var timer = new engine.Timer(),
+            time = timer.time,
+            delay = 10;
+        
+        equal(
+            0,
+            timer.delta,
+            'Initial delta is 0'
+        );
+        
+        timer.update( delay );
+        equal(
+            timer.time - time,
+            timer.delta,
+            'Delta captures the difference in update times'
+        );
+        
+    });
+    
+    test( 'Tick update', function() {
+        expect( 1 );
+        
+        var tick = new engine.Event(),
+            timer = new engine.Timer({ 
+                tick: tick 
+            }),
+            time = timer.time,
+            delay = 10;
+        
+        tick( delay );
+        equal(
+            timer.time - time,
+            timer.delta,
+            'Timer is updated by tick event'
+        );
+    });
+
+}());

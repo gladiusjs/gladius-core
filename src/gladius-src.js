@@ -7,6 +7,7 @@ define( function ( require ) {
         ThreadPool = require( './core/threading/pool' ),
         Scheduler = require( './core/scheduler' ),
         Event = require( './core/event' ),
+        Timer = require( './core/timer' ),
 
     // Services
         Graphics = require( './graphics/service' ),
@@ -78,6 +79,8 @@ define( function ( require ) {
                 return _sceneAdded;
             }
         });
+        
+        var _tick = new Event();    // Time signal, sent each frame
 
         // Fetch the services. These can potentially be async operations.
         // In a build, they are async, but do not result in any network
@@ -88,6 +91,7 @@ define( function ( require ) {
             // applying items needed for their constructors.
             lang.extend(this, {
                 Event: Event,
+                Timer: Timer({ tick: _tick }),
                 core: {
                     Entity: Entity( this ),
                     Component: Component,
