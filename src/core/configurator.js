@@ -5,6 +5,8 @@
 
 define( function ( require ) {
 
+    require( './lang' );
+
     /* Configuration Node
      * 
      * Structure for storing configuration settings
@@ -305,7 +307,7 @@ define( function ( require ) {
                 engine.rootConfNode :
                 ( engine.rootConfNode = new ConfNode( 'ROOT' ) );
 
-            this.id = engine.nextGUID;
+            this.id = window.guid();
 
             // Get a value based on a given path
             this.get = function( path ) {

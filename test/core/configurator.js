@@ -218,7 +218,6 @@
         });
         engine.configurator.set( testKey3, 'NoOneShouldCareThatIWasSet:) -- 1' );
         
-        
         // Test ignore after listen on creation
         childConfig.ignore();
         
@@ -261,8 +260,9 @@
                 ok( false, 'Ignored listener called incorrectly, received path ' + path );
             });
         ignoredConfig.ignore();
+        stop();
+        stop();
         engine.configurator.set( testKey1, 'Listeners_0_and_1_should_care_that_I_was_set,_2_should_not' );
-        stop( 2 );
     });
 
     // Test getJSON
