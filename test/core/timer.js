@@ -25,7 +25,7 @@
     test( 'Default start time', function() {
         expect( 1 );
 
-        var timer = new engine.Timer();
+        var timer = new engine.scheduler.Timer();
         ok(
             timer.time === 0,
             'Timer time is 0'
@@ -35,7 +35,7 @@
     test( 'Custom start time', function() {
         expect( 1 );
         
-        var timer = new engine.Timer({ start: 10 });
+        var timer = new engine.scheduler.Timer({ start: 10 });
         ok(
             timer.time === 10,
             'Timer is 10'
@@ -45,7 +45,7 @@
     test( 'Start inactive', function() {
         expect( 1 );
         
-        var timer = new engine.Timer({ active: false });
+        var timer = new engine.scheduler.Timer({ active: false });
         ok(
             !timer.active,
             'Timer is not active'
@@ -55,7 +55,7 @@
     test( 'Normal update', function() {
         expect( 1 );
 
-        var timer = new engine.Timer(),
+        var timer = new engine.scheduler.Timer(),
             time = timer.time,
             delay = 10;
 
@@ -69,7 +69,7 @@
     test( 'Suspend and resume', function() {
         expect( 2 );
         
-        var timer = new engine.Timer({ origin: 0 }),
+        var timer = new engine.scheduler.Timer({ origin: 0 }),
             time = timer.time,
             delay = 10;
         
@@ -92,7 +92,7 @@
     test( 'Delta', function() {
         expect( 2 );
         
-        var timer = new engine.Timer(),
+        var timer = new engine.scheduler.Timer(),
             time = timer.time,
             delay = 10;
         
@@ -115,7 +115,7 @@
         expect( 1 );
         
         var tick = new engine.Event(),
-            timer = new engine.Timer({ 
+            timer = new engine.scheduler.Timer({ 
                 tick: tick 
             }),
             time = timer.time,

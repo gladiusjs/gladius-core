@@ -78,9 +78,7 @@ define( function ( require ) {
             get: function() {
                 return _sceneAdded;
             }
-        });
-        
-        var _tick = new Event();    // Time signal, sent each frame
+        });        
 
         // Fetch the services. These can potentially be async operations.
         // In a build, they are async, but do not result in any network
@@ -91,7 +89,6 @@ define( function ( require ) {
             // applying items needed for their constructors.
             lang.extend(this, {
                 Event: Event,
-                Timer: Timer({ tick: _tick }),
                 core: {
                     Entity: Entity( this ),
                     Component: Component,
