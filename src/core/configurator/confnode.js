@@ -2,7 +2,6 @@
   nomen: false */
 /*global define: false, console: false, window: false, setTimeout: false */
 
-
 define( function ( require ) {
 
     /* Configuration Node
