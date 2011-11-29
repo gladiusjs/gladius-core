@@ -3,77 +3,84 @@
 /*global define: false, console: false, window: false, setTimeout: false */
 
 define( function ( require ) {
-
-    var Task = function( options ) {
+    
+    return function( options ) {
         
         options = options || {};
-
-        this.COMPLETE = 0;
-
-        var _manager = options.manager || null;
-        Object.defineProperty( this, 'manager', {
-            get: function() {
-                return _manager;
+        var _defaultManager = options.manager;
+        
+        var Task = function( options ) {
+            
+            options = options || {};
+            
+            this.COMPLETE = 0;
+            
+            var _manager = options.manager || _defaultManager || null;
+            Object.defineProperty( this, 'manager', {
+                get: function() {
+                    return _manager;
+                }
+            });
+            
+            var _id = window.guid();
+            Object.defineProperty( this, 'id', {
+                get: function() {
+                    return _id;
+                }
+            });
+            
+            var _callback = function() {
+                if( this.COMPLETE === options.callback.apply( this, options.parameters ) )
+                    this.active = false;
+            };
+            Object.defineProperty( this, 'callback', {
+                get: function() {
+                    return _callback;
+                }
+            });
+            
+            var _active = false;
+            Object.defineProperty( this, 'active', {
+                get: function() {
+                    return _active;
+                },
+                set: function( value ) {
+                    _active = value;
+                }
+            });
+            
+            var _scheduled = false;
+            Object.defineProperty( this, 'scheduled', {
+                get: function() {
+                    return _scheduled;
+                },
+                set: function( value ) {
+                    _scheduled = value;
+                }
+            });
+            
+            this.suspend = function() {
+                if( _active ) {
+                    _active = false;
+                    _manager.remove( this );
+                }
+            };
+            
+            this.resume = function() {
+                if( !_active ) {
+                    _active = true;
+                    _manager.add( this );
+                }
+            };
+            
+            if( options.hasOwnProperty( 'active' ) ? options.active : true ) {
+                this.resume();
             }
-        });
-
-        var _id = window.guid();
-        Object.defineProperty( this, 'id', {
-            get: function() {
-                return _id;
-            }
-        });
-
-        var _callback = function() {
-            if( this.COMPLETE === options.callback.apply( this, options.parameters ) )
-                this.active = false;
+            
         };
-        Object.defineProperty( this, 'callback', {
-            get: function() {
-                return _callback;
-            }
-        });
-
-        var _active = false;
-        Object.defineProperty( this, 'active', {
-            get: function() {
-                return _active;
-            },
-            set: function( value ) {
-                _active = value;
-            }
-        });
-
-        var _scheduled = false;
-        Object.defineProperty( this, 'scheduled', {
-            get: function() {
-                return _scheduled;
-            },
-            set: function( value ) {
-                _scheduled = value;
-            }
-        });
-
-        this.suspend = function() {
-            if( _active ) {
-                _active = false;
-                _manager.remove( this );
-            }
-        };
-
-        this.resume = function() {
-            if( !_active ) {
-                _active = true;
-                _manager.add( this );
-            }
-        };
-
-        if( options.hasOwnProperty( 'active' ) ? options.active : true ) {
-            this.resume();
-        }
-
-    };
-
-    return Task;
-
+        
+        return Task;
+        
+    }
+    
 });

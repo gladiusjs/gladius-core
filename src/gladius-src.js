@@ -63,6 +63,10 @@ define( function ( require ) {
                 return _scheduler;
             }
         });
+        var _time = {
+            real: new _scheduler.Timer(),
+            simulation: new _scheduler.Timer()
+        }
 
         var _threadPool = new ThreadPool({
             size: 2
@@ -153,7 +157,12 @@ define( function ( require ) {
                 if ( this.options.run ) {
                     this.options.run( this );
                 }
-                this.scheduler.run();
+                this.scheduler.resume();
+            },
+    
+            terminate: function() {
+                this.scheduler.suspend();
+                this.scheduler.clear();
             }
 
     };

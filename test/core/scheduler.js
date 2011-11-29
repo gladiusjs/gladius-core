@@ -19,8 +19,24 @@
         },
 
         teardown: function () {
+            engine.terminate();
             engine = null;
         }
+    });
+    
+    test( 'Real and simulated time', function() {
+        expect( 2 );
+        
+        ok(
+            engine.scheduler.realTime,
+            'Scheduler provides a timer for real time'
+        );
+        
+        ok(
+            engine.scheduler.simulationTime,
+            'Scheduler provides a timer for simulation time'
+        );
+        
     });
 
     asyncTest( 'Counter', function () {

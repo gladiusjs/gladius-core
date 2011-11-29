@@ -33,13 +33,10 @@ define( function ( require ) {
             var handleTick = function( delta ) {
                 if( _active ) {
                     _delta = delta;
-                    _time += delta;
+                    _time += delta;                    
                 } else {
                     _tick.unsubscribe( handleTick );
                 }
-            }
-            if( _tick ) {
-                _tick.subscribe( handleTick );
             }
             
             this.update = function( delta ) {

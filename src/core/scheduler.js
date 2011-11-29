@@ -10,33 +10,83 @@ define( function ( require ) {
     
     var Scheduler = function( options ) {
         
-        options = options || {};            
+        options = options || {};
         
         var _queue = [],
         _running = false,
         that = this;
         
+        var _previousTime = undefined;        
         var _tick = new Event();    // Time signal, sent each frame
         
-        this.Timer = Timer({ tick: _tick });
+        this.Timer = Timer({ tick: _tick });        
+        this.Task = Task({ manager: this })
+
+        var _realTime = new this.Timer();
+        Object.defineProperty( this, 'realTime', {
+            get: function() {
+                return _realTime;
+            }
+        });
         
-        this.Task = function( options ) {
-            options = options || {};
-            options.manager = that;
-            
-            var task = new Task( options );
-            
-            return task;
+        var _simulationTime = new this.Timer();
+        Object.defineProperty( this, 'simulationTime', {
+            get: function() {
+                return _simulationTime;
+            }
+        });
+        
+        var _frame = 0;
+        Object.defineProperty( this, 'frame', {
+            get: function() {
+                return _frame;
+            }
+        });
+        
+        var _active = false;
+        Object.defineProperty( this, 'active', {
+            get: function() {
+                return _active;
+            }
+        });
+              
+        this.suspend = function() {
+            _active = false;
         };
         
-        this.run = function() {
-            if( !_running ) {
-                _running = true;
-                _tick();        // Send tick event
-                dispatch();     // Dispatch queued tasks
-                _running = false;
+        this.clear = function() {
+            _queue = [];
+        };
+        
+        this.resume = function() {
+            if( !_active ) {                
+                _active = true;
+                if( undefined === _previousTime ) {
+                    _previousTime = Date.now();
+                }
+                if( !_running ) {
+                    setTimeout( run, 0 );
+                }
             }
         };
+        
+        var run = function() {            
+            if( _active && !_running ) {
+                _running = true;
+                
+                ++ _frame;
+                
+                var delta = Date.now() - _previousTime;
+                _previousTime += delta;
+                _tick( delta );        // Send tick event
+                dispatch();            // Dispatch queued tasks
+                if( _active ) {
+                    setTimeout( run, 0 );
+                }
+                
+                _running = false;
+            }            
+        };        
         
         var dispatch = function() {
             var tasks = _queue;
@@ -53,17 +103,12 @@ define( function ( require ) {
                     }
                 }
             }
-            
-            if( _queue.length > 0 ) {
-                setTimeout( that.run, 0 );
-            }
         };
         
         this.add = function( task ) { 
             if( !task.scheduled ) {
                 task.scheduled = true;
                 _queue.push( task );
-                setTimeout( that.run, 0 );
             }
         };
         
@@ -72,6 +117,10 @@ define( function ( require ) {
                 task.scheduled = false;
             }
         };
+        
+        if( options.active ) {
+            this.resume();
+        }
         
     };
     
