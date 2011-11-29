@@ -13,8 +13,8 @@ define( function ( require ) {
         options = options || {};
         
         var _queue = [],
-        _running = false,
-        that = this;
+            _running = false,
+            that = this;
         
         var _previousTime = undefined;        
         var _tick = new Event();    // Time signal, sent each frame
@@ -113,7 +113,7 @@ define( function ( require ) {
         };
         
         this.remove = function( task ) {
-            if( task.scheduled ) {
+            if( task.scheduled && task.manager === this ) {
                 task.scheduled = false;
             }
         };

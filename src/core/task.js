@@ -4,6 +4,8 @@
 
 define( function ( require ) {
     
+    var lang = require( './lang' );
+         
     return function( options ) {
         
         options = options || {};
@@ -12,8 +14,20 @@ define( function ( require ) {
         var Task = function( options ) {
             
             options = options || {};
+
+            var enums = {
+                state: {
+                    COMPLETE: 0,
+                    CONTINUE: 1                    
+                },
+                priority: {
+                    INPUT: 0,
+                    UPDATE: 1,
+                    RENDER: 2
+                }
+            };
             
-            this.COMPLETE = 0;
+            lang.extend( this, enums.state );
             
             var _manager = options.manager || _defaultManager || null;
             Object.defineProperty( this, 'manager', {
@@ -49,6 +63,20 @@ define( function ( require ) {
                 }
             });
             
+            var _priority = options.priority || enums.priority.UPDATE;
+            Object.defineProperty( this, 'priority', {
+                get: function() {
+                    return _priority;
+                },
+                set: function( value ) {
+                    if( !enums.priority.hasOwnProperty( value ) ) {
+                        throw 'invalid priority';
+                    } else {
+                        _priority = enums.priority[value];
+                    }
+                }
+            });
+            
             var _scheduled = false;
             Object.defineProperty( this, 'scheduled', {
                 get: function() {
@@ -75,9 +103,9 @@ define( function ( require ) {
             
             if( options.hasOwnProperty( 'active' ) ? options.active : true ) {
                 this.resume();
-            }
+            }                       
             
-        };
+        };        
         
         return Task;
         
