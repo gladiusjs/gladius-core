@@ -6,7 +6,8 @@
 define( function ( require ) {
 
     require( './lang' );
-    var ConfNode = require( './configurator/confnode' );
+    var ConfNode = require( './configurator/confnode' ),
+        canUseDB = true;
 
     /* Configurator
      *
@@ -266,46 +267,54 @@ define( function ( require ) {
          *              will be passed the configurator object.
          */
         this.store = function( parameters ) {
+
             var callback = parameters && parameters.callback,
                 targetJSON = {},
                 myJSON = this.getJSON(),
                 parentPath = this.node.getParentPath(),
                 targetStr = null;
 
-            for ( var jsonKey in myJSON ) {
-                if ( myJSON.hasOwnProperty( jsonKey ) ) {
-                    targetJSON[parentPath + jsonKey] = myJSON[jsonKey];
+            if ( canUseDB ) {
+                for ( var jsonKey in myJSON ) {
+                    if ( myJSON.hasOwnProperty( jsonKey ) ) {
+                        targetJSON[parentPath + jsonKey] = myJSON[jsonKey];
+                    }
+                }
+
+                // Load existing myJSON and merge/filter
+                _getStoredJSON( function( json ) {
+                    var jsonKeys = Object.keys( json );
+
+                    // Log result of load
+                    if ( jsonKeys.length === 0 ) {
+                        console.log( 'Gladius/Configurator-store: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
+                    }
+
+                    for ( var i = 0, maxlen = jsonKeys.length; i < maxlen; ++i ) {
+                        var loadedJSONKey = jsonKeys[i];
+                        if ( loadedJSONKey.indexOf( parentPath ) !== 0 ) {
+                            targetJSON[loadedJSONKey] = json[loadedJSONKey];
+                        }
+                    }
+
+                    // Store
+                    _storeJSON( targetJSON, function( storeResult ) {
+                        // Log result of store
+                        if ( !storeResult ) {
+                            console.log( 'Gladius/Configurator-store: DB write failed, parent path: ' + that.node.getParentPath() + '/' );
+                        }
+
+                        if ( callback ) {
+                            callback( that );
+                        }
+                    });
+                });
+            } else {
+                console.log( "gladius/Configurator-store: DB access not available, did not store" );
+                if ( callback ) {
+                    callback( that );
                 }
             }
-
-            // Load existing myJSON and merge/filter
-            _getStoredJSON( function( json ) {
-                var jsonKeys = Object.keys( json );
-
-                // Log result of load
-                if ( jsonKeys.length === 0 ) {
-                    console.log( 'Gladius/Configurator-store: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
-                }
-
-                for ( var i = 0, maxlen = jsonKeys.length; i < maxlen; ++i ) {
-                    var loadedJSONKey = jsonKeys[i];
-                    if ( loadedJSONKey.indexOf( parentPath ) !== 0 ) {
-                        targetJSON[loadedJSONKey] = json[loadedJSONKey];
-                    }
-                }
-
-                // Store
-                _storeJSON( targetJSON, function( storeResult ) {
-                    // Log result of store
-                    if ( !storeResult ) {
-                        console.log( 'Gladius/Configurator-store: DB write failed, parent path: ' + that.node.getParentPath() + '/' );
-                    }
-
-                    if ( callback ) {
-                        callback( that );
-                    }
-                });
-            });
         };
 
         /**
@@ -335,39 +344,53 @@ define( function ( require ) {
                 this.clear();
             }
 
-            _getStoredJSON( function( json ) {
-                // Create the parent path
-                var parentPath = that.node.getParentPath(),
-                    parentPathLen = parentPath.length;
+            if ( canUseDB ) {
+                _getStoredJSON( function( json ) {
+                    // Create the parent path
+                    var parentPath = that.node.getParentPath(),
+                        parentPathLen = parentPath.length;
 
-                // Log result of load
-                if ( Object.keys( json ).length === 0 ) {
-                    console.log( 'Gladius/Configurator-load: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
-                }
+                    // Log result of load
+                    if ( Object.keys( json ).length === 0 ) {
+                        console.log( 'Gladius/Configurator-load: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
+                    }
 
-                // Find relevant values and set them
-                for ( var jsonKey in json ) {
-                    if ( json.hasOwnProperty( jsonKey ) ) {
-                        if ( jsonKey.indexOf( parentPath ) === 0 ) {
+                    // Find relevant values and set them
+                    for ( var jsonKey in json ) {
+                        if ( json.hasOwnProperty( jsonKey ) ) {
+                            if ( jsonKey.indexOf( parentPath ) === 0 ) {
 
-                            // Found valid string, set internal value
-                            that.set(
-                                jsonKey.substr(
-                                    parentPathLen,
-                                    jsonKey.length - parentPathLen
-                                ),
-                                json[ jsonKey ]
-                            );
+                                // Found valid string, set internal value
+                                that.set(
+                                    jsonKey.substr(
+                                        parentPathLen,
+                                        jsonKey.length - parentPathLen
+                                    ),
+                                    json[ jsonKey ]
+                                );
+                            }
                         }
                     }
-                }
 
-                // Call callback if provided
+                    // Call callback if provided
+                    if ( callback ) {
+                        callback( that );
+                    }
+                });
+            } else {
+                console.log( "gladius/Configurator-load: DB access not available, did not load" );
                 if ( callback ) {
                     callback( that );
                 }
-            });
+            }
         };
+
+        // Returns true if db access is available
+        Object.defineProperty( this, 'canUseDB', {
+            get: function() {
+                return canUseDB;
+            }
+        });
 
         // Load default configuration
         this.update( options.defaultConfiguration );
@@ -383,6 +406,19 @@ define( function ( require ) {
         } else if ('mozIndexedDB' in window) {
            window.indexedDB = window.mozIndexedDB;
         }
+    }
+
+    // Determine database useability
+    try {
+        window.indexedDB.open( "foobar" );
+    } catch( e ) {
+        // failed to create db, can't use dbs :(
+        canUseDB = false;
+        var errorMsg = "gladius/Configurator: IndexedDB open test failed, loading and storing will be disabled. Callbacks will still be called.";
+
+        // Send message to log and to error console
+        console.log( errorMsg );
+        setTimeout( function(){ throw( errorMsg ); }, 10 );
     }
 
     return Configurator;
