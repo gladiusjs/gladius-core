@@ -111,7 +111,7 @@
             '/hello/world2' :   'sixthVal'
         },
 
-        config = new engine.core.Configurator( { defaultConfiguration: defaultConfig } );
+        config = engine.configurator.create( { defaultConfiguration: defaultConfig } );
 
         for ( var key in defaultConfig ) {
             if ( defaultConfig.hasOwnProperty( key ) ) {
@@ -128,7 +128,7 @@
     test( 'getPath and separator apprehension', function() {
         expect( 21 );
 
-        var rootConfig = new engine.core.Configurator(),
+        var rootConfig = engine.configurator.create(),
             childConfigs = [],
             vals = [
                 'first_val',
@@ -151,7 +151,7 @@
 
         // We will test Configurator's ability to read and write through the
         // engine configurator, getPath() configurators and
-        // engine.core.Configurator() configurators
+        // engine.configurator.create() configurators
 
         // Set through engine configurator
         engine.configurator.set( '/foo', vals[0] );
@@ -180,7 +180,7 @@
         equal( rootConfig.get( '/foo' ), vals[3], 'Read value from /foo through root conf set through / in /foo conf' );
         equal( engine.configurator.get( '/foo' ), vals[3], 'Read value from /foo through engine conf set through / in /foo conf' );
 
-        // Set through engine.core.Configurator() constructed instance
+        // Set through engine.configurator.create() constructed instance
         rootConfig.set( '/foo/bar', vals[5] );
         equal( engine.configurator.get( '/foo/bar' ), vals[5], 'Read value from /foo/bar through engine conf set through /foo/bar in root conf' );
         equal( childConfigs[0].get( '/bar' ), vals[5], 'Read value from /bar through /foo conf set through /foo/bar in root conf' );

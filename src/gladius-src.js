@@ -44,7 +44,7 @@ define( function ( require ) {
         this.debug = this.options.debug ? console.log : function () {};
         
         // Get configurator up before anything else        
-        var _configurator = new (Configurator( this ))({
+        var _configurator = new Configurator({
             defaultConfiguration: require( './config/default' )
         });
         Object.defineProperty( this, 'configurator', {
@@ -104,7 +104,6 @@ define( function ( require ) {
                 lang.extend(this, {
                     Event: Event,
                     core: {
-                        Configurator: Configurator( this ),
                         Entity: Entity( this ),
                         Component: Component,
                         Resource: null,
