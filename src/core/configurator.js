@@ -414,7 +414,12 @@ define( function ( require ) {
     } catch( e ) {
         // failed to create db, can't use dbs :(
         canUseDB = false;
-        var errorMsg = "gladius/Configurator: IndexedDB open test failed, loading and storing will be disabled. Callbacks will still be called.";
+        var errorMsg =  'gladius/Configurator: IndexedDB open test failed, loading and storing will be disabled. Callbacks will still be called.\n' +
+                        'If you are building your website and navigating to your page using file://, the failure may be due to security issues.\n' +
+                        'If you have python installed, you can try executing python -m SimpleHTTPServer 8000 in the root directory of your website on your hard-drive.\n' +
+                        'Then, navigate to http://localhost:8000/path/to/my/page.html\n' +
+                        'If port 8000 is already being used then replace 8000 with a value above 8000 and less than 65535.\n' +
+                        'PLEASE NOTE THAT python SimpleHTTPServer IS EXTREMELY INSECURE, DO NOT USE THIS IN A PRODUCTION ENVIRONMENT!';
 
         // Send message to log and to error console
         console.log( errorMsg );
