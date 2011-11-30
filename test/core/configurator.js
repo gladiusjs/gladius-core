@@ -12,10 +12,7 @@
 (function() {
 
     var engine = null,
-        getNoDBMsg = function() {
-            return 'DB access not available. Execute python -m SimpleHTTPServer 8000 in the gladius root directory then navigate to http://localhost:8000/test/index.html\n' +
-            'If port 8000 is already being used then replace 8000 with a value above 8000 and less than 65535.'
-        };
+        noDBMsg = 'DB access not available. Execute the tests in a server. Navigate into the gladius root directory and run: make test';
 
     module( 'core/Configurator', {
         setup: function () {
@@ -369,7 +366,7 @@
     test( 'local store/load', function() {
         // Do not perform these tests if db access is not available
         if ( !engine.configurator.canUseDB ) {
-            ok( false, getNoDBMsg());
+            ok( false, noDBMsg );
             return;
         }
 
@@ -529,7 +526,7 @@
     test( 'merge store', function() {
         // Do not perform these tests if db access is not available
         if ( !engine.configurator.canUseDB ) {
-            ok( false, getNoDBMsg());
+            ok( false, noDBMsg );
             return;
         }
 
