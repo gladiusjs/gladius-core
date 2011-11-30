@@ -13,22 +13,22 @@ define( function ( require ) {
 
     // Services
         Graphics = require( './graphics/service' ),
-    
+
     // Core
         Scene = require( './core/scene' ),
         Component = require( './core/component' ),
         Entity = require( './core/entity' ),
         Transform = require( './core/component/transform' ),
         Script = require( './core/resource/script' ),
-    
+
     Gladius, i, args,
-    
+
     // Expose the API on the global object. Part of if may already
     // exist, mainly gladius.ready from gladius.js. Check tools/wrap.start
     // for protections against overwriting an existing gladius in the page,
     // for when gladius is built for deployment.
     global = window.gladius || ( window.gladius = {} );
-    
+
     /***
      * Gladius
      *
