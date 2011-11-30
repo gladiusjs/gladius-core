@@ -156,8 +156,8 @@ define( function ( require ) {
             run: function () {
                 if ( this.options.run ) {
                     this.options.run( this );
-                }
-                this.scheduler.resume();
+                }                
+                this.scheduler.resume();                
             },
     
             terminate: function() {

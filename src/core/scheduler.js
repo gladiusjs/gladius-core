@@ -7,14 +7,15 @@ define( function ( require ) {
     var Event = require( './event' );
     var Task = require( './task' );
     var Timer = require( './timer' );
-    
+    var PriorityQueue = require( '../common/buffered-priority-queue' );
+   
     var Scheduler = function( options ) {
         
         options = options || {};
         
-        var _queue = [],
+        var _queue = new PriorityQueue(),
             _running = false,
-            that = this;
+            that = this;        
         
         var _previousTime = undefined;        
         var _tick = new Event();    // Time signal, sent each frame
@@ -89,17 +90,16 @@ define( function ( require ) {
         };        
         
         var dispatch = function() {
-            var tasks = _queue;
-            _queue = [];
+            _queue.swap();            
             
-            while( tasks.length > 0 ) {
-                var task = tasks.shift();
+            while( _queue.size > 0 ) {
+                var task = _queue.dequeue();
                 if( task && task.active ) {
                     task.scheduled = false;
                     task.callback();
                     if( task.active ) {
                         task.scheduled = true;
-                        _queue.push( task );
+                        _queue.enqueue( task, task.priority );
                     }
                 }
             }
@@ -107,8 +107,8 @@ define( function ( require ) {
         
         this.add = function( task ) { 
             if( !task.scheduled ) {
-                task.scheduled = true;
-                _queue.push( task );
+                task.scheduled = true;                
+                _queue.enqueue( task, task.priority );                
             }
         };
         

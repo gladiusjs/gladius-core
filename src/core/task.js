@@ -62,19 +62,21 @@ define( function ( require ) {
                     _active = value;
                 }
             });
-            
-            var _priority = options.priority || enums.priority.UPDATE;
+
+            var _priority;
+            if( !options.hasOwnProperty( 'priority' ) ) {
+                _priority = enums.priority.UPDATE;
+            } else {
+                if( !enums.priority.hasOwnProperty( options.priority ) ) {
+                    throw 'invalid priority';
+                } else {
+                    _priority = enums.priority[options.priority];
+                }
+            }
             Object.defineProperty( this, 'priority', {
                 get: function() {
                     return _priority;
                 },
-                set: function( value ) {
-                    if( !enums.priority.hasOwnProperty( value ) ) {
-                        throw 'invalid priority';
-                    } else {
-                        _priority = enums.priority[value];
-                    }
-                }
             });
             
             var _scheduled = false;
@@ -103,8 +105,8 @@ define( function ( require ) {
             
             if( options.hasOwnProperty( 'active' ) ? options.active : true ) {
                 this.resume();
-            }                       
-            
+            }             
+                       
         };        
         
         return Task;

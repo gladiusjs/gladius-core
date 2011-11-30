@@ -39,10 +39,10 @@
         
     });
 
-    asyncTest( 'Counter', function () {
+    asyncTest( 'Schedule a task', function () {
         expect( 0 );
 
-        var counter = 0;
+        var counter = 0;               
 
         var task = new engine.scheduler.Task({
             callback: function() {
@@ -71,5 +71,10 @@
         });
 
     });
+
+    /* TODO
+    asyncTest( 'Task priority', function() {
+    });
+    */
 
 }());
