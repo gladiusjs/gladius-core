@@ -7,6 +7,7 @@ define( function ( require ) {
         ThreadPool = require( './core/threading/pool' ),
         Scheduler = require( './core/scheduler' ),
         Event = require( './core/event' ),
+        Timer = require( './core/timer' ),
 
     // Services
         Graphics = require( './graphics/service' ),
@@ -49,7 +50,6 @@ define( function ( require ) {
             }
         }
         
-
         var _math = new _Math();
         Object.defineProperty( this, 'math', {
             get: function() {
@@ -63,6 +63,10 @@ define( function ( require ) {
                 return _scheduler;
             }
         });
+        var _time = {
+            real: new _scheduler.Timer(),
+            simulation: new _scheduler.Timer()
+        }
 
         var _threadPool = new ThreadPool({
             size: 2
@@ -78,7 +82,7 @@ define( function ( require ) {
             get: function() {
                 return _sceneAdded;
             }
-        });
+        });        
 
         // Fetch the services. These can potentially be async operations.
         // In a build, they are async, but do not result in any network
@@ -152,8 +156,13 @@ define( function ( require ) {
             run: function () {
                 if ( this.options.run ) {
                     this.options.run( this );
-                }
-                this.scheduler.run();
+                }                
+                this.scheduler.resume();                
+            },
+    
+            terminate: function() {
+                this.scheduler.suspend();
+                this.scheduler.clear();
             }
 
     };

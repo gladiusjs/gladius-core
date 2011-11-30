@@ -41,15 +41,25 @@ define( function ( require ) {
                 },
                 set: function( value ) {
                     if( value != this && value != _parent ) {
+                        if( _parent ) {
+                            parent.childRemoved( this );
+                        }
+
                         var previous = _parent;
                         _parent = value;
                         onParentChanged({
                             previous: previous,
                             current: value
                         });
+
+                        if( _parent ) {
+                            parent.childAdded( this );
+                        }
                     }
                 }
             });
+
+            var _children = {};
 
             var _manager = options.manager || null;     // Component manager
             Object.defineProperty( this, 'manager', {
@@ -121,6 +131,42 @@ define( function ( require ) {
                     _parentChanged( options );
                 }
             };
+            
+            var _managerChanged = new Event();
+            Object.defineProperty( this, 'managerChanged', {
+                get: function() {
+                    return _managerChanged;
+                }
+            });
+            var onManagerChanged = function( options ) {
+                if( _managerChanged ) {
+                    _managerChanged( options );
+                }
+            };
+
+            var _childAdded = new Event();
+            Object.defineProperty( this, 'childAdded', {
+                get: function() {
+                    return _childAdded;
+                }
+            });
+            var onChildAdded = function( options ) {
+                if( _childAdded ) {
+                    _childAdded( options );
+                }
+            };
+
+            var _childRemoved = new Event();
+            Object.defineProperty( this, 'childRemoved', {
+                get: function() {
+                    return _childRemoved;
+                }
+            });
+            var onChildRemoved = function( options ) {
+                if( _childRemoved ) {
+                    _childRemoved( options );
+                }
+            };
 
             var _componentAdded = new Event();
             Object.defineProperty( this, 'componentAdded', {
@@ -145,6 +191,18 @@ define( function ( require ) {
                     _componentRemoved( component );
                 }
             };
+
+            // Event handlers
+
+            var handleChildAdded = function( child ) {
+                _children[child.id] = child;
+            };
+            _childAdded.subscribe( handleChildAdded );
+
+            var handleChildRemoved = function( child ) {
+                delete _children[child.id];
+            };
+            _childRemoved.subscribe( handleChildRemoved );
 
         };
 
