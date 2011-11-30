@@ -19,6 +19,7 @@
         },
 
         teardown: function () {
+            engine.terminate();
             engine = null;
         }
     });

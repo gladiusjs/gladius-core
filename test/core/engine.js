@@ -8,9 +8,9 @@
     var engine = null;
 
     module( 'Engine', {
-        setup: function () {
+        setup: function () {            
             stop();
-
+            
             gladius.create( { debug: true }, function( instance ) {       
                 engine = instance;
                 start();

@@ -9,7 +9,7 @@ define( function( require ) {
         var console = {
 
                 log: function() {
-                    var message = Array.prototype.slice.call( arguments ).join( '\n' );
+                    var message = Array.prototype.slice.call( arguments ).join( ' ' );
                     send( '__log', {
                         log: message
                     });

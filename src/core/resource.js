@@ -16,11 +16,9 @@ define( function ( require ) {
             
                 options = options || {};
 
-                var _source = options.source || null;
-                if( !_source ) {
-                    var _script = options.script || null;
-                    var _parameters = options.parameters || {};
-                }
+                var _source = options.source || null,
+                    _script = options.script || null,
+                    _parameters = options.parameters || {};
 
                 var _onComplete = options.onComplete || function( instance ) {};
                 var _onError = options.onError || function( error ) {};

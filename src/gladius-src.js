@@ -3,22 +3,23 @@
 
 define( function ( require ) {
     var lang = require( './core/lang' ),
-    _Math = require( 'math/math-require' ),
-    
-    Configurator = require( './core/configurator' ),
-    ThreadPool = require( './core/threading/pool' ),
-    Scheduler = require( './core/scheduler' ),
-    Event = require( './core/event' ),
-    
+        _Math = require( 'math/math-require' ),
+
+        Configurator = require( './core/configurator' ),
+        ThreadPool = require( './core/threading/pool' ),
+        Scheduler = require( './core/scheduler' ),
+        Event = require( './core/event' ),
+        Timer = require( './core/timer' ),
+
     // Services
-    Graphics = require( './graphics/service' ),
+        Graphics = require( './graphics/service' ),
     
     // Core
-    Scene = require( './core/scene' ),
-    Component = require( './core/component' ),
-    Entity = require( './core/entity' ),
-    Transform = require( './core/component/transform' ),
-    Script = require( './core/resource/script' ),
+        Scene = require( './core/scene' ),
+        Component = require( './core/component' ),
+        Entity = require( './core/entity' ),
+        Transform = require( './core/component/transform' ),
+        Script = require( './core/resource/script' ),
     
     Gladius, i, args,
     
@@ -39,20 +40,21 @@ define( function ( require ) {
         sNames = [],
         sIds = [],
         services, prop;
-        
+
         this.options = options || {};
         this.debug = this.options.debug ? console.log : function () {};
-        
-        // Get configurator up before anything else        
+
+        // Get configurator up before anything else
         var _configurator = new Configurator({
             defaultConfiguration: require( './config/default' )
         });
+
         Object.defineProperty( this, 'configurator', {
             get: function() {
                 return _configurator;
             }
         });
-        
+
         var initialize = function() {
             // Init instance of each service and store reference as service name
             services = that.options.services || global.services;
@@ -62,22 +64,25 @@ define( function ( require ) {
                     sIds.push('./' + services[prop]);
                 }
             }
-            
-            
+
             var _math = new _Math();
             Object.defineProperty( that, 'math', {
                 get: function() {
                     return _math;
                 }
             });
-            
+
             var _scheduler = new Scheduler();
             Object.defineProperty( that, 'scheduler', {
                 get: function() {
                     return _scheduler;
                 }
             });
-            
+            var _time = {
+                real: new _scheduler.Timer(),
+                simulation: new _scheduler.Timer()
+            }
+
             var _threadPool = new ThreadPool({
                 size: 2
             });
@@ -86,19 +91,19 @@ define( function ( require ) {
                     return _threadPool;
                 }
             });
-            
+
             var _sceneAdded = new Event();
             Object.defineProperty( that, 'sceneAdded', {
                 get: function() {
                     return _sceneAdded;
                 }
             });
-            
+
             // Fetch the services. These can potentially be async operations.
             // In a build, they are async, but do not result in any network
             // requests for the services bundled in the build.
             require(sIds, lang.bind(that, function () {
-                
+
                 // Expose engine objects, partially
                 // applying items needed for their constructors.
                 lang.extend(this, {
@@ -116,7 +121,7 @@ define( function ( require ) {
                         }
                     },
                 });
-                
+
                 // Create a property on the instance's service object for
                 // each service, based on the name given the services options object.
                 var subs = this.service = {},
@@ -125,63 +130,68 @@ define( function ( require ) {
                     var s = arguments[i]( this );
                     subs[ sNames[i] ] = new s();
                 }
-                
+
                 // Hmm, graphics is also on this, instead of always
                 // referenced on service? sound too?
                 this.graphics = subs.graphics;
                 // this.physics = subs.physics;
                 // this.sound = subs.sound;
-                
+
                 this.assert = function( condition, message ) {
                     if( !condition )
                         throw 'Assertion failed: ' + message;
                 }
-                
+
                 // Create music Speaker singleton
                 // this.sound.music = new this.component.Speaker();
-                
+
                 // Create input handlers
                 // this.keyboardInput = new KeyboardInput( this.messenger, window );
                 if (subs.graphics && subs.graphics.getCanvas) {
                     // this.mouseInput = new MouseInput( this.messenger, subs.graphics.getCanvas() );
                     // this.touchInput = new TouchInput( this.messenger, subs.graphics.getCanvas() );
                 }
-                
+
                 // run user-specified setup function
                 if ( this.options.setup ) {
                     this.options.setup( this );
                 }
-                
+
                 if ( callback ) {
                     callback( this );
-                }            
+                }
             }));
         };
-        
+
         // Load persistent configuration then proceed with rest of engine startup
         this.configurator.load( {
             callback: initialize
         } );
-        
+
     }; //Gladius
-    
+
     // Set up common properties for all engine instances
     Gladius.prototype = {
-            
+
             run: function () {
                 if ( this.options.run ) {
                     this.options.run( this );
-                }
-                this.scheduler.run();
+                }                
+                this.scheduler.resume();
+            },
+
+            terminate: function() {
+                this.scheduler.suspend();
+                this.scheduler.clear();
             }
-    
+
     };
-    
+
     // Export the public API for creating engine instances.
     global.create = function ( options, callback ) {
         return new Gladius( options, callback );
     };
-    
+
     // Any default services that should be created if
     // caller to gladius.create() does not explicitly ask for
     // services in the options.
@@ -190,7 +200,7 @@ define( function ( require ) {
             // graphics: 'graphics/service',
             // sound: 'sound/default'
     };
-    
+
     // Call any callbacks waiting for gladius to be available.
     if ( global._waitingCreates ) {
         for ( i = 0; (args = global._waitingCreates[i]); i++ ) {
@@ -198,6 +208,6 @@ define( function ( require ) {
         }
         delete global._waitingCreates;
     }
-    
+
     return global;
 });

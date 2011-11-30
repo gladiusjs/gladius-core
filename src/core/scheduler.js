@@ -3,89 +3,127 @@
 /*global define: false, console: false, window: false, setTimeout: false */
 
 define( function ( require ) {
+    
+    var Event = require( './event' );
+    var Task = require( './task' );
+    var Timer = require( './timer' );
+    var PriorityQueue = require( '../common/buffered-priority-queue' );
+   
+    var Scheduler = function( options ) {
+        
+        options = options || {};
+        
+        var _queue = new PriorityQueue(),
+            _running = false,
+            that = this;        
+        
+        var _previousTime;        
+        var _tick = new Event();    // Time signal, sent each frame
+        
+        this.Timer = Timer({ tick: _tick });        
+        this.Task = Task({ manager: this });
 
-        var Task = require( './task' );
-
-        var Scheduler = function( options ) {               
-
-            options = options || {};            
-
-            var _queue = [],
-                _nextTaskId = 0,
-                _messageName = 'zero-timeout-message',
-                _running = false,
-                that = this;
-
-            Object.defineProperty( this, 'nextTaskId', {
-                get: function() {
-                    return ++ _nextTaskId;
+        var _realTime = new this.Timer();
+        Object.defineProperty( this, 'realTime', {
+            get: function() {
+                return _realTime;
+            }
+        });
+        
+        var _simulationTime = new this.Timer();
+        Object.defineProperty( this, 'simulationTime', {
+            get: function() {
+                return _simulationTime;
+            }
+        });
+        
+        var _frame = 0;
+        Object.defineProperty( this, 'frame', {
+            get: function() {
+                return _frame;
+            }
+        });
+        
+        var _active = false;
+        Object.defineProperty( this, 'active', {
+            get: function() {
+                return _active;
+            }
+        });
+              
+        this.suspend = function() {
+            _active = false;
+        };
+        
+        this.clear = function() {
+            _queue = [];
+        };
+        
+        this.resume = function() {
+            if( !_active ) {                
+                _active = true;
+                if( undefined === _previousTime ) {
+                    _previousTime = Date.now();
                 }
-            });
-
-            this.Task = function( options ) {
-                options = options || {};
-                options.scheduler = that;
-
-                var task = new Task( options );
-
-                return task;
-            };
-
-            var handleMessage = function( event ) {
-                if( event.source == window && event.data == _messageName ) {
-                    event.stopPropagation();
-                    if( !_running ) {
-                        _running = true;
-                        that.run();
-                        _running = false;
-                    }
+                if( !_running ) {
+                    setTimeout( run, 0 );
                 }
-            };
-            window.addEventListener( 'message', handleMessage, true );
-
-            // Return the next runnable task, or null.
-            var dequeue = function() {
-                while( _queue.length > 0 ) {
-                    var task = _queue.shift();
+            }
+        };
+        
+        var run = function() {            
+            if( _active && !_running ) {
+                _running = true;
+                
+                ++ _frame;
+                
+                var delta = Date.now() - _previousTime;
+                _previousTime += delta;
+                _tick( delta );        // Send tick event
+                dispatch();            // Dispatch queued tasks
+                if( _active ) {
+                    setTimeout( run, 0 );
+                }
+                
+                _running = false;
+            }            
+        };        
+        
+        var dispatch = function() {
+            _queue.swap();            
+            
+            while( _queue.size > 0 ) {
+                var task = _queue.dequeue();
+                if( task && task.active ) {
                     task.scheduled = false;
-                    if( task.active ) {
-                        return task;
-                    }
-                }
-                return null;
-            };
-
-            this.run = function() {
-                var task = dequeue();
-                if( task ) {
                     task.callback();
                     if( task.active ) {
                         task.scheduled = true;
-                        _queue.push( task );
+                        _queue.enqueue( task, task.priority );
                     }
                 }
-
-                if( _queue.length > 0 ) {
-                    window.postMessage( _messageName, '*' );
-                }
-            };
-
-            this.add = function( task ) { 
-                if( !task.scheduled ) {
-                    task.scheduled = true;
-                    _queue.push( task );
-                    window.postMessage( _messageName, '*' );
-                }
-            };
-
-            this.remove = function( task ) {
-                if( task.scheduled ) {
-                    task.scheduled = false;
-                }
-            };
-
+            }
         };
-
-        return Scheduler;
-
+        
+        this.add = function( task ) { 
+            if( !task.scheduled ) {
+                task.scheduled = true;                
+                _queue.enqueue( task, task.priority );                
+            }
+        };
+        
+        this.remove = function( task ) {
+            if( task.scheduled && task.manager === this ) {
+                task.scheduled = false;
+            }
+        };
+        
+        if( options.active ) {
+            this.resume();
+        }
+        
+    };
+    
+    return Scheduler;
+    
 });
