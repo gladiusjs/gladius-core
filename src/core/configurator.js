@@ -389,7 +389,7 @@ define( function ( require ) {
 
             // Can we open a db connection?
             try {
-                window.indexedDB.open( "foobar" );
+                window.indexedDB.open( "__test_db_name__9c8a4f3b-42b7-4aed-be48-772f0e1c61b4__" );
             } catch( e ) {
                 // failed to create db, can't use dbs :(
                 canUseDB = false;
