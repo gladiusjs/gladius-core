@@ -7,7 +7,6 @@ define( function ( require ) {
 
     require( './lang' );
     var ConfNode = require( './configurator/confnode' ),
-        canUseDB = true;
 
     /* Configurator
      *
@@ -16,7 +15,7 @@ define( function ( require ) {
      *
      * In Gladius, a configurator can be obtained in 3 ways.
      */
-    var Configurator = function( options ) {
+    Configurator = function( options ) {
 
         options = options || {};
 
@@ -26,6 +25,7 @@ define( function ( require ) {
             dbVersion = '0.01',
             dbName = 'Gladius_Configurator',
             objectStoreName = 'StoredConfigurations',
+            canUseDB = true,
             rootConf = options.rootConf,
 
             // DB opening modes
@@ -155,8 +155,27 @@ define( function ( require ) {
         if ( !rootConf ) {
             rootConf = this;
             this.node = new ConfNode( 'ROOT' );
+
+            // Can we open a db connection?
+            try {
+                window.indexedDB.open( "foobar" );
+            } catch( e ) {
+                // failed to create db, can't use dbs :(
+                canUseDB = false;
+                var errorMsg =  'gladius/Configurator: IndexedDB open test failed, loading and storing will be disabled. Callbacks will still be called.\n' +
+                                'If you are building your website and navigating to your page using file://, the failure may be due to security issues.\n' +
+                                'If you have python installed, you can try executing python -m SimpleHTTPServer 8000 in the root directory of your website on your hard-drive.\n' +
+                                'Then, navigate to http://localhost:8000/path/to/my/page.html\n' +
+                                'If port 8000 is already being used then replace 8000 with a value above 8000 and less than 65535.\n' +
+                                'PLEASE NOTE THAT python SimpleHTTPServer IS EXTREMELY INSECURE, DO NOT USE THIS IN A PRODUCTION ENVIRONMENT!';
+
+                // Send message to log and to error console
+                console.log( errorMsg );
+                setTimeout( function(){ throw( errorMsg ); }, 10 );
+            }
         } else {
             this.node = rootConf.node;
+            canUseDB = rootConf.canUseDB;
         }
 
         this.id = window.guid();
@@ -406,24 +425,6 @@ define( function ( require ) {
         } else if ('mozIndexedDB' in window) {
            window.indexedDB = window.mozIndexedDB;
         }
-    }
-
-    // Determine database useability
-    try {
-        window.indexedDB.open( "foobar" );
-    } catch( e ) {
-        // failed to create db, can't use dbs :(
-        canUseDB = false;
-        var errorMsg =  'gladius/Configurator: IndexedDB open test failed, loading and storing will be disabled. Callbacks will still be called.\n' +
-                        'If you are building your website and navigating to your page using file://, the failure may be due to security issues.\n' +
-                        'If you have python installed, you can try executing python -m SimpleHTTPServer 8000 in the root directory of your website on your hard-drive.\n' +
-                        'Then, navigate to http://localhost:8000/path/to/my/page.html\n' +
-                        'If port 8000 is already being used then replace 8000 with a value above 8000 and less than 65535.\n' +
-                        'PLEASE NOTE THAT python SimpleHTTPServer IS EXTREMELY INSECURE, DO NOT USE THIS IN A PRODUCTION ENVIRONMENT!';
-
-        // Send message to log and to error console
-        console.log( errorMsg );
-        setTimeout( function(){ throw( errorMsg ); }, 10 );
     }
 
     return Configurator;

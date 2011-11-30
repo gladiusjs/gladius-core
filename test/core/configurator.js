@@ -362,6 +362,36 @@
         equal( config.get( key3 ), val3, msg( key3, val3 ) );
     });
 
+    // Testing the case where a db is not available, this test simulates an
+    // environment where db access is not available
+    test( "no db environment", function() {
+        expect( 2 );
+
+        // Save current db accessor then step on it
+        var oldOpen = window.indexedDB.open;
+        window.indexedDB.open = function() {
+            throw "For the purposes of testing, open has been stepped on and now throws this exception";
+        };
+
+        try {
+            window.indexedDB.open( 'foobar' );
+            ok( false, 'window.indexedDB.open should have produced an exception but it did not!' );
+        } catch ( e ) {
+            ok( true, 'window.indexedDB.open produced an exception as expected' );
+        }
+
+        stop();
+        // Create a new gladius instance under these conditions, configurator should not be able to open a db
+        gladius.create( { debug: true }, function( instance ) {
+            start();
+
+            equal( instance.configurator.canUseDB, false, 'Configurator canUseDB should be false' );
+
+            // Bring back the old open
+            window.indexedDB.open = oldOpen;
+        });
+    });
+
     // Test load/store to/from local storage
     test( 'local store/load', function() {
         // Do not perform these tests if db access is not available
