@@ -39,7 +39,8 @@
   // not be found by the AST analysis done in the optimizer.
   include: [
             'gladius',
-            'gladius-src'
+            'gladius-src',
+            'graphics/service'
            ],
 
   // Wraps the built file in a closure and exports gladius as a global.
