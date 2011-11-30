@@ -37,7 +37,7 @@ define( function ( require ) {
                 } else {
                     _tick.unsubscribe( handleTick );
                 }
-            }
+            };
             
             this.update = function( delta ) {
                 if( _active ) {
@@ -79,6 +79,6 @@ define( function ( require ) {
         
         return Timer;
         
-    }
+    };
     
 });

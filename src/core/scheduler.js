@@ -17,11 +17,11 @@ define( function ( require ) {
             _running = false,
             that = this;        
         
-        var _previousTime = undefined;        
+        var _previousTime;        
         var _tick = new Event();    // Time signal, sent each frame
         
         this.Timer = Timer({ tick: _tick });        
-        this.Task = Task({ manager: this })
+        this.Task = Task({ manager: this });
 
         var _realTime = new this.Timer();
         Object.defineProperty( this, 'realTime', {

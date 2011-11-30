@@ -32,7 +32,7 @@ complete = cat $(GLADIUS_MIN) > $(1)
 
 jshint = echo "Linting $(1)" ; node $(TOOLS_DIR)/jshint-cmdline.js $(1)
 
-all: $(DIST_DIR) $(GLADIUS_DIST) $(GLADIUS_MIN) $(CUBICVR_LIB)
+all: check-lint $(DIST_DIR) $(GLADIUS_DIST) $(GLADIUS_MIN) $(CUBICVR_LIB)
 	@@echo "Finished, see $(DIST_DIR)"
 
 $(DIST_DIR):
@@ -61,9 +61,6 @@ test: $(DIST_DIR) $(GLADIUS_MIN)
 	@@echo "Starting web server in $(DIST_DIR), browse to http://localhost:9914/ (ctrl+c to stop)..."
 	@@cd $(DIST_DIR) && python ../$(TOOLS_DIR)/test_server.py
 
-clean:
-	@@rm -fr $(DIST_DIR)
-
 check-lint: check-lint-core check-lint-subsystems
 
 check-lint-core:
@@ -71,6 +68,9 @@ check-lint-core:
 
 check-lint-subsystems:
 	@@$(foreach subsystem,$(SUBSYSTEM_FILES),echo "-----" ; $(call jshint,$(subsystem)) ; )
+
+clean:
+	@@rm -fr $(DIST_DIR)
 
 submodule:
 	@@git submodule update --init --recursive

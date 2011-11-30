@@ -132,7 +132,7 @@ define( function ( require ) {
                 }
                 
                 return [];
-            }
+            };
 
             // Find the first entity that has a component with the given type and return it, or null.
             this.findWith = function( type ) {

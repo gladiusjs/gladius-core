@@ -6,7 +6,6 @@ define( function ( require ) {
     
     var BufferedPriorityQueue = function( queue ) {
         
-        var _queue = queue || {};
         var _queue = [ {}, {} ],
             _index = 0,
             _size = [0, 0];

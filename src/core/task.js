@@ -76,7 +76,7 @@ define( function ( require ) {
             Object.defineProperty( this, 'priority', {
                 get: function() {
                     return _priority;
-                },
+                }
             });
             
             var _scheduled = false;
@@ -111,6 +111,6 @@ define( function ( require ) {
         
         return Task;
         
-    }
+    };
     
 });
