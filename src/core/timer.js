@@ -35,6 +35,7 @@ define( function ( require ) {
                     _delta = delta;
                     _time += delta;                    
                 } else {
+                    _delta = 0;
                     _tick.unsubscribe( handleTick );
                 }
             };
