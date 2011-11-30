@@ -370,7 +370,7 @@
         // Save current db accessor then step on it
         var oldOpen = window.indexedDB.open;
         window.indexedDB.open = function() {
-            throw "For the purposes of testing, open has been stepped on and now throws this exception";
+            throw "For the purposes of testing, window.indexedDB.open has been stepped on and now throws this exception";
         };
 
         try {
