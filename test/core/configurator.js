@@ -374,7 +374,7 @@
         };
 
         try {
-            window.indexedDB.open( 'foobar' );
+            window.indexedDB.open( '__test_db_name__9c8a4f3b-42b7-4aed-be48-772f0e1c61b4__' );
             ok( false, 'window.indexedDB.open should have produced an exception but it did not!' );
         } catch ( e ) {
             ok( true, 'window.indexedDB.open produced an exception as expected' );
