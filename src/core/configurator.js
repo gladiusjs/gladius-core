@@ -251,20 +251,20 @@ define( function ( require ) {
         };
 
         /**
-         * store( parameters )
+         * store( options )
          *
          *  Stores configuration options to local storage.
          *  Accepts an options object with named parameters.
          *
-         *  Parameters:
+         *  Options:
          *  callback    <function>( configurator )
          *              If a callback is provided then it is called once the
          *              configuration has been stored. The callback function
          *              will be passed the configurator object.
          */
-        this.store = function( parameters ) {
+        this.store = function( options ) {
 
-            var callback = parameters && parameters.callback,
+            var callback = options && options.callback,
                 targetJSON = {},
                 myJSON = this.getJSON(),
                 parentPath = this.node.getParentPath(),
@@ -314,10 +314,10 @@ define( function ( require ) {
         };
 
         /**
-         * load( parameters )
+         * load( options )
          *
-         *  Loads registry from local storage ( IndexedDB ). Accepts a
-         *  parameters object.
+         *  Loads registry from local storage ( IndexedDB ). Accepts an
+         *  options object.
          *
          *  Parameters:
          *  callback:   <function>( configurator )
@@ -332,9 +332,9 @@ define( function ( require ) {
          *              colliding configuration options are overwritten,
          *              this is the default.
          */
-        this.load = function( parameters ) {
-            var callback = parameters && parameters.callback,
-                clear = parameters && parameters.clear;
+        this.load = function( options ) {
+            var callback = options && options.callback,
+                clear = options && options.clear;
 
             if ( clear ) {
                 this.clear();
