@@ -21,7 +21,8 @@ define( function ( require ) {
 
         // Options
         var configuration           = options.configuration || {},
-            logger                  = options.logger || function() {},
+            debug                   = options.debug || function() {},
+            rootConf                = options.rootConf,
 
             // Should dbVersion be picked up from default.js too?
             dbVersion               = '0.01',
@@ -31,9 +32,8 @@ define( function ( require ) {
         // Instance Variables
             that = this,
             canUseDB = true,
-            rootConf = options.rootConf,
 
-            // DB opening modes
+        // DB opening modes
             DB_READ_ONLY = 0,
             DB_READ_WRITE = 1,
 
@@ -53,13 +53,13 @@ define( function ( require ) {
 
             _ensureObjectStore = function( db, payload ) {
                 if ( !db ) {
-                    logger( "Gladius/Configurator-_ensureObjectStore: passed empty db value! Aborting.");
+                    debug( "Gladius/Configurator-_ensureObjectStore: passed empty db value! Aborting.");
                     return;
                 }
 
                 var containsObjectStore = db.objectStoreNames.contains( objectStoreName ),
                     onerror = function( event ) {
-                        logger( 'Gladius/Configurator-_ensureObjectStore: encountered error! Aborting.');
+                        debug( 'Gladius/Configurator-_ensureObjectStore: encountered error! Aborting.');
                     },
 
                     createObjectStore = function() {
@@ -188,6 +188,7 @@ define( function ( require ) {
         this.create = function( options ) {
             options = options || {};
             options.rootConf = options.rootConf || rootConf;
+            options.debug = options.debug || debug;
             return new Configurator( options );
         };
 
@@ -282,7 +283,7 @@ define( function ( require ) {
 
                     // Log result of load
                     if ( jsonKeys.length === 0 ) {
-                        logger( 'Gladius/Configurator-store: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
+                        debug( 'Gladius/Configurator-store: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
                     }
 
                     for ( var i = 0, maxlen = jsonKeys.length; i < maxlen; ++i ) {
@@ -296,7 +297,7 @@ define( function ( require ) {
                     _storeJSON( targetJSON, function( storeResult ) {
                         // Log result of store
                         if ( !storeResult ) {
-                            logger( 'Gladius/Configurator-store: DB write failed, parent path: ' + that.node.getParentPath() + '/' );
+                            debug( 'Gladius/Configurator-store: DB write failed, parent path: ' + that.node.getParentPath() + '/' );
                         }
 
                         if ( callback ) {
@@ -305,7 +306,7 @@ define( function ( require ) {
                     });
                 });
             } else {
-                logger( "gladius/Configurator-store: DB access not available, did not store" );
+                debug( "gladius/Configurator-store: DB access not available, did not store" );
                 if ( callback ) {
                     callback( that );
                 }
@@ -347,7 +348,7 @@ define( function ( require ) {
 
                     // Log result of load
                     if ( Object.keys( json ).length === 0 ) {
-                        logger( 'Gladius/Configurator-load: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
+                        debug( 'Gladius/Configurator-load: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
                     }
 
                     // Find relevant values and set them
@@ -373,7 +374,7 @@ define( function ( require ) {
                     }
                 });
             } else {
-                logger( "gladius/Configurator-load: DB access not available, did not load" );
+                debug( "gladius/Configurator-load: DB access not available, did not load" );
                 if ( callback ) {
                     callback( that );
                 }
