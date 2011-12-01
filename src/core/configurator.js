@@ -399,6 +399,9 @@ define( function ( require ) {
             } catch( e ) {
                 canUseDB = false;
             }
+
+            // Pick up default.js
+            this.update( require( '../config/default.js' ) );
         } else {
             this.node = rootConf.node;
             canUseDB = rootConf.canUseDB;
