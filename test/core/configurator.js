@@ -122,7 +122,7 @@
         }
 
         // Test that default.js is being loaded.
-        notEqual( config.get( '/gladius/gameID' ), '', 'gameID should not be empty' );
+        notEqual( config.get( config.KEY_GAMEID ), '', 'game id should not be empty' );
     });
     
     // Test getPath

@@ -9,6 +9,6 @@ define( function ( require ) {
      * Default configuration options should be stored here.
      */
     return ( {
-        '/gladius/gameID': 'Gladius_Game'   // Every game should have a unique gameID. Replace Gladius_Game with a unique string representing your game.
+        '/id': 'Gladius_Game'   // Every game should have a unique id. Replace Gladius_Game with a unique string representing your game.
     } );
 } );

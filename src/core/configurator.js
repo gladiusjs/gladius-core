@@ -29,13 +29,16 @@ define( function ( require ) {
             dbName                  = 'Gladius_Configurator',
             objectStoreName         = 'StoredConfigurations',
 
-        // Instance Variables
-            that = this,
-            canUseDB = true,
+        // Constants
+            KEY_GAMEID = '/id',
 
         // DB opening modes
             DB_READ_ONLY = 0,
             DB_READ_WRITE = 1,
+
+        // Instance Variables
+            that = this,
+            canUseDB = true,
 
             _injectDB = function( dbConsumer ) {
                 // At the moment, indexedDB.open() fails on locally hosted pages on firefox
@@ -114,7 +117,7 @@ define( function ( require ) {
 
                     if ( objectStore ) {
                         // Does objectStore have entry for this gameID?
-                        var req = objectStore.get( rootConf.get( '/gladius/gameID' ) );
+                        var req = objectStore.get( rootConf.get( KEY_GAMEID ) );
                         req.onsuccess = function( event ) {
                             // Did we find a value?
                             var result = req.result;
@@ -142,7 +145,7 @@ define( function ( require ) {
                     if ( objectStore ) {
                         var req = objectStore.put(
                             escape( JSON.stringify( json ) ),
-                            rootConf.get( '/gladius/gameID' )
+                            rootConf.get( KEY_GAMEID )
                         );
 
                         req.onsuccess = function( event ) {
@@ -388,6 +391,13 @@ define( function ( require ) {
             }
         });
 
+        // Accessor to GameID key
+        Object.defineProperty( this, 'KEY_GAMEID', {
+            get: function() {
+                return KEY_GAMEID;
+            }
+        });
+
         // If we are the root conf then we need to do some testing
         if ( !rootConf ) {
             rootConf = this;
@@ -411,6 +421,11 @@ define( function ( require ) {
 
         // Load incoming configuration
         this.update( options.configuration );
+
+        // Test that we have a gameID
+        if ( !this.get( this.KEY_GAMEID ) ) {
+            throw 'Gladius/Configurator-constructor: Could not find game id! Please set ' + KEY_GAMEID;
+        }
     };
 
     // Taken from Mozilla's docs
