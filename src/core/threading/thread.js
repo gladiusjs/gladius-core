@@ -61,12 +61,12 @@ define( function( require ) {
             });
             send( '__ready' );
         };
-        expose( handle_dispatch );
+        expose( handle_dispatch, '__dispatch' );
 
         var handle_run = function __run( message ) {
             _id = message.id;
         };
-        expose( handle_run );
+        expose( handle_run, '__run' );
 
         send( '__ready' );
 

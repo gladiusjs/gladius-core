@@ -49,6 +49,7 @@ define( function( require ) {
             if( _exposed[ message.method ] ) {
                 _exposed[ message.method ]( message.request );
             } else {
+                console.log( Object.keys( _exposed ) );
                 console.log( 'ignoring unknown method ' + message.method + ' from worker' );
             }
         };
@@ -62,21 +63,21 @@ define( function( require ) {
             }
             _request = null;
         };
-        expose( handle_result );
+        expose( handle_result, '__result' );
 
         var handle_ready = function __ready() {
             _ready( that );
         };
-        expose( handle_ready );
+        expose( handle_ready, '__ready' );
 
         var handle_error = function __error( message ) {
         };
-        expose( handle_error );
+        expose( handle_error, '__error' );
 
         var handle_log = function __log( message ) {
             console.log( '[thread:' + _id + '] ' + message.log );
         };
-        expose( handle_log );
+        expose( handle_log, '__log' );
 
         this.dispatch = function( options ) {
             options = options || {};
