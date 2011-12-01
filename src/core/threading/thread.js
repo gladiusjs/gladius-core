@@ -4,7 +4,7 @@
 
 define( function( require ) {
 
-    var Thread = function __thread( id ) {
+    var thread = function __thread( id ) {
 
         var console = {
 
@@ -72,6 +72,6 @@ define( function( require ) {
 
     };
 
-    return Thread;
+    return thread;
 
 });

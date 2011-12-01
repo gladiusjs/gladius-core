@@ -5,7 +5,7 @@
 define( function( require ) {
 
     var lang = require( '../lang' );
-    var Thread = require( './thread' );
+    var thread = require( './thread' );
 
     var Proxy = function( options ) {
 
@@ -23,8 +23,8 @@ define( function( require ) {
         var that = this;
 
         var _script = new BlobBuilder();
-        _script.append( Thread.toString() );
-        _script.append( '__thread(\'' + _id + '\');' );
+        _script.append( 'var f = ' + thread.toString() + ';' );
+        _script.append( 'f(\'' + _id + '\');' );
         var _scriptUrl = window.URL.createObjectURL( _script.getBlob() );
         var _worker = new Worker( _scriptUrl );
 
