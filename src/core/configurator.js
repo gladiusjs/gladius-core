@@ -401,7 +401,7 @@ define( function ( require ) {
             }
 
             // Pick up default.js
-            this.update( require( '../config/default.js' ) );
+            this.update( require( '../config/default' ) );
         } else {
             this.node = rootConf.node;
             canUseDB = rootConf.canUseDB;
