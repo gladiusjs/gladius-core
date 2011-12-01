@@ -46,7 +46,7 @@ define( function ( require ) {
 
         // Get configurator up before anything else
         var _configurator = new Configurator({
-            defaultConfiguration: require( './config/default' )
+            logger: this.debug
         });
 
         Object.defineProperty( this, 'configurator', {

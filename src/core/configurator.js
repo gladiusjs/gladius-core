@@ -19,12 +19,17 @@ define( function ( require ) {
 
         options = options || {};
 
-        if ( !options.defaultConfiguration )    options.defaultConfiguration = {};
+        // Options
+        var configuration           = options.configuration || {},
+            logger                  = options.logger || function() {},
 
-        var that = this,
-            dbVersion = '0.01',
-            dbName = 'Gladius_Configurator',
-            objectStoreName = 'StoredConfigurations',
+            // Should dbVersion be picked up from default.js too?
+            dbVersion               = '0.01',
+            dbName                  = 'Gladius_Configurator',
+            objectStoreName         = 'StoredConfigurations',
+
+        // Instance Variables
+            that = this,
             canUseDB = true,
             rootConf = options.rootConf,
 
@@ -48,13 +53,13 @@ define( function ( require ) {
 
             _ensureObjectStore = function( db, payload ) {
                 if ( !db ) {
-                    console.log( "Gladius/Configurator-_ensureObjectStore: passed empty db value! Aborting.");
+                    logger( "Gladius/Configurator-_ensureObjectStore: passed empty db value! Aborting.");
                     return;
                 }
 
                 var containsObjectStore = db.objectStoreNames.contains( objectStoreName ),
                     onerror = function( event ) {
-                        console.log( 'Gladius/Configurator-_ensureObjectStore: encountered error! Aborting.');
+                        logger( 'Gladius/Configurator-_ensureObjectStore: encountered error! Aborting.');
                     },
 
                     createObjectStore = function() {
@@ -277,7 +282,7 @@ define( function ( require ) {
 
                     // Log result of load
                     if ( jsonKeys.length === 0 ) {
-                        console.log( 'Gladius/Configurator-store: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
+                        logger( 'Gladius/Configurator-store: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
                     }
 
                     for ( var i = 0, maxlen = jsonKeys.length; i < maxlen; ++i ) {
@@ -291,7 +296,7 @@ define( function ( require ) {
                     _storeJSON( targetJSON, function( storeResult ) {
                         // Log result of store
                         if ( !storeResult ) {
-                            console.log( 'Gladius/Configurator-store: DB write failed, parent path: ' + that.node.getParentPath() + '/' );
+                            logger( 'Gladius/Configurator-store: DB write failed, parent path: ' + that.node.getParentPath() + '/' );
                         }
 
                         if ( callback ) {
@@ -300,7 +305,7 @@ define( function ( require ) {
                     });
                 });
             } else {
-                console.log( "gladius/Configurator-store: DB access not available, did not store" );
+                logger( "gladius/Configurator-store: DB access not available, did not store" );
                 if ( callback ) {
                     callback( that );
                 }
@@ -342,7 +347,7 @@ define( function ( require ) {
 
                     // Log result of load
                     if ( Object.keys( json ).length === 0 ) {
-                        console.log( 'Gladius/Configurator-load: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
+                        logger( 'Gladius/Configurator-load: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
                     }
 
                     // Find relevant values and set them
@@ -368,7 +373,7 @@ define( function ( require ) {
                     }
                 });
             } else {
-                console.log( "gladius/Configurator-load: DB access not available, did not load" );
+                logger( "gladius/Configurator-load: DB access not available, did not load" );
                 if ( callback ) {
                     callback( that );
                 }
@@ -382,22 +387,16 @@ define( function ( require ) {
             }
         });
 
-        // Are we the root configurator?
+        // If we are the root conf then we need to do some testing
         if ( !rootConf ) {
             rootConf = this;
             this.node = new ConfNode( 'ROOT' );
 
-            // Can we open a db connection?
+            // Test IndexedDB availability
             try {
                 window.indexedDB.open( '__test_db_name__9c8a4f3b-42b7-4aed-be48-772f0e1c61b4__' );
             } catch( e ) {
-                // failed to create db, can't use dbs :(
                 canUseDB = false;
-                var errorMsg =  'gladius/Configurator: IndexedDB not available, exception:\n' +
-                                e.toString();
-
-                // Send message to log
-                console.log( errorMsg );
             }
         } else {
             this.node = rootConf.node;
@@ -406,8 +405,8 @@ define( function ( require ) {
 
         this.id = window.guid();
 
-        // Load default configuration
-        this.update( options.defaultConfiguration );
+        // Load incoming configuration
+        this.update( options.configuration );
     };
 
     // Taken from Mozilla's docs
