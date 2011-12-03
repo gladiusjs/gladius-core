@@ -43,10 +43,11 @@ define( function ( require ) {
             objectStoreName         = '',
             gameId                  = '',
 
-            _injectDB = function( dbConsumer ) {
+            _injectDB = function( options ) {
                 // At the moment, indexedDB.open() fails on locally hosted pages on firefox
-                // Use python -m SimpleHTTPServer 8000
-                var req = indexedDB.open( dbName );
+                // Use python -m SimpleHTTPServer 8000 or make test
+                var dbConsumer = options && options.consumer,
+                    req = indexedDB.open( dbName );
 
                 req.onsuccess = function( event ) {
                     dbConsumer( req.result );
@@ -57,7 +58,10 @@ define( function ( require ) {
                 };
             },
 
-            _ensureObjectStore = function( db, payload ) {
+            _ensureObjectStore = function( options ) {
+                var db = options && options.db,
+                    consumer = options && options.consumer;
+
                 if ( !db ) {
                     debug( "Gladius/Configurator-_ensureObjectStore: passed empty db value! Aborting.");
                     return;
@@ -75,7 +79,7 @@ define( function ( require ) {
                             versionRequest.onsuccess = function( event ) {
                                 db.createObjectStore( objectStoreName );
 
-                                payload();
+                                consumer();
                             };
                         } catch ( e ) {
                             debug( 'Encountered Error: ' + e.toString() );
@@ -84,7 +88,7 @@ define( function ( require ) {
 
                 // If we don't have requisite object store, create it
                 if ( containsObjectStore && db.version === dbVersion ) {
-                    payload();
+                    consumer();
                 } else {
                     // Downgrade db version if required
                     if ( db.version === '' ) {
@@ -107,15 +111,20 @@ define( function ( require ) {
                 var mode = options && options.mode,
                     objectStoreConsumer = options && options.consumer;
 
-                _injectDB( function( db ) {
-                    _ensureObjectStore( db, function() {
-                        objectStoreConsumer( db.transaction(
-                                [objectStoreName],
-                                mode == DB_READ_ONLY ?  IDBTransaction.READ_ONLY :
-                                                        IDBTransaction.READ_WRITE
-                            ).objectStore( objectStoreName )
-                        );
-                    });
+                _injectDB( {
+                    consumer: function( db ) {
+                        _ensureObjectStore( {
+                            db: db,
+                            consumer: function() {
+                                objectStoreConsumer( db.transaction(
+                                        [objectStoreName],
+                                        mode == DB_READ_ONLY ?  IDBTransaction.READ_ONLY :
+                                                                IDBTransaction.READ_WRITE
+                                    ).objectStore( objectStoreName )
+                                );
+                            }
+                        });
+                    }
                 });
             },
 
