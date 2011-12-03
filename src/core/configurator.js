@@ -8,6 +8,15 @@ define( function ( require ) {
     require( './lang' );
     var ConfNode = require( './configurator/confnode' ),
 
+    // Constants
+        KEY_GAME_ID = '/id',
+        KEY_DB_NAME = '/registry/dbName',
+        KEY_STORE_NAME = '/registry/storeName',
+
+    // DB opening modes
+        DB_READ_ONLY = 0,
+        DB_READ_WRITE = 1,
+
     /* Configurator
      *
      * Loads and stores configuration data. Allows external code to listen for
@@ -24,21 +33,15 @@ define( function ( require ) {
             debug                   = options.debug || function() {},
             rootConf                = options.rootConf,
 
-            // Should dbVersion be picked up from default.js too?
-            dbVersion               = '0.01',
-            dbName                  = 'Gladius_Configurator',
-            objectStoreName         = 'StoredConfigurations',
-
-        // Constants
-            KEY_GAMEID = '/id',
-
-        // DB opening modes
-            DB_READ_ONLY = 0,
-            DB_READ_WRITE = 1,
-
         // Instance Variables
             that = this,
             canUseDB = true,
+
+            // Should dbVersion be picked up from default.js too?
+            dbVersion               = '0.01',
+            dbName                  = '',
+            objectStoreName         = '',
+            gameId                  = '',
 
             _injectDB = function( dbConsumer ) {
                 // At the moment, indexedDB.open() fails on locally hosted pages on firefox
@@ -66,6 +69,7 @@ define( function ( require ) {
                     },
 
                     createObjectStore = function() {
+                        try {
                         var versionRequest = db.setVersion( dbVersion );
                         versionRequest.onerror = onerror;
                         versionRequest.onsuccess = function( event ) {
@@ -73,6 +77,9 @@ define( function ( require ) {
 
                             payload();
                         };
+                        } catch ( e ) {
+                            debug( 'Encountered Error: ' + e.toString() );
+                        }
                     };
 
                 // If we don't have requisite object store, create it
@@ -117,7 +124,7 @@ define( function ( require ) {
 
                     if ( objectStore ) {
                         // Does objectStore have entry for this gameID?
-                        var req = objectStore.get( rootConf.get( KEY_GAMEID ) );
+                        var req = objectStore.get( rootConf.get( KEY_GAME_ID ) );
                         req.onsuccess = function( event ) {
                             // Did we find a value?
                             var result = req.result;
@@ -145,7 +152,7 @@ define( function ( require ) {
                     if ( objectStore ) {
                         var req = objectStore.put(
                             escape( JSON.stringify( json ) ),
-                            rootConf.get( KEY_GAMEID )
+                            rootConf.get( KEY_GAME_ID )
                         );
 
                         req.onsuccess = function( event ) {
@@ -384,48 +391,56 @@ define( function ( require ) {
             }
         };
 
-        // Returns true if db access is available
-        Object.defineProperty( this, 'canUseDB', {
-            get: function() {
-                return canUseDB;
-            }
-        });
+        // Define read only access
+        var defReadOnly = function( name, val ) {
+            Object.defineProperty( that, name, {
+                get: function() {
+                    return val;
+                }
+            });
+        };
 
-        // Accessor to GameID key
-        Object.defineProperty( this, 'KEY_GAMEID', {
-            get: function() {
-                return KEY_GAMEID;
-            }
-        });
-
-        // If we are the root conf then we need to do some testing
-        if ( !rootConf ) {
-            rootConf = this;
-            this.node = new ConfNode( 'ROOT' );
-
-            // Test IndexedDB availability
-            try {
-                window.indexedDB.open( '__test_db_name__9c8a4f3b-42b7-4aed-be48-772f0e1c61b4__' );
-            } catch( e ) {
-                canUseDB = false;
-            }
-
-            // Pick up default.js
-            this.update( require( '../config/default' ) );
-        } else {
-            this.node = rootConf.node;
-            canUseDB = rootConf.canUseDB;
-        }
+        defReadOnly( 'KEY_GAME_ID', KEY_GAME_ID );
+        defReadOnly( 'KEY_DB_NAME', KEY_DB_NAME );
+        defReadOnly( 'KEY_STORE_NAME', KEY_STORE_NAME );
 
         this.id = window.guid();
 
-        // Load incoming configuration
-        this.update( options.configuration );
+        var isRootConf = false;
+        if ( rootConf ) {
+            this.node = rootConf.node;
+            canUseDB = rootConf.canUseDB;
+        } else {
+            isRootConf = true;
+            rootConf = this;
+            this.node = new ConfNode( 'ROOT' );
 
-        // Test that we have a gameID
-        if ( !this.get( this.KEY_GAMEID ) ) {
-            throw 'Gladius/Configurator-constructor: Could not find game id! Please set ' + KEY_GAMEID;
+            // Pick up default.js
+            this.update( require( '../config/default' ) );
         }
+
+        // Load incoming configuration
+        this.update( configuration );
+
+        // Load user provided values
+        dbName = rootConf.get( KEY_DB_NAME );
+        objectStoreName = rootConf.get( KEY_STORE_NAME );
+        gameId = rootConf.get( KEY_GAME_ID );
+
+        // Can the db be used?
+        if ( isRootConf ) {
+            if ( !dbName || !objectStoreName || !gameId ) {
+                canUseDB = false;
+            } else {
+                try {
+                    window.indexedDB.open( dbName );
+                } catch( e ) {
+                    canUseDB = false;
+                }
+            }
+        }
+
+        defReadOnly( 'canUseDB', canUseDB );
     };
 
     // Taken from Mozilla's docs

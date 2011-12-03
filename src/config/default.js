@@ -9,6 +9,8 @@ define( function ( require ) {
      * Default configuration options should be stored here.
      */
     return ( {
-        '/id': 'Gladius_Game'   // Every game should have a unique id. Replace Gladius_Game with a unique string representing your game.
+        '/id': 'Gladius_Game',   // Every game should have a unique id. Replace Gladius_Game with a unique string representing your game.
+        '/registry/dbName': 'Gladius_Registry',
+        '/registry/storeName': 'StoredConfigurations'
     } );
 } );
