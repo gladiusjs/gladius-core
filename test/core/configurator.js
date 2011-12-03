@@ -365,7 +365,7 @@
     // Testing the case where a db is not available, this test simulates an
     // environment where db access is not available
     test( "no db environment", function() {
-        expect( 2 );
+        expect( 4 );
 
         // Save current db accessor then step on it
         var oldOpen = window.indexedDB.open;
@@ -386,6 +386,37 @@
             start();
 
             equal( instance.configurator.canUseDB, false, 'Configurator canUseDB should be false' );
+
+            // Ensure that calling load/store will cause error callbacks to be called
+            var getErrorback = function ( funcName ) {
+                    return function( errorMsg ) {
+                        start();
+                        ok( true, 'Error callback was called as expected for ' + funcName );
+                    };
+                },
+                getCallback = function ( funcName ) {
+                    return function( event ) {
+                        start();
+                        ok( false, 'Callback was called unexpectedly for ' + funcName );
+                    };
+                },
+
+                loadError = getErrorback( 'load()' ),
+                loadCallback = getCallback( 'load()' ),
+                storeError = getErrorback( 'store()' ),
+                storeCallback = getCallback( 'store()' );
+
+            stop();
+            instance.configurator.load( {
+                callback: loadCallback,
+                error: loadError
+            });
+
+            stop();
+            instance.configurator.store( {
+                callback: storeCallback,
+                error: storeError
+            });
 
             // Bring back the old open
             window.indexedDB.open = oldOpen;

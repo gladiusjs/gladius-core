@@ -174,7 +174,8 @@ define( function ( require ) {
 
         // Load persistent configuration then proceed with rest of engine startup
         this.configurator.load( {
-            callback: initialize
+            callback: initialize,
+            error: initialize
         } );
 
     }; //Gladius

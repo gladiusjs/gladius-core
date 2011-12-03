@@ -271,10 +271,14 @@ define( function ( require ) {
          *              If a callback is provided then it is called once the
          *              configuration has been stored. The callback function
          *              will be passed the configurator object.
+         *
+         *  error:      <function>( errorMsg )
+         *              If an error was triggered, this function will be called.
          */
         this.store = function( options ) {
 
             var callback = options && options.callback,
+                error = options && options.error,
                 targetJSON = {},
                 myJSON = this.getJSON(),
                 parentPath = this.node.getParentPath(),
@@ -311,8 +315,8 @@ define( function ( require ) {
                     });
                 });
             } else {
-                if ( callback ) {
-                    callback( that );
+                if ( error ) {
+                    error( 'Configurator store failed, db not accessible.' );
                 }
             }
         };
@@ -329,22 +333,27 @@ define( function ( require ) {
          *              configuration has been loaded. The callback will be
          *              passed the configurator object.
          *
+         *  error:      <function>( errorMsg )
+         *              If an error was triggered, this function will be called.
+         *
          *  clear:      <boolean>
          *              If clear is true, this configurator's configuration
          *              options are cleared before new ones are loaded.
          *              If false, contents are not cleared prior and any
          *              colliding configuration options are overwritten,
          *              this is the default.
+         *              If the db could not be used, clear is not called.
          */
         this.load = function( options ) {
             var callback = options && options.callback,
+                error = options && options.error,
                 clear = options && options.clear;
 
-            if ( clear ) {
-                this.clear();
-            }
-
             if ( canUseDB ) {
+                if ( clear ) {
+                    this.clear();
+                }
+
                 _getStoredJSON( function( json ) {
                     // Create the parent path
                     var parentPath = that.node.getParentPath(),
@@ -373,8 +382,8 @@ define( function ( require ) {
                     }
                 });
             } else {
-                if ( callback ) {
-                    callback( that );
+                if ( error ) {
+                    error( 'Configurator load failed, db not accessible.' );
                 }
             }
         };
