@@ -103,7 +103,10 @@ define( function ( require ) {
                 }
             },
 
-            _injectObjectStore = function( mode, objectStoreConsumer ) {
+            _injectObjectStore = function( options ) {
+                var mode = options && options.mode,
+                    objectStoreConsumer = options && options.consumer;
+
                 _injectDB( function( db ) {
                     _ensureObjectStore( db, function() {
                         objectStoreConsumer( db.transaction(
@@ -119,56 +122,62 @@ define( function ( require ) {
             _getStoredJSON = function( options ) {
                 var jsonConsumer = options && options.consumer;
 
-                _injectObjectStore( DB_READ_ONLY, function( objectStore ) {
-                    var onerror = function( event ) {
-                        jsonConsumer( {} );
-                    };
-
-                    if ( objectStore ) {
-                        // Does objectStore have entry for this gameID?
-                        var req = objectStore.get( rootConf.get( KEY_GAME_ID ) );
-                        req.onsuccess = function( event ) {
-                            // Did we find a value?
-                            var result = req.result;
-                            if ( result ) {
-                                jsonConsumer( JSON.parse( unescape( result ) ) );
-                            } else {
-                                onerror();
-                            }
+                _injectObjectStore( {
+                    mode: DB_READ_ONLY,
+                    consumer: function( objectStore ) {
+                        var onerror = function( event ) {
+                            jsonConsumer( {} );
                         };
 
-                        // If not, give out empty json
-                        req.onerror = onerror;
-                    } else {
-                        onerror();
+                        if ( objectStore ) {
+                            // Does objectStore have entry for this gameID?
+                            var req = objectStore.get( rootConf.get( KEY_GAME_ID ) );
+                            req.onsuccess = function( event ) {
+                                // Did we find a value?
+                                var result = req.result;
+                                if ( result ) {
+                                    jsonConsumer( JSON.parse( unescape( result ) ) );
+                                } else {
+                                    onerror();
+                                }
+                            };
+
+                            // If not, give out empty json
+                            req.onerror = onerror;
+                        } else {
+                            onerror();
+                        }
                     }
-                } );
+                });
             },
 
             _storeJSON = function( options ) {
                 var json = options.json,
                     resultConsumer = options && options.consumer;
 
-                _injectObjectStore( DB_READ_WRITE, function( objectStore ) {
-                    var onerror = function( event ) {
-                        resultConsumer( false );
-                    };
-
-                    if ( objectStore ) {
-                        var req = objectStore.put(
-                            escape( JSON.stringify( json ) ),
-                            rootConf.get( KEY_GAME_ID )
-                        );
-
-                        req.onsuccess = function( event ) {
-                            resultConsumer( true );
+                _injectObjectStore( {
+                    mode: DB_READ_WRITE,
+                    consumer: function( objectStore ) {
+                        var onerror = function( event ) {
+                            resultConsumer( false );
                         };
 
-                        req.onerror = onerror;
-                    } else {
-                        onerror();
+                        if ( objectStore ) {
+                            var req = objectStore.put(
+                                escape( JSON.stringify( json ) ),
+                                rootConf.get( KEY_GAME_ID )
+                            );
+
+                            req.onsuccess = function( event ) {
+                                resultConsumer( true );
+                            };
+
+                            req.onerror = onerror;
+                        } else {
+                            onerror();
+                        }
                     }
-                } );
+                });
             };
 
         // Get a value based on a given path
