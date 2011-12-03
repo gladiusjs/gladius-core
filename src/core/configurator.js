@@ -116,7 +116,9 @@ define( function ( require ) {
                 });
             },
 
-            _getStoredJSON = function( jsonConsumer ) {
+            _getStoredJSON = function( options ) {
+                var jsonConsumer = options && options.consumer;
+
                 _injectObjectStore( DB_READ_ONLY, function( objectStore ) {
                     var onerror = function( event ) {
                         jsonConsumer( {} );
@@ -143,7 +145,10 @@ define( function ( require ) {
                 } );
             },
 
-            _storeJSON = function( json, resultConsumer ) {
+            _storeJSON = function( options ) {
+                var json = options.json,
+                    resultConsumer = options && options.consumer;
+
                 _injectObjectStore( DB_READ_WRITE, function( objectStore ) {
                     var onerror = function( event ) {
                         resultConsumer( false );
@@ -292,27 +297,32 @@ define( function ( require ) {
                 }
 
                 // Load existing myJSON and merge/filter
-                _getStoredJSON( function( json ) {
-                    var jsonKeys = Object.keys( json );
+                _getStoredJSON( {
+                    consumer: function( json ) {
+                        var jsonKeys = Object.keys( json );
 
-                    for ( var i = 0, maxlen = jsonKeys.length; i < maxlen; ++i ) {
-                        var loadedJSONKey = jsonKeys[i];
-                        if ( loadedJSONKey.indexOf( parentPath ) !== 0 ) {
-                            targetJSON[loadedJSONKey] = json[loadedJSONKey];
+                        for ( var i = 0, maxlen = jsonKeys.length; i < maxlen; ++i ) {
+                            var loadedJSONKey = jsonKeys[i];
+                            if ( loadedJSONKey.indexOf( parentPath ) !== 0 ) {
+                                targetJSON[loadedJSONKey] = json[loadedJSONKey];
+                            }
                         }
+
+                        // Store
+                        _storeJSON( {
+                            json: targetJSON,
+                            consumer: function( storeResult ) {
+                                // Log result of store
+                                if ( !storeResult ) {
+                                    debug( 'Gladius/Configurator-store: DB write failed, parent path: ' + that.node.getParentPath() + '/' );
+                                }
+
+                                if ( callback ) {
+                                    callback( that );
+                                }
+                            }
+                        });
                     }
-
-                    // Store
-                    _storeJSON( targetJSON, function( storeResult ) {
-                        // Log result of store
-                        if ( !storeResult ) {
-                            debug( 'Gladius/Configurator-store: DB write failed, parent path: ' + that.node.getParentPath() + '/' );
-                        }
-
-                        if ( callback ) {
-                            callback( that );
-                        }
-                    });
                 });
             } else {
                 if ( error ) {
@@ -354,31 +364,33 @@ define( function ( require ) {
                     this.clear();
                 }
 
-                _getStoredJSON( function( json ) {
-                    // Create the parent path
-                    var parentPath = that.node.getParentPath(),
-                        parentPathLen = parentPath.length;
+                _getStoredJSON( {
+                    consumer: function( json ) {
+                        // Create the parent path
+                        var parentPath = that.node.getParentPath(),
+                            parentPathLen = parentPath.length;
 
-                    // Find relevant values and set them
-                    for ( var jsonKey in json ) {
-                        if ( json.hasOwnProperty( jsonKey ) ) {
-                            if ( jsonKey.indexOf( parentPath ) === 0 ) {
+                        // Find relevant values and set them
+                        for ( var jsonKey in json ) {
+                            if ( json.hasOwnProperty( jsonKey ) ) {
+                                if ( jsonKey.indexOf( parentPath ) === 0 ) {
 
-                                // Found valid string, set internal value
-                                that.set(
-                                    jsonKey.substr(
-                                        parentPathLen,
-                                        jsonKey.length - parentPathLen
-                                    ),
-                                    json[ jsonKey ]
-                                );
+                                    // Found valid string, set internal value
+                                    that.set(
+                                        jsonKey.substr(
+                                            parentPathLen,
+                                            jsonKey.length - parentPathLen
+                                        ),
+                                        json[ jsonKey ]
+                                    );
+                                }
                             }
                         }
-                    }
 
-                    // Call callback if provided
-                    if ( callback ) {
-                        callback( that );
+                        // Call callback if provided
+                        if ( callback ) {
+                            callback( that );
+                        }
                     }
                 });
             } else {
