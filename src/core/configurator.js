@@ -70,13 +70,13 @@ define( function ( require ) {
 
                     createObjectStore = function() {
                         try {
-                        var versionRequest = db.setVersion( dbVersion );
-                        versionRequest.onerror = onerror;
-                        versionRequest.onsuccess = function( event ) {
-                            db.createObjectStore( objectStoreName );
+                            var versionRequest = db.setVersion( dbVersion );
+                            versionRequest.onerror = onerror;
+                            versionRequest.onsuccess = function( event ) {
+                                db.createObjectStore( objectStoreName );
 
-                            payload();
-                        };
+                                payload();
+                            };
                         } catch ( e ) {
                             debug( 'Encountered Error: ' + e.toString() );
                         }
@@ -291,11 +291,6 @@ define( function ( require ) {
                 _getStoredJSON( function( json ) {
                     var jsonKeys = Object.keys( json );
 
-                    // Log result of load
-                    if ( jsonKeys.length === 0 ) {
-                        debug( 'Gladius/Configurator-store: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
-                    }
-
                     for ( var i = 0, maxlen = jsonKeys.length; i < maxlen; ++i ) {
                         var loadedJSONKey = jsonKeys[i];
                         if ( loadedJSONKey.indexOf( parentPath ) !== 0 ) {
@@ -316,7 +311,6 @@ define( function ( require ) {
                     });
                 });
             } else {
-                debug( "gladius/Configurator-store: DB access not available, did not store" );
                 if ( callback ) {
                     callback( that );
                 }
@@ -356,11 +350,6 @@ define( function ( require ) {
                     var parentPath = that.node.getParentPath(),
                         parentPathLen = parentPath.length;
 
-                    // Log result of load
-                    if ( Object.keys( json ).length === 0 ) {
-                        debug( 'Gladius/Configurator-load: DB load failed or found no record, parent path: ' + that.node.getParentPath() + '/' );
-                    }
-
                     // Find relevant values and set them
                     for ( var jsonKey in json ) {
                         if ( json.hasOwnProperty( jsonKey ) ) {
@@ -384,7 +373,6 @@ define( function ( require ) {
                     }
                 });
             } else {
-                debug( "gladius/Configurator-load: DB access not available, did not load" );
                 if ( callback ) {
                     callback( that );
                 }
