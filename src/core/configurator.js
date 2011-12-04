@@ -65,15 +65,15 @@ define( function ( require ) {
                     error = options && options.error;
 
                 if ( !db ) {
-                    error && error( 'Gladius/Configurator-_ensureObjectStore: passed empty db value.' );
+                    if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: passed empty db value.' );
                     return;
                 }
 
                 var containsObjectStore = db.objectStoreNames.contains( objectStoreName ),
                     getErrorFunc = function( msg ) {
                         return function( e ) {
-                            error && error( 'Gladius/Configurator-_ensureObjectStore: ' + msg + ', error object: ' + e.toString() );
-                        }
+                            if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: ' + msg + ', error object: ' + e.toString() );
+                        };
                     },
 
                     createObjectStore = function() {
