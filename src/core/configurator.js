@@ -47,42 +47,46 @@ define( function ( require ) {
                 // At the moment, indexedDB.open() fails on locally hosted pages on firefox
                 // Use python -m SimpleHTTPServer 8000 or make test
                 var dbConsumer = options && options.consumer,
+                    error = options && options.error,
                     req = indexedDB.open( dbName );
 
                 req.onsuccess = function( event ) {
                     dbConsumer( req.result );
                 };
 
-                req.onerror = function( event ) {
-                    dbConsumer();
+                req.onerror = function( e ) {
+                    error( 'Gladius/Configurator-_injectDB: db open request failed, error object: ' + e.toString() );
                 };
             },
 
             _ensureObjectStore = function( options ) {
                 var db = options && options.db,
-                    consumer = options && options.consumer;
+                    consumer = options && options.consumer,
+                    error = options && options.error;
 
                 if ( !db ) {
-                    debug( "Gladius/Configurator-_ensureObjectStore: passed empty db value! Aborting.");
+                    error && error( 'Gladius/Configurator-_ensureObjectStore: passed empty db value.' );
                     return;
                 }
 
                 var containsObjectStore = db.objectStoreNames.contains( objectStoreName ),
-                    onerror = function( event ) {
-                        debug( 'Gladius/Configurator-_ensureObjectStore: encountered error! Aborting.');
+                    getErrorFunc = function( msg ) {
+                        return function( e ) {
+                            error && error( 'Gladius/Configurator-_ensureObjectStore: ' + msg + ', error object: ' + e.toString() );
+                        }
                     },
 
                     createObjectStore = function() {
                         try {
                             var versionRequest = db.setVersion( dbVersion );
-                            versionRequest.onerror = onerror;
+                            versionRequest.onerror = getErrorFunc( 'upgrade setVersion request triggered onerror handler' );
                             versionRequest.onsuccess = function( event ) {
                                 db.createObjectStore( objectStoreName );
 
                                 consumer();
                             };
                         } catch ( e ) {
-                            debug( 'Encountered Error: ' + e.toString() );
+                            getErrorFunc( 'encountered error while attempting to obtain setVersion request' )( e );
                         }
                     };
 
@@ -95,7 +99,7 @@ define( function ( require ) {
                         createObjectStore();
                     } else {
                         var versionRequest = db.setVersion( '' );
-                        versionRequest.onerror = onerror;
+                        versionRequest.onerror = getErrorFunc( 'downgrade setVersion request triggered onerror handler' );
                         versionRequest.onsuccess = function( event ) {
                             // Delete object store if it's around
                             if ( containsObjectStore ) {
@@ -109,7 +113,8 @@ define( function ( require ) {
 
             _injectObjectStore = function( options ) {
                 var mode = options && options.mode,
-                    objectStoreConsumer = options && options.consumer;
+                    objectStoreConsumer = options && options.consumer,
+                    error = options && options.error;
 
                 _injectDB( {
                     consumer: function( db ) {
@@ -122,14 +127,17 @@ define( function ( require ) {
                                                                 IDBTransaction.READ_WRITE
                                     ).objectStore( objectStoreName )
                                 );
-                            }
+                            },
+                            error: error
                         });
-                    }
+                    },
+                    error: error
                 });
             },
 
             _getStoredJSON = function( options ) {
-                var jsonConsumer = options && options.consumer;
+                var jsonConsumer = options && options.consumer,
+                    error = options && options.error;
 
                 _injectObjectStore( {
                     mode: DB_READ_ONLY,
@@ -156,13 +164,15 @@ define( function ( require ) {
                         } else {
                             onerror();
                         }
-                    }
+                    },
+                    error: error
                 });
             },
 
             _storeJSON = function( options ) {
                 var json = options.json,
-                    resultConsumer = options && options.consumer;
+                    resultConsumer = options && options.consumer,
+                    error = options && options.error;
 
                 _injectObjectStore( {
                     mode: DB_READ_WRITE,
@@ -185,7 +195,8 @@ define( function ( require ) {
                         } else {
                             onerror();
                         }
-                    }
+                    },
+                    error: error
                 });
             };
 
