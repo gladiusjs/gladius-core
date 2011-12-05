@@ -204,7 +204,7 @@ define( function ( require ) {
                 }
             };
 
-            engine.sceneAdded( this );
+            engine.spaceAdded( this );
 
         };
 

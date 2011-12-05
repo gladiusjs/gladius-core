@@ -13,7 +13,7 @@ define( function ( require ) {
         Graphics = require( './graphics/service' ),
     
     // Core
-        Scene = require( './core/scene' ),
+        Space = require( './core/space' ),
         Component = require( './core/component' ),
         Entity = require( './core/entity' ),
         Transform = require( './core/component/transform' ),
@@ -77,10 +77,10 @@ define( function ( require ) {
             }
         });
 
-        var _sceneAdded = new Delegate();
-        Object.defineProperty( this, 'sceneAdded', {
+        var _spaceAdded = new Delegate();
+        Object.defineProperty( this, 'spaceAdded', {
             get: function() {
-                return _sceneAdded;
+                return _spaceAdded;
             }
         });        
 
@@ -97,7 +97,7 @@ define( function ( require ) {
                     Entity: Entity( this ),
                     Component: Component,
                     Resource: null,
-                    Scene: Scene( this ),
+                    Space: Space( this ),
                     component: {
                         Transform: Transform( this )
                     },
