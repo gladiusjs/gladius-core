@@ -4,7 +4,7 @@
 
 define( function ( require ) {
 
-    var Event = require( './event' );
+    var Delegate = require( './delegate' );
 
     var Component = function( options ) {
         
@@ -37,9 +37,9 @@ define( function ( require ) {
             }
         });
 
-        // Events
+        // Delegates
 
-        var _ownerChanged = new Event();
+        var _ownerChanged = new Delegate();
         Object.defineProperty( this, 'ownerChanged', {
             get: function() {
                 return _ownerChanged;

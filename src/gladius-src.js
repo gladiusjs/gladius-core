@@ -6,7 +6,7 @@ define( function ( require ) {
         _Math = require( 'math/math-require' ),
         ThreadPool = require( './core/threading/pool' ),
         Scheduler = require( './core/scheduler' ),
-        Event = require( './core/event' ),
+        Delegate = require( './core/delegate' ),
         Timer = require( './core/timer' ),
 
     // Services
@@ -77,7 +77,7 @@ define( function ( require ) {
             }
         });
 
-        var _sceneAdded = new Event();
+        var _sceneAdded = new Delegate();
         Object.defineProperty( this, 'sceneAdded', {
             get: function() {
                 return _sceneAdded;
@@ -92,7 +92,7 @@ define( function ( require ) {
             // Expose engine objects, partially
             // applying items needed for their constructors.
             lang.extend(this, {
-                Event: Event,
+                Delegate: Delegate,
                 core: {
                     Entity: Entity( this ),
                     Component: Component,

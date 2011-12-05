@@ -8,7 +8,7 @@ define( function ( require ) {
         
         var math = engine.math;
         var Component = require( '../component' );
-        var Event = require( '../event' );
+        var Delegate = require( '../delegate' );
 
         var thisType = 'Transform';
 
@@ -93,7 +93,7 @@ define( function ( require ) {
                 }
             });
 
-            // Event handlers
+            // Delegate handlers
 
             var handleOwnerChanged = function( options ) {
                 if( options.previous ) {
@@ -152,9 +152,9 @@ define( function ( require ) {
                 _recompile = true;
             };
             
-            // Events
+            // Delegates
 
-            var _transformChanged = new Event();
+            var _transformChanged = new Delegate();
             Object.defineProperty( this, 'transformChanged', {
                 get: function() {
                     return _transformChanged;

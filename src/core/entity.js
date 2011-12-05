@@ -4,7 +4,7 @@
 
 define( function ( require ) {
 
-    var Event = require( './event' );
+    var Delegate = require( './delegate' );
 
     /* Entity
      *
@@ -118,9 +118,9 @@ define( function ( require ) {
                 return _components.hasOwnProperty( type );
             };
 
-            // Events
+            // Delegates
 
-            var _parentChanged = new Event();
+            var _parentChanged = new Delegate();
             Object.defineProperty( this, 'parentChanged', {
                 get: function() {
                     return _parentChanged;
@@ -132,7 +132,7 @@ define( function ( require ) {
                 }
             };
             
-            var _managerChanged = new Event();
+            var _managerChanged = new Delegate();
             Object.defineProperty( this, 'managerChanged', {
                 get: function() {
                     return _managerChanged;
@@ -144,7 +144,7 @@ define( function ( require ) {
                 }
             };
 
-            var _childAdded = new Event();
+            var _childAdded = new Delegate();
             Object.defineProperty( this, 'childAdded', {
                 get: function() {
                     return _childAdded;
@@ -156,7 +156,7 @@ define( function ( require ) {
                 }
             };
 
-            var _childRemoved = new Event();
+            var _childRemoved = new Delegate();
             Object.defineProperty( this, 'childRemoved', {
                 get: function() {
                     return _childRemoved;
@@ -168,7 +168,7 @@ define( function ( require ) {
                 }
             };
 
-            var _componentAdded = new Event();
+            var _componentAdded = new Delegate();
             Object.defineProperty( this, 'componentAdded', {
                 get: function() {
                     return _componentAdded;
@@ -180,7 +180,7 @@ define( function ( require ) {
                 }
             };
 
-            var _componentRemoved = new Event();
+            var _componentRemoved = new Delegate();
             Object.defineProperty( this, 'componentRemoved', {
                 get: function() {
                     return _componentRemoved;
@@ -192,7 +192,7 @@ define( function ( require ) {
                 }
             };
 
-            // Event handlers
+            // Delegate handlers
 
             var handleChildAdded = function( child ) {
                 _children[child.id] = child;

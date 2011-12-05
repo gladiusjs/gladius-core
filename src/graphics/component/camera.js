@@ -8,7 +8,7 @@ define( function ( require ) {
         
         var math = engine.math;
         var Component = require( '../../core/component' );
-        var Event = require( '../../core/event' );
+        var Delegate = require( '../../core/delegate' );
 
         var Camera = function( options ) {
 
