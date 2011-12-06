@@ -53,7 +53,7 @@ define( function ( require ) {
                         });
 
                         if( _parent ) {
-                            parent.childAdded( this );
+                            _parent.childAdded( this );
                         }
                     }
                 }
