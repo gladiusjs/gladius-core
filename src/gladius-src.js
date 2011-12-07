@@ -66,7 +66,7 @@ define( function ( require ) {
         var _time = {
             real: new _scheduler.Timer(),
             simulation: new _scheduler.Timer()
-        }
+        };
 
         var _threadPool = new ThreadPool({
             size: 2
@@ -126,7 +126,7 @@ define( function ( require ) {
             this.assert = function( condition, message ) {
                 if( !condition )
                     throw 'Assertion failed: ' + message;
-            }
+            };
 
             // Create music Speaker singleton
             // this.sound.music = new this.component.Speaker();
