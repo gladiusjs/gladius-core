@@ -23,7 +23,7 @@ define( function ( require ) {
                 return _depends;
             }
         });
-
+/*
         var _owner = null;
         Object.defineProperty( this, 'owner', {
             get: function() {
@@ -50,7 +50,7 @@ define( function ( require ) {
                 _ownerChanged( options );
             }
         };
-
+*/
     };
 
     return Component;

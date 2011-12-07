@@ -14,16 +14,41 @@ define( function ( require ) {
 
         var Transform = function( options ) {
 
-            option = options || {};
+            options = options || {};
             var that = this;
+            
+            var _owner = null;
+            Object.defineProperty( this, 'owner', {
+                get: function() {
+                    return _owner;
+                },
+                set: function( value ) {
+                    if( value != _owner ) {
+                        _owner = value;
+                        onOwnerChanged( value );
+                    }
+                }
+            });
+            
+            var _ownerChanged = new Delegate();
+            Object.defineProperty( this, 'ownerChanged', {
+                get: function() {
+                    return _ownerChanged;
+                }
+            });
+            var onOwnerChanged = function( options ) {
+                if( _ownerChanged ) {
+                    _ownerChanged( options );
+                }
+            };
 
-            var _position = math.vector3.zero;        
-            var _rotation = math.vector3.zero;
-            var _scale = math.vector3.one;
+            var _position = options.position || math.vector3.zero;
+            var _rotation = options.rotation || math.vector3.zero;
+            var _scale = options.scale || math.vector3.one;
             var _absolute = null;
             var _relative = null;
 
-            var _cache = math.Matrix4();
+            var _cache = math.matrix4.identity;
             var _cached = false;    // True if the cached version of our fixed transform is valid, false otherwise
             var _recompile = true;  // True if we need to recompile the absolute transform, false otherwise
 
@@ -31,7 +56,7 @@ define( function ( require ) {
                 if( _cached ) {
                     return _cache;
                 } else {
-                    math.transform.fixed( _position, _rotation, _scale, _cache );
+                    _cache = math.transform.fixed( _position, _rotation, _scale);   // TD: this should compute the result into the buffer instead of returning a new matrix
                     _cached = true;
                     return _cache;
                 }
