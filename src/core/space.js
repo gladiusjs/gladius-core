@@ -14,7 +14,7 @@ define( function ( require ) {
 
     return function( engine ) {
 
-        var Scene = function( options ) {
+        var Space = function( options ) {
 
             var that = this;
             options = options || {};
@@ -208,7 +208,7 @@ define( function ( require ) {
 
         };
 
-        return Scene;
+        return Space;
 
     };
 
