@@ -8,6 +8,7 @@ define( function ( require ) {
 
         var _id = window.guid();
         var _subscribers = {};
+        var _size = 0;
 
         // Bind the handler to an id, if it doesn't already have one
         var prepareHandler = function( handler ) {
@@ -36,6 +37,7 @@ define( function ( require ) {
             handler = prepareHandler( handler );
             if( !_subscribers[handler.__id] ) {
                 _subscribers[handler.__id] = handler;
+                ++ _size;
             }
         };
         Object.defineProperty( dispatch, 'subscribe', {
@@ -50,6 +52,7 @@ define( function ( require ) {
             if( handler.hasOwnProperty( '__id' ) &&
                     _subscribers[handler.__id] ) {
                 delete _subscribers[handler.__id];
+                -- _size;
             }
         };
         Object.defineProperty( dispatch, 'unsubscribe', {
@@ -58,7 +61,13 @@ define( function ( require ) {
             },
             enumerable: false
         });
-
+        
+        Object.defineProperty( dispatch, 'size', {
+        	get: function() {
+        		return _size;
+        	}
+        });
+        
         return dispatch;
 
     };

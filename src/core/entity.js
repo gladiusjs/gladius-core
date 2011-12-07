@@ -105,7 +105,7 @@ define( function ( require ) {
                 return previousComponent || null;
             };
 
-            // Find the first occurence of a component with a given type and return it, or null.
+            // Find the first occurrence of a component with a given type and return it, or null.
             this.find = function( type ) {
                 if( !_components.hasOwnProperty( type ) )
                     return null;
@@ -116,6 +116,31 @@ define( function ( require ) {
             // Return true if this entity has a component with a given type, or false.
             this.contains = function( type ) {
                 return _components.hasOwnProperty( type );
+            };
+            
+            var _handlers = {};	// Keeps track of events that this entity will handle
+            
+            // Returns true if this entity handles events of type, false otherwise
+            this.handles = function( type ) {
+            	return _handlers.hasOwnProperty( type );
+            };
+            
+            // Register an event handler for an event type
+            this.registerHandler = function( type, handler ) {
+            	if( !_handlers.hasOwnProperty( type ) ) {
+            		_handlers[type] = new Delegate();
+            	}
+            	_handlers[type].subscribe( handler );
+            };
+            
+            // Unregister an event handler for an event type
+            this.unregisterHandler = function( type, handler ) {
+            	if( _handlers.hasOwnProperty( type ) ) {
+            		_handlers[type].unsubscribe( handler );
+            		if( _handlers.size === 0 ) {
+            			delete _handlers[type];
+            		}
+            	}
             };
 
             // Delegates
@@ -190,6 +215,10 @@ define( function ( require ) {
                 if( _componentRemoved ) {
                     _componentRemoved( component );
                 }
+            };
+            
+            var onEvent = function( event ) {
+            
             };
 
             // Delegate handlers
