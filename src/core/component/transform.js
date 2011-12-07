@@ -102,8 +102,8 @@ define( function ( require ) {
                 get: function() {
                     if( _recompile ) {
                         if( this.owner.parent && this.owner.parent.contains( thisType ) ) {
-                            var parentTransform = this.owner.parent.find( thisType );
-                            math.matrix4.multiply( parentTransform.absolute, matrix(), _absolute );
+                            var parentTransform = this.owner.parent.find( thisType );                            
+                            _absolute = math.matrix4.multiply( parentTransform.absolute, matrix() );
                         } else {
                             _absolute = matrix();
                         }
