@@ -55,7 +55,8 @@ define( function ( require ) {
 
         };
         Model.prototype = new Component({
-            type: thisType
+            type: thisType,
+            depends: ['Transform']
         });
         Model.prototype.constructor = Model;
         

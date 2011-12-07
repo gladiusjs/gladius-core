@@ -40,7 +40,7 @@
         );
         same(
                 testComponent.depends,
-                {},
+                [],
                 'TestComponent depends is correct.'
         );
         ok(

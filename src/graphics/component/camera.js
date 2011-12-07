@@ -63,7 +63,8 @@ define( function ( require ) {
 
         };
         Camera.prototype = new Component({
-            type: 'Camera'
+            type: 'Camera',
+            depends: ['Transform']
         });
         Camera.prototype.constructor = Camera;
         
