@@ -4,8 +4,11 @@ var printd = function( div, str ) {
 
 var game = function( engine ) {
     var math = engine.math;
+    
+    // Make a new space for our entities
     var space = new engine.core.Space();
-
+    
+    // Make some entities and arrange them
     var cubes = [];
 
     cubes.push( new space.Entity({
