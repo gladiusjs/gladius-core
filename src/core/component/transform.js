@@ -7,7 +7,7 @@ define( function ( require ) {
 	return function( engine ) {
 
 		var math = engine.math;
-		var Component = require( '../component2' );
+		var Component = require( '../component' );
 		var Delegate = require( '../delegate' );
 
 		return Component({
@@ -168,7 +168,7 @@ define( function ( require ) {
 
 			// Bind events
 
-			this.ownerChanged.bind( handleOwnerChanged );
+			this.ownerChanged.subscribe( handleOwnerChanged );
 
 		});
 

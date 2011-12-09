@@ -217,12 +217,6 @@ define( function ( require ) {
                 }
             };
             
-            this.onEvent = function( event ) {
-            	if( _handlers.hasOwnProperty( event.type ) ) {
-            		_handlers[event.type]( event );
-            	}
-            };
-
             // Delegate handlers
 
             var handleChildAdded = function( child ) {
@@ -234,6 +228,18 @@ define( function ( require ) {
                 delete _children[child.id];
             };
             _childRemoved.subscribe( handleChildRemoved );
+            
+            var _handleEvent = function( event ) {
+            	if( _handlers.hasOwnProperty( event.type ) ) {
+            		console.log( 'handling ' + event.type );
+            		_handlers[event.type]( event );
+            	}
+            };
+            Object.defineProperty( this, 'handleEvent', {
+            	get: function() {
+            		return _handleEvent;
+            	}
+            });
 
         };
 

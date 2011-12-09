@@ -42,8 +42,12 @@ define( function ( require ) {
         		},
         		set: function( value ) {
         			if( value != _owner ) {
+        				var previous = _owner;
         				_owner = value;
-        				onOwnerChanged( value );
+        				onOwnerChanged({
+        					current: value, 
+        					previous: previous
+        				});
         			}
         		}
         	});
