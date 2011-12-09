@@ -133,15 +133,7 @@ define( function ( require ) {
             }
             
             lang.extend( this, subs );
-
-            // Hmm, graphics is also on this, instead of always
-            // referenced on service? sound too?
-            // this.graphics = subs.graphics;
-            // this.behavior = subs.behavior;
-            // this.physics = subs.physics;
-            // this.sound = subs.sound;
-
-           
+         
             // run user-specified setup function
             if ( this.options.setup ) {
                 this.options.setup( this );
