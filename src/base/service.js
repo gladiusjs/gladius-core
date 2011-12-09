@@ -28,16 +28,18 @@ define( function ( require ) {
 
 			var _schedule = options.schedule || {};
 			lang.extend( _schedule, {
-				phase: 'UPDATE',
-				before: [],
-				after: []
+				update: {
+					phase: 'UPDATE',
+					before: [],
+					after: []
+				}
 			});
 			Object.defineProperty( this, 'schedule', {
 				get: function() {
 					return _schedule;
 				}
 			});
-			
+
 			var _time = options.time || engine.scheduler.simulationTime;
 			Object.defineProperty( this, 'time', {
 				get: function() {
@@ -56,14 +58,19 @@ define( function ( require ) {
 				options = options || {};
 
 				c.call( this, options );
-				
-				var _task = new engine.scheduler.Task({
-					priority: this.schedule.phase,		// TD: pass the entire schedule in rather than just the phase
-					callback: this.update
-				});
-				Object.defineProperty( this, 'task', {
+
+				var callbackNames = Object.keys( this.schedule );
+				var _tasks = {};
+				for( var i = 0, l = callbackNames.length; i < l; ++ i ) {
+					var name = callbackNames[i];
+					_tasks[callbackNames[i]] = new engine.scheduler.Task({
+						priority: this.schedule[name].phase,		// TD: pass the entire schedule in rather than just the phase
+						callback: this[name]
+					});
+				};
+				Object.defineProperty( this, 'tasks', {
 					get: function() {
-						return _task;
+						return _tasks;
 					}
 				});
 

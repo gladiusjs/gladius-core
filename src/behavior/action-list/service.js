@@ -5,23 +5,25 @@
 define( function ( require ) {
 
 	return function( engine ) {
-		
+
 		var ActionListService = engine.base.Service({
 			type: 'behavior',
 			schedule: {
-				phase: 'UPDATE',
-				before: ['animation'],
-				after: ['physics']
+				update: {
+					phase: 'UPDATE',
+					before: ['animation'],
+					after: ['physics']
+				}
 			},
 			time: engine.scheduler.simulationTime
 		},
 		function( options ) {
-			
+
 			var that = this;
 
 			this.update = function() {
 			};
-			
+
 		});
 
 		return ActionListService;
