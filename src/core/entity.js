@@ -217,8 +217,10 @@ define( function ( require ) {
                 }
             };
             
-            var onEvent = function( event ) {
-            
+            this.onEvent = function( event ) {
+            	if( _handlers.hasOwnProperty( event.type ) ) {
+            		_handlers[event.type]( event );
+            	}
             };
 
             // Delegate handlers

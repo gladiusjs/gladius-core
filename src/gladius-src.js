@@ -8,6 +8,7 @@ define( function ( require ) {
         Scheduler = require( './core/scheduler' ),
         Delegate = require( './core/delegate' ),
         Timer = require( './core/timer' ),
+        Event = require( './core/event' ),
 
     // Services
         Graphics = require( './graphics/service' ),
@@ -98,6 +99,7 @@ define( function ( require ) {
                     Component: Component,
                     Resource: null,
                     Space: Space( this ),
+                    Event: Event,
                     component: {
                         Transform: Transform( this )
                     },
