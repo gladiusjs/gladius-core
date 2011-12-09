@@ -27,6 +27,9 @@ var game = function( engine ) {
 
     cubes[1].parent = cubes[0];
     
+    console.log( cubes[0].id, cubes[0].find( 'Transform' ).owner.id );
+    console.log( cubes[1].id, cubes[1].find( 'Transform' ).owner.id );
+     
     // Start the engine!
     engine.run();
 };

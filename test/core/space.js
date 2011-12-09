@@ -16,26 +16,26 @@
 
             gladius.create( { debug: true }, function( instance ) {       
                 engine = instance;
+                
+                TestComponent1 = engine.core.Component({
+                	type: 'Apple'               
+                },
+                function( options ) {                	
+                });
 
-                TestComponent1 = function( options ) {
-                };
-                TestComponent1.prototype = new engine.core.Component({
-                    type: 'Apple'
+                TestComponent2 = engine.core.Component({
+                	type: 'Apple'               
+                },
+                function( options ) {                	
                 });
-                TestComponent1.prototype.constructor = TestComponent1;
-                TestComponent2 = function( options ) {
-                };
-                TestComponent2.prototype = new engine.core.Component({
-                    type: 'Apple'
-                });
-                TestComponent2.prototype.constructor = TestComponent2;
-                TestComponent3 = function( options ) {
-                };
-                TestComponent3.prototype = new engine.core.Component({
-                    type: 'Orange'
-                });
-                TestComponent3.prototype.constructor = TestComponent3;
 
+                TestComponent3 = engine.core.Component({
+                	type: 'Orange'               
+                },
+                function( options ) {                	
+                });
+
+                
                 start();
             });
         },
