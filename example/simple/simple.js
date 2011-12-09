@@ -34,7 +34,6 @@ var game = function( engine ) {
 		};
 
 		var handleOwnerChanged = function( options ) {    		
-			console.log( options.previous ? options.previous.id : '?', options.current ? options.current.id : '?' );
 			if( options.previous ) {
 				options.previous.unregisterHandler( 'DAMAGE', handleDamage );
 			}

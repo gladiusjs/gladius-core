@@ -23,7 +23,6 @@ define( function ( require ) {
         // Send this event to each entity in targets
         this.send = function( targets ) {
         	for( var i = 0, l = targets.length; i < l; ++ i ) {
-        		console.log( 'sending to ' + targets[i].id );
         		targets[i].handleEvent( that );
         	}
         };
