@@ -68,7 +68,7 @@ define( function ( require ) {
                 _priority = enums.priority.UPDATE;
             } else {
                 if( !enums.priority.hasOwnProperty( options.priority ) ) {
-                    throw 'invalid priority';
+                    throw 'invalid priority: ' + options.priority;
                 } else {
                     _priority = enums.priority[options.priority];
                 }

@@ -4,22 +4,22 @@
 
 define( function ( require ) {
 
-	var Service = require( 'base/service' );
-
 	return function( engine ) {
-
-		var ActionListService = Service({
-			type: 'Behavior',
-			priority: {
-				phase: 'Update',
-				before: ['Animation'],
-				after: ['Physics']
-			}
+		
+		var ActionListService = engine.base.Service({
+			type: 'behavior',
+			schedule: {
+				phase: 'UPDATE',
+				before: ['animation'],
+				after: ['physics']
+			},
+			time: engine.scheduler.simulationTime
 		},
 		function( options ) {
+			
+			var that = this;
 
 			this.update = function() {
-				
 			};
 			
 		});

@@ -9,9 +9,12 @@ define( function ( require ) {
         Delegate = require( './core/delegate' ),
         Timer = require( './core/timer' ),
         Event = require( './core/event' ),
+        Queue = require( 'common/queue' ),
 
     // Services
-        Graphics = require( './graphics/service' ),
+        Service = require( 'base/service' ),
+        // Graphics = require( './graphics/service' ),
+        // ActionLists = require( './behavior/action-list/service' ),
     
     // Core
         Space = require( './core/space' ),
@@ -50,6 +53,11 @@ define( function ( require ) {
                 sIds.push('./' + services[prop]);
             }
         }
+        
+        this.assert = function( condition, message ) {
+            if( !condition )
+                throw 'Assertion failed: ' + message;
+        };
         
         var _math = new _Math();
         Object.defineProperty( this, 'math', {
@@ -94,6 +102,12 @@ define( function ( require ) {
             // applying items needed for their constructors.
             lang.extend(this, {
                 Delegate: Delegate,
+                common: {
+                	Queue: Queue
+                },
+                base: {
+                	Service: Service( this )
+                },
                 core: {
                     Entity: Entity( this ),
                     Component: Component,
@@ -108,38 +122,26 @@ define( function ( require ) {
                     }
                 },
             });
- 
+
             // Create a property on the instance's service object for
             // each service, based on the name given the services options object.
             var subs = this.service = {},
-            i;
+            	i;
             for (i = 0; i < arguments.length; i++) {
-                var s = arguments[i]( this );
+                var s = arguments[i]( this );               
                 subs[ sNames[i] ] = new s();
             }
+            
+            lang.extend( this, subs );
 
             // Hmm, graphics is also on this, instead of always
             // referenced on service? sound too?
-            this.graphics = subs.graphics;
+            // this.graphics = subs.graphics;
+            // this.behavior = subs.behavior;
             // this.physics = subs.physics;
             // this.sound = subs.sound;
 
            
-            this.assert = function( condition, message ) {
-                if( !condition )
-                    throw 'Assertion failed: ' + message;
-            };
-
-            // Create music Speaker singleton
-            // this.sound.music = new this.component.Speaker();
-
-            // Create input handlers
-            // this.keyboardInput = new KeyboardInput( this.messenger, window );
-            if (subs.graphics && subs.graphics.getCanvas) {
-                // this.mouseInput = new MouseInput( this.messenger, subs.graphics.getCanvas() );
-                // this.touchInput = new TouchInput( this.messenger, subs.graphics.getCanvas() );
-            }
-
             // run user-specified setup function
             if ( this.options.setup ) {
                 this.options.setup( this );
