@@ -6,27 +6,32 @@ define( function ( require ) {
 
 	return function( engine ) {
 
-		var ActionList = engine.base.Service({
-			type: 'behavior',
+		var Network = engine.base.Service({
+			type: 'network',
 			schedule: {
-				update: {
-					phase: 'UPDATE',
-					before: ['animation'],
-					after: ['physics']
+				receive: {
+					phase: 'INPUT'
+				},
+				send: {
+					phase: 'RENDER'
 				}
 			},
-			time: engine.scheduler.simulationTime
+			time: engine.scheduler.realTime
 		},
 		function( options ) {
 
 			var that = this;
 
-			this.update = function() {
+			this.receive = function() {
+			};
+			
+			this.send = function() {
+				
 			};
 
 		});
 
-		return ActionList;
+		return Network;
 
 	};
 

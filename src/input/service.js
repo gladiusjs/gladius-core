@@ -6,16 +6,14 @@ define( function ( require ) {
 
 	return function( engine ) {
 
-		var ActionList = engine.base.Service({
-			type: 'behavior',
+		var Input = engine.base.Service({
+			type: 'input',
 			schedule: {
 				update: {
-					phase: 'UPDATE',
-					before: ['animation'],
-					after: ['physics']
+					phase: 'INPUT'
 				}
 			},
-			time: engine.scheduler.simulationTime
+			time: engine.scheduler.realTime
 		},
 		function( options ) {
 
@@ -26,7 +24,7 @@ define( function ( require ) {
 
 		});
 
-		return ActionList;
+		return Input;
 
 	};
 
