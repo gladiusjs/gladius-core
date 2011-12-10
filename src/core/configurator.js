@@ -44,13 +44,13 @@ define( function ( require ) {
             gameId                  = '',
 
             _injectDB = function( options ) {
-                try {
-                    // At the moment, indexedDB.open() fails on locally hosted pages on firefox
-                    // Use python -m SimpleHTTPServer 8000 or make test
-                    var dbConsumer = options && options.consumer,
-                        error = options && options.error,
-                        req = indexedDB.open( dbName );
+                // At the moment, indexedDB.open() fails on locally hosted pages on firefox
+                // Use python -m SimpleHTTPServer 8000 or make test
+                var dbConsumer = options && options.consumer,
+                    error = options && options.error,
+                    req = indexedDB.open( dbName );
 
+                try {
                     req.onsuccess = function( event ) {
                         dbConsumer( req.result );
                     };
