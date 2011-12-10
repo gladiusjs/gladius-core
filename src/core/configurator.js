@@ -44,21 +44,27 @@ define( function ( require ) {
             gameId                  = '',
 
             _injectDB = function( options ) {
-                // At the moment, indexedDB.open() fails on locally hosted pages on firefox
-                // Use python -m SimpleHTTPServer 8000 or make test
-                var dbConsumer = options && options.consumer,
-                    error = options && options.error,
-                    req = indexedDB.open( dbName );
+                try {
+                    // At the moment, indexedDB.open() fails on locally hosted pages on firefox
+                    // Use python -m SimpleHTTPServer 8000 or make test
+                    var dbConsumer = options && options.consumer,
+                        error = options && options.error,
+                        req = indexedDB.open( dbName );
 
-                req.onsuccess = function( event ) {
-                    dbConsumer( req.result );
-                };
+                    req.onsuccess = function( event ) {
+                        dbConsumer( req.result );
+                    };
 
-                req.onerror = function( e ) {
+                    req.onerror = function( e ) {
+                        if ( error ) {
+                            error( 'Gladius/Configurator-_injectDB: db open request failed, error object: ' + e.toString() );
+                        }
+                    };
+                } catch ( e ) {
                     if ( error ) {
-                        error( 'Gladius/Configurator-_injectDB: db open request failed, error object: ' + e.toString() );
+                        error ( e.toString() );
                     }
-                };
+                }
             },
 
             _ensureObjectStore = function( options ) {
@@ -66,49 +72,55 @@ define( function ( require ) {
                     consumer = options && options.consumer,
                     error = options && options.error;
 
-                if ( !db ) {
-                    if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: passed empty db value.' );
-                    return;
-                }
+                try {
+                    if ( !db ) {
+                        if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: passed empty db value.' );
+                        return;
+                    }
 
-                var containsObjectStore = db.objectStoreNames.contains( objectStoreName ),
-                    getErrorFunc = function( msg ) {
-                        return function( e ) {
-                            if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: ' + msg + ', error object: ' + e.toString() );
-                        };
-                    },
-
-                    createObjectStore = function() {
-                        try {
-                            var versionRequest = db.setVersion( dbVersion );
-                            versionRequest.onerror = getErrorFunc( 'upgrade setVersion request triggered onerror handler' );
-                            versionRequest.onsuccess = function( event ) {
-                                db.createObjectStore( objectStoreName );
-
-                                consumer();
+                    var containsObjectStore = db.objectStoreNames.contains( objectStoreName ),
+                        getErrorFunc = function( msg ) {
+                            return function( e ) {
+                                if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: ' + msg + ', error object: ' + e.toString() );
                             };
-                        } catch ( e ) {
-                            getErrorFunc( 'encountered error while attempting to obtain setVersion request' )( e );
-                        }
-                    };
+                        },
 
-                // If we don't have requisite object store, create it
-                if ( containsObjectStore && db.version === dbVersion ) {
-                    consumer();
-                } else {
-                    // Downgrade db version if required
-                    if ( db.version === '' ) {
-                        createObjectStore();
-                    } else {
-                        var versionRequest = db.setVersion( '' );
-                        versionRequest.onerror = getErrorFunc( 'downgrade setVersion request triggered onerror handler' );
-                        versionRequest.onsuccess = function( event ) {
-                            // Delete object store if it's around
-                            if ( containsObjectStore ) {
-                                db.deleteObjectStore( objectStoreName );
+                        createObjectStore = function() {
+                            try {
+                                var versionRequest = db.setVersion( dbVersion );
+                                versionRequest.onerror = getErrorFunc( 'upgrade setVersion request triggered onerror handler' );
+                                versionRequest.onsuccess = function( event ) {
+                                    db.createObjectStore( objectStoreName );
+
+                                    consumer();
+                                };
+                            } catch ( e ) {
+                                getErrorFunc( 'encountered error while attempting to obtain setVersion request' )( e );
                             }
-                            createObjectStore();
                         };
+
+                    // If we don't have requisite object store, create it
+                    if ( containsObjectStore && db.version === dbVersion ) {
+                        consumer();
+                    } else {
+                        // Downgrade db version if required
+                        if ( db.version === '' ) {
+                            createObjectStore();
+                        } else {
+                            var versionRequest = db.setVersion( '' );
+                            versionRequest.onerror = getErrorFunc( 'downgrade setVersion request triggered onerror handler' );
+                            versionRequest.onsuccess = function( event ) {
+                                // Delete object store if it's around
+                                if ( containsObjectStore ) {
+                                    db.deleteObjectStore( objectStoreName );
+                                }
+                                createObjectStore();
+                            };
+                        }
+                    }
+                } catch ( e ) {
+                    if ( error ) {
+                        error( e.toString() );
                     }
                 }
             },
@@ -118,57 +130,69 @@ define( function ( require ) {
                     objectStoreConsumer = options && options.consumer,
                     error = options && options.error;
 
-                _injectDB( {
-                    consumer: function( db ) {
-                        _ensureObjectStore( {
-                            db: db,
-                            consumer: function() {
-                                objectStoreConsumer( db.transaction(
-                                        [objectStoreName],
-                                        mode == DB_READ_ONLY ?  IDBTransaction.READ_ONLY :
-                                                                IDBTransaction.READ_WRITE
-                                    ).objectStore( objectStoreName )
-                                );
-                            },
-                            error: error
-                        });
-                    },
-                    error: error
-                });
+                try {
+                    _injectDB( {
+                        consumer: function( db ) {
+                            _ensureObjectStore( {
+                                db: db,
+                                consumer: function() {
+                                    objectStoreConsumer( db.transaction(
+                                            [objectStoreName],
+                                            mode == DB_READ_ONLY ?  IDBTransaction.READ_ONLY :
+                                                                    IDBTransaction.READ_WRITE
+                                        ).objectStore( objectStoreName )
+                                    );
+                                },
+                                error: error
+                            });
+                        },
+                        error: error
+                    });
+                } catch ( e ) {
+                    if ( error ) {
+                        error( e.toString() );
+                    }
+                }
             },
 
             _getStoredJSON = function( options ) {
                 var jsonConsumer = options && options.consumer,
                     error = options && options.error;
 
-                _injectObjectStore( {
-                    mode: DB_READ_ONLY,
-                    consumer: function( objectStore ) {
-                        var onerror = function( event ) {
-                            jsonConsumer( {} );
-                        };
-
-                        if ( objectStore ) {
-                            // Does objectStore have entry for this gameID?
-                            var req = objectStore.get( rootConf.get( KEY_GAME_ID ) );
-                            req.onsuccess = function( event ) {
-                                // Did we find a value?
-                                var result = req.result;
-                                if ( result ) {
-                                    jsonConsumer( JSON.parse( unescape( result ) ) );
-                                } else {
-                                    onerror();
-                                }
+                try {
+                    _injectObjectStore( {
+                        mode: DB_READ_ONLY,
+                        consumer: function( objectStore ) {
+                            var onerror = function( event ) {
+                                jsonConsumer( {} );
                             };
 
-                            // If not, give out empty json
-                            req.onerror = onerror;
-                        } else {
-                            onerror();
-                        }
-                    },
-                    error: error
-                });
+                            if ( objectStore ) {
+                                // Does objectStore have entry for this gameID?
+                                var req = objectStore.get( rootConf.get( KEY_GAME_ID ) );
+                                req.onsuccess = function( event ) {
+                                    // Did we find a value?
+                                    var result = req.result;
+                                    if ( result ) {
+                                        jsonConsumer( JSON.parse( unescape( result ) ) );
+                                    } else {
+                                        onerror();
+                                    }
+                                };
+
+                                // If not, give out empty json
+                                req.onerror = onerror;
+                            } else {
+                                onerror();
+                            }
+                        },
+                        error: error
+                    });
+                } catch ( e ) {
+                    if ( error ) {
+                        error( e );
+                    }
+                }
             },
 
             _storeJSON = function( options ) {
@@ -176,30 +200,36 @@ define( function ( require ) {
                     resultConsumer = options && options.consumer,
                     error = options && options.error;
 
-                _injectObjectStore( {
-                    mode: DB_READ_WRITE,
-                    consumer: function( objectStore ) {
-                        var onerror = function( event ) {
-                            resultConsumer( false );
-                        };
-
-                        if ( objectStore ) {
-                            var req = objectStore.put(
-                                escape( JSON.stringify( json ) ),
-                                rootConf.get( KEY_GAME_ID )
-                            );
-
-                            req.onsuccess = function( event ) {
-                                resultConsumer( true );
+                try {
+                    _injectObjectStore( {
+                        mode: DB_READ_WRITE,
+                        consumer: function( objectStore ) {
+                            var onerror = function( event ) {
+                                resultConsumer( false );
                             };
 
-                            req.onerror = onerror;
-                        } else {
-                            onerror();
-                        }
-                    },
-                    error: error
-                });
+                            if ( objectStore ) {
+                                var req = objectStore.put(
+                                    escape( JSON.stringify( json ) ),
+                                    rootConf.get( KEY_GAME_ID )
+                                );
+
+                                req.onsuccess = function( event ) {
+                                    resultConsumer( true );
+                                };
+
+                                req.onerror = onerror;
+                            } else {
+                                onerror();
+                            }
+                        },
+                        error: error
+                    });
+                } catch ( e ) {
+                    if ( error ) {
+                        error( e.toString() );
+                    }
+                }
             };
 
         // Get a value based on a given path
