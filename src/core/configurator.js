@@ -190,7 +190,7 @@ define( function ( require ) {
                     });
                 } catch ( e ) {
                     if ( error ) {
-                        error( e );
+                        error( e.toString() );
                     }
                 }
             },
