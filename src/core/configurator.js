@@ -52,8 +52,9 @@ define( function ( require ) {
             _injectDB = function( options ) {
                 // At the moment, indexedDB.open() fails on locally hosted pages on firefox
                 // Use python -m SimpleHTTPServer 8000 or make test
-                var dbConsumer = options && options.consumer,
-                    error = options && options.error,
+                options = options || {};
+                var dbConsumer = options.consumer,
+                    error = options.error,
                     req = indexedDB.open( dbName );
 
                 try {
@@ -68,9 +69,10 @@ define( function ( require ) {
             },
 
             _ensureObjectStore = function( options ) {
-                var db = options && options.db,
-                    consumer = options && options.consumer,
-                    error = options && options.error;
+                options = options || {};
+                var db = options.db,
+                    consumer = options.consumer,
+                    error = options.error;
 
                 try {
                     if ( !db ) {
@@ -118,9 +120,10 @@ define( function ( require ) {
             },
 
             _injectObjectStore = function( options ) {
-                var mode = options && options.mode,
-                    objectStoreConsumer = options && options.consumer,
-                    error = options && options.error;
+                options = options || {};
+                var mode = options.mode,
+                    objectStoreConsumer = options.consumer,
+                    error = options.error;
 
                 try {
                     _injectDB( {
@@ -146,8 +149,9 @@ define( function ( require ) {
             },
 
             _getStoredJSON = function( options ) {
-                var jsonConsumer = options && options.consumer,
-                    error = options && options.error;
+                options = options || {};
+                var jsonConsumer = options.consumer,
+                    error = options.error;
 
                 try {
                     _injectObjectStore( {
@@ -184,9 +188,10 @@ define( function ( require ) {
             },
 
             _storeJSON = function( options ) {
+                options = options || {};
                 var json = options.json,
-                    resultConsumer = options && options.consumer,
-                    error = options && options.error;
+                    resultConsumer = options.consumer,
+                    error = options.error;
 
                 try {
                     _injectObjectStore( {
@@ -328,9 +333,9 @@ define( function ( require ) {
          *              If an error was triggered, this function will be called.
          */
         this.store = function( options ) {
-
-            var callback = options && options.callback,
-                error = options && options.error,
+            options = options || {};
+            var callback = options.callback,
+                error = options.error,
                 targetJSON = {},
                 myJSON = this.getJSON(),
                 parentPath = this.node.getParentPath(),
@@ -403,9 +408,10 @@ define( function ( require ) {
          *              If the db could not be used, clear is not called.
          */
         this.load = function( options ) {
-            var callback = options && options.callback,
-                error = options && options.error,
-                clear = options && options.clear;
+            options = options || {};
+            var callback = options.callback,
+                error = options.error,
+                clear = options.clear;
 
             if ( canUseDB ) {
                 if ( clear ) {
