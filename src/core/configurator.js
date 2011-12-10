@@ -38,7 +38,7 @@ define( function ( require ) {
             canUseDB = true,
 
             // Should dbVersion be picked up from default.js too?
-            dbVersion               = '0.01',
+            dbVersion               = '1',
             dbName                  = '',
             objectStoreName         = '',
             gameId                  = '',
@@ -55,9 +55,11 @@ define( function ( require ) {
                 options = options || {};
                 var dbConsumer = options.consumer,
                     error = options.error,
-                    req = indexedDB.open( dbName );
+                    req = null;
 
                 try {
+                    req = indexedDB.open( dbName, dbVersion );
+
                     req.onsuccess = function( event ) {
                         dbConsumer( req.result );
                     };
