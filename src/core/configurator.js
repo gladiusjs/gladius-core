@@ -55,7 +55,9 @@ define( function ( require ) {
                 };
 
                 req.onerror = function( e ) {
-                    error( 'Gladius/Configurator-_injectDB: db open request failed, error object: ' + e.toString() );
+                    if ( error ) {
+                        error( 'Gladius/Configurator-_injectDB: db open request failed, error object: ' + e.toString() );
+                    }
                 };
             },
 
@@ -349,7 +351,8 @@ define( function ( require ) {
                                 if ( callback ) {
                                     callback( that );
                                 }
-                            }
+                            },
+                            error: error
                         });
                     }
                 });
@@ -420,7 +423,8 @@ define( function ( require ) {
                         if ( callback ) {
                             callback( that );
                         }
-                    }
+                    },
+                    error: error
                 });
             } else {
                 if ( error ) {
