@@ -27,10 +27,17 @@ var game = function( engine ) {
 				};
 			}
 		});
+		
+		var _maxHits = _hits;
+		Object.defineProperty( this, 'maxHits', {
+			get: function() {
+				return _maxHits;
+			}
+		});
 
 		var handleDamage = function( event ) {
 			that.hits = Math.max( _hits - event.hits, 0 );
-			console.log( that.owner.id + ' damaged for ' + event.hits, _hits + ' remaining' );
+			console.log( that.owner.name + ' (id:' + that.owner.id + ') takes ' + event.hits + ' damage; ' + _hits + '/' + _maxHits + ' remaining' );
 		};
 
 		var handleOwnerChanged = function( options ) {    		
