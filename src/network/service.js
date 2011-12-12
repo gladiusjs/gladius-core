@@ -7,7 +7,7 @@ define( function ( require ) {
 	return function( engine ) {
 
 		var Network = engine.base.Service({
-			type: 'network',
+			type: 'Network',
 			schedule: {
 				receive: {
 					phase: 'INPUT'

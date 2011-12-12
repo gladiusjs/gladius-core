@@ -7,7 +7,7 @@ define( function ( require ) {
 	return function( engine ) {
 
 		var Input = engine.base.Service({
-			type: 'input',
+			type: 'Input',
 			schedule: {
 				update: {
 					phase: 'INPUT'
