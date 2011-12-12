@@ -15,7 +15,7 @@ define( function( require ) {
                     });
                 }
 
-        }
+        };
 
         // TD: propagate exceptions back to the main thread
         var assert = function( condition, message ) {

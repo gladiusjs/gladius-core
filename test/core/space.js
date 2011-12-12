@@ -10,32 +10,32 @@
     TestComponent2 = null,
     TestComponent3 = null;
 
-    module( 'core/Scene', {
+    module( 'core/Space', {
         setup: function () {
             stop();
 
             gladius.create( { debug: true }, function( instance ) {       
                 engine = instance;
+                
+                TestComponent1 = engine.core.Component({
+                	type: 'Apple'               
+                },
+                function( options ) {                	
+                });
 
-                TestComponent1 = function( options ) {
-                };
-                TestComponent1.prototype = new engine.core.Component({
-                    type: 'Apple'
+                TestComponent2 = engine.core.Component({
+                	type: 'Apple'               
+                },
+                function( options ) {                	
                 });
-                TestComponent1.prototype.constructor = TestComponent1;
-                TestComponent2 = function( options ) {
-                };
-                TestComponent2.prototype = new engine.core.Component({
-                    type: 'Apple'
-                });
-                TestComponent2.prototype.constructor = TestComponent2;
-                TestComponent3 = function( options ) {
-                };
-                TestComponent3.prototype = new engine.core.Component({
-                    type: 'Orange'
-                });
-                TestComponent3.prototype.constructor = TestComponent3;
 
+                TestComponent3 = engine.core.Component({
+                	type: 'Orange'               
+                },
+                function( options ) {                	
+                });
+
+                
                 start();
             });
         },
@@ -48,38 +48,38 @@
     test( 'Construction', function () {
         expect( 3 );
 
-        var sceneAdded = false;
+        var spaceAdded = false;
 
-        engine.sceneAdded.subscribe( function( newScene ) {
-          sceneAdded = newScene;
+        engine.spaceAdded.subscribe( function( newSpace ) {
+          spaceAdded = newSpace;
         });
 
-        var scene = new engine.core.Scene();
+        var space = new engine.core.Space();
         ok(
-                scene,
-                'New scene is constructed.'
+                space,
+                'New space is constructed.'
         );
         ok(
-                scene.size === 0,
+                space.size === 0,
                 'Initial size is 0.'
         );
         ok(
-                scene == sceneAdded,
-                'New scene delivered through event firing.'
+                space == spaceAdded,
+                'New space delivered through event firing.'
         );
     });
 
     test( 'Entity', function() {
         expect( 5 );
 
-        var scene = new engine.core.Scene();
+        var space = new engine.core.Space();
 
         ok(
-                scene.size === 0,
-                'Initial scene size is 0.'
+                space.size === 0,
+                'Initial space size is 0.'
         );
 
-        var entity = new scene.Entity({ name: 'TestEntity' });
+        var entity = new space.Entity({ name: 'TestEntity' });
 
         ok(
                 entity,
@@ -87,18 +87,18 @@
         );
         equal(
                 entity.manager,
-                scene,
-                'Entity manager is the scene.'
+                space,
+                'Entity manager is the space.'
         );
         ok(
-                scene.size === 1,
+                space.size === 1,
                 'Size after entity creation is 1.'
         );
 
-        scene.remove( entity );
+        space.remove( entity );
 
         ok(
-                scene.size === 0,
+                space.size === 0,
                 'Size afer entity removal is 0.'
         );
     });
@@ -106,8 +106,8 @@
     test( 'Add a component to an entity', function() {
         expect( 9 );
 
-        var scene = new engine.core.Scene();
-        var entity = new scene.Entity();
+        var space = new engine.core.Space();
+        var entity = new space.Entity();
         var component = new TestComponent1();
 
         entity.add( component );
@@ -161,8 +161,8 @@
     test( 'Add multiple components, same type', function() {
         expect( 2 );
 
-        var scene = new engine.core.Scene();
-        var entity = new scene.Entity();
+        var space = new engine.core.Space();
+        var entity = new space.Entity();
 
         // These components are both of type 'Apple'
         var component1 = new TestComponent1();
@@ -186,8 +186,8 @@
     test( 'Add multiple components, different types', function() {
         expect( 7 );
 
-        var scene = new engine.core.Scene();
-        var entity = new scene.Entity();
+        var space = new engine.core.Space();
+        var entity = new space.Entity();
 
         // These components have different types, 'Apple' and 'Orange'
         var component1 = new TestComponent1();

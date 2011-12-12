@@ -4,12 +4,13 @@
 
 define( function ( require ) {
 
-    var Event = require( './event' );
-
-    var Component = function( options ) {
-        
-        option = options || {};
-
+	var lang = require( './lang' );
+    var Delegate = require( './delegate' );
+    
+    var IComponent = function( options ) {
+    	
+    	options = options || {};
+    	
         var _type = options.type || undefined;
         Object.defineProperty( this, 'type', {
             get: function() {
@@ -17,40 +18,62 @@ define( function ( require ) {
             }
         });
 
-        var _depends = options.depends || {};
+        var _depends = options.depends || [];
         Object.defineProperty( this, 'depends', {
             get: function() {
                 return _depends;
             }
         });
+    	
+    };
 
-        var _owner = null;
-        Object.defineProperty( this, 'owner', {
-            get: function() {
-                return _owner;
-            },
-            set: function( value ) {
-                if( value != _owner ) {
-                    _owner = value;
-                    onOwnerChanged( value );
-                }
-            }
-        });
+    var Component = function( options, c ) {
+        
+        option = options || {};
+        
+        var r = function( options ) {
 
-        // Events
+        	options = options || {};
+        	
+        	var _owner = null;
+        	Object.defineProperty( this, 'owner', {
+        		get: function() {
+        			return _owner;
+        		},
+        		set: function( value ) {
+        			if( value != _owner ) {
+        				var previous = _owner;
+        				_owner = value;
+        				onOwnerChanged({
+        					current: value, 
+        					previous: previous
+        				});
+        			}
+        		}
+        	});
 
-        var _ownerChanged = new Event();
-        Object.defineProperty( this, 'ownerChanged', {
-            get: function() {
-                return _ownerChanged;
-            }
-        });
-        var onOwnerChanged = function( options ) {
-            if( _ownerChanged ) {
-                _ownerChanged( options );
-            }
+        	// Delegates
+
+        	var _ownerChanged = new Delegate();
+        	Object.defineProperty( this, 'ownerChanged', {
+        		get: function() {
+        			return _ownerChanged;
+        		}
+        	});
+        	var onOwnerChanged = function( options ) {
+        		if( _ownerChanged ) {
+        			_ownerChanged( options );
+        		}
+        	};
+        	
+        	c.call( this, options );
+        	
         };
-
+        r.prototype = new IComponent( options );
+        r.prototype.constructor = r;
+        
+        return r;
+        
     };
 
     return Component;

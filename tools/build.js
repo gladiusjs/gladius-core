@@ -40,7 +40,6 @@
   include: [
             'gladius',
             'gladius-src',
-            'graphics/service'
            ],
 
   // Wraps the built file in a closure and exports gladius as a global.

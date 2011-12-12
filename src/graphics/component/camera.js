@@ -4,46 +4,69 @@
 
 define( function ( require ) {
 
-    return function( engine ) {        
-        
-        var math = engine.math;
-        var Component = require( '../../core/component' );
-        var Event = require( '../../core/event' );
+	return function( engine ) {        
 
-        var Camera = function( options ) {
+		var math = engine.math;
+		var Component = require( '../../core/component' );
+		var Delegate = require( '../../core/delegate' );
 
-            option = options || {};
-            var _that = this
-                _active = false;
+		return Component({
+			type: 'Camera'
+		},
+		function( options ) {
 
-            var _cvr = {
-                camera: new CubicVR.Camera()
-            };
+			option = options || {};
+			var _that = this;
 
-            Object.defineProperty( this, "_cvr", {
-                get: function() {
-                    return _cvr;
-                }
-            });
+			var _owner = null;
+			Object.defineProperty( this, 'owner', {
+				get: function() {
+					return _owner;
+				},
+				set: function( value ) {
+					if( value != _owner ) {
+						_owner = value;
+						onOwnerChanged( value );
+					}
+				}
+			});
 
-            Object.defineProperty( this, "active", {
-                get: function() {
-                    return _active;
-                },
-                set: function( val ) {
-                    _active = val;
-                }
-            });
+			var _ownerChanged = new Delegate();
+			Object.defineProperty( this, 'ownerChanged', {
+				get: function() {
+					return _ownerChanged;
+				}
+			});
+			var onOwnerChanged = function( options ) {
+				if( _ownerChanged ) {
+					_ownerChanged( options );
+				}
+			};
 
-        };
-        Camera.prototype = new Component({
-            type: 'Camera'
-        });
-        Camera.prototype.constructor = Camera;
-        
-        return Camera;
-        
-    };
+			var _active = false;
+
+			var _cvr = {
+					camera: new CubicVR.Camera()
+			};
+
+			Object.defineProperty( this, "_cvr", {
+				get: function() {
+					return _cvr;
+				}
+			});
+
+			Object.defineProperty( this, "active", {
+				get: function() {
+					return _active;
+				},
+				set: function( val ) {
+					_active = val;
+				}
+			});
+
+		});
+
+	};
 
 });
 
