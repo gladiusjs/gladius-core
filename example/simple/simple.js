@@ -91,7 +91,7 @@ gladius.create(
 		{
 			debug: true,
 			services: {
-				behavior: 'behavior/action-list/service',
+				behavior: 'logic/action-list/service',
 				graphics: 'graphics/service'
 			}
 		},
