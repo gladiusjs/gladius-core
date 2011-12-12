@@ -67,9 +67,9 @@ define( function ( require ) {
                 } //if
             } //for
         }, //extend
-        
+
         isCallable: function( v ) {
-        	return typeof v === 'function';
+            return typeof v === 'function';
         }
     };
 

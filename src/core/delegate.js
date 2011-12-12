@@ -61,13 +61,13 @@ define( function ( require ) {
             },
             enumerable: false
         });
-        
+
         Object.defineProperty( dispatch, 'size', {
-        	get: function() {
-        		return _size;
-        	}
+            get: function() {
+                return _size;
+            }
         });
-        
+
         return dispatch;
 
     };

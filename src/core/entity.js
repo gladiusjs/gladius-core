@@ -12,7 +12,7 @@ define( function ( require ) {
      */
 
     return function( engine ) {
-        
+
         var Entity = function( options ) {               
 
             options = options || {};
@@ -117,30 +117,30 @@ define( function ( require ) {
             this.contains = function( type ) {
                 return _components.hasOwnProperty( type );
             };
-            
+
             var _handlers = {};	// Keeps track of events that this entity will handle
-            
+
             // Returns true if this entity handles events of type, false otherwise
             this.handles = function( type ) {
-            	return _handlers.hasOwnProperty( type );
+                return _handlers.hasOwnProperty( type );
             };
-            
+
             // Register an event handler for an event type
             this.registerHandler = function( type, handler ) {
-            	if( !_handlers.hasOwnProperty( type ) ) {
-            		_handlers[type] = new Delegate();
-            	}
-            	_handlers[type].subscribe( handler );
+                if( !_handlers.hasOwnProperty( type ) ) {
+                    _handlers[type] = new Delegate();
+                }
+                _handlers[type].subscribe( handler );
             };
-            
+
             // Unregister an event handler for an event type
             this.unregisterHandler = function( type, handler ) {
-            	if( _handlers.hasOwnProperty( type ) ) {
-            		_handlers[type].unsubscribe( handler );
-            		if( _handlers.size === 0 ) {
-            			delete _handlers[type];
-            		}
-            	}
+                if( _handlers.hasOwnProperty( type ) ) {
+                    _handlers[type].unsubscribe( handler );
+                    if( _handlers.size === 0 ) {
+                        delete _handlers[type];
+                    }
+                }
             };
 
             // Delegates
@@ -156,7 +156,7 @@ define( function ( require ) {
                     _parentChanged( options );
                 }
             };
-            
+
             var _managerChanged = new Delegate();
             Object.defineProperty( this, 'managerChanged', {
                 get: function() {
@@ -216,7 +216,7 @@ define( function ( require ) {
                     _componentRemoved( component );
                 }
             };
-            
+
             // Delegate handlers
 
             var handleChildAdded = function( child ) {
@@ -228,17 +228,17 @@ define( function ( require ) {
                 delete _children[child.id];
             };
             _childRemoved.subscribe( handleChildRemoved );
-            
+
             var _handleEvent = function( event ) {
-            	if( _handlers.hasOwnProperty( event.type ) ) {
-            		console.log( 'handling ' + event.type );
-            		_handlers[event.type]( event );
-            	}
+                if( _handlers.hasOwnProperty( event.type ) ) {
+                    console.log( 'handling ' + event.type );
+                    _handlers[event.type]( event );
+                }
             };
             Object.defineProperty( this, 'handleEvent', {
-            	get: function() {
-            		return _handleEvent;
-            	}
+                get: function() {
+                    return _handleEvent;
+                }
             });
 
         };
