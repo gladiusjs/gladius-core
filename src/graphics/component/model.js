@@ -4,37 +4,58 @@
 
 define( function ( require ) {
 
-    return function( engine ) {        
-        
-        var math = engine.math;
-        var Component = require( '../../core/component' );
-        var Event = require( '../../core/event' );
+	return function( engine ) {        
 
-        var thisType = 'Model';
+		var math = engine.math;
+		var Component = require( '../../core/component' );
+		var Delegate = require( '../../core/delegate' );
 
-        var Model = function( options ) {
+		return Component({
+			type: 'Model'
+		},
+		function( options ) {
 
-            option = options || {};
+			option = options || {};
 
-            var _that = this,
-                _mesh = options.mesh || null;
-                _material = options.material || null;
+			var _that = this;
 
-            Object.defineProperty( this, "mesh", {
-                enumerable: true,
-                get: function() {
-                    return _mesh;
-                }
-            });
+			var _owner = null;
+			Object.defineProperty( this, 'owner', {
+				get: function() {
+					return _owner;
+				},
+				set: function( value ) {
+					if( value != _owner ) {
+						_owner = value;
+						onOwnerChanged( value );
+					}
+				}
+			});
 
-        };
-        Model.prototype = new Component({
-            type: thisType
-        });
-        Model.prototype.constructor = Model;
-        
-        return Model;
-        
-    };
+			var _ownerChanged = new Delegate();
+			Object.defineProperty( this, 'ownerChanged', {
+				get: function() {
+					return _ownerChanged;
+				}
+			});
+			var onOwnerChanged = function( options ) {
+				if( _ownerChanged ) {
+					_ownerChanged( options );
+				}
+			};
+
+			var _mesh = options.mesh || null;
+			_material = options.material || null;
+
+			Object.defineProperty( this, "mesh", {
+				enumerable: true,
+				get: function() {
+					return _mesh;
+				}
+			});
+
+		});
+
+	};
 
 });

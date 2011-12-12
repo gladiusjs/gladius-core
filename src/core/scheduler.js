@@ -4,7 +4,7 @@
 
 define( function ( require ) {
     
-    var Event = require( './event' );
+    var Delegate = require( './delegate' );
     var Task = require( './task' );
     var Timer = require( './timer' );
     var PriorityQueue = require( '../common/buffered-priority-queue' );
@@ -18,7 +18,7 @@ define( function ( require ) {
             that = this;        
         
         var _previousTime;        
-        var _tick = new Event();    // Time signal, sent each frame
+        var _tick = new Delegate();    // Time signal, sent each frame
         
         this.Timer = Timer({ tick: _tick });        
         this.Task = Task({ manager: this });

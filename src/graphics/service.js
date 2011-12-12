@@ -39,7 +39,7 @@ define( function ( require ) {
                 _renderedFrames = 0,
                 _this = this;
 
-            engine.sceneAdded.subscribe( function( scene ) {
+            engine.spaceAdded.subscribe( function( scene ) {
                 _scenes.push( scene );
             });
 

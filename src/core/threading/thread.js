@@ -4,7 +4,7 @@
 
 define( function( require ) {
 
-    var Thread = function __thread( id ) {
+    var thread = function __thread( id ) {
 
         var console = {
 
@@ -15,7 +15,7 @@ define( function( require ) {
                     });
                 }
 
-        }
+        };
 
         // TD: propagate exceptions back to the main thread
         var assert = function( condition, message ) {
@@ -61,17 +61,17 @@ define( function( require ) {
             });
             send( '__ready' );
         };
-        expose( handle_dispatch );
+        expose( handle_dispatch, '__dispatch' );
 
         var handle_run = function __run( message ) {
             _id = message.id;
         };
-        expose( handle_run );
+        expose( handle_run, '__run' );
 
         send( '__ready' );
 
     };
 
-    return Thread;
+    return thread;
 
 });

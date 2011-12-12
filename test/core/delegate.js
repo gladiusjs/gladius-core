@@ -7,7 +7,7 @@
 
     var engine = null;
 
-    module( 'core/Event', {
+    module( 'core/Delegate', {
         setup: function () {
             stop();
 
@@ -25,7 +25,7 @@
     test( 'Bound handlers are called with data', function () {
         expect( 1 );
 
-        var event = new engine.Event();
+        var event = new engine.Delegate();
         var data = {
                 value: 'Hello world!'
             }
@@ -43,7 +43,7 @@
     test( 'Multiple bound handlers are called', function() {
         expect( 3 );
 
-        var event = new engine.Event();
+        var event = new engine.Delegate();
         var handler1 = function( options ) {
             ok(
                 true,

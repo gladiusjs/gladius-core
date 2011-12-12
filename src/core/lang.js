@@ -66,7 +66,11 @@ define( function ( require ) {
                     object[prop] = extra[prop];
                 } //if
             } //for
-        } //extend
+        }, //extend
+
+        isCallable: function( v ) {
+            return typeof v === 'function';
+        }
     };
 
 });
