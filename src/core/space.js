@@ -4,7 +4,7 @@
 
 define( function ( require ) {
 
-    var Event = require( './event' );
+    var Delegate = require( './delegate' );
 
     /* Scene
      *
@@ -14,7 +14,7 @@ define( function ( require ) {
 
     return function( engine ) {
 
-        var Scene = function( options ) {
+        var Space = function( options ) {
 
             var that = this;
             options = options || {};
@@ -179,8 +179,8 @@ define( function ( require ) {
                 return null;
             };
 
-            // Events
-            var _entityAdded = new Event();
+            // Delegates
+            var _entityAdded = new Delegate();
             Object.defineProperty( this, 'entityAdded', {
                 get: function() {
                     return _entityAdded;
@@ -192,7 +192,7 @@ define( function ( require ) {
                 }
             };
 
-            var _entityRemoved = new Event();
+            var _entityRemoved = new Delegate();
             Object.defineProperty( this, 'entityRemoved', {
                 get: function() {
                     return _entityRemoved;
@@ -204,11 +204,11 @@ define( function ( require ) {
                 }
             };
 
-            engine.sceneAdded( this );
+            engine.spaceAdded( this );
 
         };
 
-        return Scene;
+        return Space;
 
     };
 
