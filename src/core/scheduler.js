@@ -8,6 +8,7 @@ define( function ( require ) {
     var Task = require( './task' );
     var Timer = require( './timer' );
     var PriorityQueue = require( '../common/buffered-priority-queue' );
+    var phases = require( 'core/scheduler-phases' );
    
     var Scheduler = function( options ) {
         
@@ -22,6 +23,12 @@ define( function ( require ) {
         
         this.Timer = Timer({ tick: _tick });        
         this.Task = Task({ manager: this });
+        
+        Object.defineProperty( this, 'phases', {
+           get: function() {
+               return phases;
+           } 
+        });
 
         var _realTime = new this.Timer();
         Object.defineProperty( this, 'realTime', {
@@ -99,7 +106,7 @@ define( function ( require ) {
                     task.callback();
                     if( task.active ) {
                         task.scheduled = true;
-                        _queue.enqueue( task, task.priority );
+                        _queue.enqueue( task, task.schedule.phase );
                     }
                 }
             }
@@ -108,7 +115,7 @@ define( function ( require ) {
         this.add = function( task ) { 
             if( !task.scheduled ) {
                 task.scheduled = true;                
-                _queue.enqueue( task, task.priority );                
+                _queue.enqueue( task, task.schedule.phase );                
             }
         };
         

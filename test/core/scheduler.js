@@ -45,6 +45,9 @@
         var counter = 0;               
 
         var task = new engine.scheduler.Task({
+            schedule: {
+                phase: engine.scheduler.phases.UPDATE
+            },
             callback: function() {
                 ok(
                     task.active,

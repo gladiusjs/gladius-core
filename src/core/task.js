@@ -4,7 +4,8 @@
 
 define( function ( require ) {
     
-    var lang = require( './lang' );
+    var lang = require( './lang' ),
+        defaultSchedules = require( 'base/default-schedules' );
          
     return function( options ) {
         
@@ -19,14 +20,8 @@ define( function ( require ) {
                 state: {
                     COMPLETE: 0,
                     CONTINUE: 1                    
-                },
-                priority: {
-                    INPUT: 0,
-                    UPDATE: 1,
-                    RENDER: 2
                 }
-            };
-            
+            };            
             lang.extend( this, enums.state );
             
             var _manager = options.manager || _defaultManager || null;
@@ -62,23 +57,17 @@ define( function ( require ) {
                     _active = value;
                 }
             });
-
-            var _priority;
-            if( !options.hasOwnProperty( 'priority' ) ) {
-                _priority = enums.priority.UPDATE;
-            } else {
-                if( !enums.priority.hasOwnProperty( options.priority ) ) {
-                    throw 'invalid priority: ' + options.priority;
-                } else {
-                    _priority = enums.priority[options.priority];
-                }
+            
+            var _schedule = options.schedule;
+            if( !_schedule ) {
+                throw 'undefined schedule';
             }
-            Object.defineProperty( this, 'priority', {
+            Object.defineProperty( this, 'schedule', {
                 get: function() {
-                    return _priority;
+                    return _schedule;
                 }
             });
-            
+          
             var _scheduled = false;
             Object.defineProperty( this, 'scheduled', {
                 get: function() {
