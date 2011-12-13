@@ -43,12 +43,6 @@ define( function ( require ) {
             objectStoreName         = '',
             gameId                  = '',
 
-            _getErrorFunc = function( error, funcName, msg ) {
-                return function( e ) {
-                    if ( error ) error( 'Gladius/Configurator-' + funcName + ': ' + msg + ( e ? ', error object: ' + e.toString() : '' ) );
-                };
-            },
-
             _injectDB = function( options ) {
                 options = options || {};
                 var dbConsumer = options.consumer,
@@ -62,9 +56,11 @@ define( function ( require ) {
                         dbConsumer( req.result );
                     };
 
-                    req.onerror = _getErrorFunc( error, '_injectDB', 'db open request triggered onerror handler' );
+                    req.onerror = function( event ) {
+                        if ( error ) error( 'Gladius/Configurator-_injectDB: db open request triggered onerror handler, error object: ' + event.toString() );
+                    };
                 } catch ( e ) {
-                    _getErrorFunc( error, '_injectDB', 'db open request produced exception' )( e );
+                    if ( error ) error( 'Gladius/Configurator-_injectDB: db open request produced exception, error object: ' + e.toString() );
                 }
             },
 
@@ -76,7 +72,7 @@ define( function ( require ) {
 
                 try {
                     if ( !db ) {
-                        _getErrorFunc( error, '_ensureObjectStore', 'passed empty db value' )();
+                        if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: passed empty db value' );
                         return;
                     }
 
@@ -84,14 +80,16 @@ define( function ( require ) {
                         createObjectStore = function() {
                             try {
                                 var versionRequest = db.setVersion( dbVersion );
-                                versionRequest.onerror = _getErrorFunc( error, '_ensureObjectStore', 'upgrade setVersion request triggered onerror handler' );
+                                versionRequest.onerror = function( event ) {
+                                    if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: upgrade setVersion request triggered onerror handler, error object: ' + event.toString() );
+                                };
                                 versionRequest.onsuccess = function( event ) {
                                     db.createObjectStore( objectStoreName );
 
                                     consumer();
                                 };
                             } catch ( e ) {
-                                _getErrorFunc( error, '_ensureObjectStore', 'setVersion request produced exception' )( e );
+                                if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: setVersion request produced exception, error object: ' + e.toString() );
                             }
                         };
 
@@ -104,7 +102,9 @@ define( function ( require ) {
                             createObjectStore();
                         } else {
                             var versionRequest = db.setVersion( '' );
-                            versionRequest.onerror = _getErrorFunc( error, '_ensureObjectStore', 'downgrade setVersion request triggered onerror handler' );
+                            versionRequest.onerror = function( event ) {
+                                if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: downgrade setVersion request triggered onerror handler, error object: ' + event.toString() );
+                            }
                             versionRequest.onsuccess = function( event ) {
                                 // Delete object store if it's around
                                 if ( containsObjectStore ) {
@@ -115,7 +115,7 @@ define( function ( require ) {
                         }
                     }
                 } catch ( e ) {
-                    _getErrorFunc( error, '_ensureObjectStore', 'encountered exception' )( e );
+                    if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: encountered exception, error object: ' + e.toString() );
                 }
             },
 
@@ -144,7 +144,7 @@ define( function ( require ) {
                         error: error
                     });
                 } catch ( e ) {
-                    _getErrorFunc( error, '_injectObjectStore', 'encountered exception' )( e );
+                    if ( error ) error( 'Gladius/Configurator-_injectObjectStore: encountered exception, error object: ' + e.toString() );
                 }
             },
 
@@ -183,7 +183,7 @@ define( function ( require ) {
                         error: error
                     });
                 } catch ( e ) {
-                    _getErrorFunc( error, '_getStoredJSON', 'encountered exception' )( e );
+                    if ( error ) error( 'Gladius/Configurator-_getStoredJSON: encountered exception, error object: ' + e.toString() );
                 }
             },
 
@@ -219,7 +219,7 @@ define( function ( require ) {
                         error: error
                     });
                 } catch ( e ) {
-                    _getErrorFunc( error, '_storeJSON', 'encountered exception' )( e );
+                    if ( error ) error( 'Gladius/Configurator-_storeJSON: encountered exception, error object: ' + e.toString() );
                 }
             };
 
