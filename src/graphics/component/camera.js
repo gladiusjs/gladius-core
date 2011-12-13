@@ -18,31 +18,6 @@ define( function ( require ) {
 			option = options || {};
 			var _that = this;
 
-			var _owner = null;
-			Object.defineProperty( this, 'owner', {
-				get: function() {
-					return _owner;
-				},
-				set: function( value ) {
-					if( value != _owner ) {
-						_owner = value;
-						onOwnerChanged( value );
-					}
-				}
-			});
-
-			var _ownerChanged = new Delegate();
-			Object.defineProperty( this, 'ownerChanged', {
-				get: function() {
-					return _ownerChanged;
-				}
-			});
-			var onOwnerChanged = function( options ) {
-				if( _ownerChanged ) {
-					_ownerChanged( options );
-				}
-			};
-
 			var _active = false;
 
 			var _cvr = {
@@ -63,6 +38,11 @@ define( function ( require ) {
 					_active = val;
 				}
 			});
+
+      var handleOwnerChanged = function( e ) {
+      }; //ownerChangedHandler
+
+      this.ownerChanged.subscribe( handleOwnerChanged );
 
 		});
 
