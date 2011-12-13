@@ -296,8 +296,7 @@ define( function ( require ) {
 
         // Remove listener currently associated with client.
         this.ignore = function() {
-            var curListener = this.node.listeners[this.id];
-            if ( curListener ) {
+            if ( this.node.listeners[this.id] ) {
                 delete this.node.listeners[this.id];
             }
         };
