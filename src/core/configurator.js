@@ -50,8 +50,6 @@ define( function ( require ) {
             },
 
             _injectDB = function( options ) {
-                // At the moment, indexedDB.open() fails on locally hosted pages on firefox
-                // Use python -m SimpleHTTPServer 8000 or make test
                 options = options || {};
                 var dbConsumer = options.consumer,
                     error = options.error,
