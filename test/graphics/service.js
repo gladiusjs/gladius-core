@@ -27,6 +27,7 @@
         }
     });
 
+/*
     test( 'Construction', function() {
         expect( 1 );
         ok( engine.graphics, 'graphics subsystem exists' );
@@ -40,7 +41,7 @@
     });
 
     asyncTest( 'Test render', function() {
-        expect( 1 );
+        expect( 2 );
         var scene = new engine.core.Space(),
             cameraEntity = new scene.Entity(),
             modelEntity = new scene.Entity();
@@ -51,6 +52,8 @@
         if ( gl ) {
             canvas = new CubicVR.getCanvas();
         } //if
+
+        engine.run();
 
         engine.graphics.resource.Mesh({
             script: engine.graphics.script.mesh.cube,
@@ -68,11 +71,52 @@
 
                 engine.graphics.render();
 
-                ok( true );
-                start();
+                ok( true, "Mesh loaded" );
+                setTimeout( function() {
+                  ok( engine.graphics.renderedFrames > 2, "Render task is rendering" );
+                  start();
+                }, 1000);
             }
         });
 
     });
+*/
+    asyncTest( 'Test object', function() {
+        expect( 1 );
+        var scene = new engine.core.Space(),
+            cameraEntity = new scene.Entity(),
+            modelEntity = new scene.Entity();
+
+        // This is very temporary until we have a way to render to multiple things
+        var gl = CubicVR.init( document.getElementById( "test-canvas" ) ),
+            canvas;
+        if ( gl ) {
+            canvas = new CubicVR.getCanvas();
+        } //if
+
+        var cameraComponent = new engine.graphics.component.Camera({
+          active: true
+        });
+        cameraEntity.add( cameraComponent );
+
+        modelEntity.add( new engine.core.component.Transform() );
+
+        var modelComponent = new engine.graphics.component.Model({
+          mesh: {
+            script: engine.graphics.script.mesh.cube
+          },
+          material: {
+            script: engine.graphics.script.material.sample
+          },
+          onComplete: function( instance ) {
+            modelEntity.add( instance );
+            engine.graphics.render();
+            ok( true );
+            start();
+          }
+        });
+
+    });
+
 
 }());

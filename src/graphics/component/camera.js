@@ -15,14 +15,21 @@ define( function ( require ) {
 		},
 		function( options ) {
 
-			option = options || {};
+			options = options || {};
 			var _that = this;
 
-			var _active = false;
+			var _active = options.active !== undefined ? options.active : false;
 
 			var _cvr = {
-					camera: new CubicVR.Camera()
+					camera: new CubicVR.Camera({
+              calcNormalMatrix: true
+          })
 			};
+
+      // This should be moved out of here, since it exists
+      // only to create the camera's normal matrix before a render.
+      // Probably should be fixed upstream in CubicVR.js (identity matrix, maybe).
+      _cvr.camera.lookat(0, 0, 0, 0, 0, 1, 0, 1, 0);
 
 			Object.defineProperty( this, "_cvr", {
 				get: function() {
