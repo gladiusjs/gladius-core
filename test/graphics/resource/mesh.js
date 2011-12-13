@@ -28,7 +28,7 @@
         }
     });
 
-    asyncTest( '?', function () {
+    asyncTest( 'Simple Cube', function () {
         expect( 1 );
 
         engine.graphics.resource.Mesh({
