@@ -79,7 +79,6 @@ define( function ( require ) {
                               
                                 model = models[ mi ].find( 'Model' );
                                 transform = models[ mi ].find( 'Transform' );
-                                console.log( model.mesh._cvr.mesh, camera._cvr.camera, transform.absolute );
                                 CubicVR.renderObject(
                                     model.mesh._cvr.mesh,
                                     camera._cvr.camera,

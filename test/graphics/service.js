@@ -99,7 +99,9 @@
         });
         cameraEntity.add( cameraComponent );
 
-        modelEntity.add( new engine.core.component.Transform() );
+        modelEntity.add( new engine.core.component.Transform({
+            position: [0, 0, -10]
+        }));
 
         var modelComponent = new engine.graphics.component.Model({
           mesh: {
