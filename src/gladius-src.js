@@ -30,7 +30,7 @@ define( function ( require ) {
     // for protections against overwriting an existing gladius in the page,
     // for when gladius is built for deployment.
     global = window.gladius || ( window.gladius = {} );
-
+    
     /***
      * Gladius
      *
