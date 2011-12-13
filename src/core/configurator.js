@@ -99,41 +99,34 @@ define( function ( require ) {
 
                 try {
                     containsObjectStore = db.objectStoreNames.contains( objectStoreName );
-                } catch ( e ) {
-                    if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: exception produced while querying db for object store names, error object: ' + e.toString() );
-                }
 
-                // Don't do anything if we got an exception
-                if ( containsObjectStore !== null ) {
                     if ( containsObjectStore && db.version === dbVersion ) {
                         consumer();
                     } else {
                         if ( db.version === '' ) {
                             createObjectStore_();
                         } else {
-                            try {
-                                var versionRequest = db.setVersion( '' );
+                            var versionRequest = db.setVersion( '' );
 
-                                versionRequest.onerror = function( event ) {
-                                    if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: downgrade setVersion request triggered onerror handler, error object: ' + event.toString() );
-                                };
-                                versionRequest.onsuccess = function( event ) {
-                                    // Delete object store if it's around
-                                    if ( containsObjectStore ) {
-                                        try {
-                                            db.deleteObjectStore( objectStoreName );
-                                        } catch ( e ) {
-                                            if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: exception produced while deleting object store, error object: ' + e.toString() );
-                                            return;
-                                        }
+                            versionRequest.onerror = function( event ) {
+                                if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: downgrade setVersion request triggered onerror handler, error object: ' + event.toString() );
+                            };
+                            versionRequest.onsuccess = function( event ) {
+                                // Delete object store if it's around
+                                if ( containsObjectStore ) {
+                                    try {
+                                        db.deleteObjectStore( objectStoreName );
+                                    } catch ( e ) {
+                                        if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: exception produced while deleting object store, error object: ' + e.toString() );
+                                        return;
                                     }
-                                    createObjectStore_();
-                                };
-                            } catch ( e_ ) {
-                                if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: downgrade setVersion request produced exception, error object: ' + e_.toString() );
-                            }
+                                }
+                                createObjectStore_();
+                            };
                         }
                     }
+                } catch ( e ) {
+                    if ( error ) error( 'Gladius/Configurator-_ensureObjectStore: exception produced while querying and prepping db, error object: ' + e.toString() );
                 }
             },
 
