@@ -32,16 +32,16 @@
         ok( engine.graphics, 'graphics subsystem exists' );
     });
 
-    test( 'Scene awareness', function() {
+    test( 'Space awareness', function() {
         expect( 1 );
-        var scene1 = new engine.core.Scene(),
-            scene2 = new engine.core.Scene();
+        var scene1 = new engine.core.Space(),
+            scene2 = new engine.core.Space();
         equal( engine.graphics.scenes.length, 2, 'subsystem grabbed created scenes' );
     });
 
     asyncTest( 'Test render', function() {
         expect( 1 );
-        var scene = new engine.core.Scene(),
+        var scene = new engine.core.Space(),
             cameraEntity = new scene.Entity(),
             modelEntity = new scene.Entity();
 
