@@ -52,7 +52,7 @@ if( !window.guid ) {
 
 define( function ( require ) {
 
-    return {
+    var extensions = {
         // Simple bind function to maintain "this" for a function.
         bind: function bind( obj, func ) {
             return function() {
@@ -61,16 +61,23 @@ define( function ( require ) {
         },
 
         extend: function extend( object, extra ) {
-            for ( var prop in extra ) {
+            for ( var prop in extra ) {                
                 if ( !object.hasOwnProperty( prop ) && extra.hasOwnProperty( prop ) ) {
                     object[prop] = extra[prop];
                 } //if
             } //for
         }, //extend
+        
+        clone: function clone( object ) {
+            return extensions.extend( {}, object );
+        },
 
         isCallable: function( v ) {
             return typeof v === 'function';
-        }
+        }        
+        
     };
+    
+    return extensions;
 
 });

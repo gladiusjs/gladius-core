@@ -7,17 +7,17 @@ define( function ( require ) {
     var phases = require( 'core/scheduler-phases' );
 
     return {
-        graphics: {
+        Graphics: {
             render: {
                 phase: phases.RENDER
             }
         },
-        input: {
+        Input: {
             update: {
                 phase: phases.INPUT
             }
         },
-        network: {
+        Network: {
             receive: {
                 phase: phases.INPUT
             },
@@ -25,30 +25,29 @@ define( function ( require ) {
                 phase: phases.RENDER
             }
         },
-        physics: {
-            update: {
-                phase: phases.UPDATE,
-                before: ['logic','animation']
-            }
-        },
-        animation: {
+        Physics: {
             update: {
                 phase: phases.UPDATE,
             }
         },
-        logic: {
+        Animation: {
             update: {
                 phase: phases.UPDATE,
-                before: ['animation'],
-                after: ['physics']
+                depends: ['Logic','Physics']
             }
         },
-        sound: {
+        Logic: {
+            update: {
+                phase: phases.UPDATE,
+                depends: ['Physics']
+            }
+        },
+        Sound: {
             update: {
                 phase: phases.RENDER
             }
         },
-        monitor: {
+        Monitor: {
             update: {
                 phase: phases.RENDER,
                 interval: 300
