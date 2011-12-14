@@ -4,7 +4,9 @@
 
 define( function( require ) {
     
-    var Graph = function( idProperty, edges ) {
+    var Graph = function( options ) {
+        
+        options = optoins || {};
         
         var _nodes = {};
         var _adjacencies = {};
@@ -20,72 +22,63 @@ define( function( require ) {
 
         this.link = function( src, snk ) {
 
-            var srcId = src[idProperty],
-            snkId = snk[idProperty];
-
-            if( !_nodes[srcId] ) { 
-                _nodes[srcId] = src;
-                _descendants[srcId] = 0;
+            if( !_nodes[src] ) { 
+                _nodes[src] = true;
+                _descendants[src] = 0;
             }
-            if( !_nodes[snkId] ) { 
-                _nodes[snkId] = snk; 
-                _descendants[snkId] = 0;
-                _roots[snkId] = true;
+            if( !_nodes[snk] ) { 
+                _nodes[snk] = true; 
+                _descendants[snk] = 0;
+                _roots[snk] = true;
             }            
 
-            if( !_adjacencies[snkId] ) {
-                _adjacencies[snkId] = {};
+            if( !_adjacencies[snk] ) {
+                _adjacencies[snk] = {};
             }
 
-            _adjacencies[snkId][srcId] = true;
-            ++ _descendants[srcId];
-            if( _roots[srcId] ) {
-                delete _roots[srcId];
+            _adjacencies[snk][src] = true;
+            ++ _descendants[src];
+            if( _roots[src] ) {
+                delete _roots[src];
             }
         };
 
         this.unlink = function( src, snk ) {
 
-            var srcId = src[idProperty],
-            snkId = snk[idProperty];
-
-            if( _adjacencies[snkId] && _adjacencies[snkId][srcId] ) {
-                delete _adjacencies[snkId][srcId];
-                -- _descendants[srcId];
-                if( !Object.keys( _adjacencies[snkId] ).length ) {
-                    delete _adjacencies[snkId];
+            if( _adjacencies[snk] && _adjacencies[snk][src] ) {
+                delete _adjacencies[snk][src];
+                -- _descendants[src];
+                if( !Object.keys( _adjacencies[snk] ).length ) {
+                    delete _adjacencies[snk];
                 }
-                if( !_descendants[srcId] ) {
-                    _roots[srcId] = true;
+                if( !_descendants[src] ) {
+                    _roots[src] = true;
                 }
             }
 
         };
 
         this.insert = function( node ) {
-
-            var nodeId = node[idProperty];
-            
-            if( !_nodes[nodeId] ) {
-                _nodes[nodeId] = node;
-                _descendants[nodeId] = 0;
-                _roots[nodeId] = true;
+           
+            if( !_nodes[node] ) {
+                _nodes[node] = true;
+                _descendants[node] = 0;
+                _roots[node] = true;
             }
 
         };
 
         this.remove = function( node ) {
 
-            var nodeId = node[idProperty],
-            edges = _adjacencies[nodeId] || {};
+            var edges = _adjacencies[node] || {};
 
-            for( var srcId in edges ) {
-                that.unlink( _nodes[srcId], _nodes[nodeId] );
+            for( var src in edges ) {
+                that.unlink( src, node );
             }
 
-            if( _nodes[nodeId] ) {
-                delete _nodes[nodeId];
-                delete _descendants[nodeId];
+            if( _nodes[node] ) {
+                delete _nodes[node];
+                delete _descendants[node];
             }
 
         };
@@ -95,18 +88,18 @@ define( function( require ) {
             var L = [],
             S = Object.keys( _roots );
 
-            var visit = function( snkId ) {                
-                if( !_visited[snkId] ) {
-                    _visited[snkId] = true;
-                    var edges = _adjacencies[snkId];
-                    for( var srcId in edges ) {
-                        if( !_nodes[srcId] ) {  // This might be a dangling edge
-                            delete edges[srcId];
+            var visit = function( snk ) {                
+                if( !_visited[snk] ) {
+                    _visited[snk] = true;
+                    var edges = _adjacencies[snk];
+                    for( var src in edges ) {
+                        if( !_nodes[src] ) {  // This might be a dangling edge
+                            delete edges[src];
                         } else {
-                            visit( srcId );
+                            visit( src );
                         }
                     }
-                    L.push( snkId );
+                    L.push( snk );
                 }                
             };
 
