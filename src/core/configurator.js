@@ -43,7 +43,7 @@ define( function ( require ) {
             objectStoreName         = '',
             gameId                  = '',
 
-            _injectDB = function( options ) {
+            _openDB = function( options ) {
                 options = options || {};
                 var dbConsumer = options.consumer,
                     error = options.error,
@@ -52,7 +52,7 @@ define( function ( require ) {
                 try {
                     req = indexedDB.open( dbName, dbVersion );
                 } catch ( e ) {
-                    if ( error ) error( 'Gladius/Configurator-_injectDB: db open request produced exception, error object: ' + e.toString() );
+                    if ( error ) error( 'Gladius/Configurator-_openDB: db open request produced exception, error object: ' + e.toString() );
                 }
 
                 req.onsuccess = function( event ) {
@@ -60,7 +60,7 @@ define( function ( require ) {
                 };
 
                 req.onerror = function( event ) {
-                    if ( error ) error( 'Gladius/Configurator-_injectDB: db open request triggered onerror handler, error object: ' + event.toString() );
+                    if ( error ) error( 'Gladius/Configurator-_openDB: db open request triggered onerror handler, error object: ' + event.toString() );
                 };
             },
 
@@ -136,7 +136,7 @@ define( function ( require ) {
                     objectStoreConsumer = options.consumer,
                     error = options.error;
 
-                _injectDB( {
+                _openDB( {
                     consumer: function( db ) {
                         _ensureObjectStore( {
                             db: db,
