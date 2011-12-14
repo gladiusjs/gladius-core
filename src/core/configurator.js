@@ -468,17 +468,29 @@ define( function ( require ) {
         };
 
         // Define read only access
-        var defReadOnly = function( name, val ) {
-            Object.defineProperty( that, name, {
-                get: function() {
-                    return val;
-                }
-            });
-        };
+        Object.defineProperty( this, 'KEY_GAME_ID', {
+            get: function() {
+                return KEY_GAME_ID;
+            }
+        });
 
-        defReadOnly( 'KEY_GAME_ID', KEY_GAME_ID );
-        defReadOnly( 'KEY_DB_NAME', KEY_DB_NAME );
-        defReadOnly( 'KEY_STORE_NAME', KEY_STORE_NAME );
+        Object.defineProperty( this, 'KEY_DB_NAME', {
+            get: function() {
+                return KEY_DB_NAME;
+            }
+        });
+
+        Object.defineProperty( this, 'KEY_STORE_NAME', {
+            get: function() {
+                return KEY_STORE_NAME;
+            }
+        });
+
+        Object.defineProperty( this, 'canUseDB', {
+            get: function() {
+                return canUseDB;
+            }
+        });
 
         this.id = window.guid();
 
@@ -515,8 +527,6 @@ define( function ( require ) {
                 }
             }
         }
-
-        defReadOnly( 'canUseDB', canUseDB );
     };
 
     // Taken from Mozilla's docs
