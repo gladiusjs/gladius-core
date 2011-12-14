@@ -178,7 +178,10 @@ define( function ( require ) {
         // Load persistent configuration then proceed with rest of engine startup
         this.configurator.load( {
             callback: initialize,
-            error: initialize
+            error: function( msg ) {
+                that.debug( 'Gladius: Unable to load registry, debug message: ' + msg );
+                initialize();
+            }
         } );
 
     }; //Gladius
