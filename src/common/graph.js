@@ -6,7 +6,7 @@ define( function( require ) {
     
     var Graph = function( options ) {
         
-        options = optoins || {};
+        options = optionns || {};
         
         var _nodes = {};
         var _adjacencies = {};
@@ -111,7 +111,7 @@ define( function( require ) {
             return L;
 
         };
-
+        
     };
 
 
