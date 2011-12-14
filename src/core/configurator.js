@@ -391,7 +391,7 @@ define( function ( require ) {
                 });
             } else {
                 if ( error ) {
-                    error( 'Configurator store failed, db not accessible.' );
+                    error( 'Unable to store, db not accessible.' );
                 }
             }
         };
@@ -462,7 +462,7 @@ define( function ( require ) {
                 });
             } else {
                 if ( error ) {
-                    error( 'Configurator load failed, db not accessible.' );
+                    error( 'Unable to load, db not accessible.' );
                 }
             }
         };
