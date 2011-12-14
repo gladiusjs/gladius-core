@@ -27,10 +27,7 @@ define( function ( require ) {
     // exist, mainly gladius.ready from gladius.js. Check tools/wrap.start
     // for protections against overwriting an existing gladius in the page,
     // for when gladius is built for deployment.
-    global = window.gladius || ( window.gladius = {} ),
-
-    // Get testing game id ready
-    testGameID = window.guid();
+    global = window.gladius || ( window.gladius = {} );
 
     /***
      * Gladius
@@ -49,8 +46,8 @@ define( function ( require ) {
 
         // Get configurator up before anything else
         var extraConfig = {};
-        if ( this.options.debug ) {
-            extraConfig['/id'] = testGameID;
+        if ( this.options.id ) {
+            extraConfig['/id'] = this.options.id;
         }
 
         var _configurator = new Configurator({
@@ -61,6 +58,12 @@ define( function ( require ) {
         Object.defineProperty( this, 'configurator', {
             get: function() {
                 return _configurator;
+            }
+        });
+
+        Object.defineProperty( this, 'id', {
+            get: function() {
+                return _configurator.get( '/id' );
             }
         });
 

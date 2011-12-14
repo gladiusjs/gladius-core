@@ -18,7 +18,7 @@
         setup: function () {
             stop();
 
-            gladius.create( { debug: true }, function( instance ) {
+            gladius.create( { debug: true, id: window.guid() }, function( instance ) {
                 engine = instance;
                 start();
             });
@@ -382,7 +382,7 @@
 
         stop();
         // Create a new gladius instance under these conditions, configurator should not be able to open a db
-        gladius.create( { debug: true }, function( instance ) {
+        gladius.create( { debug: true, id: engine.id }, function( instance ) {
             start();
 
             equal( instance.configurator.canUseDB, false, 'Configurator canUseDB should be false' );
@@ -543,7 +543,7 @@
                                                 stop();
 
                                                 var engine2 = null, config2 = null;
-                                                gladius.create( { debug: true }, function( instance ) {
+                                                gladius.create( { debug: true, id: engine.id }, function( instance ) {
                                                     engine2 = instance;
                                                     config2 = engine2.configurator.getPath( testPath );
                                                     start();
