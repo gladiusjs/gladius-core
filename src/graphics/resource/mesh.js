@@ -20,7 +20,15 @@ define( function ( require ) {
 
         var _cvrMesh = new CubicVR.Mesh( source );
         this._cvr.mesh = _cvrMesh;
-        
+
+        this.prepare = function( options ) {
+          if( options.material ) {
+              var cvrMaterial = options.material._cvr.material;
+              _cvrMesh.setFaceMaterial( cvrMaterial );
+          } //if
+          _cvrMesh.prepare();
+        }; //prepare
+
     };
 
     return new Resource({
