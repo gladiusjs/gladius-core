@@ -100,7 +100,7 @@
         cameraEntity.add( cameraComponent );
 
         modelEntity.add( new engine.core.component.Transform({
-            position: [0, 0, -10]
+            position: [0, 0, 0]
         }));
 
         var modelComponent = new engine.graphics.component.Model({

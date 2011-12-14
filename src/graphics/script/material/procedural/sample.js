@@ -6,9 +6,7 @@ define( function ( require ) {
 
     return function( options ) {
         return {
-            color: [1, 0.2, 0],
-            diffuse: [1, 0.2, 0],
-            specular: [1, 0.2, 0]
+            color: [1, 0.2, 0]
         };
     };
 

@@ -4,32 +4,32 @@
 
 define( function ( require ) {
 
-	return function( engine ) {        
+  return function( engine ) {        
 
-		var math = engine.math;
-		var Component = require( '../../core/component' );
-		var Delegate = require( '../../core/delegate' );
+    var math = engine.math;
+    var Component = require( '../../core/component' );
+    var Delegate = require( '../../core/delegate' );
     var Material = require( '../resource/material' );
     var Mesh = require( '../resource/mesh' );
 
-		return Component({
-			type: 'Model'
-		},
-		function( options ) {
+    return Component({
+      type: 'Model'
+    },
+    function( options ) {
 
-			options = options || {};
+      options = options || {};
 
-			var _this = this;
+      var _this = this;
 
-			var _mesh = options.mesh || null,
-    			_material = options.material || null;
+      var _mesh = options.mesh || null,
+          _material = options.material || null;
 
-			Object.defineProperty( this, "mesh", {
+      Object.defineProperty( this, "mesh", {
           enumerable: true,
           get: function() {
               return _mesh;
           }
-			});
+      });
 
       Object.defineProperty( this, "material", {
           enumerable: true,
@@ -85,8 +85,8 @@ define( function ( require ) {
 
       this.ownerChanged.subscribe( handleOwnerChanged );
 
-		});
+    });
 
-	};
+  };
 
 });
