@@ -4,46 +4,62 @@
 
 define( function ( require ) {
 
-    return function( engine ) {        
-        
-        var math = engine.math;
-        var Component = require( '../../core/component' );
-        var Event = require( '../../core/event' );
+  return function( engine ) {        
 
-        var Camera = function( options ) {
+    var math = engine.math;
+    var Component = require( '../../core/component' );
+    var Delegate = require( '../../core/delegate' );
 
-            option = options || {};
-            var _that = this
-                _active = false;
+    return Component({
+      type: 'Camera'
+    },
+    function( options ) {
 
-            var _cvr = {
-                camera: new CubicVR.Camera()
-            };
+      options = options || {};
+      var _that = this;
 
-            Object.defineProperty( this, "_cvr", {
-                get: function() {
-                    return _cvr;
-                }
-            });
+      var _active = options.active !== undefined ? options.active : false;
 
-            Object.defineProperty( this, "active", {
-                get: function() {
-                    return _active;
-                },
-                set: function( val ) {
-                    _active = val;
-                }
-            });
+      var canvas = CubicVR.getCanvas();
 
-        };
-        Camera.prototype = new Component({
-            type: 'Camera'
-        });
-        Camera.prototype.constructor = Camera;
-        
-        return Camera;
-        
-    };
+      var _cvr = {
+          camera: new CubicVR.Camera({
+              width: options.width || canvas.width,
+              height: options.height || canvas.height,
+              fov: options.fov || 60,
+              calcNormalMatrix: true
+          })
+      };
+
+      // This should be moved out of here, since it exists
+      // only to create the camera's normal matrix before a render.
+      // Probably should be fixed upstream in CubicVR.js (identity matrix, maybe).
+      _cvr.camera.position = [1, 1, 1];
+      _cvr.camera.lookat([0, 0, 0]);
+
+      Object.defineProperty( this, "_cvr", {
+        get: function() {
+          return _cvr;
+        }
+      });
+
+      Object.defineProperty( this, "active", {
+        get: function() {
+          return _active;
+        },
+        set: function( val ) {
+          _active = val;
+        }
+      });
+
+      var handleOwnerChanged = function( e ) {
+      }; //ownerChangedHandler
+
+      this.ownerChanged.subscribe( handleOwnerChanged );
+
+    });
+
+  };
 
 });
 

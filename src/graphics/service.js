@@ -21,25 +21,36 @@ define( function ( require ) {
 
         Resource = require( '../core/resource' ),
         Mesh = require( './resource/mesh' ),
+        Material = require( './resource/material' ),
 
         Model = require( './component/model' ),
         Camera = require( './component/camera' ),
 
         MeshProceduralCube = require( './script/mesh/procedural/cube' );
+        SampleColorMaterial = require( './script/material/procedural/sample' );
 
     return function( engine ) {
 
         var math = engine.math;
         // var conf = engine.configurator.get( '/graphics' );
         
-        var Graphics = function( options ) {
+        var Graphics = engine.base.Service({
+          type: 'Graphics',
+          schedule: {
+            update: {
+              phase: 'RENDER',
+            }
+          },
+          time: engine.scheduler.realTime
+        },
+        function( options ) {
 
             var _scenes = [],
-                _renderTask,
                 _renderedFrames = 0,
+                _canRender = false,
                 _this = this;
 
-            engine.sceneAdded.subscribe( function( scene ) {
+            engine.spaceAdded.subscribe( function( scene ) {
                 _scenes.push( scene );
             });
 
@@ -53,7 +64,6 @@ define( function ( require ) {
                     transform,
                     gl = CubicVR.GLCore.gl;
 
-                
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
                 for( var si = 0, sl = _scenes.length; si < sl; ++si ) {
@@ -86,10 +96,23 @@ define( function ( require ) {
              
             }; //render
 
+            var handleAnimFrame = function() {
+              _canRender = true;
+              requestAnimFrame( handleAnimFrame );
+            };
+            requestAnimFrame( handleAnimFrame );
+
+            this.update = function() {
+              if (_canRender) {
+                _this.render();
+                _canRender = false;
+              } //if
+            }; //update
+
             var _resources = {
 
                 Light: null,
-                Material: null,
+                Material: Material,
                 Mesh: Mesh,
                 Shader: null,
                 Texture: null
@@ -112,6 +135,9 @@ define( function ( require ) {
 
                 mesh: {
                     cube: MeshProceduralCube
+                },
+                material: {
+                    sample: SampleColorMaterial
                 }
 
             };
@@ -141,7 +167,7 @@ define( function ( require ) {
                 }
             });
 
-        }
+        });
 
         return Graphics;
         

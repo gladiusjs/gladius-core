@@ -12,7 +12,7 @@ define( function ( require ) {
 
         var mesh =
         {
-            points: [
+            points:   [
                 [ point, -point,  point],
                 [ point,  point,  point],
                 [-point,  point,  point],
@@ -21,23 +21,27 @@ define( function ( require ) {
                 [ point,  point, -point],
                 [-point,  point, -point],
                 [-point, -point, -point]
-                    ],
-            faces:  [
+                      ],
+            faces:    [
                 [0, 1, 2, 3],
                 [7, 6, 5, 4],
                 [4, 5, 1, 0],
                 [5, 6, 2, 1],
                 [6, 7, 3, 2],
                 [7, 4, 0, 3]
-                    ],
-            uv:     [
+                      ],
+            uv:       [
                 [ [0, 1], [1, 1], [1, 0], [0, 0] ],
                 [ [0, 1], [1, 1], [1, 0], [0, 0] ],
                 [ [0, 1], [1, 1], [1, 0], [0, 0] ],
                 [ [0, 1], [1, 1], [1, 0], [0, 0] ],
                 [ [0, 1], [1, 1], [1, 0], [0, 0] ],
                 [ [0, 1], [1, 1], [1, 0], [0, 0] ]
-                    ]
+                      ],
+            uvmapper: {
+                projectionMode: "cubic",
+                scale: [1, 1, 1]
+                      }
         }
 
         return mesh;

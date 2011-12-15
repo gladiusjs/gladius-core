@@ -40,11 +40,14 @@
     });
 
     asyncTest( 'Schedule a task', function () {
-        expect( 0 );
+        expect( 22 );
 
         var counter = 0;               
 
         var task = new engine.scheduler.Task({
+            schedule: {
+                phase: engine.scheduler.phases.UPDATE
+            },
             callback: function() {
                 ok(
                     task.active,

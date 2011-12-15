@@ -35,6 +35,9 @@
         document.write('<script>requirejs.config( { baseUrl: "' + path + '",' +
                 'paths: {' +
                 // Paths are relative to baseUrl; Notice the commas!
+                '  "core": "./core",' +
+                '  "base": "./base",' +
+                '  "common": "./common",' +
                 '  "external": "../external",' +
                 '  "math": "../external/gladius.math/src",' +
                 '  "CubicVR.js": "../external/CubicVR.js"' +

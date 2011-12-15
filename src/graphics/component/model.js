@@ -4,37 +4,89 @@
 
 define( function ( require ) {
 
-    return function( engine ) {        
-        
-        var math = engine.math;
-        var Component = require( '../../core/component' );
-        var Event = require( '../../core/event' );
+  return function( engine ) {        
 
-        var thisType = 'Model';
+    var math = engine.math;
+    var Component = require( '../../core/component' );
+    var Delegate = require( '../../core/delegate' );
+    var Material = require( '../resource/material' );
+    var Mesh = require( '../resource/mesh' );
 
-        var Model = function( options ) {
+    return Component({
+      type: 'Model'
+    },
+    function( options ) {
 
-            option = options || {};
+      options = options || {};
 
-            var _that = this,
-                _mesh = options.mesh || null;
-                _material = options.material || null;
+      var _this = this;
 
-            Object.defineProperty( this, "mesh", {
-                enumerable: true,
-                get: function() {
-                    return _mesh;
-                }
-            });
+      var _mesh = options.mesh || null,
+          _material = options.material || null;
 
+      Object.defineProperty( this, "mesh", {
+          enumerable: true,
+          get: function() {
+              return _mesh;
+          }
+      });
+
+      Object.defineProperty( this, "material", {
+          enumerable: true,
+          get: function() {
+              return _material;
+          }
+      });
+
+      function checkMeshAndMaterial() {
+          if( _mesh && _material ) {
+              _mesh.prepare({
+                  material: _material
+              });
+              if( options.onComplete ) {
+                  options.onComplete( _this );
+              } //if
+          } //if
+      } //checkMeshAndMaterial
+
+      function getMesh( mesh, callback ) {
+        var oldOnComplete = mesh.onComplete || function() {};
+        mesh.onComplete = function( newMesh ) {
+            oldOnComplete( newMesh );
+            callback( newMesh );
         };
-        Model.prototype = new Component({
-            type: thisType
-        });
-        Model.prototype.constructor = Model;
-        
-        return Model;
-        
-    };
+        Mesh( mesh );
+      } //getMesh
+
+      function getMaterial( material, callback ) {
+        var oldOnComplete = material.onComplete || function() {};
+        material.onComplete = function( newMaterial ) {
+            oldOnComplete( newMaterial );
+            callback( newMaterial );
+        };
+        Material( material );
+      } //getMaterial
+
+      if( options.material && options.material.script && options.mesh && options.mesh.script ) {
+          _material = null;
+          _mesh = null;
+          getMaterial( options.material, function( newMaterial ) {
+              _material = newMaterial;
+              checkMeshAndMaterial();
+          });
+          getMesh( options.mesh, function( newMesh ) {
+              _mesh = newMesh;
+              checkMeshAndMaterial();
+          });
+      } //if
+
+      var handleOwnerChanged = function( e ) {
+      }; //ownerChangedHandler
+
+      this.ownerChanged.subscribe( handleOwnerChanged );
+
+    });
+
+  };
 
 });

@@ -4,63 +4,31 @@
 
 define( function ( require ) {
 
-    return function( options ) {
+    var lang = require( './lang' );
 
-        var _id = window.guid();
-        var _subscribers = {};
+    var Event = function( type, options ) {
 
-        // Bind the handler to an id, if it doesn't already have one
-        var prepareHandler = function( handler ) {
-            if( !handler.hasOwnProperty( '__id' ) ) {
-                var id = window.guid();
-                Object.defineProperty( handler, '__id', {
-                    get: function() {
-                        return id;
-                    },
-                    enumerable: false
-                });
-            }
-            return handler;
-        };
+        var that = this;
 
-        var dispatch = function( options ) {
-            var handlerIds = Object.keys( _subscribers );
-            for( var i = 0, l = handlerIds.length; i < l; ++ i ) {
-                var id = handlerIds[i];
-                _subscribers[id]( options );
-            }
-        };
-
-        // Bind a callback to this event
-        var subscribe = function( handler ) {
-            handler = prepareHandler( handler );
-            if( !_subscribers[handler.__id] ) {
-                _subscribers[handler.__id] = handler;
-            }
-        };
-        Object.defineProperty( dispatch, 'subscribe', {
+        type = type || '';
+        Object.defineProperty( this, 'type', {
             get: function() {
-                return subscribe;
-            },
-            enumerable: false
+                return type;
+            }
         });
 
-        // Unsubscribe a callback from this event
-        var unsubscribe = function( handler ) {
-            if( handler.hasOwnProperty( '__id' ) &&
-                    _subscribers[handler.__id] ) {
-                delete _subscribers[handler.__id];
+        options = options || {};
+        lang.extend( this, options );
+
+        // Send this event to each entity in targets
+        this.send = function( targets ) {
+            for( var i = 0, l = targets.length; i < l; ++ i ) {
+                targets[i].handleEvent( that );
             }
         };
-        Object.defineProperty( dispatch, 'unsubscribe', {
-            get: function() {
-                return unsubscribe;
-            },
-            enumerable: false
-        });
-
-        return dispatch;
 
     };
+
+    return Event;
 
 });

@@ -25,12 +25,11 @@
     test( 'Construction', function () {
         expect( 3 );
 
-        var TestComponent = function( options ) {
-        };
-        TestComponent.prototype = new engine.core.Component({
-            type: 'Test'
+        var TestComponent = engine.core.Component({
+        	type: 'Test'
+        },
+        function( options ) {
         });
-        TestComponent.prototype.constructor = TestComponent;
 
         var testComponent = new TestComponent();
         same(
@@ -40,7 +39,7 @@
         );
         same(
                 testComponent.depends,
-                {},
+                [],
                 'TestComponent depends is correct.'
         );
         ok(

@@ -4,24 +4,37 @@
 
 define( function ( require ) {
     
-    var Event = require( './event' );
+    var Delegate = require( './delegate' );
     var Task = require( './task' );
     var Timer = require( './timer' );
-    var PriorityQueue = require( '../common/buffered-priority-queue' );
-   
+    var Graph = require( 'common/graph' );
+    var phases = require( 'core/scheduler-phases' );
+    
     var Scheduler = function( options ) {
         
         options = options || {};
         
-        var _queue = new PriorityQueue(),
-            _running = false,
-            that = this;        
+        var _tasks = {},
+            _phases = {};
         
-        var _previousTime;        
-        var _tick = new Event();    // Time signal, sent each frame
+        for( var phase in phases ) {
+            _phases[phases[phase]] = new Graph();
+        }
+        
+        var _running = false,
+            that = this,              
+            _previousTime,
+            _schedule,
+            _tick = new Delegate();    // Time signal, sent each frame
         
         this.Timer = Timer({ tick: _tick });        
         this.Task = Task({ manager: this });
+        
+        Object.defineProperty( this, 'phases', {
+           get: function() {
+               return phases;
+           } 
+        });
 
         var _realTime = new this.Timer();
         Object.defineProperty( this, 'realTime', {
@@ -71,7 +84,7 @@ define( function ( require ) {
             }
         };
         
-        var run = function() {            
+        var run = function() {         
             if( _active && !_running ) {
                 _running = true;
                 
@@ -90,31 +103,63 @@ define( function ( require ) {
         };        
         
         var dispatch = function() {
-            _queue.swap();            
-            
-            while( _queue.size > 0 ) {
-                var task = _queue.dequeue();
-                if( task && task.active ) {
-                    task.scheduled = false;
-                    task.callback();
-                    if( task.active ) {
-                        task.scheduled = true;
-                        _queue.enqueue( task, task.priority );
+            for( var phase in _phases ) {
+                var dag = _phases[phase];
+                if( !_schedule ) {
+                    _schedule = _phases[phase].sort();
+                }
+
+                while( _schedule.length > 0 ) {
+                    var task = _tasks[_schedule.shift()];
+
+                    if( task && task.active ) {
+                        task.scheduled = false;
+                        try{                            
+                            task.callback();
+                        } catch( e ) {
+                            // Suspend the scheduler and return
+                            that.suspend();
+                            return;
+                        }
+
+                        if( task.active ) {
+                            task.scheduled = true;
+                        } else {
+                            dag.remove( task.id );
+                        }
                     }
                 }
+                
+                _schedule = null;
             }
         };
         
-        this.add = function( task ) { 
+        this.add = function( task ) {
             if( !task.scheduled ) {
-                task.scheduled = true;                
-                _queue.enqueue( task, task.priority );                
+                task.scheduled = true;
+                _tasks[task.id] = task;
+                
+                var dag = _phases[task.schedule.phase];
+                
+                if( task.group ) {
+                    dag.link( task.id, task.group );
+                } else {
+                    dag.insert( task.id );
+                }
+                
+                if( task.depends ) {
+                    for( var i = 0, l = task.depends.length; i < l; ++ i ) {
+                        dag.link( task.depends[i], task.id );
+                    }                 
+                }                
             }
         };
         
         this.remove = function( task ) {
             if( task.scheduled && task.manager === this ) {
                 task.scheduled = false;
+                
+                delete _tasks[task.id];
             }
         };
         

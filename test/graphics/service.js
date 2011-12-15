@@ -32,47 +32,58 @@
         ok( engine.graphics, 'graphics subsystem exists' );
     });
 
-    test( 'Scene awareness', function() {
+    test( 'Space awareness', function() {
         expect( 1 );
-        var scene1 = new engine.core.Scene(),
-            scene2 = new engine.core.Scene();
+        var scene1 = new engine.core.Space(),
+            scene2 = new engine.core.Space();
         equal( engine.graphics.scenes.length, 2, 'subsystem grabbed created scenes' );
     });
 
     asyncTest( 'Test render', function() {
         expect( 1 );
-        var scene = new engine.core.Scene(),
+        var scene = new engine.core.Space(),
             cameraEntity = new scene.Entity(),
             modelEntity = new scene.Entity();
 
         // This is very temporary until we have a way to render to multiple things
-        var gl = CubicVR.init( document.getElementById( "test-canvas" ) ),
-            canvas;
-        if ( gl ) {
-            canvas = new CubicVR.getCanvas();
-        } //if
+        var canvas = document.createElement( "canvas" );
+        canvas.width = 300;
+        canvas.height = 300;
+        document.getElementById( "canvas-container" ).appendChild( canvas );
+        var gl = CubicVR.init( canvas );
 
-        engine.graphics.resource.Mesh({
-            script: engine.graphics.script.mesh.cube,
-            onComplete: function( instance ) {
+        var cameraComponent = new engine.graphics.component.Camera({
+          active: true,
+          width: canvas.width,
+          height: canvas.height,
+          fov: 60 
+        });
+        cameraEntity.add( cameraComponent );
 
-                var cameraComponent = new engine.graphics.component.Camera();
-                cameraEntity.add( cameraComponent );
-                cameraComponent.active = true;
+        modelEntity.add( new engine.core.component.Transform({
+            position: [0, 0, 0]
+        }));
 
-                modelEntity.add( new engine.graphics.component.Model({
-                    mesh: instance
-                }));
-
-                modelEntity.add( new engine.core.component.Transform() );
-
-                engine.graphics.render();
-
-                ok( true );
-                start();
-            }
+        var modelComponent = new engine.graphics.component.Model({
+          mesh: {
+            script: engine.graphics.script.mesh.cube
+          },
+          material: {
+            script: engine.graphics.script.material.sample
+          },
+          onComplete: function( instance ) {
+            modelEntity.add( instance );
+            engine.graphics.render();
+            engine.run();
+            setTimeout( function() {
+              engine.run();
+              ok( engine.graphics.renderedFrames > 2, "Graphics task is rendering" );
+              start();
+            }, 500 );
+          }
         });
 
     });
+
 
 }());
