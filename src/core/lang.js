@@ -53,6 +53,12 @@ if( !window.guid ) {
 define( function ( require ) {
 
     var extensions = {
+        
+        assert: function( condition, message ) {
+            if( !condition )
+                throw 'Assertion failed: ' + message;
+        },
+            
         // Simple bind function to maintain "this" for a function.
         bind: function bind( obj, func ) {
             return function() {

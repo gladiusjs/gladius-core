@@ -54,11 +54,6 @@ define( function ( require ) {
             }
         }
         
-        this.assert = function( condition, message ) {
-            if( !condition )
-                throw 'Assertion failed: ' + message;
-        };
-        
         var _math = new _Math();
         Object.defineProperty( this, 'math', {
             get: function() {

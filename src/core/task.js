@@ -16,13 +16,11 @@ define( function ( require ) {
             
             options = options || {};
 
-            var enums = {
-                state: {
-                    COMPLETE: 0,
-                    CONTINUE: 1                    
-                }
-            };            
-            lang.extend( this, enums.state );
+            lang.extend( this, {
+                COMPLETE: 0,
+                CONTINUE: 1,
+                SLEEP: 2                
+            });
             
             var _manager = options.manager || _defaultManager || null;
             Object.defineProperty( this, 'manager', {
@@ -35,6 +33,20 @@ define( function ( require ) {
             Object.defineProperty( this, 'id', {
                 get: function() {
                     return _id;
+                }
+            });
+            
+            var _group = options.group || undefined;
+            Object.defineProperty( this, 'group', {
+                get: function() {
+                    return _group;
+                }
+            });
+            
+            var _depends = options.depends || [];
+            Object.defineProperty( this, 'depends', {
+                get: function() {
+                    return _depends;
                 }
             });
             

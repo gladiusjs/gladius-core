@@ -10,7 +10,15 @@ define( function( require ) {
         var _adjacencies = {};
         var _descendants = {};
         var _roots = {};
+        var _cache = null;
+        var _cacheIsValid = false;
         var that = this;
+        
+        Object.defineProperty( this, 'size', {
+            get: function() {
+                return Object.keys( _nodes ).length;
+            }
+        });
 
         this.link = function( src, snk ) {
 
@@ -33,6 +41,8 @@ define( function( require ) {
             if( _roots[src] ) {
                 delete _roots[src];
             }
+            
+            _cacheIsvalid = false;
         };
 
         this.unlink = function( src, snk ) {
@@ -47,6 +57,8 @@ define( function( require ) {
                     _roots[src] = true;
                 }
             }
+            
+            _cacheIsValid = false;
 
         };
 
@@ -57,6 +69,8 @@ define( function( require ) {
                 _descendants[node] = 0;
                 _roots[node] = true;
             }
+            
+            _cacheIsValid = false;
 
         };
 
@@ -72,6 +86,8 @@ define( function( require ) {
                 delete _nodes[node];
                 delete _descendants[node];
             }
+            
+            _cacheIsValid = false;
 
         };
         
@@ -80,9 +96,15 @@ define( function( require ) {
             _adjacencies = {};
             _descendants = {};
             _roots = {};
+            _cache = [];
+            _cacheIsValid = true;
         };
 
         this.sort = function() {
+            
+            if( _cacheIsValid ) {
+                return _cache.slice();
+            }
 
             var L = [],
             S = Object.keys( _roots ),
@@ -118,10 +140,14 @@ define( function( require ) {
                 throw 'directed cycle detected';
             }
             
-            return L;
+            _cache = L;
+            _cacheIsValid = true;
+            return _cache.slice();
 
         };
 
     };
+    
+    return Graph;
 
 });

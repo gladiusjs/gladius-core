@@ -7,15 +7,22 @@ define( function ( require ) {
     var Delegate = require( './delegate' );
     var Task = require( './task' );
     var Timer = require( './timer' );
-    var PriorityQueue = require( '../common/buffered-priority-queue' );
+    var Graph = require( 'common/graph' );
     var phases = require( 'core/scheduler-phases' );
-   
+    
     var Scheduler = function( options ) {
         
         options = options || {};
         
-        var _queue = new PriorityQueue(),
-            _running = false,
+        var _tasks = {};
+        
+        var _phases = {};
+        for( var phase in phases ) {
+            _phases[phases[phase]] = new Graph();
+        }
+        
+        // var _queue = new PriorityQueue();
+        var _running = false,
             that = this;        
         
         var _previousTime;        
@@ -78,7 +85,7 @@ define( function ( require ) {
             }
         };
         
-        var run = function() {            
+        var run = function() {         
             if( _active && !_running ) {
                 _running = true;
                 
@@ -97,31 +104,59 @@ define( function ( require ) {
         };        
         
         var dispatch = function() {
-            _queue.swap();            
-            
-            while( _queue.size > 0 ) {
-                var task = _queue.dequeue();
-                if( task && task.active ) {
-                    task.scheduled = false;
-                    task.callback();
-                    if( task.active ) {
-                        task.scheduled = true;
-                        _queue.enqueue( task, task.schedule.phase );
+            for( var phase in _phases ) {
+                var dag = _phases[phase];
+                var schedule = _phases[phase].sort();                
+
+                while( schedule.length > 0 ) {
+                    var task = _tasks[schedule.shift()];
+
+                    if( task && task.active ) {
+                        task.scheduled = false;
+                        try{                            
+                            task.callback();
+                        } catch( e ) {
+                            // Suspend the scheduler and return
+                            that.suspend();
+                            return;
+                        }
+
+                        if( task.active ) {
+                            task.scheduled = true;
+                        } else {
+                            dag.remove( task.id );
+                        }
                     }
                 }
             }
         };
         
-        this.add = function( task ) { 
+        this.add = function( task ) {
             if( !task.scheduled ) {
-                task.scheduled = true;                
-                _queue.enqueue( task, task.schedule.phase );                
+                task.scheduled = true;
+                _tasks[task.id] = task;
+                
+                var dag = _phases[task.schedule.phase];
+                
+                if( task.group ) {
+                    dag.link( task.id, task.group );
+                } else {
+                    dag.insert( task.id );
+                }
+                
+                if( task.depends ) {
+                    for( var i = 0, l = task.depends.length; i < l; ++ i ) {
+                        dag.link( task.depends[i], task.id );
+                    }                 
+                }                
             }
         };
         
         this.remove = function( task ) {
             if( task.scheduled && task.manager === this ) {
                 task.scheduled = false;
+                
+                delete _tasks[task.id];
             }
         };
         

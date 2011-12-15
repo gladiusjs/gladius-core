@@ -40,7 +40,7 @@
     });
 
     asyncTest( 'Schedule a task', function () {
-        expect( 0 );
+        expect( 22 );
 
         var counter = 0;               
 

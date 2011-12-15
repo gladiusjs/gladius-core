@@ -62,7 +62,9 @@ define( function ( require ) {
                     var name = callbackNames[i];
                     _tasks[callbackNames[i]] = new engine.scheduler.Task({
                         schedule: this.schedule[name],
-                        callback: this[name]
+                        callback: this[name],
+                        group: this.type,
+                        depends: this.depends
                     });
                 };
                 Object.defineProperty( this, 'tasks', {
