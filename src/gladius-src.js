@@ -30,7 +30,7 @@ define( function ( require ) {
     // for protections against overwriting an existing gladius in the page,
     // for when gladius is built for deployment.
     global = window.gladius || ( window.gladius = {} );
-
+    
     /***
      * Gladius
      *
@@ -53,11 +53,6 @@ define( function ( require ) {
                 sIds.push('./' + services[prop]);
             }
         }
-        
-        this.assert = function( condition, message ) {
-            if( !condition )
-                throw 'Assertion failed: ' + message;
-        };
         
         var _math = new _Math();
         Object.defineProperty( this, 'math', {
