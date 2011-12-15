@@ -10,13 +10,7 @@ define( function( require ) {
         var _adjacencies = {};
         var _descendants = {};
         var _roots = {};
-        var _visited = {};
         var that = this;
-
-        this.nodes = _nodes;
-        this.adjacencies = _adjacencies;
-        this.descendants = _descendants;
-        this.roots = _roots;
 
         this.link = function( src, snk ) {
 
@@ -80,12 +74,20 @@ define( function( require ) {
             }
 
         };
+        
+        this.clear = function() {
+            _nodes = {};
+            _adjacencies = {};
+            _descendants = {};
+            _roots = {};
+        };
 
         this.sort = function() {
 
             var L = [],
             S = Object.keys( _roots ),
-            V = {};
+            V = {},
+            visited = {};            
             
             var visit = function( snk ) {
                 if( V[snk] ) {
@@ -93,8 +95,8 @@ define( function( require ) {
                 }
                 V[snk] = true;
 
-                if( !_visited[snk] ) {
-                    _visited[snk] = true;
+                if( !visited[snk] ) {
+                    visited[snk] = true;
                     var edges = _adjacencies[snk];
                     for( var src in edges ) {
                         if( !_nodes[src] ) {  // This might be a dangling edge
@@ -111,9 +113,7 @@ define( function( require ) {
                 visit( S[i] );
                 V = {};
             }                                
-
-            _visited = {};
-            
+           
             if( L.length < Object.keys( _nodes ).length ) {
                 throw 'directed cycle detected';
             }
