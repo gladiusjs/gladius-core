@@ -8,13 +8,6 @@ define( function ( require ) {
 
 		var ActionList = engine.base.Service({
 			type: 'Logic',
-			schedule: {
-				update: {
-					phase: 'UPDATE',
-					before: ['Animation'],
-					after: ['Physics']
-				}
-			},
 			time: engine.scheduler.simulationTime
 		},
 		function( options ) {
