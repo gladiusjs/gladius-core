@@ -23,7 +23,8 @@ define( function ( require ) {
         
         var _running = false,
             that = this,              
-            _previousTime,        
+            _previousTime,
+            _schedule,
             _tick = new Delegate();    // Time signal, sent each frame
         
         this.Timer = Timer({ tick: _tick });        
@@ -104,10 +105,10 @@ define( function ( require ) {
         var dispatch = function() {
             for( var phase in _phases ) {
                 var dag = _phases[phase];
-                var schedule = _phases[phase].sort();                
+                _schedule = _phases[phase].sort();                
 
-                while( schedule.length > 0 ) {
-                    var task = _tasks[schedule.shift()];
+                while( _schedule.length > 0 ) {
+                    var task = _tasks[_schedule.shift()];
 
                     if( task && task.active ) {
                         task.scheduled = false;
