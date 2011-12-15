@@ -4,10 +4,8 @@
 
 define( function( require ) {
     
-    var Graph = function( options ) {
-        
-        options = optionns || {};
-        
+    var Graph = function() {
+
         var _nodes = {};
         var _adjacencies = {};
         var _descendants = {};
@@ -59,7 +57,7 @@ define( function( require ) {
         };
 
         this.insert = function( node ) {
-           
+
             if( !_nodes[node] ) {
                 _nodes[node] = true;
                 _descendants[node] = 0;
@@ -86,9 +84,15 @@ define( function( require ) {
         this.sort = function() {
 
             var L = [],
-            S = Object.keys( _roots );
+            S = Object.keys( _roots ),
+            V = {};
+            
+            var visit = function( snk ) {
+                if( V[snk] ) {
+                    throw 'directed cycle detected';
+                }
+                V[snk] = true;
 
-            var visit = function( snk ) {                
                 if( !_visited[snk] ) {
                     _visited[snk] = true;
                     var edges = _adjacencies[snk];
@@ -105,14 +109,19 @@ define( function( require ) {
 
             for( var i = 0, l = S.length; i < l; ++ i ) {
                 visit( S[i] );
+                V = {};
             }                                
 
             _visited = {};
+            
+            if( L.length < Object.keys( _nodes ).length ) {
+                throw 'directed cycle detected';
+            }
+            
             return L;
 
         };
-        
-    };
 
+    };
 
 });
