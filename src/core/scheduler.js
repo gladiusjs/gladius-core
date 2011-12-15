@@ -14,19 +14,17 @@ define( function ( require ) {
         
         options = options || {};
         
-        var _tasks = {};
+        var _tasks = {},
+            _phases = {};
         
-        var _phases = {};
         for( var phase in phases ) {
             _phases[phases[phase]] = new Graph();
         }
         
-        // var _queue = new PriorityQueue();
         var _running = false,
-            that = this;        
-        
-        var _previousTime;        
-        var _tick = new Delegate();    // Time signal, sent each frame
+            that = this,              
+            _previousTime,        
+            _tick = new Delegate();    // Time signal, sent each frame
         
         this.Timer = Timer({ tick: _tick });        
         this.Task = Task({ manager: this });
