@@ -105,7 +105,9 @@ define( function ( require ) {
         var dispatch = function() {
             for( var phase in _phases ) {
                 var dag = _phases[phase];
-                _schedule = _phases[phase].sort();                
+                if( !_schedule ) {
+                    _schedule = _phases[phase].sort();
+                }
 
                 while( _schedule.length > 0 ) {
                     var task = _tasks[_schedule.shift()];
@@ -127,6 +129,8 @@ define( function ( require ) {
                         }
                     }
                 }
+                
+                _schedule = null;
             }
         };
         
