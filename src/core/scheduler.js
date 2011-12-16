@@ -138,6 +138,10 @@ define( function ( require ) {
             if( !task.scheduled ) {
                 task.scheduled = true;
                 _tasks[task.id] = task;
+
+                if( !_phases.hasOwnProperty( task.schedule.phase ) ) {
+                    throw 'invalid phase: ' + task.schedule.phase;
+                }
                 
                 var dag = _phases[task.schedule.phase];
                 
