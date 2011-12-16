@@ -38,7 +38,7 @@ define( function ( require ) {
           type: 'Graphics',
           schedule: {
             update: {
-              phase: 'RENDER',
+              phase: engine.scheduler.phases.RENDER,
             }
           },
           time: engine.scheduler.realTime
