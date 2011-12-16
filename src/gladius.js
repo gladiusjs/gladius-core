@@ -24,6 +24,7 @@
         // so latest tag is the one for this script.
         var scripts = document.getElementsByTagName( 'script' ),
         path = scripts[scripts.length - 1].src;
+
         path = path.split( '/' );
         path.pop();
         path = path.join( '/' ) + '/';

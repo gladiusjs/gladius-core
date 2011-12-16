@@ -4,6 +4,8 @@
 define( function ( require ) {
     var lang = require( './core/lang' ),
         _Math = require( 'math/math-require' ),
+
+        Configurator = require( './core/configurator' ),
         ThreadPool = require( './core/threading/pool' ),
         Scheduler = require( './core/scheduler' ),
         Delegate = require( './core/delegate' ),
@@ -38,107 +40,142 @@ define( function ( require ) {
      * and others are prototypes to be used and extended.
      */
     Gladius = function ( options, callback ) {
-        var sNames = [],
+        var that = this,
+        sNames = [],
         sIds = [],
         services, prop;
 
         this.options = options || {};
         this.debug = this.options.debug ? console.log : function () {};
 
-        // Init instance of each service and store reference as service name
-        services = this.options.services || global.services;
-        for ( prop in services ) {
-            if ( services.hasOwnProperty( prop ) ) {
-                sNames.push(prop);
-                sIds.push('./' + services[prop]);
-            }
+        // Get configurator up before anything else
+        var extraConfig = {};
+        if ( this.options.id ) {
+            extraConfig['/id'] = this.options.id;
         }
-        
-        var _math = new _Math();
-        Object.defineProperty( this, 'math', {
+
+        var _configurator = new Configurator({
+            debug: this.debug,
+            configuration: extraConfig
+        });
+
+        Object.defineProperty( this, 'configurator', {
             get: function() {
-                return _math;
+                return _configurator;
             }
         });
 
-        var _scheduler = new Scheduler();
-        Object.defineProperty( this, 'scheduler', {
+        Object.defineProperty( this, 'id', {
             get: function() {
-                return _scheduler;
-            }
-        });
-        var _time = {
-            real: new _scheduler.Timer(),
-            simulation: new _scheduler.Timer()
-        };
-
-        var _threadPool = new ThreadPool({
-            size: 2
-        });
-        Object.defineProperty( this, 'threadPool', {
-            get: function() {
-                return _threadPool;
+                return _configurator.get( '/id' );
             }
         });
 
-        var _spaceAdded = new Delegate();
-        Object.defineProperty( this, 'spaceAdded', {
-            get: function() {
-                return _spaceAdded;
+        var initialize = function() {
+            // Init instance of each service and store reference as service name
+            services = that.options.services || global.services;
+            for ( prop in services ) {
+                if ( services.hasOwnProperty( prop ) ) {
+                    sNames.push(prop);
+                    sIds.push('./' + services[prop]);
+                }
             }
-        });        
 
-        // Fetch the services. These can potentially be async operations.
-        // In a build, they are async, but do not result in any network
-        // requests for the services bundled in the build.
-        require(sIds, lang.bind(this, function () {
-
-            // Expose engine objects, partially
-            // applying items needed for their constructors.
-            lang.extend(this, {
-                Delegate: Delegate,
-                common: {
-                	Queue: Queue
-                },
-                base: {
-                	Service: Service( this )
-                },
-                core: {
-                    Entity: Entity( this ),
-                    Component: Component,
-                    Resource: null,
-                    Space: Space( this ),
-                    Event: Event,
-                    component: {
-                        Transform: Transform( this )
-                    },
-                    resource: {
-                        Script: Script,
-                    }
-                },
+            var _math = new _Math();
+            Object.defineProperty( that, 'math', {
+                get: function() {
+                    return _math;
+                }
             });
 
-            // Create a property on the instance's service object for
-            // each service, based on the name given the services options object.
-            var subs = this.service = {},
-            	i;
-            for (i = 0; i < arguments.length; i++) {
-                var s = arguments[i]( this );               
-                subs[ sNames[i] ] = new s();
-            }
-            
-            lang.extend( this, subs );
-         
-            // run user-specified setup function
-            if ( this.options.setup ) {
-                this.options.setup( this );
-            }
+            var _scheduler = new Scheduler();
+            Object.defineProperty( that, 'scheduler', {
+                get: function() {
+                    return _scheduler;
+                }
+            });
+            var _time = {
+                real: new _scheduler.Timer(),
+                simulation: new _scheduler.Timer()
+            };
 
-            // Let caller know the engine instance is ready.
-            if (callback) {
-                callback(this);
+            var _threadPool = new ThreadPool({
+                size: 2
+            });
+            Object.defineProperty( that, 'threadPool', {
+                get: function() {
+                    return _threadPool;
+                }
+            });
+
+            var _spaceAdded = new Delegate();
+            Object.defineProperty( that, 'spaceAdded', {
+                get: function() {
+                    return _spaceAdded;
+                }
+            });
+
+            // Fetch the services. These can potentially be async operations.
+            // In a build, they are async, but do not result in any network
+            // requests for the services bundled in the build.
+            require(sIds, lang.bind(that, function () {
+
+                // Expose engine objects, partially
+                // applying items needed for their constructors.
+                lang.extend(this, {
+                    Delegate: Delegate,
+                    common: {
+                        Queue: Queue
+                    },
+                    base: {
+                        Service: Service( this )
+                    },
+                    core: {
+                        Entity: Entity( this ),
+                        Component: Component,
+                        Resource: null,
+                        Space: Space( this ),
+                        Event: Event,
+                        component: {
+                            Transform: Transform( this )
+                        },
+                        resource: {
+                            Script: Script
+                        }
+                    }
+                });
+
+                // Create a property on the instance's service object for
+                // each service, based on the name given the services options object.
+                var subs = this.service = {},
+                    i;
+                for (i = 0; i < arguments.length; i++) {
+                    var s = arguments[i]( this );               
+                    subs[ sNames[i] ] = new s();
+                }
+
+                lang.extend( this, subs );
+
+                // run user-specified setup function
+                if ( this.options.setup ) {
+                    this.options.setup( this );
+                }
+
+                if ( callback ) {
+                    callback( this );
+                }
+            }));
+        };
+
+        // Load persistent configuration then proceed with rest of engine startup
+        this.configurator.load( {
+            callback: initialize,
+            error: function( msg ) {
+                that.debug( 'Gladius: Unable to load registry, debug message: ' + msg );
+                initialize();
             }
-        }));
+        } );
+
     }; //Gladius
 
     // Set up common properties for all engine instances
@@ -148,9 +185,9 @@ define( function ( require ) {
                 if ( this.options.run ) {
                     this.options.run( this );
                 }                
-                this.scheduler.resume();                
+                this.scheduler.resume();
             },
-    
+
             terminate: function() {
                 this.scheduler.suspend();
                 this.scheduler.clear();
