@@ -28,7 +28,7 @@
         var event = new engine.Delegate();
         var data = {
                 value: 'Hello world!'
-            }
+            };
         var handler = function( options ) {        
             same(
                 data,

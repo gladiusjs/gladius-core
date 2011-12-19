@@ -6,7 +6,7 @@ define( function ( require ) {
         _Math = require( 'math/math-require' ),
         ThreadPool = require( './core/threading/pool' ),
         Scheduler = require( './core/scheduler' ),
-        Delegate = require( './core/delegate' ),
+        Delegate = require( 'common/delegate' ),
         Timer = require( './core/timer' ),
         Event = require( './core/event' ),
         Queue = require( 'common/queue' ),

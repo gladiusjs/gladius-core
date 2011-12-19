@@ -4,7 +4,7 @@
 
 define( function ( require ) {
     
-    var Delegate = require( './delegate' );
+    var Delegate = require( 'common/delegate' );
     var Task = require( './task' );
     var Timer = require( './timer' );
     var Graph = require( 'common/graph' );
