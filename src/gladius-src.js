@@ -2,7 +2,7 @@
 /*global define: false, console: false, window: false */
 
 define( function ( require ) {
-    var lang = require( './core/lang' ),
+    var lang = require( 'lang' ),
         _Math = require( 'math/math-require' ),
         ThreadPool = require( './core/threading/pool' ),
         Scheduler = require( './core/scheduler' ),
@@ -53,6 +53,13 @@ define( function ( require ) {
                 sIds.push('./' + services[prop]);
             }
         }
+        
+        var _guid = lang.guid;
+        Object.defineProperty( this, 'guid', {
+            get: function() {
+                return _guid;
+            }
+        });
         
         var _math = new _Math();
         Object.defineProperty( this, 'math', {

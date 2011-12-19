@@ -4,6 +4,7 @@
 
 define( function ( require ) {
 
+    var lang = require( 'lang' );
     var Delegate = require( 'common/delegate' );
 
     /* Entity
@@ -20,7 +21,7 @@ define( function ( require ) {
 
             // Members
 
-            var _guid = window.guid();                 // Globally-unique ID
+            var _guid = lang.guid();                 // Globally-unique ID
             Object.defineProperty( this, 'id', {
                 get: function() {
                     return _guid;
@@ -31,6 +32,16 @@ define( function ( require ) {
             Object.defineProperty( this, 'name', {
                 get: function() {
                     return _name;
+                }
+            });
+            
+            var _active = options.active || true;
+            Object.defineProperty( this, 'active', {
+                get: function() {
+                    return _active;
+                },
+                set: function( value ) {
+                    _active = value;
                 }
             });
 

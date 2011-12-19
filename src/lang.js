@@ -36,23 +36,20 @@ if( !window.assert ) {
     };
 }
 
-if( !window.guid ) {
-
-    // Abacus.guid()
-    // [Source http://www.broofa.com/2008/09/javascript-uuid-function/]
-    // Returns RFC 4122-compliant UUID
-    window.guid = function() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-            return v.toString(16);
-        }).toUpperCase();
-    };
-
-}
-
 define( function ( require ) {
 
     var extensions = {
+        
+        /* Abacus.guid()
+         * [Source http://www.broofa.com/2008/09/javascript-uuid-function/]
+         * Returns RFC 4122-compliant UUID
+         */
+        guid: function() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+                return v.toString(16);
+            }).toUpperCase();
+        },
         
         assert: function( condition, message ) {
             if( !condition )

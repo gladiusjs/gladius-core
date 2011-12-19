@@ -4,7 +4,7 @@
 
 define( function( require ) {
 
-    var lang = require( '../lang' );
+    var lang = require( 'lang' );
     var thread = require( './thread' );
 
     var Proxy = function( options ) {

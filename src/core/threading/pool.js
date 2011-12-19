@@ -4,7 +4,7 @@
 
 define( function( require ) {
 
-    var lang = require( '../lang' );
+    var lang = require( 'lang' );
     var Proxy = require( './proxy');
 
     var Pool = function( options ) {
@@ -75,7 +75,7 @@ define( function( require ) {
         });
 
         for( var i = 0; i < options.size; ++ i ) {
-            var id = window.guid();
+            var id = lang.guid();
             _threads[id] = new Proxy({
                 id: id,
                 pool: this,
