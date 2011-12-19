@@ -7,7 +7,7 @@ define( function ( require ) {
   return function( engine ) {        
 
     var math = engine.math;
-    var Component = require( '../../core/component' );
+    var Component = require( 'base/component' );
     var Delegate = require( '../../core/delegate' );
     var Material = require( '../resource/material' );
     var Mesh = require( '../resource/mesh' );

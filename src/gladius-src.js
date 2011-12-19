@@ -18,7 +18,7 @@ define( function ( require ) {
     
     // Core
         Space = require( './core/space' ),
-        Component = require( './core/component' ),
+        Component = require( 'base/component' ),
         Entity = require( './core/entity' ),
         Transform = require( './core/component/transform' ),
         Script = require( './core/resource/script' ),

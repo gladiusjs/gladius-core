@@ -4,8 +4,8 @@
 
 define( function ( require ) {
 
-    var lang = require( './lang' );
-    var Delegate = require( './delegate' );
+    var lang = require( 'core/lang' );
+    var Delegate = require( 'core/delegate' );
 
     var IComponent = function( options ) {
 
