@@ -71,6 +71,11 @@ define( function ( require ) {
             });
 
             var _children = {};
+            Object.defineProperty( this, 'children', {
+                get: function() {
+                    return lang.clone( _children );
+                }
+            });
 
             var _manager = options.manager || null;     // Component manager
             Object.defineProperty( this, 'manager', {

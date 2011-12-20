@@ -82,6 +82,13 @@ var game = function( engine ) {
 	new engine.core.Event( 'DAMAGE', {
 		hits: 7
 	}).send( cubes );
+	
+	engine.core.resource.Template({
+	    source: './player.json',
+	    onsuccess: function( resource ) {
+	        console.log( resource.create() );
+	    }
+	});
 
 	// Start the engine!
 	engine.run();

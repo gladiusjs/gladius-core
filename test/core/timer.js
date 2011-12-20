@@ -11,8 +11,8 @@
         setup: function () {
             stop();
 
-            gladius.create( { debug: true }, function( instance ) {       
-                engine = instance;
+            gladius.create( { debug: true }, function( instance ) {
+                engine = instance;                
                 start();
             });
         },

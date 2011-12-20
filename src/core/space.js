@@ -42,21 +42,11 @@ define( function ( require ) {
 
                 var entity = new engine.core.Entity( options );
 
-                // Index by id            
-                _entitiesById[entity.id] = entity;
-
-                // Index by name
-                if( entity.name ) {
-                    if( !_entitiesByName.hasOwnProperty( entity.name ) )
-                        _entitiesByName[entity.name] = [];
-                    _entitiesByName[entity.name].push( entity );
-                }
-
-                ++ _size;
+                that.add( entity );
 
                 return entity;
             };
-
+            
             // Remove an entity by id from the id index. Return the removed entity, or null.
             var _removeById = function( id ) {
                 if( _entitiesById.hasOwnProperty( id ) ) {
@@ -79,6 +69,27 @@ define( function ( require ) {
                     return entity;
                 }
             };
+            
+            this.add = function( entity ) {
+                if( entity ) {                    
+                    // Index by id            
+                    _entitiesById[entity.id] = entity;
+
+                    // Index by name
+                    if( entity.name ) {
+                        if( !_entitiesByName.hasOwnProperty( entity.name ) )
+                            _entitiesByName[entity.name] = [];
+                        _entitiesByName[entity.name].push( entity );
+                    }
+
+                    ++ _size;
+                    
+                    var children = entity.children;
+                    for( var i = 0, l = children.length; i < l; ++ i ) {
+                        that.add( children[i] );
+                    }
+                }
+            };
 
             // Remove the given entity
             this.remove = function( entity ) {
@@ -93,16 +104,21 @@ define( function ( require ) {
                                 delete _entitiesByName[entity.name];
                         }
                     }
+                    
+                    var children = entity.children;
+                    for( var i = 0, l = children.length; i < l; ++ i ) {
+                        that.remove( children[i] );
+                    }
                 }
             };
 
             // Remove the first entity with the given name
             this.removeNamed = function( name ) {
                 if( name ) {
-                    var entity = _removeByName( name );
+                    var entity = _entitiesByName[name];
 
                     if( entity )
-                        _removeById( entity.id );
+                        that.remove( entity );
                 }
             };
 
@@ -110,8 +126,8 @@ define( function ( require ) {
             this.removeAllNamed = function( name ) {
                 if( name && _entitiesByName.hasOwnProperty( name ) ) {
                     while( _entitiesByName[name].length > 0 ) {
-                        var entity = _removeByName( name );
-                        _removeById( entity.id );
+                        var entity = _entitiesByNames[name];
+                        that.remove( entity );
                     }
                 }
             };

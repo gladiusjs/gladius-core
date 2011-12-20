@@ -3,20 +3,32 @@
 /*global define: false, console: false, window: false, setTimeout: false */
 
 define( function ( require ) {
+    
+    return function( engine ) {
+        
+        var Template = engine.base.Resource({
+            type: 'Template',
+            cache: null       
+        },
+        function( source ) {
+            
+            var _source = source;
+            
+            // Create and return a new entity tree from this template
+            this.create = function( options ) {
+                
+                options = options || {};
 
-    var Resource = require( '../resource' );
-
-    // source : a dictionary containing component names and default properties
-    var Template = function( source ) {
-
-        source = source || {};
+                // Return an entity tree
+                
+                return "Entity tree!";
+                
+            };
+            
+        });
+        
+        return Template;
 
     };
-
-    return new Resource({
-        type: 'Template',
-        object: Template
-    });
-
 });
 

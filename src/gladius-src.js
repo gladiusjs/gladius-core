@@ -4,24 +4,25 @@
 define( function ( require ) {
     var lang = require( 'lang' ),
         _Math = require( 'math/math-require' ),
-        ThreadPool = require( './core/threading/pool' ),
-        Scheduler = require( './core/scheduler' ),
+        ThreadPool = require( 'core/threading/pool' ),
+        Scheduler = require( 'core/scheduler' ),
         Delegate = require( 'common/delegate' ),
-        Timer = require( './core/timer' ),
-        Event = require( './core/event' ),
+        Timer = require( 'core/timer' ),
+        Event = require( 'core/event' ),
         Queue = require( 'common/queue' ),
 
     // Services
         Service = require( 'base/service' ),
         // Graphics = require( './graphics/service' ),
         // ActionLists = require( './behavior/action-list/service' ),
-    
-    // Core
-        Space = require( './core/space' ),
+
+        Resource = require( 'base/resource' ),
+        Space = require( 'core/space' ),
         Component = require( 'base/component' ),
-        Entity = require( './core/entity' ),
-        Transform = require( './core/component/transform' ),
-        Script = require( './core/resource/script' ),
+        Entity = require( 'core/entity' ),
+        Transform = require( 'core/component/transform' ),
+        Script = require( 'core/resource/script' ),
+        Template = require( 'core/resource/template' ),
 
     Gladius, i, args,
 
@@ -67,7 +68,7 @@ define( function ( require ) {
                 return _math;
             }
         });
-
+        
         var _scheduler = new Scheduler();
         Object.defineProperty( this, 'scheduler', {
             get: function() {
@@ -99,21 +100,24 @@ define( function ( require ) {
         // In a build, they are async, but do not result in any network
         // requests for the services bundled in the build.
         require(sIds, lang.bind(this, function () {
-
+            
             // Expose engine objects, partially
             // applying items needed for their constructors.
-            lang.extend(this, {
-                Delegate: Delegate,
+            lang.extend( this, {
                 common: {
-                	Queue: Queue
+                    Queue: Queue,
+                    Delegate: Delegate,
                 },
                 base: {
-                	Service: Service( this )
-                },
+                    Service: Service( this ),
+                    Resource: Resource( this ),
+                }                
+            });
+            
+            lang.extend( this, {
                 core: {
                     Entity: Entity( this ),
                     Component: Component,
-                    Resource: null,
                     Space: Space( this ),
                     Event: Event,
                     component: {
@@ -121,10 +125,11 @@ define( function ( require ) {
                     },
                     resource: {
                         Script: Script,
+                        Template: Template( this )
                     }
                 },
             });
-
+            
             // Create a property on the instance's service object for
             // each service, based on the name given the services options object.
             var subs = this.service = {},
@@ -135,7 +140,7 @@ define( function ( require ) {
             }
             
             lang.extend( this, subs );
-         
+            
             // run user-specified setup function
             if ( this.options.setup ) {
                 this.options.setup( this );
@@ -146,6 +151,7 @@ define( function ( require ) {
                 callback(this);
             }
         }));
+        
     }; //Gladius
 
     // Set up common properties for all engine instances
@@ -166,7 +172,7 @@ define( function ( require ) {
     };
 
     // Export the public API for creating engine instances.
-    global.create = function ( options, callback ) {
+    global.create = function ( options, callback ) {        
         return new Gladius( options, callback );
     };
 

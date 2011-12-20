@@ -72,7 +72,9 @@ define( function ( require ) {
         }, //extend
         
         clone: function clone( object ) {
-            return extensions.extend( {}, object );
+            var copy = {};
+            extensions.extend( copy, object );
+            return copy;
         },
 
         isCallable: function( v ) {
