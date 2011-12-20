@@ -4,7 +4,7 @@
 
 define( function ( require ) {
 
-  return function( engine ) {        
+  return function( engine, service, context ) { 
 
     var math = engine.math;
     var Component = require( '../../core/component' );
@@ -20,10 +20,10 @@ define( function ( require ) {
 
       var _active = options.active !== undefined ? options.active : false;
 
-      var canvas = CubicVR.getCanvas();
+      var canvas = context.getCanvas();
 
       var _cvr = {
-          camera: new CubicVR.Camera({
+          camera: new context.Camera({
               width: options.width || canvas.width,
               height: options.height || canvas.height,
               fov: options.fov || 60,

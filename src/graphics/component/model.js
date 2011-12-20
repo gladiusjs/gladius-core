@@ -4,13 +4,11 @@
 
 define( function ( require ) {
 
-  return function( engine ) {        
+  return function( engine, service, context ) {
 
     var math = engine.math;
     var Component = require( '../../core/component' );
     var Delegate = require( '../../core/delegate' );
-    var Material = require( '../resource/material' );
-    var Mesh = require( '../resource/mesh' );
 
     return Component({
       type: 'Model'
@@ -55,7 +53,7 @@ define( function ( require ) {
             oldOnComplete( newMesh );
             callback( newMesh );
         };
-        Mesh( mesh );
+        service.resource.Mesh( mesh );
       } //getMesh
 
       function getMaterial( material, callback ) {
@@ -64,7 +62,7 @@ define( function ( require ) {
             oldOnComplete( newMaterial );
             callback( newMaterial );
         };
-        Material( material );
+        service.resource.Material( material );
       } //getMaterial
 
       if( options.material && options.material.script && options.mesh && options.mesh.script ) {
