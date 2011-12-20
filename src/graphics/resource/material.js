@@ -9,29 +9,33 @@ define( function ( require ) {
     var Resource = require( '../../core/resource' );
     var CubicVR = this.CubicVR;
 
-    var Material = function( source ) {
-        
-        source = source || {};
+    return function( context ) {
 
-        this._cvr = {};
+        var Material = function( source ) {
+            
+            source = source || {};
 
-        var _cvrMaterial = new CubicVR.Material( source );
-        this._cvr.material = _cvrMaterial;
+            this._cvr = {};
 
-        this.prepare = function( options ) {
-            var _cvrMaterial;
-            if ( options.material ) {
-                _cvrMaterial = options.material._cvr.material;
-                _cvrMesh.setFaceMaterial( _cvrMaterial );
-            } //if
-            _cvrMaterial.prepare();
-        }; //prepare
+            var _cvrMaterial = new context.Material( source );
+            this._cvr.material = _cvrMaterial;
+
+            this.prepare = function( options ) {
+                var _cvrMaterial;
+                if ( options.material ) {
+                    _cvrMaterial = options.material._cvr.material;
+                    _cvrMesh.setFaceMaterial( _cvrMaterial );
+                } //if
+                _cvrMaterial.prepare();
+            }; //prepare
+
+        };
+
+        return new Resource({
+            type: 'Material',
+            object: Material
+        });
 
     };
-
-    return new Resource({
-        type: 'Material',
-        object: Material
-    });
 
 });
