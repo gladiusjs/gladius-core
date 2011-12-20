@@ -11,10 +11,20 @@
         setup: function () {
             stop();
 
+            var canvas = document.createElement( "canvas" );
+            canvas.width = 300;
+            canvas.height = 300;
+            document.getElementById( "canvas-container" ).appendChild( canvas );
+
             gladius.create({
                 debug: true, 
                 services: {
-                    graphics: 'graphics/service'
+                    graphics: {
+                        src: 'graphics/service',
+                        options: {
+                            canvas: canvas
+                        }
+                    }
                 }
               }, function( instance ) {       
                 engine = instance;
