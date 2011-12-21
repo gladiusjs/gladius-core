@@ -40,6 +40,7 @@ define( function ( require ) {
      */
     Gladius = function ( options, callback ) {
         var sNames = [],
+        sOptions = [],
         sIds = [],
         services, prop;
 
@@ -50,8 +51,16 @@ define( function ( require ) {
         services = this.options.services || global.services;
         for ( prop in services ) {
             if ( services.hasOwnProperty( prop ) ) {
-                sNames.push(prop);
-                sIds.push('./' + services[prop]);
+                if ( typeof services[ prop ] === "string" ) {
+                    sNames.push( prop );
+                    sIds.push( './' + services[ prop ] );
+                    sOptions.push( {} );
+                }
+                else {
+                    sNames.push( prop );
+                    sIds.push( './' + services[ prop ].src );
+                    sOptions.push( services[ prop ].options || {} );
+                }
             }
         }
         
@@ -135,10 +144,9 @@ define( function ( require ) {
             var subs = this.service = {},
             	i;
             for (i = 0; i < arguments.length; i++) {
-                var s = arguments[i]( this );               
-                subs[ sNames[i] ] = new s();
+                var s = arguments[ i ]( this ); 
+                subs[ sNames[ i ] ] = new s( sOptions[ i ] );
             }
-            
             lang.extend( this, subs );
             
             // run user-specified setup function

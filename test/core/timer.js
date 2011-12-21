@@ -114,7 +114,7 @@
     test( 'Tick update', function() {
         expect( 1 );
         
-        var tick = new engine.Delegate(),
+        var tick = new engine.common.Delegate(),
             timer = new engine.scheduler.Timer({ 
                 tick: tick 
             }),

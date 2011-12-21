@@ -22,6 +22,7 @@ define( function ( require ) {
         Resource = require( '../core/resource' ),
         Mesh = require( './resource/mesh' ),
         Material = require( './resource/material' ),
+        Target = require( './target' ),
 
         Model = require( './component/model' ),
         Camera = require( './component/camera' ),
@@ -45,6 +46,20 @@ define( function ( require ) {
         },
         function( options ) {
 
+            options = options || {};
+
+            var _target = new Target({
+                element: options.canvas
+            });
+        
+            Object.defineProperty( this, "target", {
+                enumerable: true,
+                configurable: false,
+                get: function() {
+                    return _target;
+                }
+            });
+
             var _scenes = [],
                 _renderedFrames = 0,
                 _canRender = false,
@@ -62,7 +77,7 @@ define( function ( require ) {
                     models,
                     model,
                     transform,
-                    gl = CubicVR.GLCore.gl;
+                    gl = _target.context.GLCore.gl;
 
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -79,7 +94,7 @@ define( function ( require ) {
                               
                                 model = models[ mi ].find( 'Model' );
                                 transform = models[ mi ].find( 'Transform' );
-                                CubicVR.renderObject(
+                                _target.context.renderObject(
                                     model.mesh._cvr.mesh,
                                     camera._cvr.camera,
                                     transform.absolute
@@ -112,8 +127,8 @@ define( function ( require ) {
             var _resources = {
 
                 Light: null,
-                Material: Material,
-                Mesh: Mesh,
+                Material: Material( _target.context ),
+                Mesh: Mesh( _target.context ),
                 Shader: null,
                 Texture: null
 
@@ -156,8 +171,8 @@ define( function ( require ) {
 
             var _components = {
 
-                Model: Model( engine ),
-                Camera: Camera( engine )
+                Model: Model( engine, _this, _target.context ),
+                Camera: Camera( engine, _this, _target.context )
 
             };
 
