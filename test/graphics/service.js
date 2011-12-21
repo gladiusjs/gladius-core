@@ -11,10 +11,20 @@
         setup: function () {
             stop();
 
+            var canvas = document.createElement( "canvas" );
+            canvas.width = 300;
+            canvas.height = 300;
+            document.getElementById( "canvas-container" ).appendChild( canvas );
+
             gladius.create({
                   debug: true,
                   services: {
-                      graphics: 'graphics/service'
+                      graphics: {
+                          src: 'graphics/service',
+                          options: {
+                              canvas: canvas
+                          }
+                      }
                   }
               }, function( instance ) {       
                   engine = instance;
@@ -45,12 +55,7 @@
             cameraEntity = new scene.Entity(),
             modelEntity = new scene.Entity();
 
-        // This is very temporary until we have a way to render to multiple things
-        var canvas = document.createElement( "canvas" );
-        canvas.width = 300;
-        canvas.height = 300;
-        document.getElementById( "canvas-container" ).appendChild( canvas );
-        var gl = CubicVR.init( canvas );
+        canvas = engine.graphics.target.element;
 
         var cameraComponent = new engine.graphics.component.Camera({
           active: true,
