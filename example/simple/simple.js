@@ -83,10 +83,12 @@ var game = function( engine ) {
 		hits: 7
 	}).send( cubes );
 	
+	var player;
 	engine.core.resource.Template({
 	    source: './player.json',
 	    onsuccess: function( resource ) {
-	        console.log( resource.create() );
+	        player = resource.create();
+	        console.log( player );
 	    }
 	});
 

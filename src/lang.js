@@ -79,7 +79,21 @@ define( function ( require ) {
 
         isCallable: function( v ) {
             return typeof v === 'function';
-        }        
+        },
+        
+        getProperty: function( object, path ) {
+            var current = path.shift();
+            
+            if( !object.hasOwnProperty( current ) ) {
+                throw 'property not found';
+            } else {
+                if( 0 === path.length ) {
+                    return object[current];
+                } else {
+                    return extensions.getProperty( object[current], path );
+                }
+            }
+        }
         
     };
     

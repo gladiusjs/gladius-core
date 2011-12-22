@@ -1,3 +1,27 @@
 {
-    "hello": "world!"
+    "name": "player",
+    "components":
+    	{
+    		"core.component.Transform":
+    			{
+    				"position": [0, 0, 0],
+    				"rotation": [0, 0, 0],
+    				"scale": [1, 1, 1]
+    			}
+    	},
+    "children":
+    [
+    	{
+    		"name": "arm"
+    	},
+    	{
+    		"name": "arm"
+    	},
+    	{
+    		"name": "leg"
+    	},
+    	{
+    		"name": "leg"
+    	}
+    ]    
 }
