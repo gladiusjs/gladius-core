@@ -133,7 +133,7 @@ define( function ( require ) {
                         Transform: Transform( this )
                     },
                     resource: {
-                        Script: Script,     // TD: Refactor this to use base.Resource instead of core.Resource
+                        Script: Script( this ),
                         Template: Template( this )
                     }
                 },
