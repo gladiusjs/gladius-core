@@ -4,7 +4,7 @@
 
 define( function ( require ) {
     
-    var lang = require( './lang' ),
+    var lang = require( 'lang' ),
         defaultSchedules = require( 'base/default-schedules' );
          
     return function( options ) {
@@ -29,7 +29,7 @@ define( function ( require ) {
                 }
             });
             
-            var _id = window.guid();
+            var _id = lang.guid();
             Object.defineProperty( this, 'id', {
                 get: function() {
                     return _id;
