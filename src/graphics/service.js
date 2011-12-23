@@ -14,7 +14,7 @@ define( function ( require ) {
                window.setTimeout(callback, 1000/60);
            };
     })();
-
+    
     require( 'CubicVR.js/CubicVR' );
     
     var CubicVR = this.CubicVR,
@@ -127,13 +127,13 @@ define( function ( require ) {
             var _resources = {
 
                 Light: null,
-                Material: Material( _target.context ),
-                Mesh: Mesh( _target.context ),
+                Material: Material( engine, _target.context ),
+                Mesh: Mesh( engine, _target.context ),
                 Shader: null,
                 Texture: null
 
             };
-
+            
             Object.defineProperty( this, "resource", {
                 get: function() {
                     return _resources;

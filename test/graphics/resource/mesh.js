@@ -43,7 +43,7 @@
 
         engine.graphics.resource.Mesh({
             script: engine.graphics.script.mesh.cube,
-            onComplete: function( instance ) {
+            onsuccess: function( instance ) {
                 ok( true );
                 start();
             }
