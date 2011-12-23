@@ -7,8 +7,8 @@ define( function ( require ) {
 	return function( engine ) {
 
 		var math = engine.math;
-		var Component = require( '../component' );
-		var Delegate = require( '../delegate' );
+		var Component = require( 'base/component' );
+		var Delegate = require( 'common/delegate' );
 
 		return Component({
 			type: 'Transform'

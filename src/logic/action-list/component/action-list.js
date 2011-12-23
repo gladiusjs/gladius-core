@@ -7,7 +7,7 @@ define( function ( require ) {
 	return function( engine ) {
 
 		var math = engine.math;
-		var Component = require( '../component' );
+		var Component = require( 'base/component' );
 		
 		/*
 		 * The algorithm below is based on the discussion of action lists here:

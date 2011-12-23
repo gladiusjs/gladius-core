@@ -25,10 +25,10 @@
     test( 'Bound handlers are called with data', function () {
         expect( 1 );
 
-        var event = new engine.Delegate();
+        var event = new engine.common.Delegate();
         var data = {
                 value: 'Hello world!'
-            }
+            };
         var handler = function( options ) {        
             same(
                 data,
@@ -43,7 +43,7 @@
     test( 'Multiple bound handlers are called', function() {
         expect( 3 );
 
-        var event = new engine.Delegate();
+        var event = new engine.common.Delegate();
         var handler1 = function( options ) {
             ok(
                 true,

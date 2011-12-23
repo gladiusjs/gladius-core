@@ -4,6 +4,8 @@
 
 define( function ( require ) {
 
+  var lang = require( 'lang' );
+
   return function( options ) {
 
       options = options || {};
@@ -11,7 +13,7 @@ define( function ( require ) {
 
       var _targetElement = options.element,
           _context = CubicVR.init({
-              context: window.guid(),
+              context: lang.guid(),
               canvas: _targetElement
           });
 

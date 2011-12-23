@@ -4,6 +4,8 @@
 
 define( function ( require ) {
     
+    var lang = require( 'lang' );
+    
     return function( options ) {
         
         options = options || {};
@@ -13,7 +15,7 @@ define( function ( require ) {
             
             options = options || {};
             
-            var _id = options.id || window.guid();
+            var _id = options.id || lang.guid();
             var _tick = options.tick || _defaultTick || null;
             
             var _time = options.start || 0;

@@ -4,7 +4,7 @@
 
 define( function ( require ) {
 
-    var lang = require( 'core/lang' ),
+    var lang = require( 'lang' ),
     defaultSchedules = require( 'base/default-schedules' );
 
     return function( engine ) {

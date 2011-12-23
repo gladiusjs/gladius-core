@@ -26,12 +26,12 @@
         expect( 2 );
 
         ok(
-                window.guid,
-                'window.guid is defined'
+                engine.guid,
+                'engine.guid is defined'
         );
         ok(
-                window.guid(),
-                'window.guid returns a value'
+                engine.guid(),
+                'engine.guid returns a value'
         );
     });
 

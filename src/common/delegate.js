@@ -3,17 +3,19 @@
 /*global define: false, console: false, window: false, setTimeout: false */
 
 define( function ( require ) {
+    
+    var lang = require( 'lang' );
 
     return function( options ) {
 
-        var _id = window.guid();
+        var _id = lang.guid();
         var _subscribers = {};
         var _size = 0;
 
         // Bind the handler to an id, if it doesn't already have one
         var prepareHandler = function( handler ) {
             if( !handler.hasOwnProperty( '__id' ) ) {
-                var id = window.guid();
+                var id = lang.guid();
                 Object.defineProperty( handler, '__id', {
                     get: function() {
                         return id;
