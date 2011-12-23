@@ -41,25 +41,25 @@ define( function ( require ) {
               _mesh.prepare({
                   material: _material
               });
-              if( options.onComplete ) {
-                  options.onComplete( _this );
+              if( options.onsuccess ) {
+                  options.onsuccess( _this );
               } //if
           } //if
       } //checkMeshAndMaterial
 
       function getMesh( mesh, callback ) {
-        var oldOnComplete = mesh.onComplete || function() {};
-        mesh.onComplete = function( newMesh ) {
-            oldOnComplete( newMesh );
+        var oldOnsuccess = mesh.onsuccess || function() {};
+        mesh.onsuccess = function( newMesh ) {
+            oldOnsuccess( newMesh );
             callback( newMesh );
         };
         service.resource.Mesh( mesh );
       } //getMesh
 
       function getMaterial( material, callback ) {
-        var oldOnComplete = material.onComplete || function() {};
-        material.onComplete = function( newMaterial ) {
-            oldOnComplete( newMaterial );
+        var oldOnsuccess = material.onsuccess || function() {};
+        material.onsuccess = function( newMaterial ) {
+            oldOnsuccess( newMaterial );
             callback( newMaterial );
         };
         service.resource.Material( material );

@@ -44,7 +44,7 @@
 
         engine.graphics.resource.Mesh({
             script: engine.graphics.script.mesh.cube,
-            onComplete: function( instance ) {
+            onsuccess: function( instance ) {
                 model = new engine.graphics.component.Model({
                     mesh: instance
                 });

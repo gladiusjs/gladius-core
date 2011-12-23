@@ -27,7 +27,7 @@
 
         engine.core.resource.Script({
             source: 'assets/test-script.json',
-            onComplete: function( instance ) {
+            onsuccess: function( instance ) {
                 same(
                     3,
                     instance.run( 1, 2 ),

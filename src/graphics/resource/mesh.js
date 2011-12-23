@@ -4,38 +4,33 @@
 
 define( function ( require ) {
 
-    require( 'CubicVR.js/CubicVR' );
+    return function( engine, context ) {
+        
+        var Mesh = engine.base.Resource({
+            type: 'Mesh',
+            cache: null
+        },
+        function( source ) {
 
-    var Resource = require( '../../core/resource' );
-    var CubicVR = this.CubicVR;
+            source = source || {};
 
-    return function( context ) {
-      // source.points
-      // source.faces
-      // source.uv
-      var Mesh = function( source ) {
-          
-          source = source || {};
+            this._cvr = {};
 
-          this._cvr = {};
+            var _cvrMesh = new context.Mesh( source );
+            this._cvr.mesh = _cvrMesh;
 
-          var _cvrMesh = new context.Mesh( source );
-          this._cvr.mesh = _cvrMesh;
+            this.prepare = function( options ) {
+                if( options.material ) {
+                    var cvrMaterial = options.material._cvr.material;
+                    _cvrMesh.setFaceMaterial( cvrMaterial );
+                } //if
+                _cvrMesh.prepare();
+            }; //prepare
 
-          this.prepare = function( options ) {
-            if( options.material ) {
-                var cvrMaterial = options.material._cvr.material;
-                _cvrMesh.setFaceMaterial( cvrMaterial );
-            } //if
-            _cvrMesh.prepare();
-          }; //prepare
+        });
 
-      };
+        return Mesh;
 
-      return new Resource({
-        type: 'Mesh',
-        object: Mesh
-      });
     };
 
 });
