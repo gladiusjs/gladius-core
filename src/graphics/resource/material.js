@@ -4,15 +4,14 @@
 
 define( function ( require ) {
 
-    require( 'CubicVR.js/CubicVR' );
+    return function( engine, context ) {
 
-    var Resource = require( '../../core/resource' );
-    var CubicVR = this.CubicVR;
+        var Material = engine.base.Resource({
+            type: 'Material',
+            cache: null
+        },
+        function( source ) {
 
-    return function( context ) {
-
-        var Material = function( source ) {
-            
             source = source || {};
 
             this._cvr = {};
@@ -29,12 +28,9 @@ define( function ( require ) {
                 _cvrMaterial.prepare();
             }; //prepare
 
-        };
-
-        return new Resource({
-            type: 'Material',
-            object: Material
         });
+        
+        return Material;
 
     };
 

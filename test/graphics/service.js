@@ -76,7 +76,7 @@
           material: {
             script: engine.graphics.script.material.sample
           },
-          onComplete: function( instance ) {
+          onsuccess: function( instance ) {
             modelEntity.add( instance );
             engine.graphics.render();
             engine.run();

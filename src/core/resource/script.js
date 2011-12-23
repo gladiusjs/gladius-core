@@ -4,29 +4,31 @@
 
 define( function ( require ) {
 
-    var Resource = require( '../resource' );
+    return function( engine ) {
+    
+        var Script = engine.base.Resource({
+            type: 'Script',
+            cache: null
+        },
+        function( source ) {
+            
+            source = source || {};
+            source.text = source.text || '';
+            source.parameters = source.parameters || [];
 
-    // source.text : script body
-    // source.parameters : parameter names
-    var Script = function( source ) {
-
-        source = source || {};
-        source.text = source.text || '';
-        source.parameters = source.parameters || [];
-
-        var _script = new Function( source.parameters, source.text );
-        Object.defineProperty( this, 'run', {
-            get: function() {
-                return _script;
-            }
+            var _script = new Function( source.parameters, source.text );
+            
+            Object.defineProperty( this, 'run', {
+                get: function() {
+                    return _script;
+                }
+            });
+            
         });
-
+        
+        return Script;
+        
     };
-
-    return new Resource({
-        type: 'Script',
-        object: Script
-    });
-
+    
 });
 
