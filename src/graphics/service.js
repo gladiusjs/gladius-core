@@ -19,7 +19,6 @@ define( function ( require ) {
     
     var CubicVR = this.CubicVR,
 
-        Resource = require( '../core/resource' ),
         Mesh = require( './resource/mesh' ),
         Material = require( './resource/material' ),
         Target = require( './target' ),
