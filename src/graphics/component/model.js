@@ -11,7 +11,8 @@ define( function ( require ) {
     var Delegate = require( 'common/delegate' );
 
     return Component({
-      type: 'Model'
+      type: 'Model',
+      depends: 'Transform'
     },
     function( options ) {
 

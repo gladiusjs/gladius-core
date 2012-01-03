@@ -11,7 +11,8 @@ define( function ( require ) {
     var Delegate = require( 'common/delegate' );
 
     return Component({
-      type: 'Camera'
+      type: 'Camera',
+      depends: 'Transform'
     },
     function( options ) {
 
