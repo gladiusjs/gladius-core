@@ -68,8 +68,10 @@ define( function ( require ) {
       this.ownerChanged.subscribe( handleOwnerChanged );
 
       this.prepareForRender = function(){
-          _cvr.camera.position = _transform.position;
-          _cvr.camera.lookat( _target );
+          if( _transform ){
+            _cvr.camera.position = _transform.position;
+            _cvr.camera.lookat( _target );
+          } //if
       }; //prepareForRender
 
     });
