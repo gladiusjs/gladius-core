@@ -1,56 +1,20 @@
-/*jshint white: false, strict: false, plusplus: false, onevar: false,
-  nomen: false */
-/*global gladius: false, document: false, window: false, module: false, start,
-  test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false */
+document.addEventListener( "DOMContentLoaded", function( e ){
 
-(function() {
+  var canvas = document.getElementById( "test-canvas" );
 
-    var engine = null;
-
-    module( 'graphics/service', {
-        setup: function () {
-            stop();
-
-            var canvas = document.createElement( "canvas" );
-            canvas.width = 300;
-            canvas.height = 300;
-            document.getElementById( "canvas-container" ).appendChild( canvas );
-
-            gladius.create({
-                  debug: true,
-                  services: {
-                      graphics: {
-                          src: 'graphics/service',
-                          options: {
-                              canvas: canvas
-                          }
-                      }
-                  }
-              }, function( instance ) {       
-                  engine = instance;
-                  start();
-            });
-        },
-
-        teardown: function () {
-            engine = null;
+  gladius.create({
+        debug: true,
+        services: {
+            graphics: {
+                src: 'graphics/service',
+                options: {
+                    canvas: canvas
+                }
+            }
         }
-    });
+    }, function( instance ) {       
+        var engine = instance;
 
-    test( 'Construction', function() {
-        expect( 1 );
-        ok( engine.graphics, 'graphics subsystem exists' );
-    });
-
-    test( 'Space awareness', function() {
-        expect( 1 );
-        var scene1 = new engine.core.Space(),
-            scene2 = new engine.core.Space();
-        equal( engine.graphics.scenes.length, 2, 'subsystem grabbed created scenes' );
-    });
-
-    asyncTest( 'Test render', function() {
-        expect( 1 );
         var scene = new engine.core.Space(),
             cameraEntity = new scene.Entity(),
             modelEntity = new scene.Entity();
@@ -111,4 +75,4 @@
 
     });
 
-}());
+}, false );
