@@ -103,5 +103,60 @@
         ok( cache.contains( testKey2 ), 'cache contains test key 2' );
         equal( cache.find( testKey2 ), testValue2, 'cached value is correct for test key 2' );        
     });
+    
+    test( 'Multiple intersecting tags', function() {
+        expect( 2 );
+        
+        var testKey = 'http://www.example1.com/test',
+        testValue = 'Example content!',
+        testTag1 = 'TEST1',
+        testTag2 = 'TEST2';
+        
+        var cache = new engine.base.cache.Cache();
+
+        cache.add({
+            tag: testTag1,
+            key: testKey,
+            value: testValue
+        });
+        
+        cache.add({
+            tag: testTag2,
+            key: testKey,
+            value: testValue
+        });
+        
+        equal( cache.size, 1, 'cache contains a single entry' );
+        cache.clear({ tag: testTag1 });
+        equal( cache.find( testKey ), testValue, 'value is still cached after clear on tag 1' );
+        equal( cache.size, 1, 'cache has correct size after clear on tag 1' );
+        
+    });
+    
+    test( 'Update value', function() {
+        expect( 1 );
+        
+        var testKey = 'http://www.example1.com/test',
+        testValue1 = 'Example content!',
+        testValue2 = 'Example content@',
+        testTag1 = 'TEST1',
+        testTag2 = 'TEST2';
+        
+        var cache = new engine.base.cache.Cache();
+
+        cache.add({
+            tag: testTag1,
+            key: testKey,
+            value: testValue1
+        });
+        
+        cache.add({
+            tag: testTag2,
+            key: testKey,
+            value: testValue2
+        });
+        
+        equal( cache.find( testKey ), testValue2, 'value for test key is updated' );
+    });
 
 }());
