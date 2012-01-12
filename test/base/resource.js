@@ -24,6 +24,35 @@
         }
     });
 
+    // Some day we can do even better by using mocks and ensuring that any HTTP
+    // status code < 200 or > 299 fails.
+    asyncTest( 'ensure onfailure gets called on loading non-existent file',
+                function () {
+                  
+        expect(1);             
     
+        var options = {
+            source : "no-such-url-exists",
 
+            onsuccess : function itemOnSuccess(item) {
+                ok( false, "non-existent file load shouldn't call onsuccess" );
+                start();
+            },
+
+            onfailure : function itemOnFailure(error) {
+                ok( true, "non-existent file load should call onfailure");
+
+                // TD should check format of error once we decide it
+
+                start();                
+            }
+        };
+
+        // it was WAY too painful to figure out the syntax
+        // to trigger the intended semantics here; having two partial
+        // constructors that take different options is confusing.
+        // this object model needs simplifying.
+        var resource = new engine.base.Resource()(options);
+ 
+    });
 }());
