@@ -30,7 +30,7 @@ define( function ( require ) {
 
         var Resource = function( options, c ) {
 
-            option = options || {};
+            options = options || {};
 
             var r = function( options ) {
 
@@ -61,7 +61,7 @@ define( function ( require ) {
                             }
                             if ( xhr.status < 200 || xhr.status > 299 ) {
                                 _onfailure( xhr.statusText ) ;
-                                return;       
+                                return;
                             }
                             var response = JSON.parse( xhr.responseText );
                             if (c) {
