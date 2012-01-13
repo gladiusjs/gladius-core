@@ -64,7 +64,12 @@ define( function ( require ) {
                                 return;       
                             }
                             var response = JSON.parse( xhr.responseText );
-                            _instance = new c( response );
+                            if (c) {
+                                _instance = new c( response );
+                            } else {
+                                _instance = response;
+                            }
+                            
                             if( _cache ) {
                                 _cache.add( _instance );
                             }

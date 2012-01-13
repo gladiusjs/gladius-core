@@ -53,6 +53,10 @@
         // constructors that take different options is confusing.
         // this object model needs simplifying.
         var resource = new engine.base.Resource()(options);
- 
-    });
+     });
+     
+     // TD test loading of a resource when passing a constructor for the
+     // for processing the returned JSON:
+     //
+     // var resource = new engine.base.Resource(someConstructor)(options)
 }());

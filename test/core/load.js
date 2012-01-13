@@ -53,7 +53,7 @@
   asyncTest( 'invoke load with a single uncached resource', function() {
     expect(6);
 
-    var resourcePath = "../assets/test-loadfile1.json";
+    var resourcePath = "assets/test-loadfile1.json";
     
     function onprogress ( ) {
       ok( false, "progress should not be called for only 1 file");
@@ -80,19 +80,19 @@
         deepEqual(result, {}, "empty JSON object should have been loaded");
       },
       onfailure: function( error ) {
-        ok(false, "failed to load minimal JSON file");
+        ok(false, "failed to load minimal JSON file: " + error);
       }
     };
     
-    var result = engine.core.resource.load(resourceToLoad, { 
+    var result = engine.core.resource.load([resourceToLoad], { 
       oncomplete: oncomplete, 
       onprogress: onprogress,
       cache: "myEmptyCache"});
       
     deepEqual(result, {}, "result set is empty after single uncached load started");
-  });
-
-   // TD: separate tests for cached & not cached
+  });  
+ 
+  // TD: separate tests for cached & not cached
    
   // TD: progress should not be called at 100% complete; get rid of onprogress
   // ok()
@@ -101,5 +101,13 @@
   // onprogress or oncomplete is called; refactor regular resources to
   // behave this way?
   
-  // TD: test that loading a bogus resource returns an error
+  // TD: test that loading a bogus resource returns an error and completes
+  
+  // TD: test that passing in various edge cases and null for options
+  // behaves appropriately
+  
+  // TD: test what happens when itemsToLoad contains dups
+  
+  // TD: test what happens when itemsToLoad is not an array.  duck-type as 
+  // single object to load?
 }());
