@@ -19,7 +19,7 @@ define( function ( require ) {
     
     var CubicVR = this.CubicVR,
 
-        Resource = require( '../core/resource' ),
+        Resource = require( '../base/resource' ),
         Mesh = require( './resource/mesh' ),
         Material = require( './resource/material' ),
         Target = require( './target' ),
@@ -94,6 +94,7 @@ define( function ( require ) {
                               
                                 model = models[ mi ].find( 'Model' );
                                 transform = models[ mi ].find( 'Transform' );
+                                camera.prepareForRender();
                                 _target.context.renderObject(
                                     model.mesh._cvr.mesh,
                                     camera._cvr.camera,
