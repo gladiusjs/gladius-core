@@ -17,7 +17,9 @@ define( function ( require ) {
     function( options ) {
 
       options = options || {};
-      var _that = this;
+      var _that = this,
+          _target = [0, 0, 0],
+          _transform;
 
       var _active = options.active !== undefined ? options.active : false;
 
@@ -35,8 +37,7 @@ define( function ( require ) {
       // This should be moved out of here, since it exists
       // only to create the camera's normal matrix before a render.
       // Probably should be fixed upstream in CubicVR.js (identity matrix, maybe).
-      _cvr.camera.position = [1, 1, 1];
-      _cvr.camera.lookat([0, 0, 0]);
+      _cvr.camera.position = [0, 0, 0];
 
       Object.defineProperty( this, "_cvr", {
         get: function() {
@@ -48,15 +49,31 @@ define( function ( require ) {
         get: function() {
           return _active;
         },
-        set: function( val ) {
+        set: function( val ){
           _active = val;
         }
       });
 
-      var handleOwnerChanged = function( e ) {
-      }; //ownerChangedHandler
+      Object.defineProperty( this, "target", {
+        get: function() {
+          return _target;
+        },
+        set: function( val ){
+          _target = val;
+        }
+      });
 
+      var handleOwnerChanged = function( e ){
+          _transform = e.current.find( "Transform" );
+      }; //ownerChangedHandler
       this.ownerChanged.subscribe( handleOwnerChanged );
+
+      this.prepareForRender = function(){
+          if( _transform ){
+            _cvr.camera.position = _transform.position;
+            _cvr.camera.lookat( _target );
+          } //if
+      }; //prepareForRender
 
     });
 

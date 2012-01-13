@@ -8,7 +8,7 @@ define( function ( require ) {
 
     var math = engine.math;
     var Component = require( 'base/component' );
-    var Delegate = require( 'common/delegate' );
+    var Delegate = require( 'common/delegate' )
 
     return Component({
       type: 'Model',
@@ -25,64 +25,43 @@ define( function ( require ) {
 
       Object.defineProperty( this, "mesh", {
           enumerable: true,
-          get: function() {
+          get: function(){
               return _mesh;
+          },
+          set: function( val ){
+              _mesh = val;
+              _this.prepare();
           }
       });
 
       Object.defineProperty( this, "material", {
           enumerable: true,
-          get: function() {
+          get: function(){
               return _material;
+          },
+          set: function( val ){
+              _material = val;
+              _this.prepare();
           }
       });
 
-      function checkMeshAndMaterial() {
-          if( _mesh && _material ) {
+      this.prepare = function(){
+          if( _mesh && _material && _mesh._cvr && _material._cvr ) {
               _mesh.prepare({
                   material: _material
               });
-              if( options.onsuccess ) {
-                  options.onsuccess( _this );
+              if( options.onready ) {
+                  options.onready( _this );
               } //if
           } //if
-      } //checkMeshAndMaterial
-
-      function getMesh( mesh, callback ) {
-        var oldOnsuccess = mesh.onsuccess || function() {};
-        mesh.onsuccess = function( newMesh ) {
-            oldOnsuccess( newMesh );
-            callback( newMesh );
-        };
-        service.resource.Mesh( mesh );
-      } //getMesh
-
-      function getMaterial( material, callback ) {
-        var oldOnsuccess = material.onsuccess || function() {};
-        material.onsuccess = function( newMaterial ) {
-            oldOnsuccess( newMaterial );
-            callback( newMaterial );
-        };
-        service.resource.Material( material );
-      } //getMaterial
-
-      if( options.material && options.material.script && options.mesh && options.mesh.script ) {
-          _material = null;
-          _mesh = null;
-          getMaterial( options.material, function( newMaterial ) {
-              _material = newMaterial;
-              checkMeshAndMaterial();
-          });
-          getMesh( options.mesh, function( newMesh ) {
-              _mesh = newMesh;
-              checkMeshAndMaterial();
-          });
-      } //if
+      }; //prepare
 
       var handleOwnerChanged = function( e ) {
       }; //ownerChangedHandler
 
       this.ownerChanged.subscribe( handleOwnerChanged );
+
+      _this.prepare();
 
     });
 
