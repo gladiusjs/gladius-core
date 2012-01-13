@@ -92,7 +92,7 @@
     deepEqual(result, {}, "result set is empty after single uncached load started");
   });  
  
-  // TD: separate tests for cached & not cached
+  // TD: load group of resources
    
   // TD: progress should not be called at 100% complete; get rid of onprogress
   // ok()
