@@ -197,21 +197,25 @@
     deepEqual(result, {}, "result set is empty after single uncached load started");
   });  
 
-
+  // TD: test group load with some failing & some succeeding loads
+  
   // TD: test constructor type handling
   
-  // TD: progress should not be called at 100% complete; get rid of onprogress
-  // ok()
+  // TD: test what happens when itemsToLoad contains dups & 
+  // non-canonicalized dups
+
+  // TD: test that passing in various edge cases and null for options
+  // behaves appropriately
+
+  // TD: test what happens when itemsToLoad is not an array.  duck-type as 
+  // single object to load?
   
   // TD: ensure that we test that result is not populated before one of 
   // onprogress or oncomplete is called; refactor regular resources to
   // behave this way?
+  
+  // TD: progress should not be called at 100% complete; get rid of onprogress
+  // ok()
+  
 
-  // TD: test that passing in various edge cases and null for options
-  // behaves appropriately
-  
-  // TD: test what happens when itemsToLoad contains dups
-  
-  // TD: test what happens when itemsToLoad is not an array.  duck-type as 
-  // single object to load?
 }());
