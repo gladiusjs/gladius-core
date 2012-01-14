@@ -109,7 +109,7 @@
       equal( Object.keys(result).length, 0, "result set is empty");
 
       start();
-      // TD: test that cache has not been modified
+      // TD: test that cache has been appropriately modified
     }
 
     var resourceToLoad = {
@@ -165,7 +165,7 @@
       }
 
       start();
-      // TD: test that cache has not been modified
+      // TD: test that cache has been appropriately modified
     }
     
     function makeResourceInfo(path) {
