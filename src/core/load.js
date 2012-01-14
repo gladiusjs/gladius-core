@@ -53,12 +53,11 @@ define( function ( require ) {
        }
 
        for (var i = 0; i < itemsToLoad.length; i++) {
-
          var itemOptions = new makeItemOptions( itemsToLoad[i] );
          var resource = new engine.base.Resource()(itemOptions);
-         
-         return result;
        }
+
+       return result;
      };
      
      return load;
