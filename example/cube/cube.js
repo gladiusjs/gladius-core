@@ -24,7 +24,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 name: 'cube0',
                 components: [
 new engine.core.component.Transform({
-    position: math.Vector3( 0, 0, 0 )
+    position: math.Vector3( 0, 0, 0 ),
+    rotation: math.Vector3( 1, 2, 3 )
 }),
 new engine.graphics.component.Model({
     mesh: resources.mesh,
@@ -42,7 +43,7 @@ new engine.core.component.Transform({
 }),
 new engine.graphics.component.Model({
     mesh: resources.mesh,
-    material: resources.material
+    // material: resources.material
 })
 ]
             }) ); 
@@ -51,7 +52,7 @@ new engine.graphics.component.Model({
                 name: 'camera',
                 components: [
 new engine.core.component.Transform({
-    position: math.Vector3( 10, 0, 0 )
+    position: math.Vector3( -100, 0, 0 )
 }),
 new engine.graphics.component.Camera({
     active: true,
@@ -63,7 +64,7 @@ new engine.graphics.component.Camera({
             });
             camera.find( 'Camera' ).target = cubes[0].find( 'Transform' ).position;
 
-            // cubes[1].parent = cubes[0];
+            cubes[1].parent = cubes[0];
 
             // Start the engine!
             engine.run();
