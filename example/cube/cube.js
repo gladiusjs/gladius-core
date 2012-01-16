@@ -23,43 +23,43 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             cubes.push( new space.Entity({
                 name: 'cube0',
                 components: [
-new engine.core.component.Transform({
-    position: math.Vector3( 0, 0, 0 )
-}),
-new engine.graphics.component.Model({
-    mesh: resources.mesh,
-    material: resources.material
-})
-]
+                    new engine.core.component.Transform({
+                        position: math.Vector3( 0, 0, 0 )
+                    }),
+                    new engine.graphics.component.Model({
+                        mesh: resources.mesh,
+                        material: resources.material
+                    })
+                ]
             }) );
 
             cubes.push( new space.Entity({
                 name: 'cube1',
                 components: [
-new engine.core.component.Transform({
-    position: math.Vector3( 1, 1, 1 ),
-    scale: math.Vector3( 0.1, 0.1, 0.1 )
-}),
-new engine.graphics.component.Model({
-    mesh: resources.mesh,
-    material: resources.material
-})
-]
+                    new engine.core.component.Transform({
+                        position: math.Vector3( 1, 1, 1 ),
+                        scale: math.Vector3( 0.1, 0.1, 0.1 )
+                    }),
+                    new engine.graphics.component.Model({
+                        mesh: resources.mesh,
+                        material: resources.material
+                    })
+                ]
             }) ); 
 
             var camera = new space.Entity({
                 name: 'camera',
                 components: [
-new engine.core.component.Transform({
-    position: math.Vector3( 10, 0, 0 )
-}),
-new engine.graphics.component.Camera({
-    active: true,
-    width: canvas.width,
-    height: canvas.height,
-    fov: 60
-})
-]
+                    new engine.core.component.Transform({
+                        position: math.Vector3( 10, 0, 0 )
+                    }),
+                    new engine.graphics.component.Camera({
+                        active: true,
+                        width: canvas.width,
+                        height: canvas.height,
+                        fov: 60
+                    })
+                ]
             });
             camera.find( 'Camera' ).target = cubes[0].find( 'Transform' ).position;
 
