@@ -57,7 +57,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                         width: canvas.width,
                         height: canvas.height,
                         fov: 60
-                    })
+                    }),
+                    new engine.graphics.component.Light( resources.light )
                 ]
             });
             camera.find( 'Camera' ).target = cubes[0].find( 'Transform' ).position;
@@ -69,7 +70,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
         };
 
-        var expectedResources = 2;
+        var expectedResources = 3;
         var registerResource = function( name, instance ) {
             resources[name] = instance;
             if( Object.keys( resources ).length === expectedResources ) {
@@ -87,6 +88,12 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             script: engine.graphics.script.material.sample,
             onsuccess: function( instance ) {
                 registerResource( 'material', instance );
+            }
+        });
+        engine.graphics.resource.Light({
+            script: engine.graphics.script.light.sample,
+            onsuccess: function( instance ) {
+                registerResource( 'light', instance );
             }
         });
 
