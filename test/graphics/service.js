@@ -75,7 +75,8 @@
 
         var resources = {};
         function onResourceSuccess(){
-            if( resources.mesh && resources.material ){
+            if( resources.mesh && resources.material && resources.light ){
+                var lightComponent = new engine.graphics.component.Light( resources.light );
                 var modelComponent = new engine.graphics.component.Model({
                     mesh: resources.mesh,
                     material: resources.material,
@@ -90,6 +91,7 @@
                         }, 500 );
                     }
                 });
+                cameraEntity.add( lightComponent );
             } //if
         } //onResourceSuccess
 
@@ -105,6 +107,14 @@
             script: engine.graphics.script.material.sample,
             onsuccess: function( material ) {
                 resources[ "material" ] = material;
+                onResourceSuccess();
+            }
+        });
+
+        var lightResource = engine.graphics.resource.Light({
+            script: engine.graphics.script.light.sample,
+            onsuccess: function( light ) {
+                resources[ "light" ] = light;
                 onResourceSuccess();
             }
         });
