@@ -10,7 +10,9 @@ document.addEventListener( "DOMContentLoaded", function( e ){
     var game = function( engine ) {
         var math = engine.math;
 
-        var game = function() {
+        var CubicVR = engine.graphics.target.context;
+       
+        var run = function() {
 
             // Make a new space for our entities
             var space = new engine.core.Space();
@@ -19,12 +21,13 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             var cubes = [];
 
             canvas = engine.graphics.target.element;
-/*
+
             cubes.push( new space.Entity({
                 name: 'cube0',
                 components: [
                     new engine.core.component.Transform({
-                        position: math.Vector3( 0, 0, 0 )
+                        position: math.Vector3( 0, 0, 0 ),
+                        rotation: math.Vector3( 1, 2, 3 )
                     }),
                     new engine.graphics.component.Model({
                         mesh: resources.mesh,
@@ -32,12 +35,12 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     })
                 ]
             }) );
-*/
+
             cubes.push( new space.Entity({
                 name: 'cube1',
                 components: [
                     new engine.core.component.Transform({
-                        position: math.Vector3( 0, -2, 0 )
+                        position: math.Vector3( 5, 5, 5 )
                     }),
                     new engine.graphics.component.Model({
                         mesh: resources.mesh,
@@ -46,11 +49,22 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 ]
             }) );
             
+            var light = new space.Entity({
+                name: 'light',
+                components: [
+                    new engine.core.component.Transform({
+                        position: math.Vector3( 0, 0, 0 ),
+                        rotation: math.Vector3( 1, 2, 3 )
+                    }),
+                    new engine.graphics.component.Light( resources.light )
+                ]
+            });
+            
             var camera = new space.Entity({
                 name: 'camera',
                 components: [
                     new engine.core.component.Transform({
-                        position: math.Vector3( 20, 0, 0 )
+                        position: math.Vector3( 10, 0, 0 )
                     }),
                     new engine.graphics.component.Camera({
                         active: true,
@@ -58,12 +72,11 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                         height: canvas.height,
                         fov: 60
                     }),
-                    new engine.graphics.component.Light( resources.light )
                 ]
             });
             camera.find( 'Camera' ).target = cubes[0].find( 'Transform' ).position;
 
-            // cubes[1].parent = cubes[0];
+            //cubes[1].parent = cubes[0];
 
             // Start the engine!
             engine.run();
@@ -74,7 +87,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
         var registerResource = function( name, instance ) {
             resources[name] = instance;
             if( Object.keys( resources ).length === expectedResources ) {
-                game();
+                run();
             }
         };
 
