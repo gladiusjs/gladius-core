@@ -132,6 +132,22 @@
   });  
 
 
+  function makeResourceInfo(path) {
+    var r = {
+      type : "engine.core.resource.json",
+      source : path,
+      onsuccess : function(result) {
+        deepEqual(result, {}, "empty JSON object should have been loaded");
+      },
+      onfailure : function(error) {
+        ok(false, "failed to load minimal JSON file: " + error);
+      }
+    };
+
+    return r;
+  }
+    
+
   asyncTest( 'load three uncached resource', function() {
     expect(12);
 
@@ -168,21 +184,6 @@
       // TD: test that cache has been appropriately modified
     }
     
-    function makeResourceInfo(path) {
-      var r = {
-        type: "engine.core.resource.json",
-        source: path, 
-        onsuccess: function( result ) {
-          deepEqual(result, {}, "empty JSON object should have been loaded");
-        },
-        onfailure: function( error ) {
-          ok(false, "failed to load minimal JSON file: " + error);
-        }
-      };
-      
-      return r;
-    }
-    
     var resourcesToLoad = [
       makeResourceInfo(resourcePath),
       makeResourceInfo(resourcePath2),
@@ -199,7 +200,7 @@
 
   // TD: test group load with some failing & some succeeding loads
   
-  // TD: test constructor type handling
+  // TD: test constructor type handling (with mesh & script loads?)
   
   // TD: test what happens when itemsToLoad contains dups & 
   // non-canonicalized dups
