@@ -32,7 +32,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
         }));
         cameraEntity.add( cameraComponent );
         cameraComponent.target = [.2, 0, 0];
-
+        
         modelEntity.add( new engine.core.component.Transform({
             position: [0, 0, 0]
         }));
@@ -45,7 +45,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     material: resources.material,
                     onready: function( instance ) {
                         modelEntity.add( instance );
-                        engine.graphics.render();
+                        // engine.graphics.render();
                         engine.run();
                         setTimeout( function() {
                             engine.run();

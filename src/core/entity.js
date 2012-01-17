@@ -257,6 +257,12 @@ define( function ( require ) {
                 }
             });
 
+            if( options.components ) {
+                options.components.forEach( function( component ) {
+                    that.add( component );
+                });
+            }
+
         };
 
         return Entity;
