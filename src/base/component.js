@@ -51,7 +51,7 @@ define( function ( require ) {
                     }
                 }
             });
-
+            
             // Delegates
 
             var _ownerChanged = new Delegate();
@@ -67,7 +67,7 @@ define( function ( require ) {
             };
 
             c.call( this, options );
-
+            
         };
         r.prototype = new IComponent( options );
         r.prototype.constructor = r;

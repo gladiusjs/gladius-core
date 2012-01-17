@@ -61,7 +61,7 @@
           active: true,
           width: canvas.width,
           height: canvas.height,
-          fov: 60 
+          fov: 60
         });
         cameraEntity.add( new engine.core.component.Transform({
             position: [1, 1, 1]
