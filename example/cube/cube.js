@@ -26,7 +26,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 name: 'cube0',
                 components: [
                     new engine.core.component.Transform({
-                        position: math.Vector3( 0, 0, 0 ),
+                        position: math.Vector3( -2, -2, 0 ),
                         rotation: math.Vector3( 1, 2, 3 )
                     }),
                     new engine.graphics.component.Model({
@@ -40,7 +40,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 name: 'cube1',
                 components: [
                     new engine.core.component.Transform({
-                        position: math.Vector3( 5, 5, 5 )
+                        position: math.Vector3( 2, 2, 0 ),
+                        rotation: math.Vector3( 3, 2, 1 )
                     }),
                     new engine.graphics.component.Model({
                         mesh: resources.mesh,
@@ -53,8 +54,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 name: 'light',
                 components: [
                     new engine.core.component.Transform({
-                        position: math.Vector3( 0, 0, 0 ),
-                        rotation: math.Vector3( 1, 2, 3 )
+                        position: math.Vector3( 0, 0, 0 )
                     }),
                     new engine.graphics.component.Light( resources.light )
                 ]
@@ -64,7 +64,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 name: 'camera',
                 components: [
                     new engine.core.component.Transform({
-                        position: math.Vector3( 10, 0, 0 )
+                        position: math.Vector3( 0, 0, 10 )
                     }),
                     new engine.graphics.component.Camera({
                         active: true,
@@ -74,7 +74,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     }),
                 ]
             });
-            camera.find( 'Camera' ).target = cubes[0].find( 'Transform' ).position;
+            camera.find( 'Camera' ).target = math.Vector3( 0, 0, 0 );
 
             //cubes[1].parent = cubes[0];
 
