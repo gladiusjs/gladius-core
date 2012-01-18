@@ -184,13 +184,4 @@
   
   // TD: ensure that we test that result is not populated before one of 
   // oncomplete is called
-
-  // XXXdmose TODO: test constructor type handling (img, sound, video, json, text, invalid) load
-
-  // XXXdmose TODO: file user story: create error object related to JavaScript Error object
-
-  // XXXdmose TODO: file onprogres user story
-  
-  // XXXdmose TODO: look for github pivotal integration
-
 }());
