@@ -36,7 +36,7 @@ define( function ( require ) {
 
                 options = options || {};
 
-                var _source = options.source || null,
+                var _url = options.url || null,
                 _script = options.script || null,
                 _parameters = options.parameters || null;
 
@@ -46,15 +46,15 @@ define( function ( require ) {
                 var _cache = options.cache || this.cache;
 
                 var _instance;
-                if( _source ) {
-                    if( _cache && _cache.contains( _source ) ) {
+                if( _url ) {
+                    if( _cache && _cache.contains( _url ) ) {
                         // Find the _instance in the cache and return it
-                        _instance = _cache.find( _source );                        
+                        _instance = _cache.find( _url );                        
                         _onsuccess( _instance );
                     } else {
                         // Fetch the _instance from its source
                         var xhr = new XMLHttpRequest();
-                        xhr.open( 'GET', _source, true );
+                        xhr.open( 'GET', _url, true );
                         xhr.onreadystatechange = function() {
                             if( 4 != xhr.readyState ) {
                                 return;
