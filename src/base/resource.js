@@ -30,7 +30,7 @@ define( function ( require ) {
 
         var Resource = function( options, c ) {
 
-            option = options || {};
+            options = options || {};
 
             var r = function( options ) {
 
@@ -59,9 +59,20 @@ define( function ( require ) {
                             if( 4 != xhr.readyState ) {
                                 return;
                             }
+                            if ( xhr.status < 200 || xhr.status > 299 ) {
+                                _onfailure( xhr.statusText ) ;
+                                return;
+                            }
                             var response = JSON.parse( xhr.responseText );
-                            _instance = new c( response );
-                            if( _cache ) _cache.add( _instance );
+                            if (c) {
+                                _instance = new c( response );
+                            } else {
+                                _instance = response;
+                            }
+                            
+                            if( _cache ) {
+                                _cache.add( _instance );
+                            }
                             _onsuccess( _instance );
                         };
                         xhr.send( null );
@@ -71,7 +82,9 @@ define( function ( require ) {
                 if( !_instance && _script ) {
                     // Use the script to build an _instance of object
                     _instance = new c( _script.apply( null, _parameters ) );
-                    if( _cache ) _cache.add( _instance );
+                    if( _cache ) {
+                        _cache.add( _instance );
+                    }
                     _onsuccess( _instance );
                     return;
                 }
@@ -86,6 +99,6 @@ define( function ( require ) {
 
         return Resource;
 
-    }
+    };
 
 });
