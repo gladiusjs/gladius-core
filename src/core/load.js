@@ -9,10 +9,10 @@ define( function ( require ) {
      var load = function resourceLoad( itemsToLoad, options ) {
 
        var result = {};
-       var failedLoads = [];
+       var errors = {};
 
        function areLoadsPending () {
-         if (Object.keys( result ).length + failedLoads.length <
+         if (Object.keys( result ).length + Object.keys( errors ).length <
              itemsToLoad.length) {
            return true;
          }
@@ -22,21 +22,20 @@ define( function ( require ) {
        function makeItemOptions( itemToLoad ) {
 
          var itemOptions = { 
-           source: itemToLoad.source,
+           url: itemToLoad.url,
            onsuccess: function itemOnSuccess( item ) {
-             result[itemToLoad.source] = item;
+             result[itemToLoad.url] = item;
              itemToLoad.onsuccess( item );
              if (!areLoadsPending()) {
-               options.oncomplete( result );
+               options.oncomplete( result, errors );
              }
            },
 
            onfailure: function itemOnFailure( error ) {
-             console.log("onfailure called");
-             failedLoads.push(itemToLoad.source);
+             errors[itemToLoad.url] = error;
              itemToLoad.onfailure( error );
              if (!areLoadsPending()) {
-               options.oncomplete( result );
+               options.oncomplete( result, errors );
              }
            }
          };
@@ -46,7 +45,7 @@ define( function ( require ) {
 
        if (!itemsToLoad.length) {
          if ("oncomplete" in options) {
-           options.oncomplete( result );
+           options.oncomplete( result, errors );
          }
          
          return result;

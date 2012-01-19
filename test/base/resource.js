@@ -32,7 +32,7 @@
         expect(1);             
     
         var options = {
-            source : "no-such-url-exists",
+            url : "no-such-url-exists",
 
             onsuccess : function itemOnSuccess(item) {
                 ok( false, "non-existent file load shouldn't call onsuccess" );
@@ -54,6 +54,14 @@
         // this object model needs simplifying.
         var resource = new engine.base.Resource()(options);
      });
+     
+     // TD: test data URLs, and commutativity/normalization of params:
+     //
+     // "data:gladius/script;core.script.test?x=1&y=2"
+     // "data:gladius/script;core.script.test?y=2&x=1"
+  
+     // TD: test that result not populated before oncomplete is called and 
+     // result returned on async completion
      
      // TD test loading of a resource when passing a constructor for the
      // for processing the returned JSON:

@@ -25,25 +25,18 @@
   });
 
   asyncTest( 'invoke load with an empty list', function() {
-    expect(3);
+    expect(4);
 
-    function onprogress ( ) {
-      // TD: no start here means tests will hang, so it's probably impossible
-      // for the ok() below to ever fire, but just in case...
-      ok( false, "progress should not be called for 100% completion");
-    }
-
-    function oncomplete ( result ) {
+    function oncomplete ( result, errors ) {
       start();
       ok( true, "empty load completed");
       deepEqual(result, {}, "result set is empty after empty load done");
-      
+      deepEqual(errors, {}, "error set is empty after empty load done");
       // TD: test that cache has not been modified
     }
 
     var result = engine.core.resource.load([], { 
       oncomplete: oncomplete, 
-      onprogress: onprogress,
       cache: "myEmptyCache"});
       
     deepEqual(result, {}, "result set is empty after empty load initiated");
@@ -51,15 +44,11 @@
 
 
   asyncTest( 'invoke load with a single uncached resource', function() {
-    expect(6);
+    expect(7);
 
     var resourcePath = "assets/test-loadfile1.json";
     
-    function onprogress ( ) {
-      ok( false, "progress should not be called for only 1 file");
-    }
-
-    function oncomplete ( result ) {
+    function oncomplete ( result, errors ) {
       ok( true, "single uncached load completed");
       ok( result.hasOwnProperty(resourcePath),
           "result set has correct URL property");
@@ -67,15 +56,16 @@
       deepEqual(result[resourcePath], {}, 
         "result set contains correct data");
         
-      equal( Object.keys(result).length, 1, "result set is right size");
+      equal( Object.keys(result).length, 1, "result set is right size" );
               
+      deepEqual( errors, {}, "error set is empty after successful load" );              
       start();
       // TD: test that cache has not been modified
     }
 
     var resourceToLoad = {
       type: "engine.core.resource.json",
-      source: resourcePath, 
+      url: resourcePath, 
       onsuccess: function( result ) {
         deepEqual(result, {}, "empty JSON object should have been loaded");
       },
@@ -86,7 +76,6 @@
     
     var result = engine.core.resource.load([resourceToLoad], { 
       oncomplete: oncomplete, 
-      onprogress: onprogress,
       cache: "myEmptyCache"});
       
     deepEqual(result, {}, "result set is empty after single uncached load started");
@@ -94,27 +83,27 @@
  
 
   asyncTest( 'invoke load with a single non-existent resource', function() {
-    expect(4);
+    expect(6);
 
     var resourcePath = "no-such-url-exists";
     
-    function onprogress ( ) {
-      ok( false, "progress should not be called for only 1 file");
-    }
+    function oncomplete ( result, errors ) {
 
-    function oncomplete ( result ) {
-      // XXX should we have another callback or arg to signal that
-      // something went wrong?
       ok( true, "single non-existent load completed");
       equal( Object.keys(result).length, 0, "result set is empty");
 
+      equal( Object.keys(errors).length, 1, "non-existent load failed" );
+
+      ok( errors.hasOwnProperty(resourcePath),
+          "result set has correct URL property");
+      
       start();
       // TD: test that cache has been appropriately modified
     }
 
     var resourceToLoad = {
       type: "engine.core.resource.json",
-      source: resourcePath, 
+      url: resourcePath, 
       onsuccess: function( result ) {
         ok(false, "non-existent file should not have loaded successfully");
       },
@@ -125,34 +114,36 @@
     
     var result = engine.core.resource.load([resourceToLoad], { 
       oncomplete: oncomplete, 
-      onprogress: onprogress,
       cache: "myEmptyCache"});
       
     deepEqual(result, {}, "result set is empty after non-existent load started");
   });  
 
 
+  function makeResourceInfo(path) {
+    var r = {
+      type: "engine.core.resource.json",
+      url: path,
+      onsuccess: function(result) {
+        deepEqual(result, {}, "empty JSON object should have been loaded");
+      },
+      onfailure: function(error) {
+        ok(false, "failed to load minimal JSON file: " + error);
+      }
+    };
+
+    return r;
+  }
+
+
   asyncTest( 'load three uncached resource', function() {
-    expect(12);
+    expect(13);
 
     var resourcePath = "assets/test-loadfile1.json";
     var resourcePath2 = "assets/test-loadfile2.json";
     var resourcePath3 = "assets/test-loadfile3.json";
     
-    function onprogress ( ) {
-      // TD (dmose): I'm not convinced that this API is very useful.  The
-      // only simple granularity we can offer is calling back after each
-      // file loads, and that progress updating could just be done on the 
-      // onsuccess/onfailure handler for each file.  I'd like to talk to
-      // bzbarsky, biesi, or someone else with experience with the gecko
-      // webprogress stuff.  Or, even more ideally, a UX person.  Would
-      // also be interesting to chat with experienced game devs here.
-      
-      // we need to either make a passing a test or kill this API
-      // before landing on the develop branch
-    }
-
-    function oncomplete ( result ) {
+    function oncomplete ( result, errors ) {
       ok( true, "three uncached loads completed");
       equal( Object.keys(result).length, 3, "result set is right size" );
 
@@ -164,23 +155,10 @@
           "result set contains correct data for " + resources[i] );
       }
 
+      deepEqual(errors, {}, "no errors were returned");
+
       start();
       // TD: test that cache has been appropriately modified
-    }
-    
-    function makeResourceInfo(path) {
-      var r = {
-        type: "engine.core.resource.json",
-        source: path, 
-        onsuccess: function( result ) {
-          deepEqual(result, {}, "empty JSON object should have been loaded");
-        },
-        onfailure: function( error ) {
-          ok(false, "failed to load minimal JSON file: " + error);
-        }
-      };
-      
-      return r;
     }
     
     var resourcesToLoad = [
@@ -191,31 +169,19 @@
     
     var result = engine.core.resource.load(resourcesToLoad, { 
       oncomplete: oncomplete, 
-      onprogress: onprogress,
       cache: "myEmptyCache"});
       
     deepEqual(result, {}, "result set is empty after single uncached load started");
   });  
 
-  // TD: test group load with some failing & some succeeding loads
-  
-  // TD: test constructor type handling
-  
   // TD: test what happens when itemsToLoad contains dups & 
   // non-canonicalized dups
 
   // TD: test that passing in various edge cases and null for options
   // behaves appropriately
 
-  // TD: test what happens when itemsToLoad is not an array.  duck-type as 
-  // single object to load?
+  // TD: test that when itemsToLoad is not an array an exception is raised  
   
   // TD: ensure that we test that result is not populated before one of 
-  // onprogress or oncomplete is called; refactor regular resources to
-  // behave this way?
-  
-  // TD: progress should not be called at 100% complete; get rid of onprogress
-  // ok()
-  
-
+  // oncomplete is called
 }());
