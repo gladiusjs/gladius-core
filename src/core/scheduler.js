@@ -4,6 +4,7 @@
 
 define( function ( require ) {
     
+    var lang = require( 'lang' );
     var Delegate = require( 'common/delegate' );
     var Task = require( './task' );
     var Timer = require( './timer' );
@@ -79,12 +80,12 @@ define( function ( require ) {
                     _previousTime = Date.now();
                 }
                 if( !_running ) {
-                    setTimeout( run, 0 );
+                    requestAnimationFrame( run );
                 }
             }
         };
         
-        var run = function() {         
+        var run = function() {
             if( _active && !_running ) {
                 _running = true;
                 
@@ -95,7 +96,7 @@ define( function ( require ) {
                 _tick( delta );        // Send tick event
                 dispatch();            // Dispatch queued tasks
                 if( _active ) {
-                    setTimeout( run, 0 );
+                    requestAnimationFrame( run );
                 }
                 
                 _running = false;

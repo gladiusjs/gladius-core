@@ -1,7 +1,10 @@
 document.addEventListener( "DOMContentLoaded", function( e ){
 
     var printd = function( div, str ) {
-        document.getElementById( div ).innerHTML += str;
+        document.getElementById( div ).innerHTML = str + '<p>';
+    };
+    var cleard = function( div ) {
+        document.getElementById( div ).innerHTML = '';
     };
 
     var canvas = document.getElementById( "test-canvas" );    
@@ -10,7 +13,9 @@ document.addEventListener( "DOMContentLoaded", function( e ){
     var game = function( engine ) {
         var math = engine.math;
 
-        var game = function() {
+        var CubicVR = engine.graphics.target.context;
+       
+        var run = function() {
 
             // Make a new space for our entities
             var space = new engine.core.Space();
@@ -24,7 +29,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 name: 'cube0',
                 components: [
                     new engine.core.component.Transform({
-                        position: math.Vector3( 0, 0, 0 )
+                        position: math.Vector3( 0, 0, 0 ),
+                        rotation: math.Vector3( 0, 0, 0 )
                     }),
                     new engine.graphics.component.Model({
                         mesh: resources.mesh,
@@ -35,10 +41,28 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
             cubes.push( new space.Entity({
                 name: 'cube1',
+                parent: cubes[0],
                 components: [
                     new engine.core.component.Transform({
-                        position: math.Vector3( 1, 1, 1 ),
-                        scale: math.Vector3( 0.1, 0.1, 0.1 )
+                        position: math.Vector3( 2, 2, 2 ),
+                        rotation: math.Vector3( 0, 0, 0 ),
+                        scale: math.Vector3( 0.5, 0.5, 0.5 )
+                    }),
+                    new engine.graphics.component.Model({
+                        mesh: resources.mesh,
+                        material: resources.material
+                    })
+                ]
+            }) );  
+            
+            cubes.push( new space.Entity({
+                name: 'cube2',
+                parent: cubes[0],
+                components: [
+                    new engine.core.component.Transform({
+                        position: math.Vector3( -2, 2, 2 ),
+                        rotation: math.Vector3( 0, 0, 0 ),
+                        scale: math.Vector3( 0.5, 0.5, 0.5 )
                     }),
                     new engine.graphics.component.Model({
                         mesh: resources.mesh,
@@ -46,12 +70,54 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     })
                 ]
             }) ); 
-
+            
+            cubes.push( new space.Entity({
+                name: 'cube2',
+                parent: cubes[0],
+                components: [
+                    new engine.core.component.Transform({
+                        position: math.Vector3( 2, -2, 2 ),
+                        rotation: math.Vector3( 0, 0, 0 ),
+                        scale: math.Vector3( 0.5, 0.5, 0.5 )
+                    }),
+                    new engine.graphics.component.Model({
+                        mesh: resources.mesh,
+                        material: resources.material
+                    })
+                ]
+            }) );
+            
+            cubes.push( new space.Entity({
+                name: 'cube2',
+                parent: cubes[0],
+                components: [
+                    new engine.core.component.Transform({
+                        position: math.Vector3( 2, 2, -2 ),
+                        rotation: math.Vector3( 0, 0, 0 ),
+                        scale: math.Vector3( 0.5, 0.5, 0.5 )
+                    }),
+                    new engine.graphics.component.Model({
+                        mesh: resources.mesh,
+                        material: resources.material
+                    })
+                ]
+            }) );
+            
+            var light = new space.Entity({
+                name: 'light',
+                components: [
+                    new engine.core.component.Transform({
+                        position: math.Vector3( 0, 0, 0 )
+                    }),
+                    new engine.graphics.component.Light( resources.light )
+                ]
+            });
+            
             var camera = new space.Entity({
                 name: 'camera',
                 components: [
                     new engine.core.component.Transform({
-                        position: math.Vector3( 10, 0, 0 )
+                        position: math.Vector3( 0, 0, 10 )
                     }),
                     new engine.graphics.component.Camera({
                         active: true,
@@ -62,10 +128,25 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     new engine.graphics.component.Light( resources.light )
                 ]
             });
-            camera.find( 'Camera' ).target = cubes[0].find( 'Transform' ).position;
+            camera.find( 'Camera' ).target = math.Vector3( 0, 0, 0 );
 
-            // cubes[1].parent = cubes[0];
-
+            var task = new engine.scheduler.Task({
+                schedule: {
+                    phase: engine.scheduler.phases.UPDATE,
+                },
+                callback: function() {
+                    var delta = engine.scheduler.simulationTime.delta/1000;
+                    cubes[0].find( 'Transform' ).rotation = math.matrix4.add([
+                        cubes[0].find( 'Transform' ).rotation,
+                        [ math.TAU * delta * 0.1, math.TAU * delta * 0.2, 0 ]
+                    ]);
+                    cubes[1].find( 'Transform' ).rotation = math.matrix4.add([
+                        cubes[1].find( 'Transform' ).rotation,
+                        [ math.TAU * delta * 0.1, math.TAU * delta * 0.2, 0 ]
+                    ]);
+                }
+            });
+            
             // Start the engine!
             engine.run();
 
@@ -75,7 +156,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
         var registerResource = function( name, instance ) {
             resources[name] = instance;
             if( Object.keys( resources ).length === expectedResources ) {
-                game();
+                run();
             }
         };
 

@@ -3,18 +3,7 @@
 /*global define: false, console: false, window: false, setTimeout: false */
 
 define( function ( require ) {
-
-    var requestAnimFrame = (function() {
-        return window.requestAnimationFrame ||
-           window.webkitRequestAnimationFrame ||
-           window.mozRequestAnimationFrame ||
-           window.oRequestAnimationFrame ||
-           window.msRequestAnimationFrame ||
-           function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
-               window.setTimeout(callback, 1000/60);
-           };
-    })();
-    
+  
     require( 'CubicVR.js/CubicVR' );
     
     var CubicVR = this.CubicVR,
@@ -39,11 +28,6 @@ define( function ( require ) {
         
         var Graphics = engine.base.Service({
           type: 'Graphics',
-          schedule: {
-            update: {
-              phase: engine.scheduler.phases.RENDER,
-            }
-          },
           time: engine.scheduler.realTime
         },
         function( options ) {
@@ -123,19 +107,6 @@ define( function ( require ) {
                 ++_renderedFrames;
              
             }; //render
-
-            var handleAnimFrame = function() {
-              _canRender = true;
-              requestAnimFrame( handleAnimFrame );
-            };
-            requestAnimFrame( handleAnimFrame );
-
-            this.update = function() {
-              if (_canRender) {
-                _this.render();
-                _canRender = false;
-              } //if
-            }; //update
 
             var _resources = {
 
