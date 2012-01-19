@@ -30,13 +30,13 @@ define( function ( require ) {
 
         var Resource = function( options, c ) {
 
-            option = options || {};
+            options = options || {};
 
             var r = function( options ) {
 
                 options = options || {};
 
-                var _source = options.source || null,
+                var _url = options.url || null,
                 _script = options.script || null,
                 _parameters = options.parameters || null;
 
@@ -46,22 +46,33 @@ define( function ( require ) {
                 var _cache = options.cache || this.cache;
 
                 var _instance;
-                if( _source ) {
-                    if( _cache && _cache.contains( _source ) ) {
+                if( _url ) {
+                    if( _cache && _cache.contains( _url ) ) {
                         // Find the _instance in the cache and return it
-                        _instance = _cache.find( _source );                        
+                        _instance = _cache.find( _url );                        
                         _onsuccess( _instance );
                     } else {
                         // Fetch the _instance from its source
                         var xhr = new XMLHttpRequest();
-                        xhr.open( 'GET', _source, true );
+                        xhr.open( 'GET', _url, true );
                         xhr.onreadystatechange = function() {
                             if( 4 != xhr.readyState ) {
                                 return;
                             }
+                            if ( xhr.status < 200 || xhr.status > 299 ) {
+                                _onfailure( xhr.statusText ) ;
+                                return;
+                            }
                             var response = JSON.parse( xhr.responseText );
-                            _instance = new c( response );
-                            if( _cache ) _cache.add( _instance );
+                            if (c) {
+                                _instance = new c( response );
+                            } else {
+                                _instance = response;
+                            }
+                            
+                            if( _cache ) {
+                                _cache.add( _instance );
+                            }
                             _onsuccess( _instance );
                         };
                         xhr.send( null );
@@ -71,7 +82,9 @@ define( function ( require ) {
                 if( !_instance && _script ) {
                     // Use the script to build an _instance of object
                     _instance = new c( _script.apply( null, _parameters ) );
-                    if( _cache ) _cache.add( _instance );
+                    if( _cache ) {
+                        _cache.add( _instance );
+                    }
                     _onsuccess( _instance );
                     return;
                 }
@@ -86,6 +99,6 @@ define( function ( require ) {
 
         return Resource;
 
-    }
+    };
 
 });

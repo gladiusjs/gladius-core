@@ -1,7 +1,8 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
   nomen: false */
 /*global gladius: false, document: false, window: false, module: false, start,
-  test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false */
+  test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false,
+  asyncTest: false, same: false */
 
 (function() {
 
@@ -26,7 +27,7 @@
         expect( 1 );
 
         engine.core.resource.Script({
-            source: 'assets/test-script.json',
+            url: 'assets/test-script.json',
             onsuccess: function( instance ) {
                 same(
                     3,
