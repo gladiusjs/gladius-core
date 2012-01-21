@@ -17,19 +17,19 @@
             gladius.create( { debug: true }, function( instance ) {       
                 engine = instance;
                 
-                TestComponent1 = engine.core.Component({
+                TestComponent1 = engine.base.Component({
                 	type: 'Apple'               
                 },
                 function( options ) {                	
                 });
 
-                TestComponent2 = engine.core.Component({
+                TestComponent2 = engine.base.Component({
                 	type: 'Apple'               
                 },
                 function( options ) {                	
                 });
 
-                TestComponent3 = engine.core.Component({
+                TestComponent3 = engine.base.Component({
                 	type: 'Orange'               
                 },
                 function( options ) {                	

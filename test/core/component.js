@@ -7,7 +7,7 @@
 
     var engine = null;
 
-    module( 'core/Component', {
+    module( 'base/Component', {
         setup: function () {
             stop();
 
@@ -25,7 +25,7 @@
     test( 'Construction', function () {
         expect( 3 );
 
-        var TestComponent = engine.core.Component({
+        var TestComponent = engine.base.Component({
         	type: 'Test'
         },
         function( options ) {

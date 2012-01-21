@@ -8,11 +8,11 @@ define( function ( require ) {
 
     var math = engine.math;
     var Component = require( 'base/component' );
-    var Delegate = require( 'common/delegate' )
+    var Delegate = require( 'common/delegate' );
 
     return Component({
       type: 'Model',
-      depends: 'Transform'
+      depends: ['Transform']
     },
     function( options ) {
 
@@ -55,11 +55,6 @@ define( function ( require ) {
               } //if
           } //if
       }; //prepare
-
-      var handleOwnerChanged = function( e ) {
-      }; //ownerChangedHandler
-
-      this.ownerChanged.subscribe( handleOwnerChanged );
 
       _this.prepare();
 

@@ -65,7 +65,7 @@ define( function ( require ) {
                     transform,
                     lights,
                     gl = _target.context.GLCore.gl;
-
+                
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
                 for( var si = 0, sl = _scenes.length; si < sl; ++si ) {
@@ -73,7 +73,7 @@ define( function ( require ) {
                     cameras = scene.findAllWith( 'Camera' );
                     models = scene.findAllWith( 'Model' );
                     lights = scene.findAllWith( 'Light' );
-
+                    
                     var cvrLights = [];
                     for( var li = 0, ll = lights.length; li < ll; ++li ) {
                         var lightComponent = lights[ li ].find( 'Light' ); 

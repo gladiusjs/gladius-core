@@ -120,13 +120,13 @@ define( function ( require ) {
                 base: {
                     Service: Service( this ),
                     Resource: Resource( this ),
+                    Component: Component
                 }                
             });
             
             lang.extend( this, {
                 core: {
                     Entity: Entity( this ),
-                    Component: Component,
                     Space: Space( this ),
                     Event: Event,
                     component: {

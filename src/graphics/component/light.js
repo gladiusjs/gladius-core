@@ -12,7 +12,7 @@ define( function ( require ) {
 
     return Component({
       type: 'Light',
-      depends: 'Transform'
+      depends: ['Transform']
     },
     function( options ) {
 
@@ -57,10 +57,9 @@ define( function ( require ) {
             }
         });
 
-        var handleOwnerChanged = function( e ){
-            _transform = e.current.find( "Transform" );
-        }; //ownerChangedHandler
-        this.ownerChanged.subscribe( handleOwnerChanged );
+        this.onComponentOwnerChanged = function( e ){
+            _transform = e.data.current.find( "Transform" );
+        };
 
         this.prepareForRender = function(){
             _cvr.light.position = _transform.absolute;
