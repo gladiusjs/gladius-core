@@ -58,11 +58,17 @@ define( function ( require ) {
                 }
             });
             
-            var _eventQueue = [];
+            var _queuedEvents = [];
+            Object.defineProperty( this, 'queuedEvents', {
+                get: function() {
+                    return _queuedEvents;
+                }
+            });
+            
             var _handleEvent = function( event ) {
                 if( that.hasOwnProperty( 'on' + event.type ) ) {
                     if( event.queue ) {
-                        _eventQueue.push( event );              // Queue the event to be handled later
+                        _queuedEvents.push( event );            // Queue the event to be handled later
                     } else {
                         var handler = that['on' + event.type];  // Find the handler
                         handler.call( that, event );            // Invoke the handler with the event      
@@ -72,6 +78,21 @@ define( function ( require ) {
             Object.defineProperty( this, 'handleEvent', {
                 get: function() {
                     return _handleEvent;
+                }
+            });
+            
+            // Handle the next queued event; Returns the size of the remainder
+            var _handleQueuedEvent = function() {
+                if( _queuedEvents.length > 0 ) {
+                    var event = _queuedEvents.shift();
+                    var handler = that['on' + event.type];  // Find the handler
+                    handler.call( that, event );            // Invoke the handler with the event
+                }
+                return _queuedEvents.lenght;
+            };
+            Object.defineProperty( this, 'handleQueuedEvent', {
+                get: function() {
+                    return _handleQueuedEvent;
                 }
             });
 

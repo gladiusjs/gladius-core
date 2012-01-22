@@ -34,7 +34,7 @@
         equal( event.data, 'Test data', 'Event data is correct' );
     });
     
-    test( 'Entity handles events', function() {
+    test( 'Entity handles non-queued events', function() {
         expect( 1 );
         
         var TestComponent = engine.base.Component({
@@ -63,6 +63,40 @@
         });
         
         event.dispatch( [entity] );
+    });
+    
+    test( 'Entity handles queued events', function() {
+        expect( 1 );
+        
+        var TestComponent = engine.base.Component({
+            type: 'Test'
+        },
+        function( options ) {
+
+            options = options || {};
+            var that = this;
+            
+            this.onTest = function( event ) {
+                ok( true, 'Test handler invoked' );
+            };
+            
+        });
+        
+        var event = new engine.core.Event({
+            type: 'Test',
+            queue: false,
+            data: 'Test data'
+        });
+        
+        var component = new TestComponent();
+        
+        var entity = new engine.core.Entity({
+            name: 'TestEntity',
+            components: [new TestComponent()]
+        });
+        
+        event.dispatch( [entity] );
+        component.handleQueuedEvent();
     });
 
 }());
