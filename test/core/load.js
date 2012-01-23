@@ -25,41 +25,32 @@
   });
 
   asyncTest( 'invoke load with an empty list', function() {
-    expect(4);
+    expect(3);
 
-    function oncomplete ( result, errors ) {
-      start();
+    function oncomplete () {
+      equal( arguments.length, 0, 'oncomplete passes no arguments' );
       ok( true, "empty load completed");
-      deepEqual(result, {}, "result set is empty after empty load done");
-      deepEqual(errors, {}, "error set is empty after empty load done");
+      start();
       // TD: test that cache has not been modified
     }
 
     var result = engine.core.resource.load([], { 
       oncomplete: oncomplete, 
       cache: "myEmptyCache"});
-      
-    deepEqual(result, {}, "result set is empty after empty load initiated");
+    
+    equal( result, undefined, 'result is undefined' );
   });
 
 
   asyncTest( 'invoke load with a single uncached resource', function() {
-    expect(7);
+    expect(4);
 
     var resourcePath = "assets/test-loadfile1.json";
     var resourceConstructor = engine.core.resource.json;
     
-    function oncomplete ( result, errors ) {
-      ok( true, "single uncached load completed");
-      ok( result.hasOwnProperty(resourcePath),
-          "result set has correct URL property");
-          
-      deepEqual(result[resourcePath], {}, 
-        "result set contains correct data");
-        
-      equal( Object.keys(result).length, 1, "result set is right size" );
-              
-      deepEqual( errors, {}, "error set is empty after successful load" );              
+    function oncomplete() {
+      equal( arguments.length, 0, 'oncomplete passes no arguments' );
+      ok( true, "single uncached load completed");                         
       start();
       // TD: test that cache has not been modified
     }
@@ -78,27 +69,19 @@
     var result = engine.core.resource.load([resourceToLoad], { 
       oncomplete: oncomplete, 
       cache: "myEmptyCache"});
-      
-    deepEqual(result, {}, "result set is empty after single uncached load started");
+    
+    equal( result, undefined, 'result is undefined' );
   });  
  
 
   asyncTest( 'invoke load with a single non-existent resource', function() {
-    expect(6);
+    expect(2);
 
     var resourcePath = "no-such-url-exists";
     var resourceConstructor = engine.core.resource.json;
     
-    function oncomplete ( result, errors ) {
-
+    function oncomplete () {
       ok( true, "single non-existent load completed");
-      equal( Object.keys(result).length, 0, "result set is empty");
-
-      equal( Object.keys(errors).length, 1, "non-existent load failed" );
-
-      ok( errors.hasOwnProperty(resourcePath),
-          "result set has correct URL property");
-      
       start();
       // TD: test that cache has been appropriately modified
     }
@@ -114,11 +97,9 @@
       }
     };
     
-    var result = engine.core.resource.load([resourceToLoad], { 
+    engine.core.resource.load([resourceToLoad], { 
       oncomplete: oncomplete, 
       cache: "myEmptyCache"});
-      
-    deepEqual(result, {}, "result set is empty after non-existent load started");
   });  
 
 
@@ -140,26 +121,14 @@
 
 
   asyncTest( 'load three uncached resource', function() {
-    expect(13);
+    expect(4);
 
     var resourcePath = "assets/test-loadfile1.json";
     var resourcePath2 = "assets/test-loadfile2.json";
     var resourcePath3 = "assets/test-loadfile3.json";
     
-    function oncomplete ( result, errors ) {
+    function oncomplete () {
       ok( true, "three uncached loads completed");
-      equal( Object.keys(result).length, 3, "result set is right size" );
-
-      var resources = [resourcePath, resourcePath2, resourcePath3];
-      for ( var i = 0; i < resources.length; i++ ) {
-        ok( result.hasOwnProperty(resources[i]),
-          "result set has expected URL property " + resources[i] );
-        deepEqual(result[resources[i]], {}, 
-          "result set contains correct data for " + resources[i] );
-      }
-
-      deepEqual(errors, {}, "no errors were returned");
-
       start();
       // TD: test that cache has been appropriately modified
     }
@@ -170,12 +139,17 @@
       makeResourceInfo(resourcePath3)
     ];
     
-    var result = engine.core.resource.load(resourcesToLoad, { 
+    engine.core.resource.load(resourcesToLoad, { 
       oncomplete: oncomplete, 
       cache: "myEmptyCache"});
-      
-    deepEqual(result, {}, "result set is empty after single uncached load started");
-  });  
+  });
+  
+  /*
+  asyncTest( 'load duplicate resources using different non-normalized urls', function() {
+     // Check that loading dups does not throw an error.
+     // Check that only one load is done for a set of dups.
+  });
+  */
 
   // TD: test what happens when itemsToLoad contains dups & 
   // non-canonicalized dups
