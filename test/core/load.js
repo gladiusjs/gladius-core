@@ -144,21 +144,35 @@
       cache: "myEmptyCache"});
   });
   
-  /*
-  asyncTest( 'load duplicate resources using different non-normalized urls', function() {
-     // Check that loading dups does not throw an error.
-     // Check that only one load is done for a set of dups.
+  asyncTest( 'load duplicate resources', function() {
+      expect(1);
+      
+      var resourcePath = "assets/test-loadfile1.json";
+      var resourceConstructor = engine.core.resource.json;
+      
+      function oncomplete() {
+          ok( false, 'oncomplete should not be invoked' );
+      }
+
+      var resourceToLoad = {
+        type: resourceConstructor,
+        url: resourcePath, 
+        onsuccess: function( result ) {
+          ok( false, 'onsuccess should not be invoked' );
+        },
+        onfailure: function( error ) {
+          ok( false, 'onfailure should not be invoked' );
+        }
+      };
+      
+      raises( function() {
+          engine.core.resource.load([resourceToLoad, resourceToLoad], { 
+              oncomplete: oncomplete
+          });
+          start();
+      }, function() {
+          return true;
+      }, 'load throws an exception');
   });
-  */
-
-  // TD: test what happens when itemsToLoad contains dups & 
-  // non-canonicalized dups
-
-  // TD: test that passing in various edge cases and null for options
-  // behaves appropriately
-
-  // TD: test that when itemsToLoad is not an array an exception is raised  
-  
-  // TD: ensure that we test that result is not populated before one of 
-  // oncomplete is called
+ 
 }());
