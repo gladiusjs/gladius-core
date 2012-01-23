@@ -47,6 +47,7 @@
     expect(7);
 
     var resourcePath = "assets/test-loadfile1.json";
+    var resourceConstructor = engine.core.resource.json;
     
     function oncomplete ( result, errors ) {
       ok( true, "single uncached load completed");
@@ -64,7 +65,7 @@
     }
 
     var resourceToLoad = {
-      type: "engine.core.resource.json",
+      type: resourceConstructor,
       url: resourcePath, 
       onsuccess: function( result ) {
         deepEqual(result, {}, "empty JSON object should have been loaded");
@@ -86,6 +87,7 @@
     expect(6);
 
     var resourcePath = "no-such-url-exists";
+    var resourceConstructor = engine.core.resource.json;
     
     function oncomplete ( result, errors ) {
 
@@ -102,7 +104,7 @@
     }
 
     var resourceToLoad = {
-      type: "engine.core.resource.json",
+      type: resourceConstructor,
       url: resourcePath, 
       onsuccess: function( result ) {
         ok(false, "non-existent file should not have loaded successfully");
@@ -121,8 +123,9 @@
 
 
   function makeResourceInfo(path) {
+    var resourceConstructor = engine.core.resource.json;
     var r = {
-      type: "engine.core.resource.json",
+      type: resourceConstructor,
       url: path,
       onsuccess: function(result) {
         deepEqual(result, {}, "empty JSON object should have been loaded");
