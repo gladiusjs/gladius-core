@@ -7,7 +7,7 @@ define( function ( require ) {
     var lang = require( 'lang' );
     var Delegate = require( 'common/delegate' );
     var Event = require( 'core/event' );
-
+    
     var IComponent = function( options ) {
 
         options = options || {};

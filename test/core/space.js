@@ -46,13 +46,7 @@
     });
 
     test( 'Construction', function () {
-        expect( 3 );
-
-        var spaceAdded = false;
-
-        engine.spaceAdded.subscribe( function( newSpace ) {
-          spaceAdded = newSpace;
-        });
+        expect( 2 );
 
         var space = new engine.core.Space();
         ok(
@@ -62,10 +56,6 @@
         ok(
                 space.size === 0,
                 'Initial size is 0.'
-        );
-        ok(
-                space == spaceAdded,
-                'New space delivered through event firing.'
         );
     });
 

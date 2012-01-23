@@ -98,13 +98,6 @@ define( function ( require ) {
             }
         });
 
-        var _spaceAdded = new Delegate();
-        Object.defineProperty( this, 'spaceAdded', {
-            get: function() {
-                return _spaceAdded;
-            }
-        });        
-
         // Fetch the services. These can potentially be async operations.
         // In a build, they are async, but do not result in any network
         // requests for the services bundled in the build.

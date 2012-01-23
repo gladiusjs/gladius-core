@@ -65,6 +65,24 @@ define( function ( require ) {
 
       this.onComponentOwnerChanged = function( e ){
           _transform = e.data.current.find( "Transform" );
+          
+          if( e.data.previous === null && this.owner !== null ) {
+              service.registerComponent( this.owner.id, this );
+          }
+          
+          if( this.owner === null && e.data.previous !== null ) {
+              service.unregisterComponent( e.data.previous.id, this );
+          }
+      };
+      
+      this.onEntityManagerChanged = function( e ) {
+          if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
+              service.registerComponent( this.owner.id, this );
+          }
+          
+          if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
+              service.unregisterComponent( this.owner.id, this );
+          }
       };
 
       this.prepareForRender = function(){

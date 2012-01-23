@@ -4,6 +4,7 @@
 
 define( function ( require ) {
 
+    var lang = require( 'lang' );
     var Delegate = require( 'common/delegate' );
 
     /* Scene
@@ -23,6 +24,13 @@ define( function ( require ) {
             Object.defineProperty( this, 'engine', {
                 get: function() {
                     return _engine;
+                }
+            });
+            
+            var _id = lang.guid();
+            Object.defineProperty( this, 'id', {
+                get: function() {
+                    return _id;
                 }
             });
 
@@ -219,8 +227,6 @@ define( function ( require ) {
                     _entityRemoved( options );
                 }
             };
-
-            engine.spaceAdded( this );
 
         };
 
