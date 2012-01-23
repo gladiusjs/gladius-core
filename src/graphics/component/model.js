@@ -8,11 +8,11 @@ define( function ( require ) {
 
     var math = engine.math;
     var Component = require( 'base/component' );
-    var Delegate = require( 'common/delegate' )
+    var Delegate = require( 'common/delegate' );
 
     return Component({
       type: 'Model',
-      depends: 'Transform'
+      depends: ['Transform']
     },
     function( options ) {
 
@@ -44,6 +44,26 @@ define( function ( require ) {
               _this.prepare();
           }
       });
+      
+      this.onComponentOwnerChanged = function( e ){
+          if( e.data.previous === null && this.owner !== null ) {
+              service.registerComponent( this.owner.id, this );
+          }
+          
+          if( this.owner === null && e.data.previous !== null ) {
+              service.unregisterComponent( e.data.previous.id, this );
+          }
+      };
+      
+      this.onEntityManagerChanged = function( e ) {
+          if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
+              service.registerComponent( this.owner.id, this );
+          }
+          
+          if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
+              service.unregisterComponent( this.owner.id, this );
+          }
+      };
 
       this.prepare = function(){
           if( _mesh && _material && _mesh._cvr && _material._cvr ) {
@@ -55,11 +75,6 @@ define( function ( require ) {
               } //if
           } //if
       }; //prepare
-
-      var handleOwnerChanged = function( e ) {
-      }; //ownerChangedHandler
-
-      this.ownerChanged.subscribe( handleOwnerChanged );
 
       _this.prepare();
 

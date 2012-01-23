@@ -76,7 +76,6 @@ define( function ( require ) {
                 get: function() {
                     if( this.owner.parent && this.owner.parent.contains( this.type ) ) {
                         var parentTransform = this.owner.parent.find( this.type );                            
-                        // _absolute = math.matrix4.multiply( [parentTransform.absolute, matrix()] );
                         _absolute = math.matrix4.multiply( [matrix(), parentTransform.absolute] );
                     } else {
                         _absolute = matrix();
@@ -89,83 +88,6 @@ define( function ( require ) {
                 get: function() {
                 }
             });
-
-            // Delegate handlers
-
-            var handleOwnerChanged = function( options ) {
-                if( options.previous ) {
-                    options.previous.parentChanged.unbind( handleOwnerParentChanged );
-                }
-
-                handleOwnerParentChanged({
-                    previous: options.previous ? options.previous.parent : null,
-                            current: options.current ? options.current.parent : null
-                });
-
-                if( options.current ) {
-                    options.current.parentChanged.bind( handleOwnerParentChanged );
-                    if( options.current.parent ) {
-                    }
-                }                
-
-                _recompile = true;
-            };
-
-            var handleOwnerParentChanged = function( options ) {
-                if( options.previous ) {
-                    options.previous.componentAdded.unbind( handleOwnerParentComponentAdded );
-                    options.previous.componentRemoved.unbind( handleOwnerParentComponentRemoved );
-                    if( options.previous.contains( this.type ) ) {
-                        options.previous.find( this.type ).transformChanged.unbind( handleParentTransformChanged );
-                    }
-                }
-
-                if( options.current ) {
-                    options.current.componentAdded.bind( handleOwnerParentComponentAdded );
-                    options.current.componentRemoved.bind( handleOwnerParentComponentRemoved );
-                    if( options.current.contains( this.type ) ) {
-                        options.current.find( this.type ).transformChanged.bind( handleParentTransformChanged );
-                    }
-                }
-
-                _recompile = true;
-            };
-
-            var handleOwnerParentComponentAdded = function( component ) {
-                // NB: This assumes that the owner parent has at most one transform component at any time
-                if( component.type === this.type ) {
-                    component.transformChanged.bind( handleTransformChanged );
-                }
-            };
-
-            var handleOwnerParentComponentRemoved = function( component ) {
-                // NB: This assumes that the owner parent has at most one transform component at any time
-                if( component.type === this.type ) {
-                    component.transformChanged.unbind( handleTransformChanged );
-                }
-            };
-
-            var handleOwnerParentTransformChanged = function( options ) {
-                _recompile = true;
-            };
-
-            // Delegates
-
-            var _transformChanged = new Delegate();
-            Object.defineProperty( this, 'transformChanged', {
-                get: function() {
-                    return _transformChanged;
-                }
-            });
-            var onTransformChanged = function( options ) {
-                if( _transformChanged ) {
-                    _transformChanged( options );
-                }
-            };
-
-            // Bind events
-
-            this.ownerChanged.subscribe( handleOwnerChanged );
 
         });
 

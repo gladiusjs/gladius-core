@@ -6,22 +6,43 @@ define( function ( require ) {
 
     var lang = require( 'lang' );
 
-    var Event = function( type, options ) {
-
-        var that = this;
-
-        type = type || '';
-        Object.defineProperty( this, 'type', {
-            get: function() {
-                return type;
-            }
-        });
+    var Event = function( options ) {
 
         options = options || {};
-        lang.extend( this, options );
+        var that = this;        
 
+        if( undefined === options.type ) {
+            throw 'event type is undefined';
+        }
+        Object.defineProperty( this, 'type', {
+            get: function() {
+                return options.type;
+            }
+        });
+        
+        var _immediate = options.hasOwnProperty( 'immediate' ) ? options.immediate : false;
+        Object.defineProperty( this, 'immediate', {
+            get: function() {
+                return _immediate;
+            }
+        });
+        
+        var _propagate = options.hasOwnProperty( 'propagate' ) ? options.propagate : false;
+        Object.defineProperty( this, 'propagate', {
+            get: function() {
+                return _propagate;
+            }
+        });
+        
+        var _data = options.data || {};
+        Object.defineProperty( this, 'data', {
+            get: function() {
+                return _data;
+            }
+        });
+        
         // Send this event to each entity in targets
-        this.send = function( targets ) {
+        this.dispatch = function( targets ) {
             for( var i = 0, l = targets.length; i < l; ++ i ) {
                 targets[i].handleEvent( that );
             }
