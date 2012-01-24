@@ -12,7 +12,7 @@ define( function ( require ) {
 
     return Component({
       type: 'Camera',
-      depends: 'Transform'
+      depends: ['Transform']
     },
     function( options ) {
 
@@ -63,10 +63,27 @@ define( function ( require ) {
         }
       });
 
-      var handleOwnerChanged = function( e ){
-          _transform = e.current.find( "Transform" );
-      }; //ownerChangedHandler
-      this.ownerChanged.subscribe( handleOwnerChanged );
+      this.onComponentOwnerChanged = function( e ){
+          _transform = e.data.current.find( "Transform" );
+          
+          if( e.data.previous === null && this.owner !== null ) {
+              service.registerComponent( this.owner.id, this );
+          }
+          
+          if( this.owner === null && e.data.previous !== null ) {
+              service.unregisterComponent( e.data.previous.id, this );
+          }
+      };
+      
+      this.onEntityManagerChanged = function( e ) {
+          if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
+              service.registerComponent( this.owner.id, this );
+          }
+          
+          if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
+              service.unregisterComponent( this.owner.id, this );
+          }
+      };
 
       this.prepareForRender = function(){
           if( _transform ){

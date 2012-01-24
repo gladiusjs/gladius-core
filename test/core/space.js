@@ -17,19 +17,19 @@
             gladius.create( { debug: true }, function( instance ) {       
                 engine = instance;
                 
-                TestComponent1 = engine.core.Component({
+                TestComponent1 = engine.base.Component({
                 	type: 'Apple'               
                 },
                 function( options ) {                	
                 });
 
-                TestComponent2 = engine.core.Component({
+                TestComponent2 = engine.base.Component({
                 	type: 'Apple'               
                 },
                 function( options ) {                	
                 });
 
-                TestComponent3 = engine.core.Component({
+                TestComponent3 = engine.base.Component({
                 	type: 'Orange'               
                 },
                 function( options ) {                	
@@ -46,13 +46,7 @@
     });
 
     test( 'Construction', function () {
-        expect( 3 );
-
-        var spaceAdded = false;
-
-        engine.spaceAdded.subscribe( function( newSpace ) {
-          spaceAdded = newSpace;
-        });
+        expect( 2 );
 
         var space = new engine.core.Space();
         ok(
@@ -62,10 +56,6 @@
         ok(
                 space.size === 0,
                 'Initial size is 0.'
-        );
-        ok(
-                space == spaceAdded,
-                'New space delivered through event firing.'
         );
     });
 
