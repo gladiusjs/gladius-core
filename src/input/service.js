@@ -3,6 +3,8 @@
 /*global define: false, console: false, window: false, setTimeout: false */
 
 define( function ( require ) {
+    
+    var Controller = require( './component/controller' );
 
     return function( engine ) {
 
@@ -221,6 +223,7 @@ define( function ( require ) {
             var that = this;
 
             var _element = options.element || window;
+            var _queue = [];
 
             function keyHandler(e, isPressed) {
                 e.preventDefault();
@@ -228,6 +231,14 @@ define( function ( require ) {
                 if (!key) {
                     console.log('Keyboard: Unknown key, Key Code = ' + (e.which || e.keyCode));
                     key = keys[0]; // Unknown
+                } else {
+                    _queue.push( new engine.core.Event({
+                        type: 'Key',
+                        data: {
+                            code: key.keyName,
+                            pressed: isPressed
+                        }
+                    }));
                 }
                 key.pressed = isPressed;
             }
@@ -240,8 +251,28 @@ define( function ( require ) {
             }, false);
 
             this.update = function() {
-                console.log( "!" );
+                var controllerEntityIds = Object.keys( that.components['Controller'] || {} );
+                controllerEntityIds.forEach( function( id ) {
+                    var controller = that.components['Controller'][id];
+                    _queue.forEach( function( event ) {
+                        controller.handleEvent( event );
+                    });
+                });        
+                
+                _queue = [];
             };
+            
+            var _components = {
+
+                    Controller: Controller( engine, this ),
+
+            };
+
+            Object.defineProperty( this, 'component', {
+                get: function() {
+                    return _components;
+                }
+            });            
 
         });
 

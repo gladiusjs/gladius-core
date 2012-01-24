@@ -22,6 +22,15 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             
             // Make a new space for our entities
             var space = new engine.core.Space();
+            
+            var entity = space.Entity({
+                name: 'test',
+                components:[
+                    new engine.input.component.Controller()
+                ]
+            });
+            
+            console.log( entity );
 
             // Start the engine!
             engine.run();

@@ -20,10 +20,10 @@ define( function ( require ) {
             }
         });
         
-        var _immediate = options.hasOwnProperty( 'immediate' ) ? options.immediate : false;
-        Object.defineProperty( this, 'immediate', {
+        var _queue = options.hasOwnProperty( 'queue' ) ? options.immediate : false;
+        Object.defineProperty( this, 'queue', {
             get: function() {
-                return _immediate;
+                return _queue;
             }
         });
         

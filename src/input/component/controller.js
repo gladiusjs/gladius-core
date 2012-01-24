@@ -4,7 +4,7 @@
 
 define( function ( require ) {
 
-    return function( engine ) {
+    return function( engine, service ) {
 
         var math = engine.math;
         var Component = require( 'base/component' );
@@ -13,7 +13,29 @@ define( function ( require ) {
             type: 'Controller'
         },
         function( options ) {
+            this.onKey = function( e ) {
+                console.log( e.type, e.data, e.queue );
+            };
             
+            this.onComponentOwnerChanged = function( e ){
+                if( e.data.previous === null && this.owner !== null ) {
+                    service.registerComponent( this.owner.id, this );
+                }
+                
+                if( this.owner === null && e.data.previous !== null ) {
+                    service.unregisterComponent( e.data.previous.id, this );
+                }
+            };
+            
+            this.onEntityManagerChanged = function( e ) {
+                if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
+                    service.registerComponent( this.owner.id, this );
+                }
+                
+                if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
+                    service.unregisterComponent( this.owner.id, this );
+                }
+            };
         });
        
     
