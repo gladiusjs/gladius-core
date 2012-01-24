@@ -33,6 +33,7 @@ define( function ( require ) {
         function( options ) {
 
             options = options || {};
+            var that = this;
 
             var _target = new Target({
                 element: options.canvas
@@ -46,18 +47,14 @@ define( function ( require ) {
                 }
             });
 
-            var _scenes = [],
-                _renderedFrames = 0,
+            var _renderedFrames = 0,
                 _canRender = false,
                 _this = this;
 
-            engine.spaceAdded.subscribe( function( scene ) {
-                _scenes.push( scene );
-            });
-
             this.render = function( options ) {
 
-                var scene,
+                var scenes = {},
+                    scene,
                     cameras,
                     camera,
                     models,
@@ -65,15 +62,24 @@ define( function ( require ) {
                     transform,
                     lights,
                     gl = _target.context.GLCore.gl;
-
+                
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-                for( var si = 0, sl = _scenes.length; si < sl; ++si ) {
-                    scene = _scenes[ si ];
+                
+                // TD: This is quick and dirty and not the most efficient
+                var cameraEntities = Object.keys( that.components['Camera'] || {} );                
+                cameraEntities.forEach( function( id ) {
+                    if( !scenes.hasOwnProperty( that.components['Camera'][id].owner.manager.id ) ) {
+                        scenes[that.components['Camera'][id].owner.manager.id] = that.components['Camera'][id].owner.manager;
+                    }
+                });
+                var sceneIDs = Object.keys( scenes );
+                
+                for( var si = 0, sl = sceneIDs.length; si < sl; ++si ) {
+                    scene = scenes[ sceneIDs[si] ];
                     cameras = scene.findAllWith( 'Camera' );
                     models = scene.findAllWith( 'Model' );
                     lights = scene.findAllWith( 'Light' );
-
+                    
                     var cvrLights = [];
                     for( var li = 0, ll = lights.length; li < ll; ++li ) {
                         var lightComponent = lights[ li ].find( 'Light' ); 

@@ -6,7 +6,8 @@ define( function ( require ) {
 
     var lang = require( 'lang' );
     var Delegate = require( 'common/delegate' );
-
+    var Event = require( 'core/event' );
+    
     var IComponent = function( options ) {
 
         options = options || {};
@@ -24,16 +25,17 @@ define( function ( require ) {
                 return _depends;
             }
         });
-
+        
     };
 
     var Component = function( options, c ) {
 
-        option = options || {};
+        option = options || {};        
 
         var r = function( options ) {
 
             options = options || {};
+            var that = this;
 
             var _owner = null;
             Object.defineProperty( this, 'owner', {
@@ -44,28 +46,57 @@ define( function ( require ) {
                     if( value != _owner ) {
                         var previous = _owner;
                         _owner = value;
-                        onOwnerChanged({
-                            current: value, 
-                            previous: previous
-                        });
+                        _handleEvent( new Event({
+                            type: 'ComponentOwnerChanged',
+                            queue: false,
+                            data: {
+                                current: value,
+                                previous: previous
+                            }
+                        }));
                     }
                 }
             });
             
-            // Delegates
-
-            var _ownerChanged = new Delegate();
-            Object.defineProperty( this, 'ownerChanged', {
+            var _queuedEvents = [];
+            Object.defineProperty( this, 'queuedEvents', {
                 get: function() {
-                    return _ownerChanged;
+                    return _queuedEvents;
                 }
             });
-            var onOwnerChanged = function( options ) {
-                if( _ownerChanged ) {
-                    _ownerChanged( options );
+            
+            var _handleEvent = function( event ) {
+                if( that.hasOwnProperty( 'on' + event.type ) ) {
+                    if( event.queue ) {
+                        _queuedEvents.push( event );            // Queue the event to be handled later
+                    } else {
+                        var handler = that['on' + event.type];  // Find the handler
+                        handler.call( that, event );            // Invoke the handler with the event      
+                    }
                 }
             };
+            Object.defineProperty( this, 'handleEvent', {
+                get: function() {
+                    return _handleEvent;
+                }
+            });
+            
+            // Handle the next queued event; Returns the size of the remainder
+            var _handleQueuedEvent = function() {
+                if( _queuedEvents.length > 0 ) {
+                    var event = _queuedEvents.shift();
+                    var handler = that['on' + event.type];  // Find the handler
+                    handler.call( that, event );            // Invoke the handler with the event
+                }
+                return _queuedEvents.lenght;
+            };
+            Object.defineProperty( this, 'handleQueuedEvent', {
+                get: function() {
+                    return _handleQueuedEvent;
+                }
+            });
 
+            
             c.call( this, options );
             
         };

@@ -53,15 +53,19 @@ define( function ( require ) {
                 set: function( value ) {
                     if( value != this && value != _parent ) {
                         if( _parent ) {
-                            parent.childRemoved( this );
+                            _parent.childRemoved( this );
                         }
 
                         var previous = _parent;
                         _parent = value;
-                        onParentChanged({
-                            previous: previous,
-                            current: value
-                        });
+                        _handleEvent( new engine.core.Event({
+                            type: 'EntityParentChanged',
+                            queue: false,
+                            data: {
+                                previous: previous,
+                                current: value
+                            }
+                        }));
 
                         if( _parent ) {
                             _parent.childAdded( this );
@@ -83,7 +87,18 @@ define( function ( require ) {
                     return _manager;
                 },
                 set: function( value ) {
-                    _manager = value;
+                    if( value !== this && value !== _manager ) {
+                        var previous = _manager;
+                        _manager = value;
+                        _handleEvent( new engine.core.Event({
+                            type: 'EntityManagerChanged',
+                            queue: false,
+                            data: {
+                                previous: previous,
+                                current: value
+                            }
+                        }));
+                    }
                 }
             });
 
@@ -103,8 +118,14 @@ define( function ( require ) {
                 var previousComponent = that.remove( component.type );
                 component.owner = that;
                 _components[component.type] = component;
-                ++ _size;
-                onComponentAdded( component );
+                ++ _size;                
+                _handleEvent( new engine.core.Event({
+                    type: 'EntityComponentAdded',
+                    queue: false,
+                    data: {
+                        component: component
+                    }
+                }));
                 return previousComponent || null;
             };
 
@@ -116,7 +137,13 @@ define( function ( require ) {
                     delete _components[type];
                     previousComponent.owner = null;
                     -- _size;
-                    onComponentRemoved( previousComponent );
+                    _handleEvent( new engine.core.Event({
+                        type: 'EntityComponentRemoved',
+                        queue: false,
+                        data: {
+                            component: previousComponent
+                        }
+                    }));
                 }
                 return previousComponent || null;
             };
@@ -133,122 +160,36 @@ define( function ( require ) {
             this.contains = function( type ) {
                 return _components.hasOwnProperty( type );
             };
-
-            var _handlers = {};	// Keeps track of events that this entity will handle
-
-            // Returns true if this entity handles events of type, false otherwise
-            this.handles = function( type ) {
-                return _handlers.hasOwnProperty( type );
-            };
-
-            // Register an event handler for an event type
-            this.registerHandler = function( type, handler ) {
-                if( !_handlers.hasOwnProperty( type ) ) {
-                    _handlers[type] = new Delegate();
-                }
-                _handlers[type].subscribe( handler );
-            };
-
-            // Unregister an event handler for an event type
-            this.unregisterHandler = function( type, handler ) {
-                if( _handlers.hasOwnProperty( type ) ) {
-                    _handlers[type].unsubscribe( handler );
-                    if( _handlers.size === 0 ) {
-                        delete _handlers[type];
-                    }
-                }
-            };
-
-            // Delegates
-
-            var _parentChanged = new Delegate();
-            Object.defineProperty( this, 'parentChanged', {
-                get: function() {
-                    return _parentChanged;
-                }
-            });
-            var onParentChanged = function( options ) {
-                if( _parentChanged ) {
-                    _parentChanged( options );
-                }
-            };
-
-            var _managerChanged = new Delegate();
-            Object.defineProperty( this, 'managerChanged', {
-                get: function() {
-                    return _managerChanged;
-                }
-            });
-            var onManagerChanged = function( options ) {
-                if( _managerChanged ) {
-                    _managerChanged( options );
-                }
-            };
-
-            var _childAdded = new Delegate();
-            Object.defineProperty( this, 'childAdded', {
-                get: function() {
-                    return _childAdded;
-                }
-            });
-            var onChildAdded = function( options ) {
-                if( _childAdded ) {
-                    _childAdded( options );
-                }
-            };
-
-            var _childRemoved = new Delegate();
-            Object.defineProperty( this, 'childRemoved', {
-                get: function() {
-                    return _childRemoved;
-                }
-            });
-            var onChildRemoved = function( options ) {
-                if( _childRemoved ) {
-                    _childRemoved( options );
-                }
-            };
-
-            var _componentAdded = new Delegate();
-            Object.defineProperty( this, 'componentAdded', {
-                get: function() {
-                    return _componentAdded;
-                }
-            });
-            var onComponentAdded = function( component ) {
-                if( _componentAdded ) {
-                    _componentAdded( component );
-                }
-            };
-
-            var _componentRemoved = new Delegate();
-            Object.defineProperty( this, 'componentRemoved', {
-                get: function() {
-                    return _componentRemoved;
-                }
-            });
-            var onComponentRemoved = function( component ) {
-                if( _componentRemoved ) {
-                    _componentRemoved( component );
-                }
-            };
-
-            // Delegate handlers
-
-            var handleChildAdded = function( child ) {
+            
+            this.childAdded = function( child ) {
                 _children[child.id] = child;
+                _handleEvent( new engine.core.Event({
+                    type: 'EntityChildAdded',
+                    queue: false,
+                    data: {
+                        entity: child
+                    }
+                }));
+                
             };
-            _childAdded.subscribe( handleChildAdded );
-
-            var handleChildRemoved = function( child ) {
+            
+            this.childRemoved = function( child ) {
                 delete _children[child.id];
+                _handleEvent( new engine.core.Event({
+                    type: 'EntityChildRemoved',
+                    queue: false,
+                    data: {
+                        entity: child
+                    }
+                }));
             };
-            _childRemoved.subscribe( handleChildRemoved );
 
+            // Generic event handler; Pass event to each component;
             var _handleEvent = function( event ) {
-                if( _handlers.hasOwnProperty( event.type ) ) {
-                    console.log( 'handling ' + event.type );
-                    _handlers[event.type]( event );
+                var componentTypes = Object.keys( _components );
+                for( var i = 0, l = componentTypes.length; i < l; ++ i ) {
+                    var component = _components[componentTypes[i]];
+                    component.handleEvent.call( component, event );
                 }
             };
             Object.defineProperty( this, 'handleEvent', {
@@ -256,9 +197,18 @@ define( function ( require ) {
                     return _handleEvent;
                 }
             });
-
+            
+            // Add each component
             if( options.components ) {
                 options.components.forEach( function( component ) {
+                    /*
+                    // Verify that all dependencies for new component are present
+                    component.depends.forEach( function( depend ) {
+                        if( !this.contains( depend ) ) {
+                            throw 'required component \'' + depend + '\' missing';
+                        }
+                    });
+                    */
                     that.add( component );
                 });
             }
