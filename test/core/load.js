@@ -1,7 +1,8 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
   nomen: false */
 /*global module: false, gladius: false, stop: false, start: false,
-  expect: false, asyncTest: false, ok: false, deepEqual: false, equal: false */
+  expect: false, asyncTest: false, ok: false, deepEqual: false, equal: false,
+  raises: false, test: false */
 
 (function() {
   var engine = null;
@@ -143,8 +144,8 @@
       oncomplete: oncomplete, 
       cache: "myEmptyCache"});
   });
-  
-  asyncTest( 'load duplicate resources', function() {
+ 
+  test( 'load duplicate resources', function() {
       expect(1);
       
       var resourcePath = "assets/test-loadfile1.json";
@@ -169,10 +170,9 @@
           engine.core.resource.load([resourceToLoad, resourceToLoad], { 
               oncomplete: oncomplete
           });
-          start();
-      }, function() {
-          return true;
+      }, function( exception ) {
+          return exception.message == "duplicate resource passsed in";
       }, 'load throws an exception');
   });
- 
+
 }());

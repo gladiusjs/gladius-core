@@ -8,6 +8,9 @@ define( function ( require ) {
     
      var load = function resourceLoad( itemsToLoad, options ) {
 
+       throw "XXX make QUnit fail in a comprehensible way before stuff is" + 
+         "implemented correctly.  Remove this.";
+       
        var result = {};
        var errors = {};
 
