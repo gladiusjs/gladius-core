@@ -44,7 +44,7 @@
                  start();
                },
                onfailure: function onTextFailure( error ) {
-                 ok(false, "onTextFailure improperly called with " + error);
+                 ok(false, "onfailure should not be invoked");
                  start();
                }
              });
@@ -70,7 +70,7 @@
                 ok( false, "non-existent file load shouldn't call onsuccess" );
                 start();            },
             onfailure: function onTextFailure( error ) {
-                ok( true, "non-existent file load should call onfailure");
+                ok( true, "onfailure is invoked");
                 start();
             }
           });
@@ -94,7 +94,7 @@
 
       });
     
-    asyncTest( 'construct a new resource type and an instance of it', 
+    asyncTest( 'default load function is invoked', 
             function() {
               expect(3);
               
@@ -121,19 +121,138 @@
                   start();
                 },
                 onfailure: function onTextFailure( error ) {
-                  ok(false, "onTextFailure improperly called with " + error);
+                  ok(false, "onfailure should not be invoked");
+                  start();
+                }
+              });
+            });
+        
+    asyncTest( 'default load function can be overridden and alternate load is invoked', 
+            function() {
+              expect(3);
+              
+              var testUrl = 'test-url';
+              var overrideUrl = 'override-url';
+
+              var Text = engine.base.Resource({
+                type: 'Text',
+                load: function loadText( url ) {
+                    ok( false, 'default load function should not be invoked' );
+                    return url;
+                },
+                construct: function constructText( data ) {
+                  equal( data, overrideUrl, 'data returned by load is correct' );
+                  this.value = data;
+                }
+              });
+                
+              Text({
+                url: testUrl,
+                load: function loadText( url ) {
+                    return overrideUrl;
+                },
+                onsuccess: function onTextSuccess( text ) {
+                  deepEqual( text ,
+                     { value: overrideUrul },
+                     "text object is constructed from loaded data");
+                  start();
+                },
+                onfailure: function onTextFailure( error ) {
+                  ok(false, "onfailure should not be invoked");
                   start();
                 }
               });
             });
     
-    
-    // TD: test that default loader can be overridden with a closure when
-    // creating an procedurally loaded instance of a given type
+    asyncTest( 'onfailure is invoked when load throws an exception', 
+            function() {
+              expect(1);
+              
+              var testUrl = 'test-url';
 
-    // TD: test that onfailure is invoked if load fails or returned undefined
+              var Text = engine.base.Resource({
+                type: 'Text',
+                load: function loadText( url ) {
+                    throw "an exception";
+                    return url;
+                },
+                construct: function constructText( data ) {
+                  ok( false, 'construct is not invoked when load throws an exception' );
+                  this.value = data;
+                }
+              });
+                
+              Text({
+                url: testUrl,
+                onsuccess: function onTextSuccess( text ) {
+                    ok( false, 'onsuccess should not be invoked when load throws an exception');
+                    start();
+                },
+                onfailure: function onTextFailure( error ) {
+                  ok(true, "onfailure is invoked");
+                  start();
+                }
+              });
+            });
     
-    // TD: test that onfailure is invoked if construct fails
+    asyncTest( 'onfailure is invoked when load returns undefined', 
+            function() {
+              expect(1);
+              
+              var testUrl = 'test-url';
+
+              var Text = engine.base.Resource({
+                type: 'Text',
+                load: function loadText( url ) {
+                    return undefined;
+                },
+                construct: function constructText( data ) {
+                  ok( false, 'construct is not invoked when load returns undefined' );
+                  this.value = data;
+                }
+              });
+                
+              Text({
+                url: testUrl,
+                onsuccess: function onTextSuccess( text ) {
+                    ok( false, 'onsuccess should not be invoked when load returns undefined');
+                    start();
+                },
+                onfailure: function onTextFailure( error ) {
+                  ok(true, "onfailure is invoked");
+                  start();
+                }
+              });
+            });
+  
+    asyncTest( 'onfailure is invoked when construct throws an exception', 
+            function() {
+              expect(1);
+              
+              var testUrl = 'test-url';
+
+              var Text = engine.base.Resource({
+                type: 'Text',
+                load: function loadText( url ) {
+                    return url;
+                },
+                construct: function constructText( data ) {
+                    throw "an exception";
+                }
+              });
+                
+              Text({
+                url: testUrl,
+                onsuccess: function onTextSuccess( text ) {
+                    ok( false, 'onsuccess should not be invoked when construct throws an exception');
+                    start();
+                },
+                onfailure: function onTextFailure( error ) {
+                  ok(true, "onfailure is invoked");
+                  start();
+                }
+              });
+            });
    
 }());
 
