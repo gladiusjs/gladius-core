@@ -50,6 +50,13 @@
                }
              });
            });
+
+    // TD: constructing new resource type without type param throws exception
+        
+    // TD: test that a type with a default loader invokes that loader
+    
+    // TD: test that default loader can be overridden with a closure when
+    // creating an procedurally loaded instance of a given type
     
     // Some day we can do even better by using mocks and ensuring that any HTTP
     // status code < 200 or > 299 fails.
@@ -75,10 +82,7 @@
             }
         };
 
-        // it was WAY too painful to figure out the syntax
-        // to trigger the intended semantics here; having two partial
-        // constructors that take different options is confusing.
-        // this object model needs simplifying.
+        // TD: this construction mode is wrong.  need to fix.
         var resource = new engine.base.Resource()(options);
      });
 
