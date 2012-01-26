@@ -175,11 +175,9 @@
                 type: 'Text',
                 load: function loadText( url ) {
                     throw "an exception";
-                    return url;
                 },
                 construct: function constructText( data ) {
                   ok( false, 'construct is not invoked when load throws an exception' );
-                  this.value = data;
                 }
               });
                 
@@ -209,7 +207,6 @@
                 },
                 construct: function constructText( data ) {
                   ok( false, 'construct is not invoked when load returns undefined' );
-                  this.value = data;
                 }
               });
                 
@@ -256,10 +253,3 @@
             });
    
 }());
-
-     
-     // TD: test data URLs, and commutativity/normalization of params:
-     //
-     // "data:gladius/script;core.script.test?x=1&y=2"
-     // "data:gladius/script;core.script.test?y=2&x=1"
-  
