@@ -1,7 +1,8 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
   nomen: false */
 /*global module: false, gladius: false, stop: false, start: false, test: false,
-  expect: false, asyncTest: false, ok: false, deepEqual: false, equal: false */
+  expect: false, asyncTest: false, ok: false, deepEqual: false, equal: false,
+  raises: false */
 
 (function() {
     var engine = null;
@@ -153,7 +154,7 @@
                 },
                 onsuccess: function onTextSuccess( text ) {
                   deepEqual( text ,
-                     { value: overrideUrul },
+                     { value: overrideUrl },
                      "text object is constructed from loaded data");
                   start();
                 },
