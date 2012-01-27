@@ -42,7 +42,7 @@ define( function ( require ) {
                 projectionMode: "cubic",
                 scale: [1, 1, 1]
                       }
-        }
+        };
 
         return mesh;
 

@@ -109,8 +109,9 @@ define( function ( require ) {
                         i = _entitiesByName[entity.name].indexOf( entity );
                         if( -1 != i ) {
                             _entitiesByName[entity.name].remove( i );
-                            if( 0 === _entitiesByName[entity.name].length )
+                            if( 0 === _entitiesByName[entity.name].length ) {
                                 delete _entitiesByName[entity.name];
+                            }
                         }
                     }
                     
