@@ -27,7 +27,7 @@
         expect( 3 );
 
         var TestComponent = engine.base.Component({
-        	type: 'Test'
+          type: 'Test'
         },
         function( options ) {
         });

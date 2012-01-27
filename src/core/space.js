@@ -105,7 +105,6 @@ define( function ( require ) {
                     _removeById( entity.id );
                     var i;
 
-                    var i;
                     if( entity.name && _entitiesByName.hasOwnProperty( entity.name ) ) {
                         i = _entitiesByName[entity.name].indexOf( entity );
                         if( -1 != i ) {

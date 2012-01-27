@@ -19,19 +19,19 @@
                 engine = instance;
                 
                 TestComponent1 = engine.base.Component({
-                	type: 'Apple'               
+                  type: 'Apple'
                 },
                 function( options ) {
                 });
 
                 TestComponent2 = engine.base.Component({
-                	type: 'Apple'               
+                  type: 'Apple'
                 },
                 function( options ) {
                 });
 
                 TestComponent3 = engine.base.Component({
-                	type: 'Orange'               
+                  type: 'Orange'
                 },
                 function( options ) {
                 });
