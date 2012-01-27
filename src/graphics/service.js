@@ -41,7 +41,7 @@ define( function ( require ) {
           type: 'Graphics',
           schedule: {
             update: {
-              phase: engine.scheduler.phases.RENDER,
+              phase: engine.scheduler.phases.RENDER
             }
           },
           time: engine.scheduler.realTime
@@ -203,6 +203,6 @@ define( function ( require ) {
 
         return Graphics;
         
-    }
+    };
     
 });

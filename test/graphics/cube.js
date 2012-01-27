@@ -1,3 +1,4 @@
+/*global gladius:true, ok: true, start:true */
 document.addEventListener( "DOMContentLoaded", function( e ){
 
   var canvas = document.getElementById( "test-canvas" );
@@ -31,7 +32,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             position: [1, 1, 1]
         }));
         cameraEntity.add( cameraComponent );
-        cameraComponent.target = [.2, 0, 0];
+        cameraComponent.target = [0.2, 0, 0];
         
         modelEntity.add( new engine.core.component.Transform({
             position: [0, 0, 0]
@@ -60,7 +61,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
         var meshResource = engine.graphics.resource.Mesh({
             script: engine.graphics.script.mesh.cube,
             onsuccess: function( mesh ) {
-                resources[ "mesh" ] = mesh;
+                resources.mesh = mesh;
                 onResourceSuccess();
             }
         });
@@ -68,7 +69,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
         var materialResource = engine.graphics.resource.Material({
             script: engine.graphics.script.material.sample,
             onsuccess: function( material ) {
-                resources[ "material" ] = material;
+                resources.material = material;
                 onResourceSuccess();
             }
         });
