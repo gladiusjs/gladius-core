@@ -97,7 +97,8 @@ define( function ( require ) {
                         group: this.type,
                         depends: this.depends
                     });
-                };
+                }
+                
                 Object.defineProperty( this, 'tasks', {
                     get: function() {
                         return _tasks;

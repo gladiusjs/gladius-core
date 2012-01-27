@@ -1,7 +1,8 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
   nomen: false */
 /*global gladius: false, document: false, window: false, module: false, start,
-  test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false */
+  test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false,
+  equal: false */
 
 (function() {
 
@@ -18,21 +19,21 @@
                 engine = instance;
                 
                 TestComponent1 = engine.base.Component({
-                	type: 'Apple'               
+                  type: 'Apple'
                 },
-                function( options ) {                	
+                function( options ) {
                 });
 
                 TestComponent2 = engine.base.Component({
-                	type: 'Apple'               
+                  type: 'Apple'
                 },
-                function( options ) {                	
+                function( options ) {
                 });
 
                 TestComponent3 = engine.base.Component({
-                	type: 'Orange'               
+                  type: 'Orange'
                 },
-                function( options ) {                	
+                function( options ) {
                 });
 
                 

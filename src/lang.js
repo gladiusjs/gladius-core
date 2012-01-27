@@ -103,7 +103,7 @@ define( function ( require ) {
                         return extensions.getProperty( object[current], path );
                     }
                 }
-            },
+            }
             
     };
 
