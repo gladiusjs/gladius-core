@@ -4,6 +4,7 @@
 
 define( function ( require ) {
 
+    var lang = require( 'lang' );
     var Delegate = require( 'common/delegate' );
 
     /* Scene
@@ -23,6 +24,13 @@ define( function ( require ) {
             Object.defineProperty( this, 'engine', {
                 get: function() {
                     return _engine;
+                }
+            });
+            
+            var _id = lang.guid();
+            Object.defineProperty( this, 'id', {
+                get: function() {
+                    return _id;
                 }
             });
 
@@ -95,6 +103,7 @@ define( function ( require ) {
             this.remove = function( entity ) {
                 if( entity ) {
                     _removeById( entity.id );
+                    var i;
 
                     var i;
                     if( entity.name && _entitiesByName.hasOwnProperty( entity.name ) ) {
@@ -108,7 +117,6 @@ define( function ( require ) {
                     }
                     
                     var children = entity.children;
-                    var l;
                     for( i = 0, l = children.length; i < l; ++ i ) {
                         that.remove( children[i] );
                     }
@@ -222,8 +230,6 @@ define( function ( require ) {
                     _entityRemoved( options );
                 }
             };
-
-            engine.spaceAdded( this );
 
         };
 

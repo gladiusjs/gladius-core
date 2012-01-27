@@ -3,18 +3,7 @@
 /*global define: false, console: false, window: false, setTimeout: false */
 
 define( function ( require ) {
-
-    var requestAnimFrame = (function() {
-        return window.requestAnimationFrame ||
-           window.webkitRequestAnimationFrame ||
-           window.mozRequestAnimationFrame ||
-           window.oRequestAnimationFrame ||
-           window.msRequestAnimationFrame ||
-           function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
-               window.setTimeout(callback, 1000/60);
-           };
-    })();
-    
+  
     require( 'CubicVR.js/CubicVR' );
     
     var CubicVR = this.CubicVR,
@@ -39,16 +28,12 @@ define( function ( require ) {
         
         var Graphics = engine.base.Service({
           type: 'Graphics',
-          schedule: {
-            update: {
-              phase: engine.scheduler.phases.RENDER
-            }
-          },
           time: engine.scheduler.realTime
         },
         function( options ) {
 
             options = options || {};
+            var that = this;
 
             var _target = new Target({
                 element: options.canvas
@@ -62,18 +47,14 @@ define( function ( require ) {
                 }
             });
 
-            var _scenes = [],
-                _renderedFrames = 0,
+            var _renderedFrames = 0,
                 _canRender = false,
                 _this = this;
 
-            engine.spaceAdded.subscribe( function( scene ) {
-                _scenes.push( scene );
-            });
-
             this.render = function( options ) {
 
-                var scene,
+                var scenes = {},
+                    scene,
                     cameras,
                     camera,
                     models,
@@ -81,15 +62,24 @@ define( function ( require ) {
                     transform,
                     lights,
                     gl = _target.context.GLCore.gl;
-
+                
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-                for( var si = 0, sl = _scenes.length; si < sl; ++si ) {
-                    scene = _scenes[ si ];
+                
+                // TD: This is quick and dirty and not the most efficient
+                var cameraEntities = Object.keys( that.components['Camera'] || {} );                
+                cameraEntities.forEach( function( id ) {
+                    if( !scenes.hasOwnProperty( that.components['Camera'][id].owner.manager.id ) ) {
+                        scenes[that.components['Camera'][id].owner.manager.id] = that.components['Camera'][id].owner.manager;
+                    }
+                });
+                var sceneIDs = Object.keys( scenes );
+                
+                for( var si = 0, sl = sceneIDs.length; si < sl; ++si ) {
+                    scene = scenes[ sceneIDs[si] ];
                     cameras = scene.findAllWith( 'Camera' );
                     models = scene.findAllWith( 'Model' );
                     lights = scene.findAllWith( 'Light' );
-
+                    
                     var cvrLights = [];
                     for( var li = 0, ll = lights.length; li < ll; ++li ) {
                         var lightComponent = lights[ li ].find( 'Light' ); 
@@ -123,19 +113,6 @@ define( function ( require ) {
                 ++_renderedFrames;
              
             }; //render
-
-            var handleAnimFrame = function() {
-              _canRender = true;
-              requestAnimFrame( handleAnimFrame );
-            };
-            requestAnimFrame( handleAnimFrame );
-
-            this.update = function() {
-              if (_canRender) {
-                _this.render();
-                _canRender = false;
-              } //if
-            }; //update
 
             var _resources = {
 

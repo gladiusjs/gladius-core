@@ -53,6 +53,37 @@ define( function ( require ) {
             var r = function( options ) {
 
                 options = options || {};
+                
+                var _components = {};
+                Object.defineProperty( this, 'components', {
+                    get: function() {
+                        return _components;
+                    }
+                });
+                
+                var _registerComponent = function( id, component ) {
+                    if( !_components.hasOwnProperty( component.type ) ) {
+                        _components[component.type] = {};
+                    }
+                    _components[component.type][id] = component;
+                };
+                Object.defineProperty( this, 'registerComponent', {
+                    get: function() {
+                        return _registerComponent;
+                    }
+                });
+                
+                var _unregisterComponent = function( id, component ) {
+                    if( _components.hasOwnProperty( component.type ) && 
+                            _components[component.type].hasOwnProperty( id ) ) {
+                        delete _components[component.type][id];
+                    }
+                };
+                Object.defineProperty( this, 'unregisterComponent', {
+                    get: function() {
+                        return _unregisterComponent;
+                    }
+                });
 
                 c.call( this, options );
 

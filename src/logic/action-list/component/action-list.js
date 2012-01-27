@@ -4,50 +4,70 @@
 
 define( function ( require ) {
 
-	return function( engine ) {
+    return function( engine, service ) {
 
-		var math = engine.math;
-		var Component = require( 'base/component' );
-		
-		/*
-		 * The algorithm below is based on the discussion of action lists here:
-		 * http://sonargame.com/2011/06/05/action-lists/
-		 */
+        var math = engine.math;
+        var Component = require( 'base/component' );
 
-		return Component({
-			type: 'Logic'
-		},
-		function( options ) {
+        /*
+         * The algorithm below is based on the discussion of action lists here:
+         * http://sonargame.com/2011/06/05/action-lists/
+         */
 
-			options = options || {};
+        return Component({
+            type: 'Logic'
+        },
+        function( options ) {
 
-			var _list = [],
-			_blockMask = 0,
-			_index = 0;
+            options = options || {};
 
-			var update = function( time ) {			
-				while( _index < _list.length ) {
-					var action = _list[_index];
+            var _list = [],
+            _blockMask = 0,
+            _index = 0;
 
-					if( action.mask & _blockMask ) {
-						continue;
-					}
+            var update = function( time ) {			
+                while( _index < _list.length ) {
+                    var action = _list[_index];
 
-					if( action.update.call( this ) ) {
-					    _list.splice( _index, 1 );
-					    continue;
-					}
-					
-					if( action.blocking ) {
-					    _blockMask |= action.mask;
-					}
-					
-					++ _index;
-				}
-			};
+                    if( action.mask & _blockMask ) {
+                        continue;
+                    }
 
-		});
+                    if( action.update.call( this ) ) {
+                        _list.splice( _index, 1 );
+                        continue;
+                    }
 
-	};
+                    if( action.blocking ) {
+                        _blockMask |= action.mask;
+                    }
+
+                    ++ _index;
+                }
+            };
+
+            this.onComponentOwnerChanged = function( e ){
+                if( e.data.previous === null && this.owner !== null ) {
+                    service.registerComponent( this.owner.id, this );
+                }
+
+                if( this.owner === null && e.data.previous !== null ) {
+                    service.unregisterComponent( e.data.previous.id, this );
+                }
+            };
+
+            this.onEntityManagerChanged = function( e ) {
+                if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
+                    service.registerComponent( this.owner.id, this );
+                }
+
+                if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
+                    service.unregisterComponent( this.owner.id, this );
+                }
+            };
+
+        });		
+
+    };
 
 });
