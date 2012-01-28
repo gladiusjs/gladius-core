@@ -5,7 +5,7 @@
 define( function ( require ) {
 
     var lang = require( 'lang' );
-
+    
     return function( engine ) {
 
         var IResource = function( options ) {
@@ -59,11 +59,20 @@ define( function ( require ) {
                             if( 4 != xhr.readyState ) {
                                 return;
                             }
-                            if ( xhr.status < 200 || xhr.status > 299 ) {
+                            if ( xhr.status >=1 && xhr.status < 200 || xhr.status > 299 ) {
                                 _onfailure( xhr.statusText ) ;
                                 return;
                             }
-                            var response = JSON.parse( xhr.responseText );
+                            
+                            var response;
+                            
+                            if(_url.match(/\.dae/)){
+                            	response = engine.graphics.target.context.loadCollada(_url, null, null, engine.graphics.target.context).sceneObjects[0].obj;
+                            }
+                            else{
+                            	response = JSON.parse( xhr.responseText );
+                            }
+                            
                             if (c) {
                                 _instance = new c( response );
                             } else {

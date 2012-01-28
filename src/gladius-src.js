@@ -23,6 +23,7 @@ define( function ( require ) {
         Transform = require( 'core/component/transform' ),
         Script = require( 'core/resource/script' ),
         Template = require( 'core/resource/template' ),
+        Collada = require( 'core/resource/collada' ),
         load = require( 'core/load' ),
     Gladius, i, args,
 
@@ -128,7 +129,8 @@ define( function ( require ) {
                     resource: {
                         load: load( this ),
                         Script: Script( this ),
-                        Template: Template( this )
+                        Template: Template( this ),
+                        Collada: Collada(this)
                     }
                 },
             });
