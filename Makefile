@@ -22,15 +22,16 @@ DIST_TOOLS_DIR := $(DIST_DIR)/tools
 
 CUBICVR_LIB := $(EXTERNAL_DIR)/CubicVR.js/dist/CubicVR.js
 
-CORE_FILES := $(SRC_DIR)/gladius.js $(wildcard $(SRC_DIR)/common/*.js) $(wildcard $(SRC_DIR)/core/*.js) $(wildcard $(SRC_DIR)/core/component/*.js)
-
-SUBSYSTEM_FILES := \
+GLADIUS_JS_FILES := $(shell find $(SRC_DIR) -name *.js -print )
+GLADIUS_JS_FILES += $(shell find $(TEST_DIR) -name *.js -print )
 
 compile = node $(TOOLS_DIR)/node_modules/uglify-js/bin/uglifyjs -o $(1) $(GLADIUS_DIST)
 
 complete = cat $(GLADIUS_MIN) > $(1)
 
 jshint = echo "Linting $(1)" ; node $(TOOLS_DIR)/jshint-cmdline.js $(1)
+
+.PHONY: check-lint
 
 all: check-lint $(DIST_DIR) $(GLADIUS_DIST) $(GLADIUS_MIN) $(CUBICVR_LIB)
 	@@echo "Finished, see $(DIST_DIR)"
@@ -61,13 +62,11 @@ test: $(DIST_DIR) $(GLADIUS_MIN)
 	@@echo "Starting web server in $(DIST_DIR), browse to http://localhost:9914/ (ctrl+c to stop)..."
 	@@cd $(DIST_DIR) && python ../$(TOOLS_DIR)/test_server.py
 
-check-lint: check-lint-core check-lint-subsystems
 
-check-lint-core:
-	@@$(foreach corefile,$(CORE_FILES),echo "-----" ; $(call jshint,$(corefile)) ; )
+lint: check-lint 
 
-check-lint-subsystems:
-	@@$(foreach subsystem,$(SUBSYSTEM_FILES),echo "-----" ; $(call jshint,$(subsystem)) ; )
+check-lint:
+	@@$(foreach jsfile, $(GLADIUS_JS_FILES),echo "-----" ; $(call jshint,$(jsfile)) ; )
 
 clean:
 	@@rm -fr $(DIST_DIR)

@@ -66,10 +66,11 @@ define( function ( require ) {
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
                 
                 // TD: This is quick and dirty and not the most efficient
-                var cameraEntities = Object.keys( that.components['Camera'] || {} );                
+                var cameraEntities = Object.keys( that.components.Camera || {} );                
                 cameraEntities.forEach( function( id ) {
-                    if( !scenes.hasOwnProperty( that.components['Camera'][id].owner.manager.id ) ) {
-                        scenes[that.components['Camera'][id].owner.manager.id] = that.components['Camera'][id].owner.manager;
+                    if( !scenes.hasOwnProperty( that.components.Camera[id].owner.manager.id ) ) {
+                        scenes[that.components.Camera[id].owner.manager.id] = 
+                            that.components.Camera[id].owner.manager;
                     }
                 });
                 var sceneIDs = Object.keys( scenes );
@@ -180,6 +181,6 @@ define( function ( require ) {
 
         return Graphics;
         
-    }
+    };
     
 });

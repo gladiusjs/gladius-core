@@ -27,7 +27,7 @@ define( function ( require ) {
         },
         Physics: {
             update: {
-                phase: phases.UPDATE,
+                phase: phases.UPDATE
             }
         },
         Animation: {
