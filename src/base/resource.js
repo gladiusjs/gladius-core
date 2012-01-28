@@ -67,7 +67,8 @@ define( function ( require ) {
                             var response;
                             
                             if(_url.match(/\.dae/)){
-                            	response = engine.graphics.target.context.loadCollada(_url, null, null, engine.graphics.target.context).sceneObjects[0].obj;
+                            	window.CubicVR = engine.graphics.target.context;
+                            	response = engine.graphics.target.context.loadCollada(_url).sceneObjects[0].obj;
                             }
                             else{
                             	response = JSON.parse( xhr.responseText );
