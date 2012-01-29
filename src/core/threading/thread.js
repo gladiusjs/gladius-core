@@ -54,6 +54,7 @@ define( function( require ) {
         var handle_dispatch = function __dispatch( message ) {
             // TD: Try/catch here to handle errors
             // Create a new function from the serialized data, wrap it to provide some additional parameters, then call it
+            /*jshint evil:true*/
             var f = new Function( ['console', 'assert', 'parameters'], 'var f = ' + message.callable + '; return f.apply( null, parameters );' );
             var result = f.apply( null, [ console, assert, message.parameters ] );
             send( '__result', {

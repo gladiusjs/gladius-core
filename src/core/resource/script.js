@@ -11,11 +11,12 @@ define( function ( require ) {
             cache: null
         },
         function( source ) {
-            
+
             source = source || {};
             source.text = source.text || '';
             source.parameters = source.parameters || [];
 
+            /*jshint evil:true */
             var _script = new Function( source.parameters, source.text );
             
             Object.defineProperty( this, 'run', {
