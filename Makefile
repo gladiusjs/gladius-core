@@ -19,6 +19,7 @@ GLADIUS_MIN := $(DIST_DIR)/$(GLADIUS).min.js
 TOOLS_DIR := ./tools
 DIST_TEST_DIR := $(DIST_DIR)/test
 DIST_TOOLS_DIR := $(DIST_DIR)/tools
+JSHINT := $(TOOLS_DIR)/node_modules/.bin/jshint
 
 CUBICVR_LIB := $(EXTERNAL_DIR)/CubicVR.js/dist/CubicVR.js
 
@@ -29,7 +30,7 @@ compile = node $(TOOLS_DIR)/node_modules/uglify-js/bin/uglifyjs -o $(1) $(GLADIU
 
 complete = cat $(GLADIUS_MIN) > $(1)
 
-jshint = echo "Linting $(1)" ; node $(TOOLS_DIR)/jshint-cmdline.js $(1)
+jshint = echo "Linting $(1)" ; $(JSHINT) $(1)
 
 .PHONY: check-lint
 
