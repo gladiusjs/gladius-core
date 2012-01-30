@@ -108,7 +108,7 @@ define( function ( require ) {
             lang.extend( this, {
                 common: {
                     Queue: Queue,
-                    Delegate: Delegate,
+                    Delegate: Delegate
                 },
                 base: {
                     Service: Service( this ),
@@ -130,13 +130,13 @@ define( function ( require ) {
                         Script: Script( this ),
                         Template: Template( this )
                     }
-                },
+                }
             });
             
             // Create a property on the instance's service object for
             // each service, based on the name given the services options object.
             var subs = this.service = {},
-            	i;
+              i;
             for (i = 0; i < arguments.length; i++) {
                 var s = arguments[ i ]( this ); 
                 subs[ sNames[ i ] ] = new s( sOptions[ i ] );

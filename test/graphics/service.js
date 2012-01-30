@@ -67,7 +67,7 @@
             position: [1, 1, 1]
         }));
         cameraEntity.add( cameraComponent );
-        cameraComponent.target = [.2, 0, 0];
+        cameraComponent.target = [0.2, 0, 0];
 
         modelEntity.add( new engine.core.component.Transform({
             position: [0, 0, 0]
@@ -98,7 +98,7 @@
         var meshResource = engine.graphics.resource.Mesh({
             script: engine.graphics.script.mesh.cube,
             onsuccess: function( mesh ) {
-                resources[ "mesh" ] = mesh;
+                resources.mesh = mesh;
                 onResourceSuccess();
             }
         });
@@ -106,7 +106,7 @@
         var materialResource = engine.graphics.resource.Material({
             script: engine.graphics.script.material.sample,
             onsuccess: function( material ) {
-                resources[ "material" ] = material;
+                resources.material = material;
                 onResourceSuccess();
             }
         });
@@ -114,7 +114,7 @@
         var lightResource = engine.graphics.resource.Light({
             script: engine.graphics.script.light.sample,
             onsuccess: function( light ) {
-                resources[ "light" ] = light;
+                resources.light = light;
                 onResourceSuccess();
             }
         });
