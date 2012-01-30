@@ -24,6 +24,9 @@
             engine = null;
         }
     });
+    
+    // TD: write a test for the default loader; should handle xhr and data URI
+    
 
     asyncTest( 'construct a new resource type and an instance of it', 
            function() {
@@ -31,16 +34,16 @@
 
              var MyCustomResourceType = engine.base.Resource({
                type: 'MyCustomResourceType',
-               construct: function constructMyCustomResourceType( data ) {
+               construct: function ( data ) {
                  this.value = data;
                }
              });
                
              MyCustomResourceType({
-               url: "data:MyCustomResourceType/plain,Hello%20World",
-               onsuccess: function onMyCustomResourceTypeSuccess( MyCustomResourceType ) {
-                 deepEqual( MyCustomResourceType ,
-                    { value: "Hello World" },
+               url: "data:,Hello%20World",
+               onsuccess: function onMyCustomResourceTypeSuccess( instance ) {
+                 equal( instance.value,
+                    "Hello World",
                     "MyCustomResourceType object constructed from data URL");
                  start();
                },
