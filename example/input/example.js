@@ -30,8 +30,6 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 ]
             });
             
-            console.log( entity );
-
             // Start the engine!
             engine.run();
 

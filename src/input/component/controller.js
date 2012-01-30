@@ -14,7 +14,8 @@ define( function ( require ) {
         },
         function( options ) {
             this.onKey = function( e ) {
-                console.log( e.type, e.data, e.queue );
+                console.log( e.type, e.data );
+                // Look for an event mapping and dispatch to entity.
             };
             
             this.onComponentOwnerChanged = function( e ){
