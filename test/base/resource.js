@@ -29,22 +29,22 @@
            function() {
              expect(1);             
 
-             var Text = engine.base.Resource({
-               type: 'Text',
-               construct: function constructText( data ) {
+             var MyCustomResourceType = engine.base.Resource({
+               type: 'MyCustomResourceType',
+               construct: function constructMyCustomResourceType( data ) {
                  this.value = data;
                }
              });
                
-             Text({
-               url: "data:text/plain,Hello%20World",
-               onsuccess: function onTextSuccess( text ) {
-                 deepEqual( text ,
+             MyCustomResourceType({
+               url: "data:MyCustomResourceType/plain,Hello%20World",
+               onsuccess: function onMyCustomResourceTypeSuccess( MyCustomResourceType ) {
+                 deepEqual( MyCustomResourceType ,
                     { value: "Hello World" },
-                    "text object constructed from data URL");
+                    "MyCustomResourceType object constructed from data URL");
                  start();
                },
-               onfailure: function onTextFailure( error ) {
+               onfailure: function onMyCustomResourceTypeFailure( error ) {
                  ok(false, "onfailure should not be invoked");
                  start();
                }
@@ -58,19 +58,19 @@
                   
         expect(1);
         
-        var Text = engine.base.Resource({
-            type: 'Text',
-            construct: function constructText( data ) {
+        var MyCustomResourceType = engine.base.Resource({
+            type: 'MyCustomResourceType',
+            construct: function constructMyCustomResourceType( data ) {
               this.value = data;
             }
           });
         
-        Text({
+        MyCustomResourceType({
             url: "no-such-url-exists",
-            onsuccess: function onTextSuccess( text ) {
+            onsuccess: function onMyCustomResourceTypeSuccess( MyCustomResourceType ) {
                 ok( false, "non-existent file load shouldn't call onsuccess" );
                 start();            },
-            onfailure: function onTextFailure( error ) {
+            onfailure: function onMyCustomResourceTypeFailure( error ) {
                 ok( true, "onfailure is invoked");
                 start();
             }
@@ -84,8 +84,8 @@
         expect(1);
     
         raises( function() {
-            var Text = engine.base.Resource({
-                construct: function constructText( data ) {
+            var MyCustomResourceType = engine.base.Resource({
+                construct: function constructMyCustomResourceType( data ) {
                     this.value = data;
                 }
             });
@@ -101,27 +101,27 @@
               
               var testUrl = 'test-url';
 
-              var Text = engine.base.Resource({
-                type: 'Text',
-                load: function loadText( url ) {
+              var MyCustomResourceType = engine.base.Resource({
+                type: 'MyCustomResourceType',
+                load: function loadMyCustomResourceType( url ) {
                     equal( url, testUrl, 'url is passed into load function' );
                     return url;
                 },
-                construct: function constructText( data ) {
+                construct: function constructMyCustomResourceType( data ) {
                   equal( data, testUrl, 'data returned by load is correct' );
                   this.value = data;
                 }
               });
                 
-              Text({
+              MyCustomResourceType({
                 url: testUrl,
-                onsuccess: function onTextSuccess( text ) {
-                  deepEqual( text ,
+                onsuccess: function onMyCustomResourceTypeSuccess( MyCustomResourceType ) {
+                  deepEqual( MyCustomResourceType ,
                      { value: testUrl },
-                     "text object is constructed from loaded data");
+                     "MyCustomResourceType object is constructed from loaded data");
                   start();
                 },
-                onfailure: function onTextFailure( error ) {
+                onfailure: function onMyCustomResourceTypeFailure( error ) {
                   ok(false, "onfailure should not be invoked");
                   start();
                 }
@@ -135,30 +135,30 @@
               var testUrl = 'test-url';
               var overrideUrl = 'override-url';
 
-              var Text = engine.base.Resource({
-                type: 'Text',
-                load: function loadText( url ) {
+              var MyCustomResourceType = engine.base.Resource({
+                type: 'MyCustomResourceType',
+                load: function loadMyCustomResourceType( url ) {
                     ok( false, 'default load function should not be invoked' );
                     return url;
                 },
-                construct: function constructText( data ) {
+                construct: function constructMyCustomResourceType( data ) {
                   equal( data, overrideUrl, 'data returned by load is correct' );
                   this.value = data;
                 }
               });
                 
-              Text({
+              MyCustomResourceType({
                 url: testUrl,
-                load: function loadText( url ) {
+                load: function loadMyCustomResourceType( url ) {
                     return overrideUrl;
                 },
-                onsuccess: function onTextSuccess( text ) {
-                  deepEqual( text ,
+                onsuccess: function onMyCustomResourceTypeSuccess( MyCustomResourceType ) {
+                  deepEqual( MyCustomResourceType ,
                      { value: overrideUrl },
-                     "text object is constructed from loaded data");
+                     "MyCustomResourceType object is constructed from loaded data");
                   start();
                 },
-                onfailure: function onTextFailure( error ) {
+                onfailure: function onMyCustomResourceTypeFailure( error ) {
                   ok(false, "onfailure should not be invoked");
                   start();
                 }
@@ -171,23 +171,23 @@
               
               var testUrl = 'test-url';
 
-              var Text = engine.base.Resource({
-                type: 'Text',
-                load: function loadText( url ) {
+              var MyCustomResourceType = engine.base.Resource({
+                type: 'MyCustomResourceType',
+                load: function loadMyCustomResourceType( url ) {
                     throw "an exception";
                 },
-                construct: function constructText( data ) {
+                construct: function constructMyCustomResourceType( data ) {
                   ok( false, 'construct is not invoked when load throws an exception' );
                 }
               });
                 
-              Text({
+              MyCustomResourceType({
                 url: testUrl,
-                onsuccess: function onTextSuccess( text ) {
+                onsuccess: function onMyCustomResourceTypeSuccess( MyCustomResourceType ) {
                     ok( false, 'onsuccess should not be invoked when load throws an exception');
                     start();
                 },
-                onfailure: function onTextFailure( error ) {
+                onfailure: function onMyCustomResourceTypeFailure( error ) {
                   ok(true, "onfailure is invoked");
                   start();
                 }
@@ -200,23 +200,23 @@
               
               var testUrl = 'test-url';
 
-              var Text = engine.base.Resource({
-                type: 'Text',
-                load: function loadText( url ) {
+              var MyCustomResourceType = engine.base.Resource({
+                type: 'MyCustomResourceType',
+                load: function loadMyCustomResourceType( url ) {
                     return undefined;
                 },
-                construct: function constructText( data ) {
+                construct: function constructMyCustomResourceType( data ) {
                   ok( false, 'construct is not invoked when load returns undefined' );
                 }
               });
                 
-              Text({
+              MyCustomResourceType({
                 url: testUrl,
-                onsuccess: function onTextSuccess( text ) {
+                onsuccess: function onMyCustomResourceTypeSuccess( MyCustomResourceType ) {
                     ok( false, 'onsuccess should not be invoked when load returns undefined');
                     start();
                 },
-                onfailure: function onTextFailure( error ) {
+                onfailure: function onMyCustomResourceTypeFailure( error ) {
                   ok(true, "onfailure is invoked");
                   start();
                 }
@@ -229,23 +229,23 @@
               
               var testUrl = 'test-url';
 
-              var Text = engine.base.Resource({
-                type: 'Text',
-                load: function loadText( url ) {
+              var MyCustomResourceType = engine.base.Resource({
+                type: 'MyCustomResourceType',
+                load: function loadMyCustomResourceType( url ) {
                     return url;
                 },
-                construct: function constructText( data ) {
+                construct: function constructMyCustomResourceType( data ) {
                     throw "an exception";
                 }
               });
                 
-              Text({
+              MyCustomResourceType({
                 url: testUrl,
-                onsuccess: function onTextSuccess( text ) {
+                onsuccess: function onMyCustomResourceTypeSuccess( MyCustomResourceType ) {
                     ok( false, 'onsuccess should not be invoked when construct throws an exception');
                     start();
                 },
-                onfailure: function onTextFailure( error ) {
+                onfailure: function onMyCustomResourceTypeFailure( error ) {
                   ok(true, "onfailure is invoked");
                   start();
                 }
