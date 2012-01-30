@@ -93,7 +93,7 @@
                 }
             });
         }, function( exception ) {
-            return exception.message == "missing type parameter";
+            return exception == "missing type parameter";
         }, 'base resource throws exception for missing type parameter');
 
       });
@@ -106,9 +106,9 @@
 
               var MyCustomResourceType = engine.base.Resource({
                 type: 'MyCustomResourceType',
-                load: function loadMyCustomResourceType( url ) {
+                load: function loadMyCustomResourceType( url, onsuccess, onfailure ) {
                     equal( url, testUrl, 'url is passed into load function' );
-                    return url;
+                    onsuccess( url );
                 },
                 construct: function constructMyCustomResourceType( data ) {
                   equal( data, testUrl, 'data returned by load is correct' );
@@ -140,9 +140,9 @@
 
               var MyCustomResourceType = engine.base.Resource({
                 type: 'MyCustomResourceType',
-                load: function loadMyCustomResourceType( url ) {
+                load: function loadMyCustomResourceType( url, onsuccess, onfailure ) {
                     ok( false, 'default load function should not be invoked' );
-                    return url;
+                    onsuccess( url );
                 },
                 construct: function constructMyCustomResourceType( data ) {
                   equal( data, overrideUrl, 'data returned by load is correct' );
@@ -152,8 +152,8 @@
                 
               MyCustomResourceType({
                 url: testUrl,
-                load: function loadMyCustomResourceType( url ) {
-                    return overrideUrl;
+                load: function loadMyCustomResourceType( url, onsuccess, onfailure ) {
+                    onsuccess( overrideUrl );
                 },
                 onsuccess: function onMyCustomResourceTypeSuccess( MyCustomResourceType ) {
                   deepEqual( MyCustomResourceType ,
@@ -168,7 +168,7 @@
               });
             });
     
-    asyncTest( 'onfailure is invoked when load throws an exception', 
+    asyncTest( 'onfailure is invoked when load fails', 
             function() {
               expect(1);
               
@@ -176,8 +176,8 @@
 
               var MyCustomResourceType = engine.base.Resource({
                 type: 'MyCustomResourceType',
-                load: function loadMyCustomResourceType( url ) {
-                    throw "an exception";
+                load: function loadMyCustomResourceType( url, onsuccess, onfailure ) {
+                    onfailure( "an exception" );
                 },
                 construct: function constructMyCustomResourceType( data ) {
                   ok( false, 'construct is not invoked when load throws an exception' );
@@ -205,8 +205,8 @@
 
               var MyCustomResourceType = engine.base.Resource({
                 type: 'MyCustomResourceType',
-                load: function loadMyCustomResourceType( url ) {
-                    return undefined;
+                load: function loadMyCustomResourceType( url, onsuccess, onfailure ) {
+                    onsuccess( undefined );
                 },
                 construct: function constructMyCustomResourceType( data ) {
                   ok( false, 'construct is not invoked when load returns undefined' );
@@ -226,7 +226,7 @@
               });
             });
   
-    asyncTest( 'onfailure is invoked when construct throws an exception', 
+    asyncTest( 'onfailure is invoked when construct fails', 
             function() {
               expect(1);
               
@@ -234,8 +234,8 @@
 
               var MyCustomResourceType = engine.base.Resource({
                 type: 'MyCustomResourceType',
-                load: function loadMyCustomResourceType( url ) {
-                    return url;
+                load: function loadMyCustomResourceType( url, onsuccess, onfailure ) {
+                    onsuccess( url );
                 },
                 construct: function constructMyCustomResourceType( data ) {
                     throw "an exception";

@@ -22,21 +22,21 @@ define( function ( require ) {
         }
     };
 
-    var defaultLoad = function( url ) {
+    var defaultLoad = function( url, onsuccess, onfailure ) {
         if( url.match('^data:') ) {
-            return decodeDataURI( url );
+            onsuccess( decodeDataURI( url ) );
         } else {
             var xhr = new XMLHttpRequest();
-            xhr.open( 'GET', _url, true );
+            xhr.open( 'GET', url, true );
             xhr.onreadystatechange = function() {
                 if( 4 != xhr.readyState ) {
                     return;
                 }
                 if ( xhr.status < 200 || xhr.status > 299 ) {
-                    _onfailure( xhr.statusText ) ;
+                    onfailure( xhr.statusText );
                     return;
                 }
-                return xhr.responseText;
+                onsuccess( xhr.responseText );
             };
             xhr.send( null );
         }
@@ -49,6 +49,9 @@ define( function ( require ) {
             options = options || {};
 
             var _type = options.type || undefined;
+            if( undefined === _type ) {
+                throw 'missing type parameter';
+            }
             Object.defineProperty( this, 'type', {
                 get: function() {
                     return _type;
@@ -61,21 +64,33 @@ define( function ( require ) {
                     return _cache;
                 }
             });
+            
+            var _load = options.load || defaultLoad;
+            Object.defineProperty( this, 'load', {
+                get: function() {
+                    return load;
+                }
+            });
+            
+            var _construct = options.construct || null;
+            Object.defineProperty( this, 'construct', {
+                get: function() {
+                    return _construct;
+                }
+            });
 
         };
 
         var Resource = function( options ) {
 
             options = options || {};
-            var defaultTypeLoad = options.load || defaultLoad;
-            var construct = options.construct;
 
-            var r = function( options ) {
+            var resourceFactory = function( options ) {
 
                 options = options || {};
+                var load = options.load || this.load;
 
-                var _url = options.url || null,
-                load = options.load || defaultTypeLoad;              
+                var _url = options.url || null;             
 
                 var _onsuccess = options.onsuccess || function() {},
                 _onfailure = options.onfailure || function() {};
@@ -89,27 +104,33 @@ define( function ( require ) {
                         instance = _cache.find( _url );                        
                         _onsuccess( instance );
                     } else {
-                        var data = load( _url );
-
-                        if( undefined === data ) {
-                            // TD: call onfailure
-                        };
-
-                        var instance = new construct( data );
-
-                        if( _cache ) {
-                            _cache.add( instance );
-                        }
-                        _onsuccess( instance );
+                        load( _url,
+                            function loadSuccess( data ) {                            
+                                if( undefined === data ) {
+                                    _onfailure( 'load returned with not data' );
+                                    return;
+                                };
+                            
+                                instance = new construct( data );
+                            
+                                if( _cache ) {
+                                    _cache.add( instance );
+                                }
+                                _onsuccess( instance );
+                            },
+                            function loadFailure( error ) {
+                                _onfailure( 'load failed: ' + error );
+                            }
+                        );
                     };
                 }
                 return;
             };
 
-            r.prototype = new BaseResource( options );
-            r.prototype.constructor = r;
+            resourceFactory.prototype = new BaseResource( options );
+            resourceFactory.prototype.constructor = resourceFactory;
 
-            return r;
+            return resourceFactory;
 
         };
 
