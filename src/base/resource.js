@@ -68,7 +68,7 @@ define( function ( require ) {
             var _load = options.load || defaultLoad;
             Object.defineProperty( this, 'load', {
                 get: function() {
-                    return load;
+                    return _load;
                 }
             });
             
@@ -84,12 +84,11 @@ define( function ( require ) {
         var Resource = function( options ) {
 
             options = options || {};
-
             var resourceFactory = function( options ) {
-
+                
                 options = options || {};
                 var load = options.load || this.load;
-
+                var construct = options.construct || this.construct;
                 var _url = options.url || null;             
 
                 var _onsuccess = options.onsuccess || function() {},
@@ -109,7 +108,7 @@ define( function ( require ) {
                                 if( undefined === data ) {
                                     _onfailure( 'load returned with not data' );
                                     return;
-                                };
+                                }
                             
                                 instance = new construct( data );
                             
@@ -122,7 +121,7 @@ define( function ( require ) {
                                 _onfailure( 'load failed: ' + error );
                             }
                         );
-                    };
+                    }
                 }
                 return;
             };

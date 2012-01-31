@@ -61,7 +61,7 @@
                   
         expect(1);
         
-        var MyCustomResourceType = engine.base.Resource({
+        var MyCustomResourceType = engine.base.makeResourceType({
             type: 'MyCustomResourceType',
             construct: function constructMyCustomResourceType( data ) {
               this.value = data;
