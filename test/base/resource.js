@@ -24,9 +24,7 @@
             engine = null;
         }
     });
-    
-    // TD: write a test for the default loader; should handle xhr and data URI
-    
+      
     test( 'construct a new resource type and an instance of it', 
            function() {
              expect(1);                          

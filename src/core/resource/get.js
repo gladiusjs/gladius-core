@@ -5,6 +5,42 @@
 define( function ( require ) {
 
   return function ( engine ) {
+      
+      var decodeDataURI = function( uri ) {
+          var components = uri.match( ':.*,' )[0].slice( 1, -1 ).split( ';' );
+          var contentType = components[0],
+          encoding = components[1],
+          base64 = components[2];
+          var data = decodeURIComponent( uri.match( ',.*' )[0].slice( 1 ) );
+
+          switch( contentType ) {
+          case '':
+          case 'text/plain':
+              return data;
+          default:
+              throw 'unknown content type: ' + contentType;
+          }
+      };
+
+      var defaultLoad = function( url, onsuccess, onfailure ) {
+          if( url.match('^data:') ) {
+              onsuccess( decodeDataURI( url ) );
+          } else {
+              var xhr = new XMLHttpRequest();
+              xhr.open( 'GET', url, true );
+              xhr.onreadystatechange = function() {
+                  if( 4 != xhr.readyState ) {
+                      return;
+                  }
+                  if ( xhr.status < 200 || xhr.status > 299 ) {
+                      onfailure( xhr.statusText );
+                      return;
+                  }
+                  onsuccess( xhr.responseText );
+              };
+              xhr.send( null );
+          }
+      };
     
      var load = function resourceLoad( itemsToLoad, options ) {
 
