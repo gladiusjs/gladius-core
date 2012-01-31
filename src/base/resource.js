@@ -59,23 +59,34 @@ define( function ( require ) {
                             if( 4 != xhr.readyState ) {
                                 return;
                             }
-                            if ( xhr.status >=1 && xhr.status < 200 || xhr.status > 299 ) {
+                            if ( xhr.status >= 1 && xhr.status < 200 || xhr.status > 299 ) {
                                 _onfailure( xhr.statusText ) ;
                                 return;
                             }
                             
                             var response;
+                            var isCollada = false;
                             
                             if(_url.match(/\.dae/)){
-                            	window.CubicVR = engine.graphics.target.context;
-                            	response = engine.graphics.target.context.loadCollada(_url).sceneObjects[0].obj;
+                                isCollada = true;
+                                window.CubicVR = engine.graphics.target.context;
+                                response = engine.graphics.target.context.loadCollada(_url, "city").sceneObjects;                                
                             }
                             else{
-                            	response = JSON.parse( xhr.responseText );
+                                response = JSON.parse( xhr.responseText );
                             }
                             
                             if (c) {
-                                _instance = new c( response );
+                                //TODO: Fix this
+                                if(isCollada){
+                                    for(var i = 0; i < response.length; i++){
+                                        var instance = new c( response[i] );
+                                        _onsuccess( instance );
+                                    }
+                                }
+                                else{
+                                    _instance = new c( response );
+                                }
                             } else {
                                 _instance = response;
                             }
@@ -83,7 +94,11 @@ define( function ( require ) {
                             if( _cache ) {
                                 _cache.add( _instance );
                             }
-                            _onsuccess( _instance );
+                            
+                            if(!isCollada){
+                                _onsuccess( _instance );
+                            }
+                            
                         };
                         xhr.send( null );
                     }

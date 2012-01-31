@@ -96,8 +96,12 @@ define( function ( require ) {
                                 model = models[ mi ].find( 'Model' );
                                 transform = models[ mi ].find( 'Transform' );
                                 camera.prepareForRender();
+                                
+                                // TODO: Fix me.
+                                var mesh = (model.mesh.isCollada) ? model.mesh._cvr.mesh.obj : model.mesh._cvr.mesh;
+                                
                                 _target.context.renderObject(
-                                    model.mesh._cvr.mesh,
+                                    mesh,
                                     camera._cvr.camera,
                                     transform.absolute,
                                     cvrLights 
@@ -109,7 +113,7 @@ define( function ( require ) {
                     } //for cameras
 
                 } //for scenes
-
+                
                 ++_renderedFrames;
              
             }; //render

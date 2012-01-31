@@ -10,15 +10,19 @@ define( function ( require ) {
             type: 'Collada',
             cache: null       
         },
+        
+        // sceneObject
         function( source ) {
             var _source = source,
                 that = this;
 
+            this.isCollada = true;
+            
             this._cvr = {};
             var _cvrMesh = _source;
             this._cvr.mesh = _cvrMesh;
-
-			this.prepare = function( options ) {};
+            
+            this.prepare = function( options ) {};
             
             // Create and return a new entity tree from this template
             this.create = function( options ) {
