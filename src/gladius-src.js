@@ -112,7 +112,7 @@ define( function ( require ) {
                 },
                 base: {
                     Service: Service( this ),
-                    Resource: Resource( this ),
+                    Resource: Resource,
                     Component: Component
                 }                
             });

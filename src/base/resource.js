@@ -42,99 +42,96 @@ define( function ( require ) {
         }
     };
 
-    return function( engine ) {
+    var ResourceBase = function( options ) {
 
-        var BaseResource = function( options ) {
+        options = options || {};
 
-            options = options || {};
-
-            var _type = options.type || undefined;
-            if( undefined === _type ) {
-                throw 'missing type parameter';
+        var _type = options.type || undefined;
+        if( undefined === _type ) {
+            throw 'missing type parameter';
+        }
+        Object.defineProperty( this, 'type', {
+            get: function() {
+                return _type;
             }
-            Object.defineProperty( this, 'type', {
-                get: function() {
-                    return _type;
-                }
-            });
+        });
 
-            var _cache = options.cache || null;
-            Object.defineProperty( this, 'cache', {
-                get: function() {
-                    return _cache;
-                }
-            });
-            
-            var _load = options.load || defaultLoad;
-            Object.defineProperty( this, 'load', {
-                get: function() {
-                    return _load;
-                }
-            });
-            
-            var _construct = options.construct || null;
-            Object.defineProperty( this, 'construct', {
-                get: function() {
-                    return _construct;
-                }
-            });
+        var _cache = options.cache || null;
+        Object.defineProperty( this, 'cache', {
+            get: function() {
+                return _cache;
+            }
+        });
 
-        };
+        var _load = options.load || defaultLoad;
+        Object.defineProperty( this, 'load', {
+            get: function() {
+                return _load;
+            }
+        });
 
+        var _construct = options.construct || null;
+        Object.defineProperty( this, 'construct', {
+            get: function() {
+                return _construct;
+            }
+        });
+
+    };
+    
+    var ResourceType = function( options ) {
+
+        options = options || {};
+        
         var Resource = function( options ) {
 
             options = options || {};
-            var resourceFactory = function( options ) {
-                
-                options = options || {};
-                var load = options.load || this.load;
-                var construct = options.construct || this.construct;
-                var _url = options.url || null;             
+            var load = options.load || this.load;
+            var construct = options.construct || this.construct;
+            var _url = options.url || null;             
 
-                var _onsuccess = options.onsuccess || function() {},
-                _onfailure = options.onfailure || function() {};
+            var _onsuccess = options.onsuccess || function() {},
+            _onfailure = options.onfailure || function() {};
 
-                var _cache = options.cache || this.cache;
+            var _cache = options.cache || this.cache;
 
-                if( _url ) {
-                    var instance;
-                    if( _cache && _cache.contains( _url ) ) {
-                        // Find the _instance in the cache and return it
-                        instance = _cache.find( _url );                        
-                        _onsuccess( instance );
-                    } else {
-                        load( _url,
+            if( _url ) {
+                var instance;
+                if( _cache && _cache.contains( _url ) ) {
+                    // Find the _instance in the cache and return it
+                    instance = _cache.find( _url );                        
+                    _onsuccess( instance );
+                } else {
+                    load( _url,
                             function loadSuccess( data ) {                            
-                                if( undefined === data ) {
-                                    _onfailure( 'load returned with not data' );
-                                    return;
-                                }
-                            
-                                instance = new construct( data );
-                            
-                                if( _cache ) {
-                                    _cache.add( instance );
-                                }
-                                _onsuccess( instance );
-                            },
-                            function loadFailure( error ) {
-                                _onfailure( 'load failed: ' + error );
-                            }
-                        );
+                        if( undefined === data ) {
+                            _onfailure( 'load returned with not data' );
+                            return;
+                        }
+
+                        instance = new construct( data );
+
+                        if( _cache ) {
+                            _cache.add( instance );
+                        }
+                        _onsuccess( instance );
+                    },
+                    function loadFailure( error ) {
+                        _onfailure( 'load failed: ' + error );
                     }
+                    );
                 }
-                return;
-            };
-
-            resourceFactory.prototype = new BaseResource( options );
-            resourceFactory.prototype.constructor = resourceFactory;
-
-            return resourceFactory;
-
+            }
+            return;
         };
+
+        Resource.prototype = new ResourceBase( options );
+        Resource.prototype.constructor = Resource;
 
         return Resource;
 
     };
+
+    return ResourceType;
 
 });
