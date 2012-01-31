@@ -23,6 +23,7 @@ define( function ( require ) {
         Transform = require( 'core/component/transform' ),
         Script = require( 'core/resource/script' ),
         Template = require( 'core/resource/template' ),
+        get = require('core/resource/get'),
     Gladius, i, args,
 
     // Expose the API on the global object. Part of if may already
@@ -126,7 +127,8 @@ define( function ( require ) {
                     },
                     resource: {
                         Script: Script( this ),
-                        Template: Template( this )
+                        Template: Template( this ),
+                        get: get
                     }
                 }
             });
