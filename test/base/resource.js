@@ -30,7 +30,7 @@
              expect(1);                          
              
              var MyCustomResource = new engine.base.Resource({
-                 type: 'MyCustomResourceType',
+                 type: 'MyCustomResourceType'
              },
              function( data ) {
                  this.value = data;
