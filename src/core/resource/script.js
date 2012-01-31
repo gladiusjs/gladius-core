@@ -6,17 +6,16 @@ define( function ( require ) {
 
     return function( engine ) {
     
-        var Script = engine.base.Resource({
-            type: 'Script',
-            cache: null
+        var Script = new engine.base.Resource({
+            type: 'Script'
         },
-        function( source ) {
+        function( data ) {
             
-            source = source || {};
-            source.text = source.text || '';
-            source.parameters = source.parameters || [];
+            data = data || {};
+            data.text = data.text || '';
+            data.parameters = data.parameters || [];
 
-            var _script = new Function( source.parameters, source.text );
+            var _script = new Function( data.parameters, data.text );
             
             Object.defineProperty( this, 'run', {
                 get: function() {

@@ -25,7 +25,7 @@
             type: 'MyCustomResourceType'
           },
           function( data ) {
-            this.value = data;
+            this.value = JSON.parse( data );
           }
         );
         
@@ -35,7 +35,7 @@
               type: resourceConstructor,
               url: url,
               onsuccess: function(instance) {
-                deepEqual(instance, {}, "empty JSON object should have been loaded");
+                deepEqual(instance.value, {}, "empty JSON object should have been loaded");
               },
               onfailure: function(error) {
                 ok(false, "failed to load minimal JSON file: " + error);
@@ -69,6 +69,27 @@
     equal( result, undefined, 'result is undefined' );
   });
   
+  test( 'get invoked without oncomplete fails', function() {
+     expect( 1 );
+     
+       var resourceToLoad = {
+         type: MyCustomResource,
+         url: "assets/test-loadfile1.json", 
+         onsuccess: function( instance ) {
+           deepEqual(instance.value, {}, "empty JSON object should have been loaded");
+         },
+         onfailure: function( error ) {
+           ok(false, "failed to load minimal JSON file: " + error);
+         }
+       };
+     
+     raises( function() {
+         engine.core.resource.get( [resourceToLoad] );
+     }, function( exception ) {
+         return exception == "missing oncomplete parameter";
+     }, 'get fails when oncomplete is omitted');
+  });
+  
   asyncTest( 'get a single resource', function() {
     expect(4);
     
@@ -95,7 +116,7 @@
     
     equal( result, undefined, 'result is undefined' );
   });  
-/*
+
 
   asyncTest( 'get a single non-existent resource', function() {
     expect(2);
@@ -141,33 +162,30 @@
     });
   });
  
-  test( 'get duplicate resources', function() {
-      expect(1);
+  asyncTest( 'get duplicate resources', function() {
+      expect(3);
       
       function oncomplete() {
-          ok( false, 'oncomplete should not be invoked' );
+          ok( true, 'oncomplete is invoked' );
+          start();
       }
 
       var resourceToLoad = {
         type: MyCustomResource,
         url: "assets/test-loadfile1.json", 
         onsuccess: function( result ) {
-          ok( false, 'onsuccess should not be invoked' );
+          ok( true, 'onsuccess is invoked' );
         },
         onfailure: function( error ) {
           ok( false, 'onfailure should not be invoked' );
-        }
+        }        
       };
       
-      raises( function() {
-          engine.core.resource.get( [resourceToLoad, resourceToLoad], { 
-              oncomplete: oncomplete
-          });
-      }, function( exception ) {
-          return exception.message == "duplicate resource passsed";
-      }, 'get throws an exception');
+      engine.core.resource.get( [resourceToLoad, resourceToLoad], { 
+          oncomplete: oncomplete
+      });     
   });
-*/  
+
   // TD: write a test for the default loader; should handle xhr and data URI?
 
   // TD: onfailure is invoked when loader fails

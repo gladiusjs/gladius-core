@@ -38,29 +38,43 @@ define(function(require) {
   };
   var get = function resourceGet(requests, options) {
 
+    options = options || {};
+    
+    if( !options.hasOwnProperty( 'oncomplete' ) ) {
+        throw 'missing oncomplete parameter';
+    }
+      
     if(!requests.length) {
-      if("oncomplete" in options) {
-        options.oncomplete();
-      }
-
+      options.oncomplete();
       return;
     }
+    
+    var requestsHandled = 0;
+    var requestHandled = function() {
+        ++ requestsHandled;
+        if( requestsHandled === requests.length ) {
+            options.oncomplete();
+        }
+    };
 
     for(var i = 0; i < requests.length; i++) {
-      //var itemOptions = new makeItemOptions(itemsToLoad[i]);
-      //var resource = new engine.base.Resource()(itemOptions);
       var request = requests[i];
-      defaultLoad(request.url, function loadSuccess(data) {
-        if(undefined === data) {
-          request.onfailure('load returned with not data');
-          return;
-        }
-        var instance = new request.type(data);
+      defaultLoad(request.url,
+        function loadSuccess(data) {
+          requestHandled();
+          if(undefined === data) {
+            request.onfailure('load returned with not data');
+            return;
+          }
+          var instance = new request.type(data);
 
-        request.onsuccess(instance);
-      }, function loadFailure(error) {
-        request.onfailure('load failed: ' + error);
-      });
+          request.onsuccess(instance);
+        },
+        function loadFailure(error) {
+          requestHandled();
+          request.onfailure('load failed: ' + error);          
+        }
+      );
     }
     return;
   };

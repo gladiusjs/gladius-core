@@ -23,11 +23,12 @@
         }
     });
 
-    asyncTest( '?', function () {
-        expect( 1 );
+    asyncTest( 'construct and load a script', function () {
+        expect( 1 );            
 
-        engine.core.resource.Script({
+        engine.core.resource.get([{
             url: 'assets/test-script.json',
+            type: engine.core.resource.Script,
             onsuccess: function( instance ) {
                 same(
                     3,
@@ -36,6 +37,9 @@
                 );
                 start();
             }
+        }],
+        {
+            oncomplete: function() {}
         });
 
     });
