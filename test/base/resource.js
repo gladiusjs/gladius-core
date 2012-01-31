@@ -27,16 +27,15 @@
     
     // TD: write a test for the default loader; should handle xhr and data URI
     
-
     test( 'construct a new resource type and an instance of it', 
            function() {
-             expect(1);
+             expect(1);                          
              
              var MyCustomResource = new engine.base.Resource({
                  type: 'MyCustomResourceType',
-                 construct: function( data ) {
-                     this.value = data;
-                 }
+             },
+             function( data ) {
+                 this.value = data;
              });
 
              var myCustomResourceInstance = new MyCustomResource( 'Hello world!' );
@@ -51,26 +50,26 @@
         expect(1);
     
         raises( function() {
-            var MyCustomResource = new engine.base.Resource({
-                construct: function constructMyCustomResourceType( data ) {
+            var MyCustomResource = new engine.base.Resource({},
+                function constructMyCustomResourceType( data ) {
                     this.value = data;
                 }
-            });
+            );
         }, function( exception ) {
             return exception == "missing type parameter";
         }, 'base resource throws exception for missing type parameter');
 
       });
   
-    asyncTest( 'exception is thrown when construct fails', 
+    test( 'exception is thrown when construct fails', 
             function() {
               expect(1);
               
               var MyCustomResource = new engine.base.Resource({
-                type: 'MyCustomResourceType',
-                construct: function constructMyCustomResourceType( data ) {
-                    throw "an exception";
-                }
+                type: 'MyCustomResourceType'
+              },
+              function constructMyCustomResourceType( data ) {
+                  throw "construct failed";
               });
               
               raises( function() {
@@ -79,5 +78,5 @@
                   return exception == "construct failed";
               }, 'base resource throws exception when construct fails');
             });
-   
+                       
 }());
