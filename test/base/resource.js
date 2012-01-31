@@ -32,14 +32,14 @@
            function() {
              expect(1);             
 
-             var MyCustomResourceType = engine.base.Resource({
+             var myCustomResourceFactory = new engine.base.ResourceFactory({
                type: 'MyCustomResourceType',
                construct: function ( data ) {
                  this.value = data;
                }
              });
                
-             MyCustomResourceType({
+             myCustomResourceFactory.get({
                url: "data:,Hello%20World",
                onsuccess: function onMyCustomResourceTypeSuccess( instance ) {
                  equal( instance.value,
@@ -61,14 +61,14 @@
                   
         expect(1);
         
-        var MyCustomResourceType = engine.base.makeResourceType({
+        var myCustomResourceFactory = new engine.base.ResourceFactory({
             type: 'MyCustomResourceType',
             construct: function constructMyCustomResourceType( data ) {
               this.value = data;
             }
           });
         
-        MyCustomResourceType({
+        myCustomResourceFactory.get({
             url: "no-such-url-exists",
             onsuccess: function onMyCustomResourceTypeSuccess( MyCustomResourceType ) {
                 ok( false, "non-existent file load shouldn't call onsuccess" );
@@ -87,7 +87,7 @@
         expect(1);
     
         raises( function() {
-            var MyCustomResourceType = engine.base.Resource({
+            var myCustomResourceFactory = new engine.base.ResourceFactory({
                 construct: function constructMyCustomResourceType( data ) {
                     this.value = data;
                 }
@@ -104,7 +104,7 @@
               
               var testUrl = 'test-url';
 
-              var MyCustomResourceType = engine.base.Resource({
+              var myCustomResourceFactory = new engine.base.ResourceFactory({
                 type: 'MyCustomResourceType',
                 load: function loadMyCustomResourceType( url, onsuccess, onfailure ) {
                     equal( url, testUrl, 'url is passed into load function' );
@@ -116,12 +116,12 @@
                 }
               });
                 
-              MyCustomResourceType({
+              myCustomResourceFactory.get({
                 url: testUrl,
-                onsuccess: function onMyCustomResourceTypeSuccess( MyCustomResourceType ) {
-                  deepEqual( MyCustomResourceType ,
-                     { value: testUrl },
-                     "MyCustomResourceType object is constructed from loaded data");
+                onsuccess: function onMyCustomResourceTypeSuccess( instance ) {
+                  equal( instance.value,
+                         testUrl,
+                        "instance object is constructed from loaded data");
                   start();
                 },
                 onfailure: function onMyCustomResourceTypeFailure( error ) {
@@ -138,7 +138,7 @@
               var testUrl = 'test-url';
               var overrideUrl = 'override-url';
 
-              var MyCustomResourceType = engine.base.Resource({
+              var myCustomResourceFactory = new engine.base.ResourceFactory({
                 type: 'MyCustomResourceType',
                 load: function loadMyCustomResourceType( url, onsuccess, onfailure ) {
                     ok( false, 'default load function should not be invoked' );
@@ -150,13 +150,13 @@
                 }
               });
                 
-              MyCustomResourceType({
+              myCustomResourceFactory.get({
                 url: testUrl,
                 load: function loadMyCustomResourceType( url, onsuccess, onfailure ) {
                     onsuccess( overrideUrl );
                 },
-                onsuccess: function onMyCustomResourceTypeSuccess( MyCustomResourceType ) {
-                  deepEqual( MyCustomResourceType ,
+                onsuccess: function onMyCustomResourceTypeSuccess( instance ) {
+                  equal( MyCustomResourceType ,
                      { value: overrideUrl },
                      "MyCustomResourceType object is constructed from loaded data");
                   start();
