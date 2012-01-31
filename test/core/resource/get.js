@@ -17,16 +17,17 @@
 
       gladius.create({
         debug : true
-      }, function(instance) {
+      }, function oncreate(instance) {
         engine = instance;
         
         // Make a custom resource type
         MyCustomResource = new engine.base.Resource({
-            type: 'MyCustomResourceType',
-        },
-        function( data ) {
+            type: 'MyCustomResourceType'
+          },
+          function( data ) {
             this.value = data;
-        });
+          }
+        );
         
         makeGetRequest = function( url ) {
             var resourceConstructor = MyCustomResource;
@@ -42,8 +43,8 @@
             };
 
             return request;
-        }
-        
+        };
+
         start();
       });
     },
@@ -67,8 +68,7 @@
     
     equal( result, undefined, 'result is undefined' );
   });
-
-
+  
   asyncTest( 'get a single resource', function() {
     expect(4);
     
@@ -95,7 +95,7 @@
     
     equal( result, undefined, 'result is undefined' );
   });  
- 
+/*
 
   asyncTest( 'get a single non-existent resource', function() {
     expect(2);
@@ -117,7 +117,7 @@
     };
     
     engine.core.resource.get( [resourceToLoad], { 
-      oncomplete: oncomplete, 
+      oncomplete: oncomplete 
     });
   });  
 
@@ -136,8 +136,8 @@
       makeGetRequest("assets/test-loadfile3.json")
     ];
     
-    engine.core.resource.load( resourcesToLoad, { 
-      oncomplete: oncomplete, 
+    engine.core.resource.get( resourcesToLoad, { 
+      oncomplete: oncomplete
     });
   });
  
@@ -160,19 +160,21 @@
       };
       
       raises( function() {
-          engine.core.resource.load( [resourceToLoad, resourceToLoad], { 
+          engine.core.resource.get( [resourceToLoad, resourceToLoad], { 
               oncomplete: oncomplete
           });
       }, function( exception ) {
           return exception.message == "duplicate resource passsed";
       }, 'get throws an exception');
   });
-  
-  // TD: write a test for the default loader; should handle xhr and data URI
-  // TD: default load function can be overridden per get request
-  // TD: default load function can be overridden per get invocation  
+*/  
+  // TD: write a test for the default loader; should handle xhr and data URI?
+
   // TD: onfailure is invoked when loader fails
   // TD: onfailure is invoked when loader returns undefined
   // TD: onfailure is invoked when resource constructor fails
+  // TD: default load function can be overridden per get request
+  // TD: default load function can be overridden per get invocation  
+
 
 }());
