@@ -44,10 +44,12 @@
     });
     
     asyncTest( 'construct and load a script from a javascript URI', function() {
-        expect( 1 );            
+        expect( 1 );
+        
+        var js = 'javascript://' + encodeURIComponent( 'function add( a, b ) { return a + b; }' );
 
         engine.core.resource.get([{
-            url: 'javascript://function%20add(%20a,%20b%20)%20%7B%20return%20a%20+%20b;%20%7D%20',
+            url: js,
             type: engine.core.resource.Script,
             onsuccess: function( instance ) {
                 same(
