@@ -19,7 +19,7 @@ define(function(require) {
   };
   
   var decodeJavaScriptURI = function( uri ) {
-      var js = uri.match( '://.*' )[0].slice( '://'.length );
+      var js = uri.match( '^javascript://.*' )[0].slice( 'javascript://'.length );
       return decodeURIComponent( js );
   };
   
