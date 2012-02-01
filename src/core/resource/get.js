@@ -17,9 +17,17 @@ define(function(require) {
         throw 'unknown content type: ' + contentType;
     }
   };
+  
+  var decodeJavaScriptURI = function( uri ) {
+      var js = uri.match( '://.*' )[0].slice( '://'.length );
+      return decodeURIComponent( js );
+  };
+  
   var defaultLoad = function(url, onsuccess, onfailure) {
     if(url.match('^data:')) {
       onsuccess(decodeDataURI(url));
+    } else if( url.match( '^javascript:' ) ) {
+        onsuccess( decodeJavaScriptURI(url) );
     } else {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);

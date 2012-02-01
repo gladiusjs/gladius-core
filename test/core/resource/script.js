@@ -41,7 +41,26 @@
         {
             oncomplete: function() {}
         });
+    });
+    
+    asyncTest( 'construct and load a script from a javascript URI', function() {
+        expect( 1 );            
 
+        engine.core.resource.get([{
+            url: 'javascript://function%20add(%20a,%20b%20)%20%7B%20return%20a%20+%20b;%20%7D%20',
+            type: engine.core.resource.Script,
+            onsuccess: function( instance ) {
+                same(
+                    7,
+                    instance.run( 3, 4 ),
+                    'Function runs and returns correct value'
+                );
+                start();
+            }
+        }],
+        {
+            oncomplete: function() {}
+        });        
     });
 
 }());
