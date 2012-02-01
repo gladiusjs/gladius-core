@@ -17,8 +17,8 @@ define( function ( require ) {
         Camera = require( './component/camera' ),
         Light = require( './component/light' ),
 
-        MeshProceduralCube = require( './script/mesh/procedural/cube' );
-        SampleColorMaterial = require( './script/material/procedural/sample' );
+        MeshProceduralCube = require( './script/mesh/procedural/cube' ),
+        SampleColorMaterial = require( './script/material/procedural/sample' ),
         SampleLight = require( './script/light/procedural/sample' );
 
     return function( engine ) {

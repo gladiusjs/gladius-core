@@ -6,17 +6,22 @@ define( function ( require ) {
 
     return function( engine, context ) {
 
-        var Material = engine.base.Resource({
-            type: 'Material',
-            cache: null
+        var Material = new engine.base.Resource({
+            type: 'Material'
         },
-        function( source ) {
+        function( options ) {
 
-            source = source || {};
+            options = options || {};
 
             this._cvr = {};
 
-            var _cvrMaterial = new context.Material( source );
+            var data; 
+            if ( "script" in options ) {
+              data = options.script();
+            } else {
+              //XXX
+            }
+            var _cvrMaterial = new context.Material( data );
             this._cvr.material = _cvrMaterial;
 
             this.prepare = function( options ) {
@@ -28,6 +33,7 @@ define( function ( require ) {
                 _cvrMaterial.prepare();
             }; //prepare
 
+           options.onsuccess( this ); // XXX
         });
         
         return Material;

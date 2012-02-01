@@ -6,9 +6,8 @@ define( function ( require ) {
 
     return function( engine, context ) {
         
-        var Light = engine.base.Resource({
-            type: 'Light',
-            cache: null
+        var Light = new engine.base.Resource({
+            type: 'Light'
         },
         function( source ) {
 

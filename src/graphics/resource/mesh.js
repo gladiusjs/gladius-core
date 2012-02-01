@@ -6,17 +6,22 @@ define( function ( require ) {
 
     return function( engine, context ) {
         
-        var Mesh = engine.base.Resource({
-            type: 'Mesh',
-            cache: null
+        var Mesh = new engine.base.Resource({
+            type: 'Mesh'
         },
-        function( source ) {
+        function constructMesh( options ) {
 
-            source = source || {};
+            options = options || {};
 
             this._cvr = {};
 
-            var _cvrMesh = new context.Mesh( source );
+            var data; 
+            if ( "script" in options ) {
+              data = options.script();
+            } else {
+              //XXX
+            }
+            var _cvrMesh = new context.Mesh( data );
             this._cvr.mesh = _cvrMesh;
 
             this.prepare = function( options ) {
@@ -26,7 +31,8 @@ define( function ( require ) {
                 } //if
                 _cvrMesh.prepare();
             }; //prepare
-
+            
+            options.onsuccess( this ); // XXX
         });
 
         return Mesh;
