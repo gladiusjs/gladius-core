@@ -9,18 +9,10 @@ define( function ( require ) {
         var Mesh = new engine.base.Resource({
             type: 'Mesh'
         },
-        function constructMesh( options ) {
-
-            options = options || {};
+        function constructMesh( data ) {
 
             this._cvr = {};
 
-            var data; 
-            if ( "script" in options ) {
-              data = options.script();
-            } else {
-              //XXX
-            }
             var _cvrMesh = new context.Mesh( data );
             this._cvr.mesh = _cvrMesh;
 
@@ -32,7 +24,6 @@ define( function ( require ) {
                 _cvrMesh.prepare();
             }; //prepare
             
-            options.onsuccess( this ); // XXX
         });
 
         return Mesh;

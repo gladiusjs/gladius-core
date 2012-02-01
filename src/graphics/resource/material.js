@@ -9,18 +9,10 @@ define( function ( require ) {
         var Material = new engine.base.Resource({
             type: 'Material'
         },
-        function( options ) {
-
-            options = options || {};
+        function( data ) {
 
             this._cvr = {};
 
-            var data; 
-            if ( "script" in options ) {
-              data = options.script();
-            } else {
-              //XXX
-            }
             var _cvrMaterial = new context.Material( data );
             this._cvr.material = _cvrMaterial;
 
@@ -33,7 +25,6 @@ define( function ( require ) {
                 _cvrMaterial.prepare();
             }; //prepare
 
-           options.onsuccess( this ); // XXX
         });
         
         return Material;

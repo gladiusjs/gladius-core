@@ -9,15 +9,13 @@ define( function ( require ) {
         var Light = new engine.base.Resource({
             type: 'Light'
         },
-        function( source ) {
-
-            source = source || {};
+        function( data ) {
 
             // just apply all the properties of the source obj
             // to this resource object (very simply)
-            for( var prop in source ) {
-                if( source.hasOwnProperty( prop ) ) {
-                    this[ prop ] = source[ prop ];
+            for( var prop in data ) {
+                if( data.hasOwnProperty( prop ) ) {
+                    this[ prop ] = data[ prop ];
                 } //if
             } //for
 

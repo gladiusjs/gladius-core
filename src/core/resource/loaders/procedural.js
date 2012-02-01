@@ -12,12 +12,11 @@ define(function(require) {
 
     var scriptLocation = url.split( "?" )[0];
     var scriptOptions = lang.getURLParams(url);
-
     get([{
       url : scriptLocation,
       type : Script,
       onsuccess : function(instance) {
-        try { 
+        try {
           var data = instance.run( scriptOptions );
           onsuccess( data ) ;
         } catch ( e ) {

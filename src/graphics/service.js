@@ -87,23 +87,24 @@ define( function ( require ) {
                         lightComponent.prepareForRender();
                         cvrLights.push( lightComponent._cvr.light );
                     } //for lights
-
+                    
                     for( var ci = 0, cl = cameras.length; ci < cl; ++ci ) {
                         camera = cameras[ ci ].find( 'Camera' );
 
                         if( camera.active ) {
                             for( var mi = 0, ml = models.length; mi < ml; ++mi ) {
-                              
+                                
                                 model = models[ mi ].find( 'Model' );
                                 transform = models[ mi ].find( 'Transform' );
                                 camera.prepareForRender();
+
                                 _target.context.renderObject(
                                     model.mesh._cvr.mesh,
                                     camera._cvr.camera,
                                     transform.absolute,
                                     cvrLights 
                                 );
-
+                                
                             } //for models
                         } //if
 
