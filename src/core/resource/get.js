@@ -67,7 +67,8 @@ define(function(require) {
 
     for(var i = 0; i < requests.length; i++) {
       var request = requests[i];
-      defaultLoad(request.url,
+      var load = request.load || defaultLoad;
+      load(request.url,
         function loadSuccess(data) {
           requestHandled();
           if(undefined === data) {

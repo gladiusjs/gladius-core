@@ -115,7 +115,43 @@
     });
     
     equal( result, undefined, 'result is undefined' );
-  });  
+  });
+  
+  asyncTest( 'default loader can be overridden in get request', function() {
+      expect( 2 );
+      
+      function oncomplete() {
+          ok( true, "get completed");                         
+          start();
+        }
+      
+      // Make a custom resource type
+      MyTextResource = new engine.base.Resource({
+          type: 'MyTextResourceType'
+        },
+        function( data ) {
+          this.value = data;
+        }
+      );
+
+        var resourceToLoad = {
+          type: MyTextResource,
+          url: "custom-url",
+          load: function( url, onsuccess, onfailure ) {
+              onsuccess( url );
+          },
+          onsuccess: function( instance ) {
+            deepEqual(instance.value, "custom-url", "instance.value is set by custom loader");
+          },
+          onfailure: function( error ) {
+            ok(false, "failed to invoke customer loader");
+          }
+        };
+        
+        engine.core.resource.get( [resourceToLoad], { 
+          oncomplete: oncomplete
+        });
+  });
 
 
   asyncTest( 'get a single non-existent resource', function() {
