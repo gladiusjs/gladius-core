@@ -43,13 +43,6 @@
         ok( engine.graphics, 'graphics subsystem exists' );
     });
 
-    test( 'Space awareness', function() {
-        expect( 1 );
-        var scene1 = new engine.core.Space(),
-            scene2 = new engine.core.Space();
-        equal( engine.graphics.scenes.length, 2, 'subsystem grabbed created scenes' );
-    });
-
     asyncTest( 'Test render', function() {
         expect( 1 );
         var scene = new engine.core.Space(),

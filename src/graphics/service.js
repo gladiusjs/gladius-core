@@ -157,12 +157,6 @@ define( function ( require ) {
                 }
             });
 
-            Object.defineProperty( this, 'scenes', {
-                get: function() {
-                    return _scenes;
-                }
-            });
-
             var _components = {
 
                 Model: Model( engine, _this, _target.context ),
