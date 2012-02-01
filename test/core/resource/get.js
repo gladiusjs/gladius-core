@@ -144,7 +144,7 @@
             deepEqual(instance.value, "custom-url", "instance.value is set by custom loader");
           },
           onfailure: function( error ) {
-            ok(false, "failed to invoke customer loader");
+            ok(false, "failed to invoke custom loader");
           }
         };
         
