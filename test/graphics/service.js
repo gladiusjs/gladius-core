@@ -1,7 +1,8 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
   nomen: false */
 /*global gladius: false, document: false, window: false, module: false, start,
-  test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false */
+  test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false,
+  asyncTest: false, equal: false */
 
 (function() {
 
@@ -55,7 +56,7 @@
             cameraEntity = new scene.Entity(),
             modelEntity = new scene.Entity();
 
-        canvas = engine.graphics.target.element;
+        var canvas = engine.graphics.target.element;
 
         var cameraComponent = new engine.graphics.component.Camera({
           active: true,
@@ -95,7 +96,7 @@
             } //if
         } //onResourceSuccess
 
-        var meshResource = engine.graphics.resource.Mesh({
+        engine.graphics.resource.Mesh({
             script: engine.graphics.script.mesh.cube,
             onsuccess: function( mesh ) {
                 resources.mesh = mesh;
@@ -103,7 +104,7 @@
             }
         });
 
-        var materialResource = engine.graphics.resource.Material({
+        engine.graphics.resource.Material({
             script: engine.graphics.script.material.sample,
             onsuccess: function( material ) {
                 resources.material = material;
@@ -111,7 +112,7 @@
             }
         });
 
-        var lightResource = engine.graphics.resource.Light({
+        engine.graphics.resource.Light({
             script: engine.graphics.script.light.sample,
             onsuccess: function( light ) {
                 resources.light = light;
@@ -120,5 +121,4 @@
         });
 
     });
-
 }());
