@@ -128,7 +128,7 @@ define( function ( require ) {
                         Transform: Transform( this )
                     },
                     resource: {
-                        Script: Script( this ),
+                        Script: Script,
                         Template: Template( this ),
                         get: get,
                         defaultLoad: defaultLoad,

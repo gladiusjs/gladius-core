@@ -79,25 +79,23 @@
     equal( result, undefined, 'result is undefined' );
   });
   
-  test( 'get invoked without oncomplete fails', function() {
+  asyncTest( 'get invoked without oncomplete succeeds', function() {
      expect( 1 );
      
        var resourceToLoad = {
          type: MyCustomResource,
          url: "assets/test-loadfile1.json", 
          onsuccess: function( instance ) {
-           deepEqual(instance.value, {}, "empty JSON object should have been loaded");
+           ok(true, "get invoked without oncomplete succeeded");
+           start();
          },
          onfailure: function( error ) {
            ok(false, "failed to load minimal JSON file: " + error);
+           start();
          }
        };
-     
-     raises( function() {
-         engine.core.resource.get( [resourceToLoad] );
-     }, function( exception ) {
-         return exception == "missing oncomplete parameter";
-     }, 'get fails when oncomplete is omitted');
+
+     engine.core.resource.get( [resourceToLoad] );     
   });
   
   asyncTest( 'get a single resource', function() {

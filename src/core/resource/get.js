@@ -9,11 +9,8 @@ define(function(require) {
     var get = function resourceGet(requests, options) {
 
         options = options || {};
-
-        if( !options.hasOwnProperty( 'oncomplete' ) ) {
-            throw 'missing oncomplete parameter';
-        }
-
+        options.oncomplete = options.oncomplete || function () {};
+        
         if(!requests.length) {
             options.oncomplete();
             return;
