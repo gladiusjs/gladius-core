@@ -38,12 +38,12 @@ if( !window.assert ) {
 
 if( !window.requestAnimationFrame ) {
     window.requestAnimationFrame = window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
-            window.setTimeout(callback, 1000/60);
-        };
+    window.mozRequestAnimationFrame ||
+    window.oRequestAnimationFrame ||
+    window.msRequestAnimationFrame ||
+    function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
+        window.setTimeout(callback, 1000/60);
+    };
 }
 
 define( function ( require ) {
@@ -103,8 +103,27 @@ define( function ( require ) {
                         return extensions.getProperty( object[current], path );
                     }
                 }
+            },
+
+            decodeDataURI: function(uri) {
+                var components = uri.match( ':.*,' )[0].slice(1, -1).split(';');
+                var contentType = components[0], encoding = components[1], base64 = components[2];
+                var data = decodeURIComponent(uri.match( ',.*' )[0].slice(1));
+
+                switch( contentType ) {
+                case '':
+                case 'text/plain':
+                    return data;
+                default:
+                    throw 'unknown content type: ' + contentType;
+                }
+            },
+
+            decodeJavaScriptURI: function( uri ) {
+                var js = uri.match( '^javascript://.*' )[0].slice( 'javascript://'.length );
+                return decodeURIComponent( js );
             }
-            
+
     };
 
     return extensions;
