@@ -11,18 +11,12 @@ define( function ( require ) {
         },
         function( data ) {
             
-            data = data || {};
-            data.text = data.text || '';
-            data.parameters = data.parameters || [];
-
-            var _script = new Function( data.parameters, data.text );
+            var _script = new Function( ['parameters'], 'var f = ' + data + '; return f.apply( null, parameters );' );
             
-            Object.defineProperty( this, 'run', {
-                get: function() {
-                    return _script;
-                }
-            });
-            
+            this.run = function() {
+                return _script.apply( null, [Array.prototype.slice.call( arguments )] );
+            };
+                       
         });
         
         return Script;

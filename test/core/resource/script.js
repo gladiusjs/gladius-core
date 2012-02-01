@@ -27,7 +27,7 @@
         expect( 1 );            
 
         engine.core.resource.get([{
-            url: 'assets/test-script.json',
+            url: 'assets/test-script.js',
             type: engine.core.resource.Script,
             onsuccess: function( instance ) {
                 same(
