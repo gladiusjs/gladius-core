@@ -28,7 +28,7 @@ define(function(require) {
             var request = requests[i];
             var load = request.load || defaultLoad;
             load(request.url,
-                    function loadSuccess(data) {
+            function loadSuccess(data) {
                 requestHandled();
                 if(undefined === data) {
                     request.onfailure('load returned with not data');
