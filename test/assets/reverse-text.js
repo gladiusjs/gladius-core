@@ -2,6 +2,8 @@ function reverseText( options ) {
   options = options || {};
   
   var text = options.value;
-
-  return text.split().reverse().toString();
+  var charArray = text.split("");
+  charArray.reverse();
+  
+  return charArray.join("");
 }

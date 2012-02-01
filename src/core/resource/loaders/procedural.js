@@ -14,7 +14,7 @@ define(function(require) {
     var scriptOptions = lang.getURLParams(url);
 
     get([{
-      url : 'assets/test-script.js',
+      url : scriptLocation,
       type : Script,
       onsuccess : function(instance) {
         try { 
