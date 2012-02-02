@@ -17,8 +17,8 @@ define( function ( require ) {
         Camera = require( './component/camera' ),
         Light = require( './component/light' ),
 
-        MeshProceduralCube = require( './script/mesh/procedural/cube' );
-        SampleColorMaterial = require( './script/material/procedural/sample' );
+        MeshProceduralCube = require( './script/mesh/procedural/cube' ),
+        SampleColorMaterial = require( './script/material/procedural/sample' ),
         SampleLight = require( './script/light/procedural/sample' );
 
     return function( engine ) {
@@ -83,27 +83,28 @@ define( function ( require ) {
                     
                     var cvrLights = [];
                     for( var li = 0, ll = lights.length; li < ll; ++li ) {
-                        var lightComponent = lights[ li ].find( 'Light' ); 
-                        lightComponent.prepareForRender();
+                        var lightComponent = lights[ li ].find( 'Light' );
+                        lightComponent.prepareForRender();                        
                         cvrLights.push( lightComponent._cvr.light );
                     } //for lights
-
+                    
                     for( var ci = 0, cl = cameras.length; ci < cl; ++ci ) {
                         camera = cameras[ ci ].find( 'Camera' );
 
                         if( camera.active ) {
                             for( var mi = 0, ml = models.length; mi < ml; ++mi ) {
-                              
+                                
                                 model = models[ mi ].find( 'Model' );
                                 transform = models[ mi ].find( 'Transform' );
                                 camera.prepareForRender();
+
                                 _target.context.renderObject(
                                     model.mesh._cvr.mesh,
                                     camera._cvr.camera,
                                     transform.absolute,
                                     cvrLights 
                                 );
-
+                                
                             } //for models
                         } //if
 
@@ -154,12 +155,6 @@ define( function ( require ) {
             Object.defineProperty( this, 'script', {
                 get: function() {
                     return _scripts;
-                }
-            });
-
-            Object.defineProperty( this, 'scenes', {
-                get: function() {
-                    return _scenes;
                 }
             });
 

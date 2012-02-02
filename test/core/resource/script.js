@@ -23,11 +23,12 @@
         }
     });
 
-    asyncTest( '?', function () {
-        expect( 1 );
+    asyncTest( 'construct and load a script', function () {
+        expect( 1 );            
 
-        engine.core.resource.Script({
-            url: 'assets/test-script.json',
+        engine.core.resource.get([{
+            url: 'assets/test-script.js',
+            type: engine.core.resource.Script,
             onsuccess: function( instance ) {
                 same(
                     3,
@@ -36,8 +37,32 @@
                 );
                 start();
             }
+        }],
+        {
+            oncomplete: function() {}
         });
+    });
+    
+    asyncTest( 'construct and load a script from a javascript URI', function() {
+        expect( 1 );
+        
+        var js = 'javascript://' + encodeURIComponent( 'function add( a, b ) { return a + b; }' );
 
+        engine.core.resource.get([{
+            url: js,
+            type: engine.core.resource.Script,
+            onsuccess: function( instance ) {
+                same(
+                    7,
+                    instance.run( 3, 4 ),
+                    'Function runs and returns correct value'
+                );
+                start();
+            }
+        }],
+        {
+            oncomplete: function() {}
+        });        
     });
 
 }());

@@ -102,17 +102,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     })
                 ]
             }) );
-            
-            var light = new space.Entity({
-                name: 'light',
-                components: [
-                    new engine.core.component.Transform({
-                        position: math.Vector3( 0, 0, 0 )
-                    }),
-                    new engine.graphics.component.Light( resources.light )
-                ]
-            });
-            
+                      
             var camera = new space.Entity({
                 name: 'camera',
                 components: [
@@ -125,7 +115,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                         height: canvas.height,
                         fov: 60
                     }),
-                    new engine.graphics.component.Light( resources.light )
+                    new engine.graphics.component.Light({ intensity: 50 })
                 ]
             });
             camera.find( 'Camera' ).target = math.Vector3( 0, 0, 0 );
@@ -143,7 +133,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     cubes[1].find( 'Transform' ).rotation = math.matrix4.add([
                         cubes[1].find( 'Transform' ).rotation,
                         [ math.TAU * delta * 0.1, math.TAU * delta * 0.2, 0 ]
-                    ]);
+                    ]);                   
                 }
             });
             
@@ -151,33 +141,46 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             engine.run();
 
         };
-
-        var expectedResources = 3;
-        var registerResource = function( name, instance ) {
-            resources[name] = instance;
-            if( Object.keys( resources ).length === expectedResources ) {
-                run();
+        
+        engine.core.resource.get(
+            [
+                {
+                    type: engine.graphics.resource.Mesh,
+                    url: 'procedural-mesh.js',                          
+                    load: engine.core.resource.proceduralLoad,
+                    onsuccess: function( mesh ) {
+                        resources['mesh'] = mesh;
+                    },
+                    onfailure: function( error ) {
+                    }
+                },
+                {
+                    type: engine.graphics.resource.Material,
+                    url: 'procedural-material.js',
+                    load: engine.core.resource.proceduralLoad,
+                    onsuccess: function( material ) {
+                        resources['material'] = material;
+                    },
+                    onfailure: function( error ) {
+                    }
+                },
+                /*
+                {
+                    type: engine.graphics.resource.Light,
+                    url: 'procedural-light.js',
+                    load: engine.core.resource.proceduralLoad,
+                    onsuccess: function( light ) {
+                        resources['light'] = light;
+                    },
+                    onfailure: function( error ) {
+                    }
+                }
+                */
+            ],
+            {
+                oncomplete: run
             }
-        };
-
-        engine.graphics.resource.Mesh({
-            script: engine.graphics.script.mesh.cube,
-            onsuccess: function( instance ) {
-                registerResource( 'mesh', instance );
-            }
-        });
-        engine.graphics.resource.Material({
-            script: engine.graphics.script.material.sample,
-            onsuccess: function( instance ) {
-                registerResource( 'material', instance );
-            }
-        });
-        engine.graphics.resource.Light({
-            script: engine.graphics.script.light.sample,
-            onsuccess: function( instance ) {
-                registerResource( 'light', instance );
-            }
-        });
+        );
 
     };
 

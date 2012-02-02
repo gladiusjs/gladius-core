@@ -1,4 +1,0 @@
-{
-    "parameters": ["a", "b"],
-    "text": "return a + b"
-}
