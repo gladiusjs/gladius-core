@@ -10,6 +10,7 @@ define(function(require) {
     type : 'Script'
   }, function(data) {
 
+    /*jslint evil:true */
     var _script = new Function(['parameters'], 'var f = ' + data + '; return f.apply( null, parameters );');
 
     this.run = function() {
