@@ -120,6 +120,7 @@ define( function ( require ) {
             },
 
             decodeJavaScriptURI: function( uri ) {
+              /*jshint scripturl:true*/
                 var js = uri.match( '^javascript://.*' )[0].slice( 'javascript://'.length );
                 return decodeURIComponent( js );
             },
