@@ -70,9 +70,6 @@ define( function ( require ) {
               _mesh.prepare({
                   material: _material
               });
-              if( options.onready ) {
-                  options.onready( _this );
-              } //if
           } //if
       }; //prepare
 
