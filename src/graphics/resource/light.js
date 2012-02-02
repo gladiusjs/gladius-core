@@ -11,13 +11,10 @@ define( function ( require ) {
         },
         function( data ) {
 
-            // just apply all the properties of the source obj
-            // to this resource object (very simply)
-            for( var prop in data ) {
-                if( data.hasOwnProperty( prop ) ) {
-                    this[ prop ] = data[ prop ];
-                } //if
-            } //for
+            this._cvr = {};
+
+            var _cvrLight = new context.Light( data );
+            this._cvr.light = _cvrLight;
 
         });
 
