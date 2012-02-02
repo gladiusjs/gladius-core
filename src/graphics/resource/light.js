@@ -6,22 +6,16 @@ define( function ( require ) {
 
     return function( engine, context ) {
         
-        var Light = engine.base.Resource({
-            type: 'Light',
-            cache: null
+        var Light = new engine.base.Resource({
+            type: 'Light'
         },
-        function( source ) {
+        function( data ) {
 
-            source = source || {};
+            this._cvr = {};
 
-            // just apply all the properties of the source obj
-            // to this resource object (very simply)
-            for( var prop in source ) {
-                if( source.hasOwnProperty( prop ) ) {
-                    this[ prop ] = source[ prop ];
-                } //if
-            } //for
-
+            var _cvrLight = new context.Light( data );
+            this._cvr.light = _cvrLight;
+            
         });
 
         return Light;

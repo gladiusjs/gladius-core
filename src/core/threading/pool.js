@@ -1,6 +1,7 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
   nomen: false */
-/*global define: false, console: false, window: false, setTimeout: false */
+/*global define: false, console: false, window: false, setTimeout: false,
+ assert: false */
 
 define( function( require ) {
 
@@ -61,7 +62,7 @@ define( function( require ) {
         // Change the number of threads in the pool
         var resize = function( size ) {
             // TD: not implemented
-        }
+        };
 
         Object.defineProperty( this, 'size', {
             get: function() {
@@ -83,7 +84,7 @@ define( function( require ) {
             });
         }
 
-    }
+    };
 
     return Pool;
 

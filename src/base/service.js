@@ -48,7 +48,7 @@ define( function ( require ) {
 
         var Service = function( options, c ) {
 
-            option = options || {};
+            options = options || {};
 
             var r = function( options ) {
 
@@ -97,7 +97,8 @@ define( function ( require ) {
                         group: this.type,
                         depends: this.depends
                     });
-                };
+                }
+                
                 Object.defineProperty( this, 'tasks', {
                     get: function() {
                         return _tasks;

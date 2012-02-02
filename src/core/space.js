@@ -109,12 +109,14 @@ define( function ( require ) {
                         i = _entitiesByName[entity.name].indexOf( entity );
                         if( -1 != i ) {
                             _entitiesByName[entity.name].remove( i );
-                            if( 0 === _entitiesByName[entity.name].length )
+                            if( 0 === _entitiesByName[entity.name].length ) {
                                 delete _entitiesByName[entity.name];
+                            }
                         }
                     }
                     
                     var children = entity.children;
+                    var l;
                     for( i = 0, l = children.length; i < l; ++ i ) {
                         that.remove( children[i] );
                     }
@@ -135,7 +137,7 @@ define( function ( require ) {
             this.removeAllNamed = function( name ) {
                 if( name && _entitiesByName.hasOwnProperty( name ) ) {
                     while( _entitiesByName[name].length > 0 ) {
-                        var entity = _entitiesByNames[name];
+                        var entity = _entitiesByName[name];
                         that.remove( entity );
                     }
                 }
@@ -144,7 +146,7 @@ define( function ( require ) {
             // Find the first entity with the given name and return it, or null.
             this.find = function( name ) {
                 if( name && _entitiesByName.hasOwnProperty( name ) ) {
-                    return _entitiesByNames[name][0];
+                    return _entitiesByName[name][0];
                 }
 
                 return null;

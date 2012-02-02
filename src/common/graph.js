@@ -42,7 +42,7 @@ define( function( require ) {
                 delete _roots[src];
             }
             
-            _cacheIsvalid = false;
+            _cacheIsValid = false;
         };
 
         this.unlink = function( src, snk ) {

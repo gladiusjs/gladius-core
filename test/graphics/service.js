@@ -1,7 +1,8 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
   nomen: false */
 /*global gladius: false, document: false, window: false, module: false, start,
-  test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false */
+  test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false,
+  asyncTest: false, equal: false */
 
 (function() {
 
@@ -42,20 +43,13 @@
         ok( engine.graphics, 'graphics subsystem exists' );
     });
 
-    test( 'Space awareness', function() {
-        expect( 1 );
-        var scene1 = new engine.core.Space(),
-            scene2 = new engine.core.Space();
-        equal( engine.graphics.scenes.length, 2, 'subsystem grabbed created scenes' );
-    });
-
     asyncTest( 'Test render', function() {
         expect( 1 );
         var scene = new engine.core.Space(),
             cameraEntity = new scene.Entity(),
             modelEntity = new scene.Entity();
 
-        canvas = engine.graphics.target.element;
+        var canvas = engine.graphics.target.element;
 
         var cameraComponent = new engine.graphics.component.Camera({
           active: true,
@@ -67,7 +61,7 @@
             position: [1, 1, 1]
         }));
         cameraEntity.add( cameraComponent );
-        cameraComponent.target = [.2, 0, 0];
+        cameraComponent.target = [0.2, 0, 0];
 
         modelEntity.add( new engine.core.component.Transform({
             position: [0, 0, 0]
@@ -95,30 +89,29 @@
             } //if
         } //onResourceSuccess
 
-        var meshResource = engine.graphics.resource.Mesh({
+        engine.graphics.resource.Mesh({
             script: engine.graphics.script.mesh.cube,
             onsuccess: function( mesh ) {
-                resources[ "mesh" ] = mesh;
+                resources.mesh = mesh;
                 onResourceSuccess();
             }
         });
 
-        var materialResource = engine.graphics.resource.Material({
+        engine.graphics.resource.Material({
             script: engine.graphics.script.material.sample,
             onsuccess: function( material ) {
-                resources[ "material" ] = material;
+                resources.material = material;
                 onResourceSuccess();
             }
         });
 
-        var lightResource = engine.graphics.resource.Light({
+        engine.graphics.resource.Light({
             script: engine.graphics.script.light.sample,
             onsuccess: function( light ) {
-                resources[ "light" ] = light;
+                resources.light = light;
                 onResourceSuccess();
             }
         });
 
     });
-
 }());

@@ -1,34 +1,22 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
-  nomen: false */
+ nomen: false */
 /*global define: false, console: false, window: false, setTimeout: false */
 
-define( function ( require ) {
+define(function(require) {
 
-    return function( engine ) {
-    
-        var Script = engine.base.Resource({
-            type: 'Script',
-            cache: null
-        },
-        function( source ) {
-            
-            source = source || {};
-            source.text = source.text || '';
-            source.parameters = source.parameters || [];
+  var Resource = require('base/resource');
 
-            var _script = new Function( source.parameters, source.text );
-            
-            Object.defineProperty( this, 'run', {
-                get: function() {
-                    return _script;
-                }
-            });
-            
-        });
-        
-        return Script;
-        
+  var Script = new Resource({
+    type : 'Script'
+  }, function(data) {
+
+    /*jslint evil:true */
+    var _script = new Function(['parameters'], 'var f = ' + data + '; return f.apply( null, parameters );');
+
+    this.run = function() {
+      return _script.apply(null, [Array.prototype.slice.call(arguments)]);
     };
-    
-});
+  });
+  return Script;
 
+});

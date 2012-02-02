@@ -30,7 +30,7 @@ define( function ( require ) {
 
     var Component = function( options, c ) {
 
-        option = options || {};        
+        options = options || {};        
 
         var r = function( options ) {
 

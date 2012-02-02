@@ -38,12 +38,12 @@ if( !window.assert ) {
 
 if( !window.requestAnimationFrame ) {
     window.requestAnimationFrame = window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
-            window.setTimeout(callback, 1000/60);
-        };
+    window.mozRequestAnimationFrame ||
+    window.oRequestAnimationFrame ||
+    window.msRequestAnimationFrame ||
+    function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
+        window.setTimeout(callback, 1000/60);
+    };
 }
 
 define( function ( require ) {
@@ -104,7 +104,43 @@ define( function ( require ) {
                     }
                 }
             },
-            
+
+            decodeDataURI: function(uri) {
+                var components = uri.match( ':.*,' )[0].slice(1, -1).split(';');
+                var contentType = components[0], encoding = components[1], base64 = components[2];
+                var data = decodeURIComponent(uri.match( ',.*' )[0].slice(1));
+
+                switch( contentType ) {
+                case '':
+                case 'text/plain':
+                    return data;
+                default:
+                    throw 'unknown content type: ' + contentType;
+                }
+            },
+
+            decodeJavaScriptURI: function( uri ) {
+              /*jshint scripturl:true*/
+                var js = uri.match( '^javascript://.*' )[0].slice( 'javascript://'.length );
+                return decodeURIComponent( js );
+            },
+
+            getURLParams: function ( url ) {
+                var urlParts = url.split("?");
+                var result = {};
+                if( urlParts[1] ) {
+                    var params = urlParts[1].split("&");
+
+                    for ( var i = 0; i < params.length; ++i ) {
+                        var item = params[i].split("=");
+                        var key = decodeURIComponent(item[0]);
+                        var val = decodeURIComponent(item[1]);
+                        result[key] = val;
+                    }
+                }
+
+                return result;
+            }
     };
 
     return extensions;
