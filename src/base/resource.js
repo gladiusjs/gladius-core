@@ -15,20 +15,14 @@ define( function ( require ) {
         Object.defineProperty( this, 'type', {
             get: function() {
                 return _type;
-            }
-        });
-
-        var _construct = options.construct || null;
-        Object.defineProperty( this, 'construct', {
-            get: function() {
-                return _construct;
-            }
+            },
+            enumerable: false
         });
 
     };
     
     return function( options, construct ) {
-        var Resource = function( options ) {            
+        var Resource = function( options ) {
             construct.call( this, options );
         };
         Resource.prototype = new ResourceBase( options );

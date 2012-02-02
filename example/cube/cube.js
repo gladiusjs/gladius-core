@@ -102,7 +102,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     })
                 ]
             }) );
-            
+            /*
             var light = new space.Entity({
                 name: 'light',
                 components: [
@@ -112,7 +112,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     new engine.graphics.component.Light( resources.light )
                 ]
             });
-            
+            */
             var camera = new space.Entity({
                 name: 'camera',
                 components: [
@@ -125,7 +125,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                         height: canvas.height,
                         fov: 60
                     }),
-                    new engine.graphics.component.Light( resources.light )
+                    // new engine.graphics.component.Light( resources.light )
                 ]
             });
             camera.find( 'Camera' ).target = math.Vector3( 0, 0, 0 );
@@ -162,7 +162,6 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                         resources['mesh'] = mesh;
                     },
                     onfailure: function( error ) {
-                        debugger;
                     }
                 },
                 {
@@ -173,7 +172,6 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                         resources['material'] = material;
                     },
                     onfailure: function( error ) {
-                        debugger;
                     }
                 },
                 {

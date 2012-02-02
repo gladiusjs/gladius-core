@@ -3,14 +3,14 @@
 /*global define: false, console: false */
 
 define(function(require) {
-    
+
     var defaultLoad = require( 'core/resource/loaders/default' );
 
     var get = function resourceGet(requests, options) {
 
         options = options || {};
         options.oncomplete = options.oncomplete || function () {};
-        
+
         if(!requests.length) {
             options.oncomplete();
             return;
@@ -24,26 +24,29 @@ define(function(require) {
             }
         };
 
+        var doLoad = function( load, request ) {
+            load(
+                    request.url,
+                    function loadSuccess(data) {
+                        if(undefined === data) {
+                            request.onfailure('load returned with not data');
+                        } else {
+                            var instance = new request.type(data);
+                            request.onsuccess(instance);
+                        }
+                        requestHandled();
+                    },
+                    function loadFailure(error) {
+                        request.onfailure('load failed: ' + error);
+                        requestHandled();
+                    }
+            );
+        };
+
         for(var i = 0; i < requests.length; i++) {
             var request = requests[i];
-            var load = request.load || defaultLoad;
-            
-            load(request.url,
-            function loadSuccess(data) {
-                requestHandled();
-                if(undefined === data) {
-                    request.onfailure('load returned with not data');
-                    return;
-                }
-                var instance = new request.type(data);
-
-                request.onsuccess(instance);
-            },
-            function loadFailure(error) {
-                requestHandled();
-                request.onfailure('load failed: ' + error);          
-            }
-            );
+            var load = request.load || defaultLoad;    
+            doLoad( load, request );
         }
         return;
     };
