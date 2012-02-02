@@ -64,7 +64,7 @@ test: $(DIST_DIR) $(GLADIUS_MIN)
 lint: check-lint 
 
 check-lint:
-	$(JSHINT) $(GLADIUS_JSHINT_DIRS) --show-non-errors \
+	$(JSHINT) $(GLADIUS_JSHINT_DIRS) \
 		--config tools/jshintrc.json
 
 clean:

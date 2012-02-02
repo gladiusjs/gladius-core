@@ -20,11 +20,10 @@
   
   // want to toggle these and eliminate the bugs they catch, one by one
   "devel": true,     // we probably don't want console calls in production
+  "undef": true,     // catch bug-causing typos!
+  "shadow": false,   // shadowing variable names are sources of confusion
   "noarg": false,    // don't want to inadvertently fall out of optimizer
-  "undef": false,    // catch bug-causing typos!
   "forin": false,    // require hasInProperty in for..in
   "newcap": false,   // require constructors to be Capitalized
-  "esnext": false,   // we're not in a world where can count on let/const
-  "shadow": false    // shadowing variable names are sources of confusion
-
+  "esnext": false    // we're not in a world where can count on let/const
 }
