@@ -48,7 +48,7 @@ define( function ( require ) {
 
         var Service = function( options, c ) {
 
-            option = options || {};
+            options = options || {};
 
             var r = function( options ) {
 
