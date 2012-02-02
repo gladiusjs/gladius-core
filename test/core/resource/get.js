@@ -100,7 +100,7 @@
   });
   
   asyncTest( 'get a single resource', function() {
-    expect(4);
+    expect(5);
     
     var onsuccessCalled = false;
     
@@ -160,7 +160,7 @@
 
 
   asyncTest( 'get a single non-existent resource', function() {
-    expect(2);
+    expect(3);
     
     var onfailureCalled = false;
 
