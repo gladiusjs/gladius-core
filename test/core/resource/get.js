@@ -102,9 +102,12 @@
   asyncTest( 'get a single resource', function() {
     expect(4);
     
+    var onsuccessCalled = false;
+    
     function oncomplete() {
       equal( arguments.length, 0, 'oncomplete passes no arguments' );
-      ok( true, "get completed");                         
+      ok( true, "get completed");
+      equal( onsuccessCalled, true, 'oncomplete called after onsuccess' );
       start();
     }
 
@@ -112,7 +115,9 @@
       type: MyCustomResource,
       url: "assets/test-loadfile1.json", 
       onsuccess: function( instance ) {
-        deepEqual(instance.value, {value: 1}, "empty JSON object should have been loaded");
+        deepEqual(instance.value, {value: 1}, 
+                  "expected simple JSON object was loaded");
+        onsuccessCalled = true;
       },
       onfailure: function( error ) {
         ok(false, "failed to load minimal JSON file: " + error);
@@ -156,9 +161,12 @@
 
   asyncTest( 'get a single non-existent resource', function() {
     expect(2);
+    
+    var onfailureCalled = false;
 
     function oncomplete () {
       ok( true, "single non-existent get completed");
+      equal( onfailureCalled, true, "onfailure called before oncomplete");
       start();
     }
 
@@ -170,6 +178,7 @@
       },
       onfailure: function( error ) {
         ok(true, "failed to get non-existent data: " + error);
+        onfailureCalled = true;
       }
     };
     
@@ -272,9 +281,6 @@
         });
   });
   
-  // TD: verify all onsuccesses called before oncomplete
-
-
   // TD: write a test for the default loader; should handle xhr and data URI?
 
   // TD: onfailure is invoked when loader fails
