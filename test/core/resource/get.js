@@ -39,13 +39,14 @@
           }
         );
         
-        makeGetRequest = function( url ) {
+        makeGetRequest = function makeGetRequest ( url, expectedObj ) {
             var resourceConstructor = MyCustomResource;
             var request = {
               type: resourceConstructor,
               url: url,
               onsuccess: function(instance) {
-                deepEqual(instance.value, {}, "empty JSON object should have been loaded");
+                deepEqual(instance.value, expectedObj, 
+                      "object expected for this resource was loaded");
               },
               onfailure: function(error) {
                 ok(false, "failed to load minimal JSON file: " + error);
@@ -111,7 +112,7 @@
       type: MyCustomResource,
       url: "assets/test-loadfile1.json", 
       onsuccess: function( instance ) {
-        deepEqual(instance.value, {}, "empty JSON object should have been loaded");
+        deepEqual(instance.value, {value: 1}, "empty JSON object should have been loaded");
       },
       onfailure: function( error ) {
         ok(false, "failed to load minimal JSON file: " + error);
@@ -187,9 +188,9 @@
     }
     
     var resourcesToLoad = [
-      makeGetRequest("assets/test-loadfile1.json"),
-      makeGetRequest("assets/test-loadfile2.json"),
-      makeGetRequest("assets/test-loadfile3.json")
+      makeGetRequest("assets/test-loadfile1.json", {value: 1}),
+      makeGetRequest("assets/test-loadfile2.json", {value: 2}),
+      makeGetRequest("assets/test-loadfile3.json", {value: 3})
     ];
     
     engine.core.resource.get( resourcesToLoad, { 
@@ -270,6 +271,9 @@
           oncomplete: oncomplete
         });
   });
+  
+  // TD: verify all onsuccesses called before oncomplete
+
 
   // TD: write a test for the default loader; should handle xhr and data URI?
 
