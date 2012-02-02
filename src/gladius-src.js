@@ -23,7 +23,9 @@ define( function ( require ) {
         Transform = require( 'core/component/transform' ),
         Script = require( 'core/resource/script' ),
         Template = require( 'core/resource/template' ),
-        load = require( 'core/load' ),
+        get = require('core/resource/get'),
+        defaultLoad = require( 'core/resource/loaders/default' ),
+        proceduralLoad = require( 'core/resource/loaders/procedural' ),
     Gladius, i, args,
 
     // Expose the API on the global object. Part of if may already
@@ -112,7 +114,7 @@ define( function ( require ) {
                 },
                 base: {
                     Service: Service( this ),
-                    Resource: Resource( this ),
+                    Resource: Resource,
                     Component: Component
                 }                
             });
@@ -126,9 +128,11 @@ define( function ( require ) {
                         Transform: Transform( this )
                     },
                     resource: {
-                        load: load( this ),
-                        Script: Script( this ),
-                        Template: Template( this )
+                        Script: Script,
+                        Template: Template( this ),
+                        get: get,
+                        defaultLoad: defaultLoad,
+                        proceduralLoad: proceduralLoad
                     }
                 }
             });
