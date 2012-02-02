@@ -45,7 +45,8 @@
     
     asyncTest( 'construct and load a script from a javascript URI', function() {
         expect( 1 );
-        
+
+        /*jshint scripturl:true*/        
         var js = 'javascript://' + encodeURIComponent( 'function add( a, b ) { return a + b; }' );
 
         engine.core.resource.get([{

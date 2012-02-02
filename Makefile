@@ -19,17 +19,15 @@ GLADIUS_MIN := $(DIST_DIR)/$(GLADIUS).min.js
 TOOLS_DIR := ./tools
 DIST_TEST_DIR := $(DIST_DIR)/test
 DIST_TOOLS_DIR := $(DIST_DIR)/tools
+JSHINT := $(TOOLS_DIR)/node_modules/.bin/jshint
 
 CUBICVR_LIB := $(EXTERNAL_DIR)/CubicVR.js/dist/CubicVR.js
 
-GLADIUS_JS_FILES := $(shell find $(SRC_DIR) -name *.js -print )
-GLADIUS_JS_FILES += $(shell find $(TEST_DIR) -name *.js -print )
+GLADIUS_JSHINT_DIRS := $(SRC_DIR) $(TEST_DIR)
 
 compile = node $(TOOLS_DIR)/node_modules/uglify-js/bin/uglifyjs -o $(1) $(GLADIUS_DIST)
 
 complete = cat $(GLADIUS_MIN) > $(1)
-
-jshint = echo "Linting $(1)" ; node $(TOOLS_DIR)/jshint-cmdline.js $(1)
 
 .PHONY: check-lint
 
@@ -66,7 +64,8 @@ test: $(DIST_DIR) $(GLADIUS_MIN)
 lint: check-lint 
 
 check-lint:
-	@@$(foreach jsfile, $(GLADIUS_JS_FILES),echo "-----" ; $(call jshint,$(jsfile)) ; )
+	$(JSHINT) $(GLADIUS_JSHINT_DIRS) \
+		--config tools/jshintrc.json
 
 clean:
 	@@rm -fr $(DIST_DIR)
