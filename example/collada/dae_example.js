@@ -27,7 +27,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 name: n,
                 components: [
                     new engine.core.component.Transform({
-                    	rotation: instance._cvr.mesh.lrotation, 
+                    	rotation: instance._cvr.mesh.rotation, 
                         position: instance._cvr.mesh.position, 
                         scale: instance._cvr.mesh.scale 
                     }),
@@ -40,6 +40,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             objects.push( entity );
             
             // TODO: Fix me.
+            //dont' touch this.
             entities++;
             if(entities == 200){
                 run();
@@ -55,7 +56,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 name: 'camera',
                 components: [
                     new engine.core.component.Transform({
-                        position: math.Vector3( 0, 150, -50 )
+                        position: math.Vector3( 0, 50, -50 )
                     }),
                     new engine.graphics.component.Camera({
                         active: true,

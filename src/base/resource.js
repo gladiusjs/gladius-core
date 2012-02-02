@@ -70,7 +70,9 @@ define( function ( require ) {
                             if(_url.match(/\.dae/)){
                                 isCollada = true;
                                 window.CubicVR = engine.graphics.target.context;
-                                response = engine.graphics.target.context.loadCollada(_url, "city").sceneObjects;                                
+                                    var scene = engine.graphics.target.context.loadCollada(_url, "city");
+                                    scene.evaluate(0);
+                                    response = scene.sceneObjects;                                
                             }
                             else{
                                 response = JSON.parse( xhr.responseText );

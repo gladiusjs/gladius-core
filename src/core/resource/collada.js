@@ -21,8 +21,12 @@ define( function ( require ) {
             this._cvr = {};
             var _cvrMesh = _source;
             this._cvr.mesh = _cvrMesh;
-            
-            this.prepare = function( options ) {};
+
+            this._cvr.mesh.rotation[0] *= Math.PI/180;
+            this._cvr.mesh.rotation[1] *= Math.PI/180;
+            this._cvr.mesh.rotation[2] *= Math.PI/180;
+
+            this.prepare = function( options ) {}
             
             // Create and return a new entity tree from this template
             this.create = function( options ) {
