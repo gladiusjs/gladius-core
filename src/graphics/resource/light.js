@@ -15,7 +15,7 @@ define( function ( require ) {
 
             var _cvrLight = new context.Light( data );
             this._cvr.light = _cvrLight;
-
+            
         });
 
         return Light;

@@ -102,17 +102,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     })
                 ]
             }) );
-            
-            var light = new space.Entity({
-                name: 'light',
-                components: [
-                    new engine.core.component.Transform({
-                        position: math.Vector3( 0, 0, 0 )
-                    }),
-                    new engine.graphics.component.Light( resources.light )
-                ]
-            });
-            
+                      
             var camera = new space.Entity({
                 name: 'camera',
                 components: [
@@ -125,7 +115,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                         height: canvas.height,
                         fov: 60
                     }),
-                    new engine.graphics.component.Light( resources.light )
+                    new engine.graphics.component.Light({ intensity: 50 })
                 ]
             });
             camera.find( 'Camera' ).target = math.Vector3( 0, 0, 0 );
@@ -174,6 +164,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     onfailure: function( error ) {
                     }
                 },
+                /*
                 {
                     type: engine.graphics.resource.Light,
                     url: 'procedural-light.js',
@@ -184,6 +175,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     onfailure: function( error ) {
                     }
                 }
+                */
             ],
             {
                 oncomplete: run

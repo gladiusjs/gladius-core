@@ -83,8 +83,8 @@ define( function ( require ) {
                     
                     var cvrLights = [];
                     for( var li = 0, ll = lights.length; li < ll; ++li ) {
-                        var lightComponent = lights[ li ].find( 'Light' ); 
-                        lightComponent.prepareForRender();
+                        var lightComponent = lights[ li ].find( 'Light' );
+                        lightComponent.prepareForRender();                        
                         cvrLights.push( lightComponent._cvr.light );
                     } //for lights
                     
