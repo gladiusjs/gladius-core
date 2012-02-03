@@ -20,7 +20,7 @@ define( function ( require ) {
             }
         });
         
-        var _queue = options.hasOwnProperty( 'queue' ) ? options.immediate : false;
+        var _queue = options.hasOwnProperty( 'queue' ) ? options.queue : true;
         Object.defineProperty( this, 'queue', {
             get: function() {
                 return _queue;
@@ -43,7 +43,7 @@ define( function ( require ) {
         
         // Send this event to each entity in targets
         this.dispatch = function( targets ) {
-            for( var i = 0, l = targets.length; i < l; ++ i ) {
+            for( var i = 0, l = targets.length; i < l; ++ i ) {                
                 targets[i].handleEvent( that );
             }
         };

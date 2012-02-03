@@ -14,7 +14,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
         var math = engine.math;
 
         var CubicVR = engine.graphics.target.context;
-        
+
 
         var PlayerComponent = engine.base.Component({
             type: 'Player'
@@ -23,9 +23,36 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
             options = options || {};
             var that = this;
+            var service = engine.logic;
 
-            var onPlayerRotate = function( event ) {
+            this.onStartPlayerRotate = function( event ) {
+                console.log( "onStartPlayerRotate" );
+                console.log( event.type, event.data );
+            };
+            
+            this.onStopPlayerRotate = function( event ) {
+                console.log( "onStopPlayerRotate" );
+                console.log( event.type, event.data );
+            };
 
+            this.onComponentOwnerChanged = function( e ){
+                if( e.data.previous === null && this.owner !== null ) {
+                    service.registerComponent( this.owner.id, this );
+                }
+
+                if( this.owner === null && e.data.previous !== null ) {
+                    service.unregisterComponent( e.data.previous.id, this );
+                }
+            };
+
+            this.onEntityManagerChanged = function( e ) {
+                if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
+                    service.registerComponent( this.owner.id, this );
+                }
+
+                if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
+                    service.unregisterComponent( this.owner.id, this );
+                }
             };
 
         });
@@ -40,36 +67,45 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             var cube = new space.Entity({
                 name: 'cube0',
                 components: [
-                    new engine.core.component.Transform({
-                        position: math.Vector3( 0, 0, 0 ),
-                        rotation: math.Vector3( 0, 0, 0 )
-                    }),
-                    new engine.graphics.component.Model({
-                        mesh: resources.mesh,
-                        material: resources.material
-                    }),
-                    new engine.input.component.Controller({
-                        onKey: function(e) {
-                            console.log(e);
-                        }
-                    })
-                ]
+                             new engine.core.component.Transform({
+                                 position: math.Vector3( 0, 0, 0 ),
+                                 rotation: math.Vector3( 0, 0, 0 )
+                             }),
+                             new engine.graphics.component.Model({
+                                 mesh: resources.mesh,
+                                 material: resources.material
+                             }),
+                             new engine.input.component.Controller({
+                                 onKey: function(e) {
+                                     console.log( e.type, e.data );
+                                     if( this.owner ) {
+                                         new engine.core.Event({
+                                             type: e.data.state === 'down' ? 'StartPlayerRotate' : 'StopPlayerRotate',
+                                             data: {
+                                                 direction: e.data.code === 'A' ? 'left' : 'right'
+                                             }
+                                         }).dispatch( [this.owner] );
+                                     }
+                                 }
+                             }),
+                             new PlayerComponent()
+                             ]
             });
-                      
+
             var camera = new space.Entity({
                 name: 'camera',
                 components: [
-                    new engine.core.component.Transform({
-                        position: math.Vector3( 0, 0, 10 )
-                    }),
-                    new engine.graphics.component.Camera({
-                        active: true,
-                        width: canvas.width,
-                        height: canvas.height,
-                        fov: 60
-                    }),
-                    new engine.graphics.component.Light({ intensity: 50 })
-                ]
+                             new engine.core.component.Transform({
+                                 position: math.Vector3( 0, 0, 10 )
+                             }),
+                             new engine.graphics.component.Camera({
+                                 active: true,
+                                 width: canvas.width,
+                                 height: canvas.height,
+                                 fov: 60
+                             }),
+                             new engine.graphics.component.Light({ intensity: 50 })
+                             ]
             });
             camera.find( 'Camera' ).target = math.Vector3( 0, 0, 0 );
 
@@ -79,41 +115,41 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 },
                 callback: function() {
                     var delta = engine.scheduler.simulationTime.delta/1000;
-                       
+
                 }
             });
-            
+
             // Start the engine!
             engine.run();
 
         };
-        
+
         engine.core.resource.get(
-            [
-                {
-                    type: engine.graphics.resource.Mesh,
-                    url: 'procedural-mesh.js',                          
-                    load: engine.core.resource.proceduralLoad,
-                    onsuccess: function( mesh ) {
-                        resources['mesh'] = mesh;
-                    },
-                    onfailure: function( error ) {
-                    }
-                },
-                {
-                    type: engine.graphics.resource.Material,
-                    url: 'procedural-material.js',
-                    load: engine.core.resource.proceduralLoad,
-                    onsuccess: function( material ) {
-                        resources['material'] = material;
-                    },
-                    onfailure: function( error ) {
-                    }
-                },
-            ],
-            {
-                oncomplete: run
-            }
+                [
+                 {
+                     type: engine.graphics.resource.Mesh,
+                     url: 'procedural-mesh.js',                          
+                     load: engine.core.resource.proceduralLoad,
+                     onsuccess: function( mesh ) {
+                         resources['mesh'] = mesh;
+                     },
+                     onfailure: function( error ) {
+                     }
+                 },
+                 {
+                     type: engine.graphics.resource.Material,
+                     url: 'procedural-material.js',
+                     load: engine.core.resource.proceduralLoad,
+                     onsuccess: function( material ) {
+                         resources['material'] = material;
+                     },
+                     onfailure: function( error ) {
+                     }
+                 },
+                 ],
+                 {
+                    oncomplete: run
+                 }
         );
 
     };
@@ -132,9 +168,10 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     input: {
                         src: 'input/service',
                         options: {
-                            element: canvas
+
                         }
-                    }
+                    },
+                    logic: 'logic/game/service'
                 }
             },
             game

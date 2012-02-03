@@ -186,6 +186,7 @@ define( function ( require ) {
 
             // Generic event handler; Pass event to each component;
             var _handleEvent = function( event ) {
+                console.log( event.type, event.data );
                 var componentTypes = Object.keys( _components );
                 for( var i = 0, l = componentTypes.length; i < l; ++ i ) {
                     var component = _components[componentTypes[i]];
