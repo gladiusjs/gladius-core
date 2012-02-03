@@ -8,15 +8,18 @@ define( function ( require ) {
 
         var math = engine.math;
         var Component = require( 'base/component' );
+        var lang = require( 'lang' );
 
         return Component({
             type: 'Controller'
         },
         function( options ) {
-            this.onKey = function( e ) {
+            lang.extend(this, options);
+
+            /*this.onKey = function( e ) {
                 console.log( e.type, e.data );
                 // Look for an event mapping and dispatch to entity.
-            };
+            };*/
             
             this.onComponentOwnerChanged = function( e ){
                 if( e.data.previous === null && this.owner !== null ) {

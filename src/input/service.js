@@ -226,7 +226,7 @@ define( function ( require ) {
             var _queue = [];
 
             function keyHandler(e, isPressed) {
-                e.preventDefault();
+                //e.preventDefault();
                 var key = keys[getKeyCode(e)];
                 if (!key) {
                     console.log('Keyboard: Unknown key, Key Code = ' + (e.which || e.keyCode));
