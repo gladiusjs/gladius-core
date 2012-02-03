@@ -17,17 +17,21 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
 
         var PlayerComponent = engine.base.Component({
-            type: 'Player'
+            type: 'Player',
+            depends: 'Transform'    // We're going to do some rotation, so we should have a transform
         },
         function( options ) {
 
             options = options || {};
             var that = this;
-            var service = engine.logic;
+            var service = engine.logic; // This is a hack so that this component will have its message queue processed
 
             this.onStartPlayerRotate = function( event ) {
                 console.log( "onStartPlayerRotate" );
                 console.log( event.type, event.data );
+                
+                // Do some fun stuff here, like rotate.
+                // We depend on transform, so it's OK to poke at this.owner.find( 'Transform' )
             };
             
             this.onStopPlayerRotate = function( event ) {
@@ -35,6 +39,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 console.log( event.type, event.data );
             };
 
+            // Boilerplate component registration; Lets our service know that we exist and want to do things
             this.onComponentOwnerChanged = function( e ){
                 if( e.data.previous === null && this.owner !== null ) {
                     service.registerComponent( this.owner.id, this );
@@ -79,6 +84,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                                  onKey: function(e) {
                                      console.log( e.type, e.data );
                                      if( this.owner ) {
+                                         // If we have an owner, dispatch a game event for it to enjoy
                                          new engine.core.Event({
                                              type: e.data.state === 'down' ? 'StartPlayerRotate' : 'StopPlayerRotate',
                                              data: {
