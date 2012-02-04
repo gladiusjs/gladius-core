@@ -20,9 +20,15 @@ define( function ( require ) {
             var that = this;
 
             this.update = function() {
+                var updateEvent = new engine.core.Event({
+                    type: 'Update',
+                    queue: false
+                });
                 for( var componentType in that.components ) {
                     for( var entityId in that.components[componentType] ) {
-                        while( that.components[componentType][entityId].handleQueuedEvent() ) {}
+                        var component = that.components[componentType][entityId];
+                        while( component.handleQueuedEvent() ) {}                        
+                        updateEvent.dispatch( [component] );
                     }
                 };
             };

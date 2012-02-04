@@ -25,18 +25,40 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             options = options || {};
             var that = this;
             var service = engine.logic; // This is a hack so that this component will have its message queue processed
+            var _Xrotate = 0;
+            var _Yrotate = 0;
 
-            this.onStartPlayerRotate = function( event ) {
-                console.log( "onStartPlayerRotate" );
-                console.log( event.type, event.data );
-                
-                // Do some fun stuff here, like rotate.
-                // We depend on transform, so it's OK to poke at this.owner.find( 'Transform' )
+            this.onStartPlayerYRotate = function( event ) {
+                _Yrotate = event.data.direction;
+            };
+
+            this.onStopPlayerYRotate = function( event ) {
+                _Yrotate = 0;
+            };
+
+            this.onStartPlayerXRotate = function( event ) {
+                _Xrotate = event.data.direction;
+            };
+
+            this.onStopPlayerXRotate = function( event ) {
+                _Xrotate = 0;
             };
             
-            this.onStopPlayerRotate = function( event ) {
-                console.log( "onStopPlayerRotate" );
-                console.log( event.type, event.data );
+            this.onUpdate = function( event ) {
+                var transform = this.owner.find( 'Transform' );
+                var delta = service.time.delta;
+                if( _Yrotate !== 0 ) {
+                    transform.rotation = math.matrix4.add([
+                                                           transform.rotation,
+                                                           [ 0, _Yrotate * math.TAU * delta/10000, 0 ]
+                                                           ]);
+                }
+                if( _Xrotate !== 0 ) {
+                    transform.rotation = math.matrix4.add([
+                                                           transform.rotation,
+                                                           [ _Xrotate * math.TAU * delta/10000, 0, 0 ]
+                                                           ]);
+                }
             };
 
             // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -82,15 +104,43 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                              }),
                              new engine.input.component.Controller({
                                  onKey: function(e) {
-                                     console.log( e.type, e.data );
                                      if( this.owner ) {
                                          // If we have an owner, dispatch a game event for it to enjoy
-                                         new engine.core.Event({
-                                             type: e.data.state === 'down' ? 'StartPlayerRotate' : 'StopPlayerRotate',
-                                             data: {
-                                                 direction: e.data.code === 'A' ? 'left' : 'right'
-                                             }
-                                         }).dispatch( [this.owner] );
+                                         var rotate;
+                                         switch( e.data.code ) {
+                                         case 'A':
+                                             new engine.core.Event({
+                                                 type: e.data.state === 'down' ? 'StartPlayerYRotate' : 'StopPlayerYRotate',
+                                                         data: {
+                                                             direction: -1
+                                                         }
+                                             }).dispatch( [this.owner] );
+                                             break;
+                                         case 'D': 
+                                             new engine.core.Event({
+                                                 type: e.data.state === 'down' ? 'StartPlayerYRotate' : 'StopPlayerYRotate',
+                                                         data: {
+                                                             direction: 1
+                                                         }
+                                             }).dispatch( [this.owner] );
+                                             break;
+                                         case 'S':
+                                             new engine.core.Event({
+                                                 type: e.data.state === 'down' ? 'StartPlayerXRotate' : 'StopPlayerXRotate',
+                                                         data: {
+                                                             direction: -1
+                                                         }
+                                             }).dispatch( [this.owner] );
+                                             break;
+                                         case 'W': 
+                                             new engine.core.Event({
+                                                 type: e.data.state === 'down' ? 'StartPlayerXRotate' : 'StopPlayerXRotate',
+                                                         data: {
+                                                             direction: 1
+                                                         }
+                                             }).dispatch( [this.owner] );
+                                             break;
+                                         }
                                      }
                                  }
                              }),
