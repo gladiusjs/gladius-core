@@ -99,7 +99,9 @@ define( function ( require ) {
                                 camera.prepareForRender();
                                 
                                 // TODO: Fix me.
-                                var mesh = (model.mesh.isCollada) ? model.mesh._cvr.mesh.obj : model.mesh._cvr.mesh;
+                                var mesh = (model.mesh.isCollada) ? 
+                                           model.mesh._cvr.mesh.obj :
+                                           model.mesh._cvr.mesh;
                                 
                                 _target.context.renderObject(
                                     mesh,
