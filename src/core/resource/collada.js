@@ -1,61 +1,56 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
  nomen: false */
 /*global define: false, console: false, window: false, setTimeout: false */
+define(function (require) {
 
-define(function(require) {
-
-  return function(engine) {
+  return function (engine) {
 
     var Collada = new engine.base.Resource({
-      type : 'Collada'
+      type: 'Collada'
     },
 
-    // sceneObject
     function constructCollada(scene) {
 
-      function FauxMesh(sceneObject) {
-        this.isCollada = true;
-
-        this._cvr = {};
-        var _cvrMesh = sceneObject;
-        this._cvr.mesh = _cvrMesh;
-
-        this._cvr.mesh.rotation[0] *= Math.PI / 180;
-        this._cvr.mesh.rotation[1] *= Math.PI / 180;
-        this._cvr.mesh.rotation[2] *= Math.PI / 180;
-      }
-
-
-      scene.evaluate(0);
-      // CubicVR magic
-
-      var sceneObjects = scene.sceneObjects;
-
       var space = new engine.core.Space();
+      this.space = space;
 
-      for(var i = 0; i < sceneObjects.length; i++) {
+      // CubicVR magic
+      scene.evaluate(0);
+      var objects = scene.sceneObjects;
+      var cvrMesh;
 
-        var sceneObject = sceneObjects[i];
-        if(sceneObject.mesh && !sceneObject.mesh.obj) {
-          continue;
+      for (var i = 0; i < objects.length; i++) {
+        var object = objects[i];
+
+        // Some objects in the collada scene, such as cameras aren't 
+        // meshes, so we can skip anything without a cvr object.
+        if (object.obj) {
+          cvrMesh = object.obj;
+
+          // convert degrees to radians since
+          // cubicVR uses degrees, gladius uses radians
+          var rotation = object.rotation;
+          rotation[0] *= Math.PI / 180;
+          rotation[1] *= Math.PI / 180;
+          rotation[2] *= Math.PI / 180;
+
+          new space.Entity({
+            name: cvrMesh.name,
+            components: [
+            new engine.core.component.Transform({
+              position: object.position,
+              rotation: rotation,
+              scale: object.scale
+            }), new engine.graphics.component.Model({
+              mesh: {
+                _cvr: {
+                  mesh: cvrMesh
+                }
+              }
+            })]
+          });
         }
-
-        var mesh = new FauxMesh(sceneObject);
-
-        var entity = new space.Entity({
-          name : "My Awesome Entity " + i,
-          components : [new engine.core.component.Transform({
-            rotation : mesh._cvr.mesh.rotation,
-            position : mesh._cvr.mesh.position,
-            scale : mesh._cvr.mesh.scale
-          }), new engine.graphics.component.Model({
-            mesh : mesh
-          })]
-        });
       }
-
-      this.value = space;
-
     });
     return Collada;
   };
