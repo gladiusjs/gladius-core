@@ -27,6 +27,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             var service = engine.logic; // This is a hack so that this component will have its message queue processed
             var _Xrotate = 0;
             var _Yrotate = 0;
+            var _speed = 1;
 
             this.onStartPlayerYRotate = function( event ) {
                 _Yrotate = event.data.direction;
@@ -44,19 +45,27 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 _Xrotate = 0;
             };
             
+            this.onStartFastRotate = function( event ) {
+                _speed = 10;
+            };
+            
+            this.onStopFastRotate = function( event ) {
+                _speed = 1;
+            }
+            
             this.onUpdate = function( event ) {
                 var transform = this.owner.find( 'Transform' );
                 var delta = service.time.delta;
                 if( _Yrotate !== 0 ) {
                     transform.rotation = math.matrix4.add([
                                                            transform.rotation,
-                                                           [ 0, _Yrotate * math.TAU * delta/10000, 0 ]
+                                                           [ 0, _Yrotate * math.TAU * delta/10000 * _speed, 0 ]
                                                            ]);
                 }
                 if( _Xrotate !== 0 ) {
                     transform.rotation = math.matrix4.add([
                                                            transform.rotation,
-                                                           [ _Xrotate * math.TAU * delta/10000, 0, 0 ]
+                                                           [ _Xrotate * math.TAU * delta/10000 * _speed, 0, 0 ]
                                                            ]);
                 }
             };
@@ -138,6 +147,11 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                                                          data: {
                                                              direction: 1
                                                          }
+                                             }).dispatch( [this.owner] );
+                                             break;
+                                         case 'SHIFT':
+                                             new engine.core.Event({
+                                                 type: e.data.state === 'down' ? 'StartFastRotate' : 'StopFastRotate'
                                              }).dispatch( [this.owner] );
                                              break;
                                          }
