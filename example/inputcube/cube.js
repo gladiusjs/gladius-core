@@ -51,7 +51,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             
             this.onStopFastRotate = function( event ) {
                 _speed = 1;
-            }
+            };
             
             this.onUpdate = function( event ) {
                 var transform = this.owner.find( 'Transform' );
