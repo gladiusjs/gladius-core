@@ -97,7 +97,7 @@ define( function ( require ) {
                                 model = models[ mi ].find( 'Model' );
                                 transform = models[ mi ].find( 'Transform' );
                                 camera.prepareForRender();
-
+                                                                
                                 _target.context.renderObject(
                                     model.mesh._cvr.mesh,
                                     camera._cvr.camera,
@@ -111,7 +111,7 @@ define( function ( require ) {
                     } //for cameras
 
                 } //for scenes
-
+                
                 ++_renderedFrames;
              
             }; //render
