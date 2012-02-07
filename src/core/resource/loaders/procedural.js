@@ -4,27 +4,29 @@
 
 define(function(require) {
 
-  var lang = require('lang');
-  var Script = require('core/resource/script');
-  var get = require('core/resource/get');
+    var lang = require('lang');
 
-  return function(url, onsuccess, onfailure) {
+    return function( engine ) {
+        
+        return function(url, onsuccess, onfailure) {
 
-    var scriptLocation = url.split( "?" )[0];
-    var scriptOptions = lang.getURLParams(url);
-    get([{
-      url : scriptLocation,
-      type : Script,
-      onsuccess : function(instance) {
-        try {
-          var data = instance.run( scriptOptions );
-          onsuccess( data ) ;
-        } catch ( e ) {
-          onfailure( e );
-        } 
-      },
-      onfailure : onfailure
-    }]);
+            var scriptLocation = url.split( "?" )[0];
+            var scriptOptions = lang.getURLParams(url);
+            engine.core.resource.get([{
+                url : scriptLocation,
+                type : engine.core.resource.Script,
+                onsuccess : function(instance) {
+                    try {
+                        var data = instance.run( scriptOptions );
+                        onsuccess( data ) ;
+                    } catch ( e ) {
+                        onfailure( e );
+                    } 
+                },
+                onfailure : onfailure
+            }]);
 
-  };
+        };
+
+    };
 });
