@@ -81,9 +81,6 @@
 	  
     options.name = spriteName;
     this.data.sprites[ spriteName ] = new Sprite( JSON.parse(this.get( spriteURL )), options, this );
-    if( options.callback ){
-      options.callback.call( this.data.sprites[ spriteName ] );
-    }
     return this.data.sprites[ spriteName ];
     
     /*
@@ -158,6 +155,9 @@
 //      if( self.debug ){
 //        self.draw.call( self );
 //      };
+     if( self.callback ){
+      self.callback.call( this );
+     }
 
       return this;
     };
