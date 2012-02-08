@@ -163,14 +163,14 @@ document.addEventListener("DOMContentLoaded", function(e) {
       var camera = new space.Entity({
         name : 'camera',
         components : [new engine.core.component.Transform({
-          position : math.Vector3(0, 0, 10)
+          position : math.Vector3(0, 0, 2)
         }), new engine.graphics.component.Camera({
           active : true,
           width : canvas.width,
           height : canvas.height,
           fov : 60
         }), new engine.graphics.component.Light({
-          intensity : 50
+          intensity : 10
         })]
       });
       camera.find('Camera').target = math.Vector3(0, 0, 0);
@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function(e) {
 
     };
 
-    viking.loadSprite('http://localhost/s/games/gladius/example/sprites/thug1.sprite', {callback: run});
+    viking.loadSprite('./thug1.sprite', {callback: run});
     
 /*
     engine.core.resource.get([{
