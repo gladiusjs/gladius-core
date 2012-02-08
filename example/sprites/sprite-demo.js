@@ -25,6 +25,8 @@ document.addEventListener("DOMContentLoaded", function(e) {
       return;
     });
     
+    // Thanks to the NoComply demo's CubicVR-bitmap_cube_array.js' for the
+    // BitwallModel code
     var BitwallModel = engine.base.Component({
       type : 'Model',
       depends : ['Transform']
