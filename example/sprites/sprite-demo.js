@@ -36,28 +36,38 @@ document.addEventListener("DOMContentLoaded", function(e) {
       options = options || {};
       var _this = this;
       var service = engine.graphics;
+      var gl = CubicVR.GLCore.gl;
 
+      var _sprite = options.sprite;
       var _mesh = new engine.graphics.resource.Mesh();
       var _cvrmesh = _mesh._cvr.mesh;
       var _material;
+      var tex = new CubicVR.Texture();
+
+      var _action = options.action || null;
+      this.updateAction = function( action ) {
+          _action = action;
+          _updateTexture( action );
+      };
+           
+      function _updateTexture( action ) {
+          // initialize it to a sprite image
+          gl.bindTexture(gl.TEXTURE_2D, CubicVR.Textures[tex.tex_id]);
+          gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, 
+            _sprite[action].frame());
+          gl.bindTexture(gl.TEXTURE_2D, null);
+      };
 
       function buildMaterial() {
 
-        // create an empty texture
-        var gl = CubicVR.GLCore.gl;
-        var tex = new CubicVR.Texture();
+        // create an empty texture        
         tex.setFilter(CubicVR.enums.texture.filter.NEAREST);
         tex.use();
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-
-        // initialize it to a sprite image
-        gl.bindTexture(gl.TEXTURE_2D, CubicVR.Textures[tex.tex_id]);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, 
-          viking.sprites.thug1.walk.frame(0));
-        gl.bindTexture(gl.TEXTURE_2D, null);    
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);    
+        
+        _updateTexture( 'walk' );
         
         _material = new engine.graphics.resource.Material({
           color : [1, 1, 1],
@@ -144,6 +154,7 @@ document.addEventListener("DOMContentLoaded", function(e) {
       _this.prepare();
 
     });
+    
     var run = function() {
 
       // Make a new space for our entities
@@ -157,7 +168,8 @@ document.addEventListener("DOMContentLoaded", function(e) {
         components : [new engine.core.component.Transform({
           position : math.Vector3(0, 0, 0),
           rotation : math.Vector3(0, 0, 0)
-        }), new BitwallModel()]
+        }), new BitwallModel({ sprite: viking.sprites.thug1 })
+        ]
       });
 
       var camera = new space.Entity({
@@ -189,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function(e) {
       engine.run();
 
     };
-
+    
     viking.loadSprite('./thug1.sprite', {callback: run});
     
 /*
