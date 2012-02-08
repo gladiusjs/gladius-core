@@ -116,8 +116,6 @@ document.addEventListener("DOMContentLoaded", function(e) {
       _this.prepare();
 
     });
-    var x = new BitwallModel();
-    
 
     var run = function() {
 
