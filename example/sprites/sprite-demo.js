@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", function(e) {
           height : canvas.height,
           fov : 60
         }), new engine.graphics.component.Light({
-          intensity : 10
+          intensity : 2
         })]
       });
       camera.find('Camera').target = math.Vector3(0, 0, 0);
@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", function(e) {
         },
         callback : function() {
           var delta = engine.scheduler.simulationTime.delta / 1000;
-          bitwall.find('Transform').rotation = math.matrix4.add([bitwall.find('Transform').rotation, [math.TAU * delta * 0.1, math.TAU * delta * 0.2, 0]]);
+          bitwall.find('Transform').rotation = math.matrix4.add([bitwall.find('Transform').rotation, [0, math.TAU * delta * 0.1, 0]]);
         }
       });
 
