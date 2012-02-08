@@ -36,7 +36,10 @@ document.addEventListener("DOMContentLoaded", function(e) {
       var _mesh = new engine.graphics.resource.Mesh();
       var _cvrmesh = _mesh._cvr.mesh;
 
-      var _material = new engine.graphics.resource.Material();
+      var _material = new engine.graphics.resource.Material({
+          color: [1, 0.2, 0]
+        }
+      );
       var _cvrmat = _material._cvr.material;
             
       var tmpMesh = new CubicVR.Mesh();
@@ -122,19 +125,15 @@ document.addEventListener("DOMContentLoaded", function(e) {
       var space = new engine.core.Space();
 
       // Make some entities and arrange them
-      var cubes = [];
       canvas = engine.graphics.target.element;
 
-      cubes.push(new space.Entity({
+      var bitwall = new space.Entity({
         name : 'cube0',
         components : [new engine.core.component.Transform({
           position : math.Vector3(0, 0, 0),
           rotation : math.Vector3(0, 0, 0)
-        }), new engine.graphics.component.Model({
-          mesh : resources.mesh,
-          material : resources.material
-        })]
-      }));
+        }), new BitwallModel()]
+      });
 
       var camera = new space.Entity({
         name : 'camera',
@@ -157,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function(e) {
         },
         callback : function() {
           var delta = engine.scheduler.simulationTime.delta / 1000;
-          cubes[0].find('Transform').rotation = math.matrix4.add([cubes[0].find('Transform').rotation, [math.TAU * delta * 0.1, math.TAU * delta * 0.2, 0]]);
+          bitwall.find('Transform').rotation = math.matrix4.add([bitwall.find('Transform').rotation, [math.TAU * delta * 0.1, math.TAU * delta * 0.2, 0]]);
         }
       });
 
