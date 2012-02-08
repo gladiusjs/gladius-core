@@ -8,23 +8,25 @@ document.addEventListener("DOMContentLoaded", function(e) {
     document.getElementById(div).innerHTML = '';
   };
   var canvas = document.getElementById("test-canvas");
-  var resources = {};
 
   var game = function(engine) {
     var math = engine.math;
 
     var CubicVR = engine.graphics.target.context;
 
+/*
     var SpriteSheet = new engine.base.Resource({
       type : 'SpriteSheet'
     }, function(data) {
       var options = {
-        name : this.url
+        // name : this.url XXX no access here
+        name: "thug1"
       };
       this.data = new Sprite(JSON.parse(data), options, viking);
       return;
     });
-    
+*/
+
     // Thanks to the NoComply demo's CubicVR-bitmap_cube_array.js' for the
     // BitwallModel code
     var BitwallModel = engine.base.Component({
@@ -37,13 +39,37 @@ document.addEventListener("DOMContentLoaded", function(e) {
 
       var _mesh = new engine.graphics.resource.Mesh();
       var _cvrmesh = _mesh._cvr.mesh;
+      var _material;
 
-      var _material = new engine.graphics.resource.Material({
-          color: [1, 0.2, 0]
-        }
-      );
+      function buildMaterial() {
+
+        // create an empty texture
+        var gl = CubicVR.GLCore.gl;
+        var tex = new CubicVR.Texture();
+        tex.setFilter(CubicVR.enums.texture.filter.NEAREST);
+        tex.use();
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+
+        // initialize it to a sprite image
+        gl.bindTexture(gl.TEXTURE_2D, CubicVR.Textures[tex.tex_id]);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, 
+          viking.sprites.thug1.walk.frame(0));
+        gl.bindTexture(gl.TEXTURE_2D, null);    
+        
+        _material = new engine.graphics.resource.Material({
+          color : [1, 1, 1],
+          textures: {
+            color: tex
+          }
+        });
+      }
+
+      buildMaterial();
       var _cvrmat = _material._cvr.material;
-            
+
       var tmpMesh = new CubicVR.Mesh();
 
       var trans = new CubicVR.Transform();
@@ -78,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function(e) {
       _cvrmesh.calcNormals();
       _cvrmesh.triangulateQuads();
       _cvrmesh.compile();
-      
+
       Object.defineProperty(this, "mesh", {
         enumerable : true,
         get : function() {
@@ -118,7 +144,6 @@ document.addEventListener("DOMContentLoaded", function(e) {
       _this.prepare();
 
     });
-
     var run = function() {
 
       // Make a new space for our entities
@@ -165,25 +190,10 @@ document.addEventListener("DOMContentLoaded", function(e) {
 
     };
 
+    viking.loadSprite('http://localhost/s/games/gladius/example/sprites/thug1.sprite', {callback: run});
+    
+/*
     engine.core.resource.get([{
-      type : engine.graphics.resource.Mesh,
-      url : 'procedural-mesh.js',
-      load : engine.core.resource.proceduralLoad,
-      onsuccess : function(mesh) {
-        resources.mesh = mesh;
-      },
-      onfailure : function(error) {
-      }
-    }, {
-      type : engine.graphics.resource.Material,
-      url : 'procedural-material.js',
-      load : engine.core.resource.proceduralLoad,
-      onsuccess : function(material) {
-        resources.material = material;
-      },
-      onfailure : function(error) {
-      }
-    }, {
       type : SpriteSheet,
       url : "thug1.sprite",
       onsuccess : function(spriteSheet) {
@@ -193,10 +203,6 @@ document.addEventListener("DOMContentLoaded", function(e) {
         // default loader should strip object and property in
         // the caller and just pass the Sprite.
         console.log("spriteSheet loaded");
-        /*                      var cubeArray = new BitmapCubeArray( 42, 42, nextBitWall.texture, 0 );
-         new Mesh ( cubeArray.mesh );
-         */
-
       },
       onfailure : function(error) {
         console.log("spriteSheet load error" + error);
@@ -204,7 +210,8 @@ document.addEventListener("DOMContentLoaded", function(e) {
     }], {
       oncomplete : run
     });
-
+    
+    */
   };
 
   gladius.create({
