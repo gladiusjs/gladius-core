@@ -51,8 +51,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
       const LEFT_BORDER = 40;
       const RIGHT_BORDER = 19;
-      const MOVE_SPEED = 0.2;
-      //const JUMP_HEIGHT
+      const MOVE_SPEED = 15;
+      const FLOOR_POS = 8;
+      const JUMP_HEIGHT = 35;
+      const GRAVITY = 0.98;
       // Global state of the keyboard.
       var keyStates = [];
 
@@ -268,10 +270,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             this.update = function (t, pc) {
               thugAction = 'idle';
-              var pos = pc.position;
-              pos[1] = 8.7;
-              pc.position = pos;
-
+              if (pl.speed[1] === 0)
+                pl.speed[0] = 0;
               // When the character is idle, we may want to switch between
               // two images so they don't look so static.
             };
@@ -608,13 +608,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               // XXX
               thugAction = 'walk';
 
-              var pos = pc.position;
-              // near the boxes of the abandoned house
-              if (pos[2] > RIGHT_BORDER) {
-
-                pos[2] -= MOVE_SPEED;
-                pc.position = pos;
-              }
+              pl.speed[0] = MOVE_SPEED;
             };
 
             this.toString = function () {
@@ -665,10 +659,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               var pos = pc.position;
               thugAction = 'walk';
 
-              if (pos[2] < LEFT_BORDER) {
-                pos[2] += MOVE_SPEED;
-                pc.position = pos;
-              }
+              pl.speed[0] = -MOVE_SPEED;
             };
 
             this.toString = function () {
@@ -746,31 +737,17 @@ document.addEventListener("DOMContentLoaded", function (e) {
               pl.setState(pl.getDeadState());
             };
 
-            this.update = function (t, pc) {
-
+            this.onActivate = function() {
+              if (pl.speed[1] === 0)
+                pl.speed[1] = JUMP_HEIGHT;
+            };
+            
+            this.update = function(t, pc){
               thugAction = 'jump-knock';
-
+              
               jumpTimeElapsed += t;
-
-              if (jumpTimeElapsed < 1) {
-                pos = pc.position;
-                pos[1] += Math.sin(jumpTimeElapsed * Math.PI * 2) * 1.013;
-                pc.position = pos;
-              }
-
-              if (jumpTimeElapsed >= 1) {
-                // XXX fix this
-                pos[1] = 8;
-                pc.position[1] = 8;
-                //console.log(pc.position);
-                pl.setState(pl.getIdleState());
-                jumpTimeElapsed = 0;
-
-                /// fix this.
-                // Let's say the user moves forward, jumps then lets go of moving
-                // forward key. They still need to move forward until they land
-                //  player.removeState(player.getMoveForwardState());
-              }
+              if (pc.position[1] === FLOOR_POS && jumpTimeElapsed >= 1)
+               pl.setState(pl.getIdleState());
             };
 
             this.toString = function () {
@@ -810,37 +787,17 @@ document.addEventListener("DOMContentLoaded", function (e) {
               pl.setState(pl.getDeadState());
             };
 
-            this.update = function (t, pc) {
+            this.onActivate = function() {
+              if (pl.speed[1] === 0)
+                pl.speed[1] = JUMP_HEIGHT;
+            };
+            
+            this.update = function(t, pc){
+              thugAction = 'jump-knock';
+              
               jumpTimeElapsed += t;
-
-
-              // XXX Fix this
-              if (jumpTimeElapsed < 1) {
-                pos = pc.position;
-                pos[1] += Math.sin(jumpTimeElapsed * Math.PI * 2) * 1.013;
-
-                // Fix this XXX
-                if (pos[2] > RIGHT_BORDER) {
-                  pos[2] -= MOVE_SPEED;
-                  pc.position = pos;
-                }
-
-                pc.position = pos;
-              }
-
-              if (jumpTimeElapsed >= 1) {
-                // XXX fix this
-                pos[1] = 8;
-                pc.position[1] = 8;
-                //console.log(pc.position);
-                pl.setState(pl.getIdleState());
-                jumpTimeElapsed = 0;
-
-                /// fix this.
-                // Let's say the user moves forward, jumps then lets go of moving
-                // forward key. They still need to move forward until they land
-                //  player.removeState(player.getMoveForwardState());
-              }
+              if (pc.position[1] === FLOOR_POS && jumpTimeElapsed >= 1)
+               pl.setState(pl.getIdleState());
             };
 
             this.toString = function () {
@@ -881,35 +838,17 @@ document.addEventListener("DOMContentLoaded", function (e) {
               pl.setState(pl.getDeadState());
             };
 
-            this.update = function (t, pc) {
+            this.onActivate = function() {
+              if (pl.speed[1] === 0)
+                pl.speed[1] = JUMP_HEIGHT;
+            };
+            
+            this.update = function(t, pc){
+              thugAction = 'jump-knock';
+              
               jumpTimeElapsed += t;
-              var pos = pc.position;
-
-              if (jumpTimeElapsed < 1) {
-                pos[1] += Math.sin(jumpTimeElapsed * Math.PI * 2) * 1.013;
-
-                // Fix this XXX
-                if (pos[2] < LEFT_BORDER) {
-                  pos[2] += MOVE_SPEED;
-                  pc.position = pos;
-                }
-
-                pc.position = pos;
-              }
-
-              if (jumpTimeElapsed >= 1) {
-                // XXX fix this
-                pos[1] = 8;
-                pc.position[1] = 8;
-                //console.log(pc.position);
-                pl.setState(pl.getIdleState());
-                jumpTimeElapsed = 0;
-
-                /// fix this.
-                // Let's say the user moves forward, jumps then lets go of moving
-                // forward key. They still need to move forward until they land
-                //  player.removeState(player.getMoveForwardState());
-              }
+              if (pc.position[1] === FLOOR_POS && jumpTimeElapsed >= 1)
+               pl.setState(pl.getIdleState());
             };
 
             this.toString = function () {
@@ -946,6 +885,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             var forwardJumpState = new ForwardJumpState(this);
             var backwardJumpState = new BackwardJumpState(this);
+
+            this.speed = [ 0, 0 ];
 
             // start in an idle state.
             var state = idleState;
@@ -1007,14 +948,33 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
 
             this.setState = function (s) {
+              if (state !== s && s.onActivate)
+                s.onActivate();
               state = s;
               console.log('state changed: ' + s.toString());
             };
 
             this.update = function (t, pc) {
               state.update(t, pc);
+              var pos = pc.position;
+              this.speed[1] -= GRAVITY * 100 * t;
+              pos[1] += this.speed[1] * t;
+              pos[2] -= this.speed[0] * t;
+              this.stayInBounds(pos);
+              pc.position = pos;
               printd(playerName, this.toString());
-            }
+            };
+      
+            this.stayInBounds = function(pos) {
+              if(pos[2] > LEFT_BORDER )
+                pos[2] = LEFT_BORDER;
+              if(pos[2] < RIGHT_BORDER )
+                pos[2] = RIGHT_BORDER;
+              if (pos[1] <= FLOOR_POS) {
+                pos[1] = FLOOR_POS;
+                this.speed[1] = 0;
+              }
+            };
 
             // smack the player with something
             this.hit = function (t, pc) {
@@ -1462,7 +1422,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         // Load some sprites
         ////////////////
         viking.loadSprite('./sprites/thug1.sprite', {
-          callback: run
+          //callback: run
         });
 
       engine.core.resource.get([
