@@ -26,6 +26,7 @@ define( function ( require ) {
         get = require('core/resource/get'),
         defaultLoad = require( 'core/resource/loaders/default' ),
         proceduralLoad = require( 'core/resource/loaders/procedural' ),
+        Collada = require('core/resource/collada'),
     Gladius, i, args,
 
     // Expose the API on the global object. Part of if may already
@@ -128,11 +129,12 @@ define( function ( require ) {
                         Transform: Transform( this )
                     },
                     resource: {
-                        Script: Script,
+                        Script: Script( this ),
                         Template: Template( this ),
                         get: get,
                         defaultLoad: defaultLoad,
-                        proceduralLoad: proceduralLoad
+                        proceduralLoad: proceduralLoad( this ),
+                        Collada: Collada( this )
                     }
                 }
             });
