@@ -153,7 +153,7 @@ define( function ( require ) {
             if ( this.options.setup ) {
                 this.options.setup( this );
             }
-
+            
             // Let caller know the engine instance is ready.
             if (callback) {
                 callback(this);
@@ -168,7 +168,7 @@ define( function ( require ) {
             run: function () {
                 if ( this.options.run ) {
                     this.options.run( this );
-                }                
+                }            
                 this.scheduler.resume();                
             },
     
