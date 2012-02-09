@@ -51,10 +51,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
       const LEFT_BORDER = 40;
       const RIGHT_BORDER = 19;
-      const MOVE_SPEED = 15;
-      const FLOOR_POS = 8;
-      const JUMP_HEIGHT = 35;
-      const GRAVITY = 0.98;
+      const MOVE_SPEED = 0.2;
+      //const JUMP_HEIGHT
       // Global state of the keyboard.
       var keyStates = [];
 
@@ -235,43 +233,25 @@ document.addEventListener("DOMContentLoaded", function (e) {
         var IdleState = (function () {
 
           function IdleState(player) {
-
             var pl = player;
 
-            this.moveForward = function () {
-              pl.setState(pl.getMoveForwardState());
-            };
-            this.moveBackward = function () {
-              pl.setState(pl.getMoveBackwardState());
-            };
-            this.jump = function () {
-              pl.setState(pl.getJumpState());
-            };
-            this.idle = function () {}; //console.log('already idle');
-            this.block = function () {
-              pl.setState(pl.getBlockState());
-            };
-            this.punch = function () {
-              pl.setState(pl.getPunchState());
-            };
-            this.kick = function () {
-              pl.setState(pl.getKickState());
-            };
-            this.throwFireBall = function () {
-              pl.setState(pl.getThrowFireBallState());
-            };
-            this.spin = function () {
-              pl.setState(pl.getSpinState());
-            };
-
-            this.dead = function () {
-              pl.setState(pl.getDeadState());
-            }
+            this.moveForward = function () {pl.setState(pl.getMoveForwardState());};
+            this.moveBackward = function () {pl.setState(pl.getMoveBackwardState());};
+            this.jump = function () {pl.setState(pl.getJumpState());};
+            this.idle = function () {};
+            this.block = function () {pl.setState(pl.getBlockState());};
+            this.punch = function () {pl.setState(pl.getPunchState());};
+            this.kick = function () {pl.setState(pl.getKickState());};
+            this.throwFireBall = function () {pl.setState(pl.getThrowFireBallState());};
+            this.spin = function () {pl.setState(pl.getSpinState());};
+            this.dead = function () {pl.setState(pl.getDeadState());}
 
             this.update = function (t, pc) {
               thugAction = 'idle';
-              if (pl.speed[1] === 0)
-                pl.speed[0] = 0;
+              var pos = pc.position;
+              pos[1] = 8.7;
+              pc.position = pos;
+
               // When the character is idle, we may want to switch between
               // two images so they don't look so static.
             };
@@ -505,6 +485,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             }
 
             this.update = function (t, pc) {
+            console.log('tst');
               punchTimeElapsed += t;
               if (punchTimeElapsed > 0.5) {
                 punchTimeElapsed = 0;
@@ -529,13 +510,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var pl = player;
             var kickTimeElapsed = 0;
 
-            /*this.moveForward = function(){console.log('cant move forward if kicking');};
+            this.moveForward = function(){console.log('cant move forward if kicking');};
             this.moveBackward = function(){console.log('cant move backward if kicking');};
             this.jump = function(){console.log('cant jump if kicking');};
             this.idle = function(){p.setState('cant idle if kicking');};
             this.block = function(){console.log('cant block if kicking');};
             this.punch = function(){console.log('cant punch if kicking');};
-            this.kick = function(){console.log('already kicking');};*/
+            this.kick = function(){console.log('already kicking');};
 
             this.dead = function () {
               pl.setState(pl.getDeadState());
@@ -587,6 +568,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               pl.setState(pl.getBlockState());
             };
             this.punch = function () {
+            console.log('f');
               pl.setState(pl.getPunchState());
             };
             this.kick = function () {
@@ -608,7 +590,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
               // XXX
               thugAction = 'walk';
 
-              pl.speed[0] = MOVE_SPEED;
+              var pos = pc.position;
+              // near the boxes of the abandoned house
+              if (pos[2] > RIGHT_BORDER) {
+
+                pos[2] -= MOVE_SPEED;
+                pc.position = pos;
+              }
             };
 
             this.toString = function () {
@@ -659,7 +647,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
               var pos = pc.position;
               thugAction = 'walk';
 
-              pl.speed[0] = -MOVE_SPEED;
+              if (pos[2] < LEFT_BORDER) {
+                pos[2] += MOVE_SPEED;
+                pc.position = pos;
+              }
             };
 
             this.toString = function () {
@@ -737,17 +728,31 @@ document.addEventListener("DOMContentLoaded", function (e) {
               pl.setState(pl.getDeadState());
             };
 
-            this.onActivate = function() {
-              if (pl.speed[1] === 0)
-                pl.speed[1] = JUMP_HEIGHT;
-            };
-            
-            this.update = function(t, pc){
+            this.update = function (t, pc) {
+
               thugAction = 'jump-knock';
-              
+
               jumpTimeElapsed += t;
-              if (pc.position[1] === FLOOR_POS && jumpTimeElapsed >= 1)
-               pl.setState(pl.getIdleState());
+
+              if (jumpTimeElapsed < 1) {
+                pos = pc.position;
+                pos[1] += Math.sin(jumpTimeElapsed * Math.PI * 2) * 1.013;
+                pc.position = pos;
+              }
+
+              if (jumpTimeElapsed >= 1) {
+                // XXX fix this
+                pos[1] = 8;
+                pc.position[1] = 8;
+                //console.log(pc.position);
+                pl.setState(pl.getIdleState());
+                jumpTimeElapsed = 0;
+
+                /// fix this.
+                // Let's say the user moves forward, jumps then lets go of moving
+                // forward key. They still need to move forward until they land
+                //  player.removeState(player.getMoveForwardState());
+              }
             };
 
             this.toString = function () {
@@ -787,17 +792,37 @@ document.addEventListener("DOMContentLoaded", function (e) {
               pl.setState(pl.getDeadState());
             };
 
-            this.onActivate = function() {
-              if (pl.speed[1] === 0)
-                pl.speed[1] = JUMP_HEIGHT;
-            };
-            
-            this.update = function(t, pc){
-              thugAction = 'jump-knock';
-              
+            this.update = function (t, pc) {
               jumpTimeElapsed += t;
-              if (pc.position[1] === FLOOR_POS && jumpTimeElapsed >= 1)
-               pl.setState(pl.getIdleState());
+
+
+              // XXX Fix this
+              if (jumpTimeElapsed < 1) {
+                pos = pc.position;
+                pos[1] += Math.sin(jumpTimeElapsed * Math.PI * 2) * 1.013;
+
+                // Fix this XXX
+                if (pos[2] > RIGHT_BORDER) {
+                  pos[2] -= MOVE_SPEED;
+                  pc.position = pos;
+                }
+
+                pc.position = pos;
+              }
+
+              if (jumpTimeElapsed >= 1) {
+                // XXX fix this
+                pos[1] = 8;
+                pc.position[1] = 8;
+                //console.log(pc.position);
+                pl.setState(pl.getIdleState());
+                jumpTimeElapsed = 0;
+
+                /// fix this.
+                // Let's say the user moves forward, jumps then lets go of moving
+                // forward key. They still need to move forward until they land
+                //  player.removeState(player.getMoveForwardState());
+              }
             };
 
             this.toString = function () {
@@ -838,17 +863,35 @@ document.addEventListener("DOMContentLoaded", function (e) {
               pl.setState(pl.getDeadState());
             };
 
-            this.onActivate = function() {
-              if (pl.speed[1] === 0)
-                pl.speed[1] = JUMP_HEIGHT;
-            };
-            
-            this.update = function(t, pc){
-              thugAction = 'jump-knock';
-              
+            this.update = function (t, pc) {
               jumpTimeElapsed += t;
-              if (pc.position[1] === FLOOR_POS && jumpTimeElapsed >= 1)
-               pl.setState(pl.getIdleState());
+              var pos = pc.position;
+
+              if (jumpTimeElapsed < 1) {
+                pos[1] += Math.sin(jumpTimeElapsed * Math.PI * 2) * 1.013;
+
+                // Fix this XXX
+                if (pos[2] < LEFT_BORDER) {
+                  pos[2] += MOVE_SPEED;
+                  pc.position = pos;
+                }
+
+                pc.position = pos;
+              }
+
+              if (jumpTimeElapsed >= 1) {
+                // XXX fix this
+                pos[1] = 8;
+                pc.position[1] = 8;
+                //console.log(pc.position);
+                pl.setState(pl.getIdleState());
+                jumpTimeElapsed = 0;
+
+                /// fix this.
+                // Let's say the user moves forward, jumps then lets go of moving
+                // forward key. They still need to move forward until they land
+                //  player.removeState(player.getMoveForwardState());
+              }
             };
 
             this.toString = function () {
@@ -862,7 +905,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         /////////////////
         //
         /////////////////
-        var Player = (function () {
+       /* var Player = (function () {
 
           function Player(options) {
             options = options || {};
@@ -885,8 +928,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             var forwardJumpState = new ForwardJumpState(this);
             var backwardJumpState = new BackwardJumpState(this);
-
-            this.speed = [ 0, 0 ];
 
             // start in an idle state.
             var state = idleState;
@@ -948,33 +989,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
 
             this.setState = function (s) {
-              if (state !== s && s.onActivate)
-                s.onActivate();
               state = s;
               console.log('state changed: ' + s.toString());
             };
 
             this.update = function (t, pc) {
               state.update(t, pc);
-              var pos = pc.position;
-              this.speed[1] -= GRAVITY * 100 * t;
-              pos[1] += this.speed[1] * t;
-              pos[2] -= this.speed[0] * t;
-              this.stayInBounds(pos);
-              pc.position = pos;
               printd(playerName, this.toString());
-            };
-      
-            this.stayInBounds = function(pos) {
-              if(pos[2] > LEFT_BORDER )
-                pos[2] = LEFT_BORDER;
-              if(pos[2] < RIGHT_BORDER )
-                pos[2] = RIGHT_BORDER;
-              if (pos[1] <= FLOOR_POS) {
-                pos[1] = FLOOR_POS;
-                this.speed[1] = 0;
-              }
-            };
+            }
 
             // smack the player with something
             this.hit = function (t, pc) {
@@ -1043,9 +1065,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.getFrozenState = function () {
               return frozenState;
             };
-            this.getThrowFireBallState = function () {
-              return throwFireBallState;
-            };
+            this.getThrowFireBallState = function () {return throwFireBallState;};
 
             this.getMoveForwardState = function () {
               return moveForwardState;
@@ -1063,50 +1083,94 @@ document.addEventListener("DOMContentLoaded", function (e) {
           }
 
           return Player;
-        }());
+        }());*/
 
-        var player = new Player(options);
+            var health = options.health || 100;
+            var playerName = options.name || "NoName";
+            
+            var idleState = new IdleState(this);
+            var blockState = new BlockState(this);
+            var jumpState = new JumpState(this);
+            var punchState = new PunchState(this);
+            var kickState = new KickState(this);
+            var deadState = new DeadState(this);
+            var recoverState = new RecoverState(this);
+            var spinState = new SpinState(this);
+            var frozenState = new FrozenState(this);
+            var throwFireBallState = new ThrowFireBallState(this);
+            var moveForwardState = new MoveForwardState(this);
+            var moveBackwardState = new MoveBackwardState(this);
+            var forwardJumpState = new ForwardJumpState(this);
+            var backwardJumpState = new BackwardJumpState(this);
+                        
+            // XXX rename to currentState
+            var state = idleState;
+            
+            // convert to getters
+            this.getIdleState = function () {     return idleState;  };
+            this.getBlockState = function () {    return blockState;  };
+            this.getJumpState = function () {     return jumpState;  };
+            this.getPunchState = function () {  
+            console.log(punchState);
+              return punchState;  };
+            this.getKickState = function () {     return kickState;  };  
+            this.getDeadState = function () {     return deadState;  };  
+            this.getRecoverState = function () {  return recoverState;  }  
+            this.getSpinState = function () {     return spinState;  };  
+            this.getFrozenState = function () {   return frozenState;  };  
+            this.getThrowFireBallState = function () {  return throwFireBallState;};  
+            this.getMoveForwardState = function () {    return moveForwardState;  };  
+            this.getMoveBackwardState = function () {   return moveBackwardState;  };  
+            this.getForwardJumpState = function () {    return forwardJumpState;  };  
+            this.getBackwardJumpState = function () {   return backwardJumpState }; 
 
-        var service = engine.logic; // This is a hack so that this component will have its message queue processed
+            var service = engine.logic; // This is a hack so that this component will have its message queue processed
+
+            this.setState = function (s) {
+              state = s;
+              console.log('State changed: ' + s.toString());
+            };
+
+
         this.onStartMoveForward = function (event) {
-          player.moveForward();
+          if(state.moveForward){
+            state.moveForward();
+          }
+          else{
+          }
         };
         this.onStopMoveForward = function (event) {
-          player.stopMoveForward();
+          state = (state === moveForwardState) ? idleState : state;
         };
         this.onStartMoveBackward = function (event) {
-          player.moveBackward();
+          state.moveBackward && state.moveBackward();
         };
         this.onStopMoveBackward = function (event) {
-          player.stopMoveBackward();
+          state = (state === moveBackwardState) ? idleState : state;
         };
-
         this.onStartBlock = function (event) {
-          player.block();
+          state.block && state.block();
         };
-
         this.onStopBlock = function (event) {
-          player.idle();
+           state.idle && state.idle();
         };
-
         this.onPunch = function (event) {
-          player.punch();
+          state.punch && state.punch();
         };
         this.onKick = function (event) {
-          player.kick();
+          state.kick && state.kick();
         };
         this.onJump = function (event) {
-          player.jump();
+          state.jump && state.jump();
         };
         this.onThrowFireBall = function (event) {
-          player.throwFireBall();
+          state.throwFireBall && state.throwFireBall();
         };
-
         this.onKill = function (event) {
-          player.dead();
+          // XXX
         };
         this.onSpin = function (event) {
-          player.spin();
+          state.spin && state.spin();
         };
 
         // XXX fix me
@@ -1120,21 +1184,24 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           // Don't move the user if they're trying to move in both directions.
           if (keyStates[options.RIGHT_KEY] && keyStates[options.LEFT_KEY]) {
-            player.idle();
+             state.idle && state.idle();
           }
 
           // Move them right if released the left key.
           else if (keyStates[options.RIGHT_KEY]) {
-            player.moveForward();
+            state.moveForward && state.moveForward();
           }
 
           // Move them left if they released the right key.
           else if (keyStates[options.LEFT_KEY]) {
-            player.moveBackward();
+             state.moveForward && state.moveBackward();
           }
 
-          player.update(delta, transform);
+          state.update(delta, transform);
+          
+          printd(playerName, state.toString());
         }; // onUpdate
+        
         // Boilerplate component registration; Lets our service know that we exist and want to do things
         this.onComponentOwnerChanged = function (e) {
           if (e.data.previous === null && this.owner !== null) {
@@ -1156,6 +1223,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
           }
         };
       }); // PlayerComponent
+      
+      
       var run = function () {
 
           canvas = engine.graphics.target.element;
