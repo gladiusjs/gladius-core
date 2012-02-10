@@ -231,6 +231,12 @@
     ]
   ],
   "action": {
+    "idle": {
+      "speed": 0.5,
+      "rects": [
+        0
+      ]
+    },
     "walk": {
       "speed": 0.5,
       "rects": [
@@ -297,9 +303,7 @@
       "speed": 0.8,
       "rects": [
         20,
-        21,
-        22,
-        23
+        21
       ]
     },
     "twirl-kick": {

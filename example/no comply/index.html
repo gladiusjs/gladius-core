@@ -6,13 +6,24 @@
         <script src="sprite-viking-blitr.js"></script>
     </head>
     <body>
-      Arrow Keys + [A=punch] [S=kick] [D=block] [F=fireball] [W=spin] [X = suicide]
-      <div id="player1"></div>
-      <div id="player2"></div>
+      Arrow Keys + [A=punch] [S=kick] [D=block] [F=fireball] [W=spin]
+      
+      <div>
+
+      
+      <div style="width:500;">
+        <span id="player1" style="border-radius: 5px;display:inline-block;background-color:#336699;opacity:1;width:500px;">&nbsp;</span>
+        
+        <span id="player2" style="border-radius: 5px; display:inline-block;background-color:orange;width:500px;float:right">&nbsp;</span>
+      </div>
+      
     	<canvas id="test-canvas" width="1000" height="700"></canvas>
+</div>
 
       <br />TODO
       <ul>
+        <li>make health bars sexy</li>
+        <li>figure out how to stop animation</li>
         <li>Add hit boxes</li>
         <li>Create fireball sprite</li>
         <li>Fix Jumping/Landing code</li>

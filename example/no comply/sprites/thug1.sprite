@@ -189,7 +189,7 @@
         6
       ]
     },
-    "jump-knock": {
+    "jump": {
       "speed": 0.8,
       "rects": [
         7,
@@ -197,7 +197,7 @@
       ]
     },
     "hurt": {
-      "speed": 0.1,
+      "speed": 0.0001,
       "rects": [
         0,
         19

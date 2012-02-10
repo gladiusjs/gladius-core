@@ -159,6 +159,12 @@
     ]
   ],
   "action": {
+    "idle": {
+      "speed": 0.5,
+      "rects": [
+        0
+      ]
+    },
     "walk": {
       "speed": 0.5,
       "rects": [

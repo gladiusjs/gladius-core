@@ -16,21 +16,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
       // Player config
       /////////////////
       var playerOneConfig = {
-        RIGHT_KEY: 'RIGHT',
-        LEFT_KEY: 'LEFT',
-        JUMP_KEY: 'UP',
+        RIGHT_KEY:  'RIGHT',
+        LEFT_KEY:   'LEFT',
+        JUMP_KEY:   'UP',
         CROUCH_KEY: 'DOWN',
-        name: 'player1'
+        name:       'player1'
       };
 
       var playerTwoConfig = {
-        RIGHT_KEY: 'L',
-        LEFT_KEY: 'J',
-        JUMP_KEY: 'I',
+        RIGHT_KEY:  'L',
+        LEFT_KEY:   'J',
+        JUMP_KEY:   'I',
         CROUCH_KEY: 'K',
-        name: 'player2'
+        name:       'player2'
       };
-
 
       //////////////////////
       // Debugging
@@ -75,6 +74,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         }
       }
 
+      
 
       // Thanks to the NoComply demo's CubicVR-bitmap_cube_array.js' for the
       // BitwallModel code
@@ -114,6 +114,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
+          // XXX
           _updateTexture(thugAction);
           _material = new engine.graphics.resource.Material({
             color: [1, 1, 1],
@@ -215,12 +216,152 @@ document.addEventListener("DOMContentLoaded", function (e) {
       });
 
 
+      //////////
+      // Health Component
+      //////////
+      var HealthComponent = engine.base.Component({
+        type: 'Health'
+        }, function( options ){
+          
+          options = options || {};
+          
+          var service = engine.logic;          
+          var val = 500;
+          var domId = options.domId;
+            
+          this.onHealth = function(h){
+            // XXX add check here
+            
+            // XXX use h variable
+            val -= 15;
+            document.getElementById(domId).style.width = val + "px";
+          }
+          
+          this.onUpdate = function(){
+          }
+          
+          // Boilerplate component registration; Lets our service know that we exist and want to do things
+          this.onComponentOwnerChanged = function (e) {
+            if (e.data.previous === null && this.owner !== null) {
+              service.registerComponent(this.owner.id, this);
+            }
+
+            if (this.owner === null && e.data.previous !== null) {
+              service.unregisterComponent(e.data.previous.id, this);
+            }
+          };
+
+          this.onEntityManagerChanged = function (e) {
+            if (e.data.previous === null && e.data.current !== null && this.owner !== null) {
+              service.registerComponent(this.owner.id, this);
+            }
+
+            if (e.data.previous !== null && e.data.current === null && this.owner !== null) {
+              service.unregisterComponent(this.owner.id, this);
+            }
+          };
+        });
+
+
+      /////////////
+      // Fireball
+      /////////////
+      var FireBallComponent = engine.base.Component({
+        type: 'Fireball',
+        depends: ['Transform', 'Model']
+        },
+        function( options ){
+          var that = this;
+          var service = engine.logic;
+         // var pos = options.position.position;
+           var dir = options.direction;
+           
+          this.onUpdate = function ( event ){
+
+            // XXX this is terrible
+            var pos = this.owner.find('Transform').position;
+            
+            var rot = this.owner.find('Transform').rotation;
+            
+            rot[0] += 0.05;
+            rot[2] += 0.05;
+            
+            pos[2] -= 0.1 * dir;
+            
+            this.owner.find('Transform').position = pos;
+            this.owner.find('Transform').rotation = rot;
+          };
+
+          // Boilerplate component registration; Lets our service know that we exist and want to do things
+          this.onComponentOwnerChanged = function (e) {
+            if (e.data.previous === null && this.owner !== null) {
+              service.registerComponent(this.owner.id, this);
+            }
+
+            if (this.owner === null && e.data.previous !== null) {
+              service.unregisterComponent(e.data.previous.id, this);
+            }
+          };
+
+          this.onEntityManagerChanged = function (e) {
+            if (e.data.previous === null && e.data.current !== null && this.owner !== null) {
+              service.registerComponent(this.owner.id, this);
+            }
+
+            if (e.data.previous !== null && e.data.current === null && this.owner !== null) {
+              service.unregisterComponent(this.owner.id, this);
+            }
+          };
+
+        });
+
+
+      /////////////
+      // Health Component
+      /////////////
+/*      var HealthComponent = engine.base.Component({
+        type: 'Health',
+        depends: ['Transform', 'Model']
+        },
+        function( options ){
+          var that = this;
+          var service = engine.logic;
+                  
+          this.onUpdate = function (){
+          
+          };
+
+          // Boilerplate component registration; Lets our service know that we exist and want to do things
+          this.onComponentOwnerChanged = function (e) {
+            if (e.data.previous === null && this.owner !== null) {
+              service.registerComponent(this.owner.id, this);
+            }
+
+            if (this.owner === null && e.data.previous !== null) {
+              service.unregisterComponent(e.data.previous.id, this);
+            }
+          };
+
+          this.onEntityManagerChanged = function (e) {
+            if (e.data.previous === null && e.data.current !== null && this.owner !== null) {
+              service.registerComponent(this.owner.id, this);
+            }
+
+            if (e.data.previous !== null && e.data.current === null && this.owner !== null) {
+              service.unregisterComponent(this.owner.id, this);
+            }
+          };
+
+        });*/
+
+
+
 
 
       // PlayerComponent
       var PlayerComponent = engine.base.Component({
         type: 'Player',
-        depends: ['Transform', 'Model'] // We're going to do some rotation, so we should have a transform
+        depends: ['Transform', 'Model']
       }, function (options) {
         options = options || {};
         var that = this;
@@ -247,9 +388,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.dead = function () {pl.setState(pl.getDeadState());}
 
             this.update = function (t, pc) {
-              thugAction = 'idle';
+              pl.aniState = 'idle';
+              
               var pos = pc.position;
-              pos[1] = 8.7;
+              pos[1] = 10.7;
               pc.position = pos;
 
               // When the character is idle, we may want to switch between
@@ -290,7 +432,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             // Should we slow down the character?
             this.update = function (t, pc) {
-
+              
+              pl.aniState = 'idle';
+              
               timeElapsed += t;
               var rot = pc.rotation;
 
@@ -346,6 +490,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             // Should we slow down the character?
             this.update = function (t, pc) {
+
+              
               timeElapsed += t;
             };
 
@@ -374,6 +520,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.kick = function(){};*/
 
             this.update = function (t, pc) {
+              pl.aniState = 'knock-down';
               pc.rotation
             };
 
@@ -424,7 +571,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           function ThrowFireBallState(player) {
             var pl = player;
-            var fireBallTimeElapsed = 0;
+            var timeElapsed = 0;
 
             /*this.moveForward = function(){};
             this.moveBackward = function(){};
@@ -434,6 +581,34 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.punch = function(){};
             this.kick = function(){};*/
 
+            this.onActivate = function() {
+
+              var pos = pl.trans.position;
+              //   var pos = [pl.position[0], pl.position[1], pl.position[2]];
+// XXX
+var dir = pl.dir;
+
+              
+          
+              // Add owner to fireball
+              new space.Entity({
+                  name: 'fireball',
+                  components: [
+                    new engine.core.component.Transform({
+                      position: math.Vector3( pos[0], pos[1], pos[2] ),
+                      rotation: math.Vector3( 0, 0, 0 ),
+                      scale: math.Vector3(1.5, 1.5, 1.5)
+                    }),
+                    new engine.graphics.component.Model({
+                      mesh: resources.mesh,
+                      material: resources.material
+                    })
+                    ,
+                    new FireBallComponent({position:pos, direction: dir})
+                  ]
+                });
+            };
+            
             this.spin = function () {
               pl.setState(pl.getSpinState());
             };
@@ -443,10 +618,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
             }
 
             this.update = function (t, pc) {
-              fireBallTimeElapsed += t;
+              // Reuse the punch animation because we're cheap.
+              pl.aniState = 'punch';
+              
+              timeElapsed += t;
 
-              if (fireBallTimeElapsed > 1) {
-                fireBallTimeElapsed = 0;
+              if (timeElapsed > 0.5) {
+                timeElapsed = 0;
                 pl.setState(pl.getIdleState());
               }
             };
@@ -485,7 +663,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
             }
 
             this.update = function (t, pc) {
-            console.log('tst');
+              pl.aniState = 'punch';
+              
               punchTimeElapsed += t;
               if (punchTimeElapsed > 0.5) {
                 punchTimeElapsed = 0;
@@ -523,6 +702,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
             }
 
             this.update = function (t) {
+            
+//XX            
+//              pl.aniState = 'kick';
+
               kickTimeElapsed += t;
               if (kickTimeElapsed > 0.5) {
                 kickTimeElapsed = 0;
@@ -568,7 +751,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
               pl.setState(pl.getBlockState());
             };
             this.punch = function () {
-            console.log('f');
               pl.setState(pl.getPunchState());
             };
             this.kick = function () {
@@ -586,16 +768,19 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
 
             this.update = function (t, pc) {
-
-              // XXX
-              thugAction = 'walk';
+              pl.aniState = 'walk';
 
               var pos = pc.position;
               // near the boxes of the abandoned house
               if (pos[2] > RIGHT_BORDER) {
-
                 pos[2] -= MOVE_SPEED;
                 pc.position = pos;
+              }
+              
+              if(pos[2] < 24){
+                pl.dir = -1;
+                var rr = pc.rotation; //this.owner.find('Transform').rotation;
+                pc.rotation = rr;
               }
             };
 
@@ -645,7 +830,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             this.update = function (t, pc) {
               var pos = pc.position;
-              thugAction = 'walk';
+              pl.aniState = 'walk';
 
               if (pos[2] < LEFT_BORDER) {
                 pos[2] += MOVE_SPEED;
@@ -685,6 +870,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             }
 
             this.update = function (t, pc) {
+              pl.aniState = 'hurt';
               // change sprite animation here of character getting back up.
             };
 
@@ -730,7 +916,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             this.update = function (t, pc) {
 
-              thugAction = 'jump-knock';
+              pl.aniState = 'jump';
 
               jumpTimeElapsed += t;
 
@@ -794,7 +980,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             this.update = function (t, pc) {
               jumpTimeElapsed += t;
-
+              
+              pl.aniState = 'jump';
 
               // XXX Fix this
               if (jumpTimeElapsed < 1) {
@@ -864,6 +1051,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
 
             this.update = function (t, pc) {
+              pl.aniState = 'jump';
               jumpTimeElapsed += t;
               var pos = pc.position;
 
@@ -902,242 +1090,58 @@ document.addEventListener("DOMContentLoaded", function (e) {
           return BackwardJumpState;
         }());
 
-        /////////////////
-        //
-        /////////////////
-       /* var Player = (function () {
 
-          function Player(options) {
-            options = options || {};
+        var health = 500;
+        var playerName = options.name || "NoName";
+        
+        var idleState = new IdleState(this);
+        var blockState = new BlockState(this);
+        var jumpState = new JumpState(this);
+        var punchState = new PunchState(this);
+        var kickState = new KickState(this);
+        var deadState = new DeadState(this);
+        var recoverState = new RecoverState(this);
+        var spinState = new SpinState(this);
+        var frozenState = new FrozenState(this);
+        var throwFireBallState = new ThrowFireBallState(this);
+        var moveForwardState = new MoveForwardState(this);
+        var moveBackwardState = new MoveBackwardState(this);
+        var forwardJumpState = new ForwardJumpState(this);
+        var backwardJumpState = new BackwardJumpState(this);
+                    
+        // XXX rename to currentState
+        var state = idleState;
+        
+        // convert to getters
+        this.getIdleState = function () {     return idleState;  };
+        this.getBlockState = function () {    return blockState;  };
+        this.getJumpState = function () {     return jumpState;  };
+        this.getPunchState = function () {    return punchState;  };
+        this.getKickState = function () {     return kickState;  };  
+        this.getDeadState = function () {     return deadState;  };  
+        this.getRecoverState = function () {  return recoverState;  }  
+        this.getSpinState = function () {     return spinState;  };  
+        this.getFrozenState = function () {   return frozenState;  };  
+        this.getThrowFireBallState = function () {  return throwFireBallState;};  
+        this.getMoveForwardState = function () {    return moveForwardState;  };  
+        this.getMoveBackwardState = function () {   return moveBackwardState;  };  
+        this.getForwardJumpState = function () {    return forwardJumpState;  };  
+        this.getBackwardJumpState = function () {   return backwardJumpState }; 
 
-            var health = options.health || 100;
-            var playerName = options.name || "NoName";
+        var service = engine.logic; // This is a hack so that this component will have its message queue processed
 
-            var idleState = new IdleState(this);
-            var blockState = new BlockState(this);
-            var jumpState = new JumpState(this);
-            var punchState = new PunchState(this);
-            var kickState = new KickState(this);
-            var deadState = new DeadState(this);
-            var recoverState = new RecoverState(this);
-            var moveForwardState = new MoveForwardState(this);
-            var moveBackwardState = new MoveBackwardState(this);
-            var throwFireBallState = new ThrowFireBallState(this);
-            var spinState = new SpinState(this);
-            var frozenState = new FrozenState(this);
-
-            var forwardJumpState = new ForwardJumpState(this);
-            var backwardJumpState = new BackwardJumpState(this);
-
-            // start in an idle state.
-            var state = idleState;
-
-            this.getState = function () {
-              return state;
-            }
-
-            this.moveForward = function () {
-              state.moveForward && state.moveForward();
-            };
-
-            this.forwardJump = function () {
-              state.forwardJump && state.forwardJump();
-            }
-
-            this.moveBackward = function () {
-              state.moveBackward && state.moveBackward();
-            };
-
-            this.stopMoveForward = function () {
-              if (state === moveForwardState) {
-                state = idleState;
-              }
-            };
-
-            this.stopMoveBackward = function () {
-              if (state === moveBackwardState) {
-                state = idleState;
-              }
-            };
-
-            this.jump = function () {
-              state.jump && state.jump();
-            };
-
-            this.idle = function () {
-              state.idle && state.idle();
-            };
-
-            this.block = function () {
-              state.block && state.block();
-            };
-
-            this.punch = function () {
-              state.punch && state.punch();
-            };
-
-            this.kick = function () {
-              state.kick && state.kick();
-            };
-
-            this.throwFireBall = function () {
-              state.throwFireBall && state.throwFireBall();
-            };
-
-            this.dead = function () {
-              state.dead && state.dead();
-            };
-
-            this.setState = function (s) {
-              state = s;
-              console.log('state changed: ' + s.toString());
-            };
-
-            this.update = function (t, pc) {
-              state.update(t, pc);
-              printd(playerName, this.toString());
-            }
-
-            // smack the player with something
-            this.hit = function (t, pc) {
-              state.hit && state.recover();
-            };
-
-            this.spin = function (t, pc) {
-              state.spin && state.spin(t, pc);
-            };
-
-            this.freeze = function (t, pc) {
-              state.freeze && state.freeze();
-            };
-
-            this.stop = function () {
-              state = idleState;
-            };
-
-            this.toString = function () {
-              return "Player Health: " + this.getHealth() + " , " + state.toString();
-            };
-
-            this.getHealth = function () {
-              return health;
-            };
-
-            //
-            this.setHealth = function (h) {
-              health = h;
-
-              // Kill the player if the damaged is greater than they can withstand.
-              if (health < 0) {
-                player.dead();
-                health = 0;
-              }
-              else if (health > 100) {
-                health = 100;
-              }
-            };
-
-            // convert to getters
-            this.getIdleState = function () {
-              return idleState;
-            };
-            this.getBlockState = function () {
-              return blockState;
-            };
-            this.getJumpState = function () {
-              return jumpState;
-            };
-            this.getPunchState = function () {
-              return punchState;
-            };
-            this.getKickState = function () {
-              return kickState;
-            };
-            this.getDeadState = function () {
-              return deadState;
-            };
-            this.getRecoverState = function () {
-              return recoverState;
-            }
-            this.getSpinState = function () {
-              return spinState;
-            };
-            this.getFrozenState = function () {
-              return frozenState;
-            };
-            this.getThrowFireBallState = function () {return throwFireBallState;};
-
-            this.getMoveForwardState = function () {
-              return moveForwardState;
-            };
-            this.getMoveBackwardState = function () {
-              return moveBackwardState;
-            };
-
-            this.getForwardJumpState = function () {
-              return forwardJumpState;
-            };
-            this.getBackwardJumpState = function () {
-              return backwardJumpState;
-            };
+        this.setState = function (s) {
+          if(state !== s){
+            console.log('State changed: ' + s.toString());
+            state = s;
+            state.onActivate && state.onActivate();
           }
-
-          return Player;
-        }());*/
-
-            var health = options.health || 100;
-            var playerName = options.name || "NoName";
-            
-            var idleState = new IdleState(this);
-            var blockState = new BlockState(this);
-            var jumpState = new JumpState(this);
-            var punchState = new PunchState(this);
-            var kickState = new KickState(this);
-            var deadState = new DeadState(this);
-            var recoverState = new RecoverState(this);
-            var spinState = new SpinState(this);
-            var frozenState = new FrozenState(this);
-            var throwFireBallState = new ThrowFireBallState(this);
-            var moveForwardState = new MoveForwardState(this);
-            var moveBackwardState = new MoveBackwardState(this);
-            var forwardJumpState = new ForwardJumpState(this);
-            var backwardJumpState = new BackwardJumpState(this);
-                        
-            // XXX rename to currentState
-            var state = idleState;
-            
-            // convert to getters
-            this.getIdleState = function () {     return idleState;  };
-            this.getBlockState = function () {    return blockState;  };
-            this.getJumpState = function () {     return jumpState;  };
-            this.getPunchState = function () {  
-            console.log(punchState);
-              return punchState;  };
-            this.getKickState = function () {     return kickState;  };  
-            this.getDeadState = function () {     return deadState;  };  
-            this.getRecoverState = function () {  return recoverState;  }  
-            this.getSpinState = function () {     return spinState;  };  
-            this.getFrozenState = function () {   return frozenState;  };  
-            this.getThrowFireBallState = function () {  return throwFireBallState;};  
-            this.getMoveForwardState = function () {    return moveForwardState;  };  
-            this.getMoveBackwardState = function () {   return moveBackwardState;  };  
-            this.getForwardJumpState = function () {    return forwardJumpState;  };  
-            this.getBackwardJumpState = function () {   return backwardJumpState }; 
-
-            var service = engine.logic; // This is a hack so that this component will have its message queue processed
-
-            this.setState = function (s) {
-              state = s;
-              console.log('State changed: ' + s.toString());
-            };
-
-
+        };
+        
+        this.aniState = 'idle';
+        
         this.onStartMoveForward = function (event) {
-          if(state.moveForward){
-            state.moveForward();
-          }
-          else{
-          }
+          state.moveForward && state.moveForward();
         };
         this.onStopMoveForward = function (event) {
           state = (state === moveForwardState) ? idleState : state;
@@ -1163,15 +1167,25 @@ document.addEventListener("DOMContentLoaded", function (e) {
         this.onJump = function (event) {
           state.jump && state.jump();
         };
+        
+        // XXX test code
+        this.onTest = function(){
+//          health -= 15;
+  //ttt        document.getElementById(playerName).style.width = health + "px";
+        };
+        
         this.onThrowFireBall = function (event) {
           state.throwFireBall && state.throwFireBall();
         };
         this.onKill = function (event) {
-          // XXX
+          state.dead && state.dead();
         };
         this.onSpin = function (event) {
           state.spin && state.spin();
         };
+        
+        // XXX
+        var trans;
 
         // XXX fix me
         this.getPlayer = function () {
@@ -1181,6 +1195,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
         this.onUpdate = function (event) {
           var delta = service.time.delta / 1000;
           var transform = this.owner.find('Transform');
+
+          this.dir = 1;
+          this.trans = this.owner.find('Transform');
 
           // Don't move the user if they're trying to move in both directions.
           if (keyStates[options.RIGHT_KEY] && keyStates[options.LEFT_KEY]) {
@@ -1229,24 +1246,24 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           canvas = engine.graphics.target.element;
 
-          /////////////
-          // Fireball
-          /////////////
-          /*new space.Entity({
-              name: 'fireball',
-              components: [
-                new engine.core.component.Transform({
-                  position: math.Vector3( -50, 8, 35 ),
-                  rotation: math.Vector3( 0, 0, 0 ),
-                  scale: math.Vector3(0.1, 1.5, 1.5)
-                }),
-                new engine.graphics.component.Model({
-                  mesh: resources.mesh,
-                  material: resources.material
-                })
-              ]
-            });*/
 
+
+
+          ////////////                      
+          // Player 2
+          ////////////
+/*          var rat = new space.Entity({
+            name: 'rat',
+            components: [
+              new engine.core.component.Transform({
+                position: math.Vector3(-50, 15.7, 20),
+                rotation: math.Vector3(0, -math.PI / 2, 0),
+                scale: math.Vector3(7, 7, 7)
+              }),
+
+            ]
+          });*/
+            
 
           ////////////                      
           // Player 2
@@ -1255,15 +1272,17 @@ document.addEventListener("DOMContentLoaded", function (e) {
             name: 'player2',
             components: [
             new engine.core.component.Transform({
-              position: math.Vector3(-50, 8.7, 20),
+              position: math.Vector3(-50, 15.7, 20),
               rotation: math.Vector3(0, -math.PI / 2, 0),
-              scale: math.Vector3(4, 4, 4)
+              scale: math.Vector3(7, 7, 7)
             }),
 
             new BitwallModel({
               sprite: viking.sprites.thug1
             }),
-
+            
+            new HealthComponent({domId: 'player2'}),
+            
             new engine.input.component.Controller({
               onKey: function (e) {
 
@@ -1278,6 +1297,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   new engine.core.Event({
                     type: e.data.state === 'down' ? 'StartMoveForward' : 'StopMoveForward'
                   }).dispatch([this.owner]);
+                  break;
+                  
+                case 'T':
+//                  new engine.core.Event({
+  //                  type: 'Health'
+    //              }).dispatch([this.owner]);
                   break;
 
                   // walk left
@@ -1332,8 +1357,34 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 } //switdh
               } //onKey
             }), //controller
-            new PlayerComponent(playerTwoConfig)]
+            new PlayerComponent(playerTwoConfig)
+
+            ]
           });
+
+
+
+
+          /// NPC 1
+          var npc1 = new space.Entity({
+            name: 'NPC1',
+            components: [
+              new engine.core.component.Transform({
+                position: math.Vector3(-53, 8.7, 25),
+                rotation: math.Vector3(0, math.PI / 2, 0),
+                scale: math.Vector3(4, 4, 4)
+              }), new BitwallModel({
+                sprite: viking.sprites.thug5
+              }),
+              new PlayerComponent()
+            ]
+          });
+
+
+
+
+
+
 
           ////////////                      
           // Player 1
@@ -1345,10 +1396,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
               position: math.Vector3(-50, 8.7, 35),
               // in front of red house.
               rotation: math.Vector3(0, math.PI / 2, 0),
-              scale: math.Vector3(4, 4, 4)
-            }), new BitwallModel({
-              sprite: viking.sprites.thug1
-            }), new engine.input.component.Controller({
+              scale: math.Vector3(7, 7, 7)
+            }),
+            
+            new BitwallModel({
+              sprite: viking.sprites.kraddy
+            }),
+            
+            new HealthComponent({domId: 'player1'}),
+                        
+            new engine.input.component.Controller({
               onKey: function (e) {
 
                 // keep state of the keys
@@ -1378,10 +1435,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   }).dispatch([this.owner]);
                   break;
 
-                  // crouch?
-                  //case 'DOWN':
-                  //break;
-                  // Punch
                 case 'A':
                   new engine.core.Event({
                     type: 'Punch'
@@ -1417,14 +1470,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   break;
 
                   // Kill player
-                case 'X':
+                /*case 'X':
                   new engine.core.Event({
                     type: 'Kill'
                   }).dispatch([this.owner]);
-                  break;
+                  break;*/
 
-                } //switdh
-              } //onKey
+                } // aswitdh
+              } // onKey
             }), //controller
             new PlayerComponent(playerOneConfig)]
           });
@@ -1449,7 +1502,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           // simulationTime.delta and then that as well as the speed
           // that the spritesheet includes factored in.  I suspect this code
           // is gonna want some optimization too.
-          var animationTime = 10;
+          var animationTime = 5;
           var animationTimer = 0;
 
           ////////////////
@@ -1466,12 +1519,27 @@ document.addEventListener("DOMContentLoaded", function (e) {
               //                   [0, math.TAU * delta * 0.1, 0]]);
               if (!animationTimer) {
                 // XXX update animation
-                player2.find('Model').updateAction(thugAction);
-                player1.find('Model').updateAction(thugAction);
+                
+                var p1ani = player1.find('Player').aniState;
+                var p2ani = player2.find('Player').aniState;
+                
+                //var npc1ani = npc1.find('Player').aniState;
+                
+                player1.find('Model').updateAction(p1ani);
+                player2.find('Model').updateAction(p2ani);
+                
+                npc1.find('Model').updateAction('walk-front');  
+                
+                
+                
+                // Move fireballs
+//                console.log(space.find('fireball'));
 
+
+                
+                
                 // reset the timer
                 animationTimer = animationTime;
-
               }
               else {
                 --animationTimer;
@@ -1487,12 +1555,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
           engine.run();
         };
 
-        ////////////////
-        // Load some sprites
-        ////////////////
-        viking.loadSprite('./sprites/thug1.sprite', {
-          //callback: run
-        });
+      ////////////////
+      // Load some sprites
+      ////////////////
+      viking.loadSprite('./sprites/thug1.sprite', {});
+      viking.loadSprite('./sprites/kraddy.sprite', {});
+      viking.loadSprite('./sprites/thug2.sprite', {});
+      viking.loadSprite('./sprites/thug3.sprite', {});
+      viking.loadSprite('./sprites/thug4.sprite', {});
+      viking.loadSprite('./sprites/thug5.sprite', {});
+      viking.loadSprite('./sprites/smallrat.sprite', {});
 
       engine.core.resource.get([
       {
