@@ -1564,7 +1564,7 @@ var dir = pl.dir;
       viking.loadSprite('./sprites/thug3.sprite', {});
       viking.loadSprite('./sprites/thug4.sprite', {});
       viking.loadSprite('./sprites/thug5.sprite', {});
-      viking.loadSprite('./sprites/smallrat.sprite', {});
+//      viking.loadSprite('./sprites/smallrat.sprite', {});
 
       engine.core.resource.get([
       {
