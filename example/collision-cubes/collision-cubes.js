@@ -1,3 +1,5 @@
+/*global gladius */
+
 document.addEventListener( "DOMContentLoaded", function( e ){
 
     var printd = function( div, str ) {
@@ -64,13 +66,13 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     for( var entityId in that.components[componentType] ) {
                         while( that.components[componentType][entityId].handleQueuedEvent() ) {}
                     }
-                };
+                }
                                
-                for( var collisionEntity1 in that.components['Collision'] ) {
-                    var component1 = that.components['Collision'][collisionEntity1];
-                    for( var collisionEntity2 in that.components['Collision'] ) {
+                for( var collisionEntity1 in that.components.Collision ) {
+                    var component1 = that.components.Collision[collisionEntity1];
+                    for( var collisionEntity2 in that.components.Collision ) {
                         if( collisionEntity1.id !== collisionEntity2.id ) {
-                            var component2 = that.components['Collision'][collisionEntity2];
+                            var component2 = that.components.Collision[collisionEntity2];
                             // do collision check
                         }
                     }
@@ -287,7 +289,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                      url: 'procedural-mesh.js',                          
                      load: engine.core.resource.proceduralLoad,
                      onsuccess: function( mesh ) {
-                         resources['mesh'] = mesh;
+                         resources.mesh = mesh;
                      },
                      onfailure: function( error ) {
                      }
@@ -297,12 +299,11 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                      url: 'procedural-material.js',
                      load: engine.core.resource.proceduralLoad,
                      onsuccess: function( material ) {
-                         resources['material'] = material;
+                         resources.material = material;
                      },
                      onfailure: function( error ) {
                      }
-                 },
-                 ],
+                 }],
                  {
                     oncomplete: run
                  }
