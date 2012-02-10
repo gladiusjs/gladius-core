@@ -16,7 +16,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
         var math = engine.math;
 
         var CubicVR = engine.graphics.target.context;
-        
+
         var Collision2Service = engine.base.Service({
             type: 'Physics',
             schedule: {
@@ -27,10 +27,10 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             time: engine.scheduler.simulationTime
         },
         function( options ) {
-            
+
             var that = this;
             var service = this;
-            
+
             var BoundingBox = engine.base.Component({
                 type: 'Collision',
                 depends: ['Transform']
@@ -38,7 +38,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             function( options ) {
                 this.lowerLeft = options.lowerLeft;
                 this.upperRight = options.upperRight;               
-                
+
                 // Boilerplate component registration; Lets our service know that we exist and want to do things
                 this.onComponentOwnerChanged = function( e ){
                     if( e.data.previous === null && this.owner !== null ) {
@@ -60,7 +60,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     }
                 };
             });
-            
+
             this.update = function() {
 
                 for( var componentType in that.components ) {
@@ -68,30 +68,74 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                         while( that.components[componentType][entityId].handleQueuedEvent() ) {}
                     }
                 }
-                               
-                function checkCollision( box1, box2) {
-                  return !( 
-                    (box1.lowerLeft[1] < box2.upperRight[1]) || 
-                    (box1.upperRight[1] > box2.lowerLeft[1]) ||
-                    (box1.lowerLeft[0] > box2.upperRight[0]) ||
-                    (box1.upperRight[0] < box2.lowerLeft[0])
-                  );
+
+                function checkCollision( box1, box2 ) {
+                    var top1, top2,
+                        bottom1, bottom2,
+                        left1, left2,
+                        right1, right2;
+                    
+                    top1 = box1.upperRight[1];
+                    top2 = box2.upperRight[1];
+                    bottom1 = box1.lowerLeft[1];
+                    bottom2 = box2.lowerLeft[1];
+                    left1 = box1.lowerLeft[0];
+                    left2 = box2.lowerLeft[0];
+                    right1 = box1.upperRight[0];
+                    right2 = box2.upperRight[0];
+                    
+                    var outsideBottom = bottom1 > top2,
+                        outsideTop = top1 < bottom2,
+                        outsideLeft = left1 > right2,
+                        outsideRight = right1 < left2;
+                        
+                    return !( outsideBottom || outsideTop || outsideLeft || outsideRight );
                 }
-                
+
                 for( var collisionEntity1 in that.components.Collision ) {
                     var component1 = that.components.Collision[collisionEntity1];
+                    var box1 = null;
+                    var box2 = null;
 
                     for( var collisionEntity2 in that.components.Collision ) {
                         if( collisionEntity1 !== collisionEntity2 ) {
                             var component2 = that.components.Collision[collisionEntity2];
+                            
+                            if( !box1 ) {
+                                var transform1 = component1.owner.find( 'Transform' );
+                                box1 = {
+                                        lowerLeft: math.vector2.add(
+                                                    transform1.position,
+                                                    component1.lowerLeft
+                                                ),
+                                        upperRight: math.vector2.add(
+                                                    transform1.position,
+                                                    component1.upperRight
+                                                )
+                                };
+                            }
+                            
+                            var transform2 = component2.owner.find( 'Transform' );
+                            box2 = {
+                                    lowerLeft: math.vector2.add(
+                                                transform2.position,
+                                                component2.lowerLeft
+                                            ),
+                                    upperRight: math.vector2.add(
+                                                transform2.position,
+                                                component2.upperRight
+                                            )
+                            };
 
-                            math.vector2.add(component1.owner.find('Transform').position, 
-                 
-                 
-                              if (checkCollision(component1, component2)) {
-                                console.log("collision detected; emit events here! XXX)");                                
-                              }
-                               
+                            if ( checkCollision( box1, box2 ) ) {
+                                new engine.core.Event({
+                                    type: 'Collision',
+                                    data: {
+                                        entity: component2.owner
+                                    }
+                                }).dispatch( [component1.owner] );
+                            }
+
                         }
                     }
                 }
@@ -109,12 +153,12 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 }
             });
         });
-        
+
         var collision2Service = new Collision2Service();
 
         var PlayerComponent = engine.base.Component({
             type: 'Player',
-            depends: 'Transform'    // We're going to be moving stuff
+            depends: ['Transform']    // We're going to be moving stuff
         },
         function( options ) {
 
@@ -132,23 +176,27 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             };
             var moveState = moveStates.IDLE;
             var speed = options.speed || 10;
-            
+
             this.onStartMove = function( event ) {
                 moveState = moveStates[event.data.direction];                             
             };
-            
+
             this.onStopMove = function( event ) {
                 moveState = moveStates.IDLE;
             };
-                       
+            
+            this.onCollision = function( event ) {
+                console.log( that.owner.id, '->', event.data.entity.id );
+            };
+
             this.onUpdate = function( event ) {
                 var transform = this.owner.find( 'Transform' );
                 var delta = service.time.delta;
-                
+
                 transform.position = math.vector3.add(
-                                                       transform.position,
-                                                       [moveState * delta/1000 * speed, 0, 0]
-                                                       );
+                        transform.position,
+                        [moveState * delta/1000 * speed, 0, 0]
+                );
             };
 
             // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -220,12 +268,12 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                              }),
                              new PlayerComponent(),
                              new collision2Service.component.BoundingBox({
-                                 lowerLeft: math.Vector2( -1, -1 ),
-                                 upperRight: math.Vector2( 1, 1 )
+                                 lowerLeft: math.Vector2( -0.5, -0.5 ),
+                                 upperRight: math.Vector2( 0.5, 0.5 )
                              }) 
                              ]
             });
-            
+
             var cube1 = new space.Entity({
                 name: 'cube1',
                 components: [
@@ -265,8 +313,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                              }),
                              new PlayerComponent(),
                              new collision2Service.component.BoundingBox({
-                                 lowerLeft: math.Vector2( -1, -1 ),
-                                 upperRight: math.Vector2( 1, 1 )
+                                 lowerLeft: math.Vector2( -0.5, -0.5 ),
+                                 upperRight: math.Vector2( 0.5, 0.5 )
                              })
                              ]
             });
