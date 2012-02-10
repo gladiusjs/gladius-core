@@ -316,47 +316,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
         });
 
 
-      /////////////
-      // Health Component
-      /////////////
-/*      var HealthComponent = engine.base.Component({
-        type: 'Health',
-        depends: ['Transform', 'Model']
-        },
-        function( options ){
-          var that = this;
-          var service = engine.logic;
-                  
-          this.onUpdate = function (){
-          
-          };
-
-          // Boilerplate component registration; Lets our service know that we exist and want to do things
-          this.onComponentOwnerChanged = function (e) {
-            if (e.data.previous === null && this.owner !== null) {
-              service.registerComponent(this.owner.id, this);
-            }
-
-            if (this.owner === null && e.data.previous !== null) {
-              service.unregisterComponent(e.data.previous.id, this);
-            }
-          };
-
-          this.onEntityManagerChanged = function (e) {
-            if (e.data.previous === null && e.data.current !== null && this.owner !== null) {
-              service.registerComponent(this.owner.id, this);
-            }
-
-            if (e.data.previous !== null && e.data.current === null && this.owner !== null) {
-              service.unregisterComponent(this.owner.id, this);
-            }
-          };
-
-        });*/
-
-
-
-
 
       // PlayerComponent
       var PlayerComponent = engine.base.Component({
@@ -585,11 +544,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
               var pos = pl.trans.position;
               //   var pos = [pl.position[0], pl.position[1], pl.position[2]];
-// XXX
-var dir = pl.dir;
+              // XXX
+              var dir = pl.dir;
 
-              
-          
               // Add owner to fireball
               new space.Entity({
                   name: 'fireball',
@@ -702,9 +659,8 @@ var dir = pl.dir;
             }
 
             this.update = function (t) {
-            
-//XX            
-//              pl.aniState = 'kick';
+              // XXX
+              //pl.aniState = 'kick';
 
               kickTimeElapsed += t;
               if (kickTimeElapsed > 0.5) {
@@ -1170,8 +1126,8 @@ var dir = pl.dir;
         
         // XXX test code
         this.onTest = function(){
-//          health -= 15;
-  //ttt        document.getElementById(playerName).style.width = health + "px";
+          //health -= 15;
+          //document.getElementById(playerName).style.width = health + "px";
         };
         
         this.onThrowFireBall = function (event) {
@@ -1245,24 +1201,6 @@ var dir = pl.dir;
       var run = function () {
 
           canvas = engine.graphics.target.element;
-
-
-
-
-          ////////////                      
-          // Player 2
-          ////////////
-/*          var rat = new space.Entity({
-            name: 'rat',
-            components: [
-              new engine.core.component.Transform({
-                position: math.Vector3(-50, 15.7, 20),
-                rotation: math.Vector3(0, -math.PI / 2, 0),
-                scale: math.Vector3(7, 7, 7)
-              }),
-
-            ]
-          });*/
             
 
           ////////////                      
@@ -1300,9 +1238,9 @@ var dir = pl.dir;
                   break;
                   
                 case 'T':
-//                  new engine.core.Event({
-  //                  type: 'Health'
-    //              }).dispatch([this.owner]);
+                 /*   new engine.core.Event({
+                      type: 'Health'
+                    }).dispatch([this.owner]);*/
                   break;
 
                   // walk left
@@ -1364,8 +1302,9 @@ var dir = pl.dir;
 
 
 
-
+          ///////////////
           /// NPC 1
+          ///////////////
           var npc1 = new space.Entity({
             name: 'NPC1',
             components: [
@@ -1530,14 +1469,9 @@ var dir = pl.dir;
                 
                 npc1.find('Model').updateAction('walk-front');  
                 
-                
-                
-                // Move fireballs
-//                console.log(space.find('fireball'));
-
-
-                
-                
+                // Move fireballs?
+                // console.log(space.find('fireball'));
+              
                 // reset the timer
                 animationTimer = animationTime;
               }
@@ -1564,7 +1498,6 @@ var dir = pl.dir;
       viking.loadSprite('./sprites/thug3.sprite', {});
       viking.loadSprite('./sprites/thug4.sprite', {});
       viking.loadSprite('./sprites/thug5.sprite', {});
-//      viking.loadSprite('./sprites/smallrat.sprite', {});
 
       engine.core.resource.get([
       {
