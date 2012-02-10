@@ -82,9 +82,12 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     var component1 = that.components.Collision[collisionEntity1];
 
                     for( var collisionEntity2 in that.components.Collision ) {
-                        if( collisionEntity1.id !== collisionEntity2.id ) {
+                        if( collisionEntity1 !== collisionEntity2 ) {
                             var component2 = that.components.Collision[collisionEntity2];
 
+                            math.vector2.add(component1.owner.find('Transform').position, 
+                 
+                 
                               if (checkCollision(component1, component2)) {
                                 console.log("collision detected; emit events here! XXX)");                                
                               }
