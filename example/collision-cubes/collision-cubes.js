@@ -1,4 +1,4 @@
-/*global gladius */
+/*global gladius, console */
 
 document.addEventListener( "DOMContentLoaded", function( e ){
 
@@ -31,7 +31,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             var that = this;
             var service = this;
             
-            var HitBox = engine.base.Component({
+            var BoundingBox = engine.base.Component({
                 type: 'Collision',
                 depends: ['Transform']
             },
@@ -62,18 +62,33 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             });
             
             this.update = function() {
+
                 for( var componentType in that.components ) {
                     for( var entityId in that.components[componentType] ) {
                         while( that.components[componentType][entityId].handleQueuedEvent() ) {}
                     }
                 }
                                
+                function checkCollision( box1, box2) {
+                  return !( 
+                    (box1.lowerLeft[1] < box2.upperRight[1]) || 
+                    (box1.upperRight[1] > box2.lowerLeft[1]) ||
+                    (box1.lowerLeft[0] > box2.upperRight[0]) ||
+                    (box1.upperRight[0] < box2.lowerLeft[0])
+                  );
+                }
+                
                 for( var collisionEntity1 in that.components.Collision ) {
                     var component1 = that.components.Collision[collisionEntity1];
+
                     for( var collisionEntity2 in that.components.Collision ) {
                         if( collisionEntity1.id !== collisionEntity2.id ) {
                             var component2 = that.components.Collision[collisionEntity2];
-                            // do collision check
+
+                              if (checkCollision(component1, component2)) {
+                                console.log("collision detected; emit events here! XXX)");                                
+                              }
+                               
                         }
                     }
                 }
@@ -81,7 +96,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
             var _components = {
 
-                    HitBox: HitBox
+                    BoundingBox: BoundingBox
 
             };
 
@@ -96,13 +111,17 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
         var PlayerComponent = engine.base.Component({
             type: 'Player',
-            depends: 'Transform'    // We're going to do some rotation, so we should have a transform
+            depends: 'Transform'    // We're going to be moving stuff
         },
         function( options ) {
 
             options = options || {};
             var that = this;
-            var service = engine.logic; // This is a hack so that this component will have its message queue processed
+
+            // This is a hack so that this component will have its message
+            // queue processed
+            var service = engine.logic; 
+
             var moveStates = {
                     LEFT: -1,
                     IDLE: 0,
@@ -197,7 +216,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                                  }
                              }),
                              new PlayerComponent(),
-                             new collision2Service.component.HitBox({
+                             new collision2Service.component.BoundingBox({
                                  lowerLeft: math.Vector2( -1, -1 ),
                                  upperRight: math.Vector2( 1, 1 )
                              }) 
@@ -242,7 +261,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                                  }
                              }),
                              new PlayerComponent(),
-                             new collision2Service.component.HitBox({
+                             new collision2Service.component.BoundingBox({
                                  lowerLeft: math.Vector2( -1, -1 ),
                                  upperRight: math.Vector2( 1, 1 )
                              })
@@ -269,7 +288,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
             var task = new engine.scheduler.Task({
                 schedule: {
-                    phase: engine.scheduler.phases.UPDATE,
+                    phase: engine.scheduler.phases.UPDATE
                 },
                 callback: function() {
                     var delta = engine.scheduler.simulationTime.delta/1000;
