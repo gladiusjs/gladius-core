@@ -15,20 +15,25 @@ document.addEventListener("DOMContentLoaded", function (e) {
       //////////////////
       // Player config
       /////////////////
+      
+      // Player 1 starts on the left side of the screen
       var playerOneConfig = {
         RIGHT_KEY:  'RIGHT',
         LEFT_KEY:   'LEFT',
         JUMP_KEY:   'UP',
         CROUCH_KEY: 'DOWN',
-        name:       'player1'
+        name:       'player1',
+        dir:        -1
       };
 
+      // Player 2 starts on the right side of the screen
       var playerTwoConfig = {
         RIGHT_KEY:  'L',
         LEFT_KEY:   'J',
         JUMP_KEY:   'I',
         CROUCH_KEY: 'K',
-        name:       'player2'
+        name:       'player2',
+        dir:        1
       };
 
       //////////////////////
@@ -275,7 +280,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           var service = engine.logic;
          // var pos = options.position.position;
            var dir = options.direction;
-           
+
           this.onUpdate = function ( event ){
 
             // XXX this is terrible
@@ -286,7 +291,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             rot[0] += 0.05;
             rot[2] += 0.05;
             
-            pos[2] -= 0.1 * dir;
+            pos[2] -= 0.3 * dir;
             
             this.owner.find('Transform').position = pos;
             this.owner.find('Transform').rotation = rot;
@@ -559,8 +564,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                     new engine.graphics.component.Model({
                       mesh: resources.mesh,
                       material: resources.material
-                    })
-                    ,
+                    }),
                     new FireBallComponent({position:pos, direction: dir})
                   ]
                 });
@@ -646,13 +650,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var pl = player;
             var kickTimeElapsed = 0;
 
-            this.moveForward = function(){console.log('cant move forward if kicking');};
+            /*this.moveForward = function(){console.log('cant move forward if kicking');};
             this.moveBackward = function(){console.log('cant move backward if kicking');};
             this.jump = function(){console.log('cant jump if kicking');};
             this.idle = function(){p.setState('cant idle if kicking');};
             this.block = function(){console.log('cant block if kicking');};
             this.punch = function(){console.log('cant punch if kicking');};
-            this.kick = function(){console.log('already kicking');};
+            this.kick = function(){console.log('already kicking');};*/
 
             this.dead = function () {
               pl.setState(pl.getDeadState());
@@ -731,12 +735,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
               if (pos[2] > RIGHT_BORDER) {
                 pos[2] -= MOVE_SPEED;
                 pc.position = pos;
-              }
-              
-              if(pos[2] < 24){
-                pl.dir = -1;
-                var rr = pc.rotation; //this.owner.find('Transform').rotation;
-                pc.rotation = rr;
               }
             };
 
@@ -1049,6 +1047,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
         var health = 500;
         var playerName = options.name || "NoName";
+        this.dir = options.dir;
+        
+        // XXX
+        this.name = playerName;
         
         var idleState = new IdleState(this);
         var blockState = new BlockState(this);
@@ -1083,7 +1085,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
         this.getMoveBackwardState = function () {   return moveBackwardState;  };  
         this.getForwardJumpState = function () {    return forwardJumpState;  };  
         this.getBackwardJumpState = function () {   return backwardJumpState }; 
-
+         
+           
         var service = engine.logic; // This is a hack so that this component will have its message queue processed
 
         this.setState = function (s) {
@@ -1095,6 +1098,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
         };
         
         this.aniState = 'idle';
+        
+        this.setFacing = function(d){
+          this.dir = d;
+        }
         
         this.onStartMoveForward = function (event) {
           state.moveForward && state.moveForward();
@@ -1152,8 +1159,19 @@ document.addEventListener("DOMContentLoaded", function (e) {
           var delta = service.time.delta / 1000;
           var transform = this.owner.find('Transform');
 
-          this.dir = 1;
+
           this.trans = this.owner.find('Transform');
+          
+          if(this.dir === -1){
+            var temp = this.owner.find('Transform').rotation;
+            temp[1] = -math.PI/2;
+            this.owner.find('Transform').rotation = temp;
+          }
+          else{
+            var temp = this.owner.find('Transform').rotation;
+            temp[1] = math.PI/2;
+            this.owner.find('Transform').rotation = temp;
+          }
 
           // Don't move the user if they're trying to move in both directions.
           if (keyStates[options.RIGHT_KEY] && keyStates[options.LEFT_KEY]) {
@@ -1172,7 +1190,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           state.update(delta, transform);
           
-          printd(playerName, state.toString());
+          printd(playerName, this.dir);
+          //state.toString());
         }; // onUpdate
         
         // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -1415,7 +1434,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   }).dispatch([this.owner]);
                   break;*/
 
-                } // aswitdh
+                } // switch
               } // onKey
             }), //controller
             new PlayerComponent(playerOneConfig)]
@@ -1459,11 +1478,28 @@ document.addEventListener("DOMContentLoaded", function (e) {
               if (!animationTimer) {
                 // XXX update animation
                 
+                
+                
                 var p1ani = player1.find('Player').aniState;
                 var p2ani = player2.find('Player').aniState;
                 
-                //var npc1ani = npc1.find('Player').aniState;
                 
+                var p1Xpos = player1.find('Transform').position[2]
+                var p2Xpos = player2.find('Transform').position[2]
+                
+                
+                // XXX
+                if( p1Xpos > p2Xpos ){
+                  // p1 facing left, p2 facing right?
+                  player1.find('Player').setFacing(1);
+                  player2.find('Player').setFacing(-1);
+                  
+                }
+                else{
+                  player1.find('Player').setFacing(-1);
+                  player2.find('Player').setFacing(1);
+                }
+                                
                 player1.find('Model').updateAction(p1ani);
                 player2.find('Model').updateAction(p2ani);
                 
@@ -1493,7 +1529,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
       // Load some sprites
       ////////////////
       viking.loadSprite('./sprites/thug1.sprite', {});
-      viking.loadSprite('./sprites/kraddy.sprite', {});
+      viking.loadSprite('./sprites/kraddy.sprite',{});
       viking.loadSprite('./sprites/thug2.sprite', {});
       viking.loadSprite('./sprites/thug3.sprite', {});
       viking.loadSprite('./sprites/thug4.sprite', {});
