@@ -67,6 +67,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
       const WALK_ANI_SPEED = 0.085;
       const PUNCH_SPEED   = 0.25;
       
+      const FIREBALL_SPEED = 0.8;
+      
       // Global state of the keyboard.
       var keyStates = [];
 
@@ -298,7 +300,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             rot[0] += 0.05;
             rot[2] += 0.05;
             
-            pos[2] += 0.3 * dir;
+            pos[2] += FIREBALL_SPEED * dir;
             
             this.owner.find('Transform').position = pos;
             this.owner.find('Transform').rotation = rot;
@@ -361,6 +363,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.spin = function () {pl.setState(pl.getSpinState());};
             this.dead = function () {pl.setState(pl.getDeadState());}
             this.knockOut = function(){pl.setState(pl.getKnockedOutState());};
+            
+            this.forwardJump = function () {  pl.setState(pl.getForwardJumpState());};
+            this.backwardJump = function (){  pl.setState(pl.getBackwardJumpState());};
 
             this.update = function (t, pc, m) {
               m.updateAction('idle');
@@ -597,28 +602,38 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var timeElapsed = 0;
 
             this.onActivate = function() {
+            
+              if(pl.timeWalkingBK > 2.0){
+                pl.timeWalkingBK = 0;
+                // Reuse the punch animation because we're cheap.
+                pl.model.updateAction('punch');
+                timeElapsed = 0;
+                
+                // Sprite can't move when they're throwing a fireball.
+                pl.speed[0] = 0;
+                
+                var pos = pl.trans.position;
+                //   var pos = [pl.position[0], pl.position[1], pl.position[2]];
+                // XXX
+                var dir = pl.dir;
 
-              var pos = pl.trans.position;
-              //   var pos = [pl.position[0], pl.position[1], pl.position[2]];
-              // XXX
-              var dir = pl.dir;
-
-              // Add owner to fireball
-              new space.Entity({
-                  name: 'fireball',
-                  components: [
-                    new engine.core.component.Transform({
-                      position: math.Vector3( pos[0], pos[1], pos[2] ),
-                      rotation: math.Vector3( 0, 0, 0 ),
-                      scale: math.Vector3(1.5, 1.5, 1.5)
-                    }),
-                    new engine.graphics.component.Model({
-                      mesh: resources.mesh,
-                      material: resources.material
-                    }),
-                    new FireBallComponent({position:pos, direction: dir})
-                  ]
-                });
+                // Add owner to fireball
+                new space.Entity({
+                    name: 'fireball',
+                    components: [
+                      new engine.core.component.Transform({
+                        position: math.Vector3( pos[0], pos[1], pos[2] ),
+                        rotation: math.Vector3( 0, 0, 0 ),
+                        scale: math.Vector3(1.5, 1.5, 1.5)
+                      }),
+                      new engine.graphics.component.Model({
+                        mesh: resources.mesh,
+                        material: resources.material
+                      }),
+                      new FireBallComponent({position:pos, direction: dir})
+                    ]
+                  });
+                }
             };
             
             this.spin = function () {
@@ -630,13 +645,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
             }
 
             this.update = function (t, pc) {
-              // Reuse the punch animation because we're cheap.
-              // pl.aniState = 'punch';
-              
               timeElapsed += t;
 
               if (timeElapsed > 0.5) {
-                timeElapsed = 0;
                 pl.setState(pl.getIdleState());
               }
             };
@@ -769,7 +780,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
             this.onActivate = function(){
               timer = 0;
-              //   pl.model.updateAction('walk');
             };
 
             this.update = function (t, pc, m) {
@@ -833,6 +843,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
             this.update = function (t, pc, m) {
               timer += t;
+              pl.timeWalkingBK += t;
               
               if(timer >= WALK_ANI_SPEED){
                 timer = 0;
@@ -890,13 +901,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.hit = function () {};
 
             this.onActivate = function(){
+              jumpTimeElapsed = 0;
               pl.model.updateAction('jump');
-                
+              pl.speed[0] = 0;
+              
               if(pl.speed[1] === 0){
                 pl.speed[1] = JUMP_HEIGHT;
               }
-              
-              jumpTimeElapsed = 0;
             };
             
             this.hit = function(){
@@ -944,12 +955,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
                         
             this.onActivate = function(){              
+              jumpTimeElapsed = 0;
               pl.model.updateAction('jump');
-            
+              pl.speed[0] = MOVE_SPEED;
+                                      
               if(pl.speed[1] === 0){
                 pl.speed[1] = JUMP_HEIGHT;
               }
-              jumpTimeElapsed = 0;
             };
             
             this.dead = function () {
@@ -1002,12 +1014,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             this.onActivate = function(){
               pl.model.updateAction('jump');
-              
-              // XXX check this
+              jumpTimeElapsed = 0;
+              pl.speed[0] = -MOVE_SPEED;
+                       
               if(pl.speed[1] === 0){
                 pl.speed[1] = JUMP_HEIGHT;
               }
-              jumpTimeElapsed = 0;
             };
 
             this.dead = function () {
@@ -1017,10 +1029,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.update = function (t, pc, m) {
               jumpTimeElapsed += t;
               
-              var test = pc.rotation;
               // XXX
+              //var test = pc.rotation;
               //test[0] += t * math.TAU;
               //pc.rotation = test;
+              
+
               
               if(pc.position[1] <= FLOOR_POS && jumpTimeElapsed > 0.5){
                 //test[0] = 0
@@ -1045,6 +1059,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
         
         // XXX
         this.name = playerName;
+        
+        // for fireballs
+        this.timeWalkingBK = 0;
         
         var idleState = new IdleState(this);
         var blockState = new BlockState(this);
@@ -1204,8 +1221,18 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.owner.find('Transform').rotation = temp;
           }
           
+          // XXX fix direction
+          if (keyStates[options.RIGHT_KEY] && keyStates[options.JUMP_KEY]){
+            console.log('FW jump: ' + state.toString());
+            state.forwardJump && state.forwardJump();
+          }
+          else if (keyStates[options.LEFT_KEY] && keyStates[options.JUMP_KEY]){
+            console.log('BW jump: ' + state.toString());
+            state.backwardJump && state.backwardJump();
+          }
+
           // Don't move the user if they're trying to move in both directions.
-          if (keyStates[options.RIGHT_KEY] && keyStates[options.LEFT_KEY]) {
+          else if (keyStates[options.RIGHT_KEY] && keyStates[options.LEFT_KEY]) {
              state.idle && state.idle();
           }
 
@@ -1218,6 +1245,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
           else if (keyStates[options.LEFT_KEY]) {
              state.moveForward && state.moveBackward();
           }
+
+          // 
+          else if (keyStates[options.JUMP_KEY]) {
+            state.jump && state.jump();
+          }
+
           
           printd(playerName, state.toString());
         }; // onUpdate
