@@ -185,8 +185,14 @@
     "punch": {
       "speed": 0.5,
       "rects": [
-        5,
         6
+      ]
+    },
+
+    "block": {
+      "speed": 0.5,
+      "rects": [
+        5
       ]
     },
     "jump": {
@@ -203,10 +209,9 @@
         19
       ]
     },
-    "knock-down": {
+    "knocked-out": {
       "speed": 0.8,
       "rects": [
-        9,
         10
       ]
     },

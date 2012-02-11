@@ -280,13 +280,26 @@
         17
       ]
     },
+    "knocked-out": {
+      "speed": 0.8,
+      "rects": [
+        17
+      ]
+    },
     "punch": {
       "speed": 0.5,
       "rects": [
-        18,
         19
       ]
     },
+
+    "block": {
+      "speed": 0.5,
+      "rects": [
+        18
+      ]
+    },
+
     "hang": {
       "speed": 0.5,
       "rects": [
@@ -303,7 +316,7 @@
       "speed": 0.8,
       "rects": [
         20,
-        21
+	21
       ]
     },
     "twirl-kick": {
