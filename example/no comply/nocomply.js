@@ -381,8 +381,47 @@ document.addEventListener("DOMContentLoaded", function (e) {
           return IdleState;
         }());
 
+
         /**
-          Character is spinning around and can get hit by the other player.
+        *
+        * Sprite jumps and can't block, then is hit and goes into this state.
+        *
+        */
+        var FallingDownState = (function () {
+
+          function FallingDownState(player) {
+            var pl = player;
+
+            this.update = function (t, pc, m) {
+              pl.model.updateAction('falling-down');              
+              
+              // XXX
+              if(pl.speed[1] === 0){
+                //pl.speed[0] = 0;
+              }
+              
+              // XXX if alrady jumping back, do we puch them back farther?
+              pl.speed[0] = 15 * pl.dir;
+              
+              if(pc.position[1] <= FLOOR_POS){
+                //pl.speed[1] = 0;
+                pl.setState(pl.getIdleState());
+              }
+            };
+
+            this.toString = function () {
+              return "Idle State";
+            };
+          }
+
+          return FallingDownState;
+        }());
+
+
+        /**
+        *
+        * Character is spinning around and can get hit by the other player.
+        *
         */
         var SpinState = (function () {
 
@@ -514,7 +553,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
         /**
         *
-        *
+        *  Blocking
         *
         */
         var BlockState = (function () {
@@ -859,6 +898,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
               
               jumpTimeElapsed = 0;
             };
+            
+            this.hit = function(){
+              pl.setState(pl.getFallingDownState());
+            };
 
             this.dead = function () {
               pl.setState(pl.getDeadState());
@@ -895,8 +938,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             // XXX fix me
             this.kick = function () {};
-            this.hit = function () {};
-            
+
+            this.hit = function(){
+              pl.setState(pl.getFallingDownState());
+            };
+                        
             this.onActivate = function(){              
               pl.model.updateAction('jump');
             
@@ -909,6 +955,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.dead = function () {
               pl.setState(pl.getDeadState());
             };
+            
 
             this.update = function (t, pc, m) {
               jumpTimeElapsed += t;
@@ -916,14 +963,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
               var test = pc.rotation;
               
               // XXX
-              test[2] += t * math.TAU;
-              pc.rotation = test;
+              //test[2] += t * math.TAU;
+              //pc.rotation = test;
               
               if(pc.position[1] <= FLOOR_POS && jumpTimeElapsed > 0.5){
-
-              test[2] = 0
-              pc.rotation = test;
-              
+                //test[2] = 0
+                //pc.rotation = test;
                 pl.setState(pl.getIdleState());
               }
             };
@@ -950,7 +995,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             // XXX fix me
             this.kick = function () {};
-            this.hit = function () {};
+
+            this.hit = function(){
+              pl.setState(pl.getFallingDownState());
+            };
 
             this.onActivate = function(){
               pl.model.updateAction('jump');
@@ -971,14 +1019,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
               
               var test = pc.rotation;
               // XXX
-              test[0] += t * math.TAU;
-              pc.rotation = test;
+              //test[0] += t * math.TAU;
+              //pc.rotation = test;
               
               if(pc.position[1] <= FLOOR_POS && jumpTimeElapsed > 0.5){
-
-              test[0] = 0
-              pc.rotation = test;
-              
+                //test[0] = 0
+                //pc.rotation = test;
                 pl.setState(pl.getIdleState());
               }
             };
@@ -1014,6 +1060,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         var moveBackwardState = new MoveBackwardState(this);
         var forwardJumpState = new ForwardJumpState(this);
         var backwardJumpState = new BackwardJumpState(this);
+        var fallingDownState = new FallingDownState(this);
         
         var knockedOutState = new KnockedOutState(this);
                     
@@ -1034,7 +1081,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
         this.getMoveForwardState = function () {    return moveForwardState;  };  
         this.getMoveBackwardState = function () {   return moveBackwardState;  };  
         this.getForwardJumpState = function () {    return forwardJumpState;  };  
-        this.getBackwardJumpState = function () {   return backwardJumpState }; 
+        this.getBackwardJumpState = function () {   return backwardJumpState };
+        this.getFallingDownState = function() {     return fallingDownState; };
         
         this.getKnockedOutState = function(){ return knockedOutState;}
                     
@@ -1096,6 +1144,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
         };
         this.onKnockOut = function(event){
           state.knockOut && state.knockOut();
+        };
+        
+        this.onHit = function(event){
+          state.hit && state.hit();
         };
         
         // XXX test code
@@ -1248,7 +1300,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   // jump
                 case 'I':
                   new engine.core.Event({
-                    type: 'Jump'
+                    type: e.data.state === 'down' ? 'Jump' : null
                   }).dispatch([this.owner]);
                   break;
 
@@ -1286,6 +1338,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
                     }).dispatch([this.owner]);
                   break;
 
+                case '5':
+                  new engine.core.Event({
+                    type: 'Hit'
+                    }).dispatch([this.owner]);
+                  break;
 
                   // Spin player
                 case '1':
@@ -1372,7 +1429,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   // jump
                 case 'UP':
                   new engine.core.Event({
-                    type: 'Jump'
+                    type: e.data.state === 'down' ? 'Jump' : null
                   }).dispatch([this.owner]);
                   break;
 
@@ -1416,6 +1473,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
                     }).dispatch([this.owner]);
                   break;
 
+                case '5':
+                  new engine.core.Event({
+                    type: 'Hit'
+                    }).dispatch([this.owner]);
+                  break;
+                  
                   // Kill player
                 /*case 'X':
                   new engine.core.Event({

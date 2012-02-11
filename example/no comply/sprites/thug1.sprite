@@ -182,6 +182,14 @@
         4
       ]
     },
+
+    "falling-down": {
+      "speed": 0.8,
+      "rects": [
+        9
+      ]
+    },
+
     "punch": {
       "speed": 0.5,
       "rects": [

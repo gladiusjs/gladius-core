@@ -280,6 +280,15 @@
         17
       ]
     },
+
+    "falling-down": {
+      "speed": 0.8,
+      "rects": [
+        22
+      ]
+    },
+
+
     "knocked-out": {
       "speed": 0.8,
       "rects": [
