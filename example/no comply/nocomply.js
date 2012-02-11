@@ -11,29 +11,32 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
   //
   var game = function (engine) {
+    
+      const FACING_RIGHT = -1;
+      const FACING_LEFT   = 1;
 
       //////////////////
       // Player config
       /////////////////
       
-      // Player 1 starts on the left side of the screen
+      // Player 1 starts on the left side of the screen facing right
       var playerOneConfig = {
         RIGHT_KEY:  'RIGHT',
         LEFT_KEY:   'LEFT',
         JUMP_KEY:   'UP',
         CROUCH_KEY: 'DOWN',
         name:       'player1',
-        dir:        -1
+        dir:        FACING_RIGHT
       };
 
-      // Player 2 starts on the right side of the screen
+      // Player 2 starts on the right side of the screen facing left
       var playerTwoConfig = {
         RIGHT_KEY:  'L',
         LEFT_KEY:   'J',
         JUMP_KEY:   'I',
         CROUCH_KEY: 'K',
         name:       'player2',
-        dir:        1
+        dir:        FACING_LEFT
       };
 
       //////////////////////
@@ -49,19 +52,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
           document.getElementById(div).innerHTML = '';
       };
 
-
       var space;
       var math = engine.math;
 
-      const LEFT_BORDER = 40;
-      const RIGHT_BORDER = 19;
-      const MOVE_SPEED = 0.2;
-      //const JUMP_HEIGHT
+      const LEFT_BORDER = 60;
+      const RIGHT_BORDER = 10;
+      const MOVE_SPEED = 15;
+      
+      const FLOOR_POS = 9.9;
+      const GRAVITY = 0.98;
+      const JUMP_HEIGHT = 45;
+      
+      
       // Global state of the keyboard.
       var keyStates = [];
-
-
-
 
       ///////////////
       ///////////////
@@ -291,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             rot[0] += 0.05;
             rot[2] += 0.05;
             
-            pos[2] -= 0.3 * dir;
+            pos[2] += 0.3 * dir;
             
             this.owner.find('Transform').position = pos;
             this.owner.find('Transform').rotation = rot;
@@ -351,12 +355,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.spin = function () {pl.setState(pl.getSpinState());};
             this.dead = function () {pl.setState(pl.getDeadState());}
 
-            this.update = function (t, pc) {
+            this.update = function (t, pc, m) {
               pl.aniState = 'idle';
+              m.updateAction('idle');
               
-              var pos = pc.position;
-              pos[1] = 10.7;
-              pc.position = pos;
+              if(pl.speed[1] === 0){
+                pl.speed[0] = 0;
+              }
 
               // When the character is idle, we may want to switch between
               // two images so they don't look so static.
@@ -380,32 +385,37 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var pl = player;
             var timeElapsed = 0;
 
-            /*this.moveForward = function(){};
-            this.moveBackward = function(){};
-            this.jump = function(){};
-            this.idle = function(){};
-            this.block = function(){};
-            this.punch = function(){};
-            this.kick = function(){};
-            this.throwFireBall = function(){};
-            this.spin = function(){};*/
-
             this.dead = function () {
               pl.setState(pl.getDeadState());
-            }
+            };
+            
+            this.onActivate = function(){
+              timeElapsed = 0;
+            };
 
             // Should we slow down the character?
-            this.update = function (t, pc) {
+            this.update = function (t, pc, m) {
               
               pl.aniState = 'idle';
+              
+              //pl.trans.position;
               
               timeElapsed += t;
               var rot = pc.rotation;
 
               // rotate the sprite very fast          
               if (timeElapsed < 2) {
-                rot[1] += 15;
-                pc.rotation = rot;
+              
+              var a = pl.trans;
+              a.rotation[1] += 1;
+              
+              console.log(a[1]);
+              
+              //  rot[1] += 15;
+              
+              pl.trans = a;
+              
+//                pc.rotation = rot;
               }
               else {
                 timeElapsed = 0;
@@ -437,25 +447,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var pl = player;
             var timeElapsed = 0;
 
-            /*this.moveForward = function(){};
-            this.moveBackward = function(){};
-            this.jump = function(){};
-            this.idle = function(){};
-            this.block = function(){};
-            this.punch = function(){};
-            this.kick = function(){};
-            this.throwFireBall = function(){};
-            this.spin = function(){};
-            this.freeze = function(){}*/
-
             this.dead = function () {
               pl.setState(pl.getDeadState());
             }
 
             // Should we slow down the character?
             this.update = function (t, pc) {
-
-              
               timeElapsed += t;
             };
 
@@ -475,17 +472,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
           function DeadState(player) {
             var pl = player;
 
-            /*this.moveForward = function(){};
-            this.moveBackward = function(){};
-            this.jump = function(){};
-            this.idle = function(){};
-            this.block = function(){};
-            this.punch = function(){};
-            this.kick = function(){};*/
-
             this.update = function (t, pc) {
               pl.aniState = 'knock-down';
-              pc.rotation
             };
 
             this.toString = function () {
@@ -727,15 +715,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
               pl.setState(pl.getSpinState());
             };
 
-            this.update = function (t, pc) {
+            this.update = function (t, pc, m) {
               pl.aniState = 'walk';
-
-              var pos = pc.position;
-              // near the boxes of the abandoned house
-              if (pos[2] > RIGHT_BORDER) {
-                pos[2] -= MOVE_SPEED;
-                pc.position = pos;
-              }
+              pl.speed[0] = MOVE_SPEED;
             };
 
             this.toString = function () {
@@ -785,11 +767,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.update = function (t, pc) {
               var pos = pc.position;
               pl.aniState = 'walk';
-
-              if (pos[2] < LEFT_BORDER) {
-                pos[2] += MOVE_SPEED;
-                pc.position = pos;
-              }
+              pl.speed[0] = -MOVE_SPEED;
             };
 
             this.toString = function () {
@@ -809,15 +787,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           function RecoverState(player) {
             var pl = player;
-
-            /*this.moveForward = function(){};
-            this.moveBackward = function(){};
-            this.jump = function(){};
-            this.idle = function(){};
-            this.block = function(){};
-            this.punch = function(){};
-            this.kick = function(){};
-            this.throwFireBall = function(){};*/
 
             this.dead = function () {
               pl.setState(pl.getDeadState());
@@ -845,53 +814,34 @@ document.addEventListener("DOMContentLoaded", function (e) {
           function JumpState(player) {
             var pl = player;
             var jumpTimeElapsed = 0;
-
-            /*this.moveForward = function(){console.log('cant move forward if jumping');};
-          this.moveBackward = function(){console.log('cant move backward if jumping');};
-          this.jump = function(){console.log('already jumping');};
-          this.idle = function(){console.log('cant idle while jumping');};
-          this.block = function(){console.log('cant block if jumping');};
-          this.punch = function(){alert('take care of this case!');};*/
+            var startedAni = false;
 
             // XXX can they be spun?
-            // XXX
-            this.kick = function () {
-              alert('fix me');
-            };
-            this.hit = function () {
-              // XXX
-              // fix me
-            };
+            this.kick = function () {};
+            this.hit = function () {};
 
+            this.onActivate = function(){
+              if(pl.speed[1] === 0){
+                pl.speed[1] = JUMP_HEIGHT;
+              }
+              startedAni = false;
+            };
 
             this.dead = function () {
               pl.setState(pl.getDeadState());
             };
 
-            this.update = function (t, pc) {
-
+            this.update = function (t, pc, m) {
               pl.aniState = 'jump';
-
               jumpTimeElapsed += t;
 
-              if (jumpTimeElapsed < 1) {
-                pos = pc.position;
-                pos[1] += Math.sin(jumpTimeElapsed * Math.PI * 2) * 1.013;
-                pc.position = pos;
+              if(!startedAni && pc.position[1] > FLOOR_POS){
+                startedAni = true;
+                m.updateAction('jump');
               }
 
-              if (jumpTimeElapsed >= 1) {
-                // XXX fix this
-                pos[1] = 8;
-                pc.position[1] = 8;
-                //console.log(pc.position);
+              if(pc.position[1] <= FLOOR_POS){
                 pl.setState(pl.getIdleState());
-                jumpTimeElapsed = 0;
-
-                /// fix this.
-                // Let's say the user moves forward, jumps then lets go of moving
-                // forward key. They still need to move forward until they land
-                //  player.removeState(player.getMoveForwardState());
               }
             };
 
@@ -911,58 +861,34 @@ document.addEventListener("DOMContentLoaded", function (e) {
           function ForwardJumpState(player) {
             var pl = player;
             var jumpTimeElapsed = 0;
+            var startedAni = false;
 
-            /*this.moveForward = function(){console.log('cant move forward if jumping');};
-          this.moveBackward = function(){console.log('cant move backward if jumping');};
-          this.jump = function(){console.log('already jumping');};
-          this.idle = function(){console.log('cant idle while jumping');};
-          this.block = function(){console.log('cant block if jumping');};
-          this.punch = function(){alert('take care of this case!');};*/
-
-            // XXX
-            this.kick = function () {
-              alert('fix me');
+            // XXX fix me
+            this.kick = function () {};
+            this.hit = function () {};
+            
+            this.onActivate = function(){
+              if(pl.speed[1] === 0){
+                pl.speed[1] = JUMP_HEIGHT;
+              }
+              startedAni = false;
             };
-            this.hit = function () {
-              // XXX
-              // fix me
-            };
-
+            
             this.dead = function () {
               pl.setState(pl.getDeadState());
             };
 
-            this.update = function (t, pc) {
-              jumpTimeElapsed += t;
-              
+            this.update = function (t, pc, m) {
               pl.aniState = 'jump';
+              jumpTimeElapsed += t;
 
-              // XXX Fix this
-              if (jumpTimeElapsed < 1) {
-                pos = pc.position;
-                pos[1] += Math.sin(jumpTimeElapsed * Math.PI * 2) * 1.013;
-
-                // Fix this XXX
-                if (pos[2] > RIGHT_BORDER) {
-                  pos[2] -= MOVE_SPEED;
-                  pc.position = pos;
-                }
-
-                pc.position = pos;
+              if(!startedAni && pc.position[1] > FLOOR_POS){
+                startedAni = true;
+                m.updateAction('jump');
               }
-
-              if (jumpTimeElapsed >= 1) {
-                // XXX fix this
-                pos[1] = 8;
-                pc.position[1] = 8;
-                //console.log(pc.position);
+              
+              if(pc.position[1] <= FLOOR_POS){
                 pl.setState(pl.getIdleState());
-                jumpTimeElapsed = 0;
-
-                /// fix this.
-                // Let's say the user moves forward, jumps then lets go of moving
-                // forward key. They still need to move forward until they land
-                //  player.removeState(player.getMoveForwardState());
               }
             };
 
@@ -983,56 +909,34 @@ document.addEventListener("DOMContentLoaded", function (e) {
           function BackwardJumpState(player) {
             var pl = player;
             var jumpTimeElapsed = 0;
+            var startedAni = false;
 
-            /*this.moveForward = function(){console.log('cant move forward if jumping');};
-          this.moveBackward = function(){console.log('cant move backward if jumping');};
-          this.jump = function(){console.log('already jumping');};
-          this.idle = function(){console.log('cant idle while jumping');};
-          this.block = function(){console.log('cant block if jumping');};
-          this.punch = function(){alert('take care of this case!');};*/
+            // XXX fix me
+            this.kick = function () {};
+            this.hit = function () {};
 
-            // XXX
-            this.kick = function () {
-              alert('fix me');
-            };
-            this.hit = function () {
-              // XXX
-              // fix me
+            this.onActivate = function(){
+              if(pl.speed[1] === 0){
+                pl.speed[1] = JUMP_HEIGHT;
+              }
+              startedAni = false;
             };
 
             this.dead = function () {
               pl.setState(pl.getDeadState());
             };
 
-            this.update = function (t, pc) {
+            this.update = function (t, pc, m) {
               pl.aniState = 'jump';
               jumpTimeElapsed += t;
-              var pos = pc.position;
 
-              if (jumpTimeElapsed < 1) {
-                pos[1] += Math.sin(jumpTimeElapsed * Math.PI * 2) * 1.013;
-
-                // Fix this XXX
-                if (pos[2] < LEFT_BORDER) {
-                  pos[2] += MOVE_SPEED;
-                  pc.position = pos;
-                }
-
-                pc.position = pos;
+              if(!startedAni && pc.position[1] > FLOOR_POS){
+                startedAni = true;
+                m.updateAction('jump');
               }
-
-              if (jumpTimeElapsed >= 1) {
-                // XXX fix this
-                pos[1] = 8;
-                pc.position[1] = 8;
-                //console.log(pc.position);
+              
+              if(pc.position[1] <= FLOOR_POS){
                 pl.setState(pl.getIdleState());
-                jumpTimeElapsed = 0;
-
-                /// fix this.
-                // Let's say the user moves forward, jumps then lets go of moving
-                // forward key. They still need to move forward until they land
-                //  player.removeState(player.getMoveForwardState());
               }
             };
 
@@ -1048,6 +952,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         var health = 500;
         var playerName = options.name || "NoName";
         this.dir = options.dir;
+        this.speed = [0, 0];
         
         // XXX
         this.name = playerName;
@@ -1085,9 +990,23 @@ document.addEventListener("DOMContentLoaded", function (e) {
         this.getMoveBackwardState = function () {   return moveBackwardState;  };  
         this.getForwardJumpState = function () {    return forwardJumpState;  };  
         this.getBackwardJumpState = function () {   return backwardJumpState }; 
-         
-           
+                    
         var service = engine.logic; // This is a hack so that this component will have its message queue processed
+
+        //
+        this.stayInBounds = function(pos){
+          if(pos[2] > LEFT_BORDER){
+            pos[2] = LEFT_BORDER;
+          }
+          if(pos[2] < RIGHT_BORDER){
+            pos[2] = RIGHT_BORDER;
+          }
+
+          if(pos[1] <= FLOOR_POS){//JUMP_HEIGHT) {
+            pos[1] = FLOOR_POS;
+            this.speed[1] = 0;
+          }
+        }
 
         this.setState = function (s) {
           if(state !== s){
@@ -1159,17 +1078,31 @@ document.addEventListener("DOMContentLoaded", function (e) {
           var delta = service.time.delta / 1000;
           var transform = this.owner.find('Transform');
 
-
           this.trans = this.owner.find('Transform');
+          this.model_ = this.owner.find('Model');          
+ 
+          state.update(delta, transform, this.model_);
+                    
+          var pos = transform.position;
           
-          if(this.dir === -1){
+          this.speed[1] -= GRAVITY * 100 * delta;
+          
+          pos[1] += this.speed[1] * delta;
+          pos[2] -= this.speed[0] * delta;
+          this.stayInBounds(pos);
+          
+          transform.position = pos;
+          
+          
+          
+          if(this.dir === FACING_RIGHT){
             var temp = this.owner.find('Transform').rotation;
-            temp[1] = -math.PI/2;
+            temp[1] = math.PI/2;
             this.owner.find('Transform').rotation = temp;
           }
           else{
             var temp = this.owner.find('Transform').rotation;
-            temp[1] = math.PI/2;
+            temp[1] = -math.PI/2;
             this.owner.find('Transform').rotation = temp;
           }
 
@@ -1188,10 +1121,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
              state.moveForward && state.moveBackward();
           }
 
-          state.update(delta, transform);
+
+
+
+
           
-          printd(playerName, this.dir);
-          //state.toString());
+          printd(playerName, state.toString());
         }; // onUpdate
         
         // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -1328,7 +1263,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             name: 'NPC1',
             components: [
               new engine.core.component.Transform({
-                position: math.Vector3(-53, 8.7, 25),
+                position: math.Vector3(-53, FLOOR_POS, 25),
                 rotation: math.Vector3(0, math.PI / 2, 0),
                 scale: math.Vector3(4, 4, 4)
               }), new BitwallModel({
@@ -1351,7 +1286,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             name: 'player1',
             components: [
             new engine.core.component.Transform({
-              position: math.Vector3(-50, 8.7, 35),
+              position: math.Vector3(-50, FLOOR_POS, 35),
               // in front of red house.
               rotation: math.Vector3(0, math.PI / 2, 0),
               scale: math.Vector3(7, 7, 7)
@@ -1455,13 +1390,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
           });
           camera.find('Camera').target = math.Vector3(-60, 10, 30);
 
-          // XXX the animation time of 10 is totally random.  It should actually
+          // XXX the animation time is totally random.  It should actually
           // be something sane, probably picked to interact with the
           // simulationTime.delta and then that as well as the speed
           // that the spritesheet includes factored in.  I suspect this code
           // is gonna want some optimization too.
-          var animationTime = 5;
-          var animationTimer = 0;
+          // var animationTime = 25;
+          // var animationTimer = 0;
 
           ////////////////
           // Task
@@ -1475,35 +1410,38 @@ document.addEventListener("DOMContentLoaded", function (e) {
               //bitwall.find('Transform').rotation = 
               //  math.matrix4.add([bitwall.find('Transform').rotation,
               //                   [0, math.TAU * delta * 0.1, 0]]);
-              if (!animationTimer) {
-                // XXX update animation
+              
+                  var p1Xpos = player1.find('Transform').position[2];
+                var p2Xpos = player2.find('Transform').position[2];
                 
                 
+                //
+                if( p1Xpos < p2Xpos ){
+                  player1.find('Player').setFacing(FACING_LEFT);
+                  player2.find('Player').setFacing(FACING_RIGHT); 
+                }
+                else{
+                  player1.find('Player').setFacing(FACING_RIGHT);
+                  player2.find('Player').setFacing(FACING_LEFT);
+                }
+                
+                // First cut for cam movement
+                var diff = p1Xpos - p2Xpos;
+                
+                if(diff > 19){
+                  var test = camera.find('Transform').position;
+                  test[0] = -33 - (20-diff);
+                  camera.find('Transform').position = test;
+                }
+
+              // Start/Restart animation
+              /*if (!animationTimer) {
                 
                 var p1ani = player1.find('Player').aniState;
                 var p2ani = player2.find('Player').aniState;
-                
-                
-                var p1Xpos = player1.find('Transform').position[2]
-                var p2Xpos = player2.find('Transform').position[2]
-                
-                
-                // XXX
-                if( p1Xpos > p2Xpos ){
-                  // p1 facing left, p2 facing right?
-                  player1.find('Player').setFacing(1);
-                  player2.find('Player').setFacing(-1);
-                  
-                }
-                else{
-                  player1.find('Player').setFacing(-1);
-                  player2.find('Player').setFacing(1);
-                }
-                                
+                            
                 player1.find('Model').updateAction(p1ani);
                 player2.find('Model').updateAction(p2ani);
-                
-                npc1.find('Model').updateAction('walk-front');  
                 
                 // Move fireballs?
                 // console.log(space.find('fireball'));
@@ -1511,9 +1449,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 // reset the timer
                 animationTimer = animationTime;
               }
+              // Update animation
               else {
                 --animationTimer;
-              }
+              }*/
+              
+              npc1.find('Model').updateAction('walk-front');;
+              
             }
           });
 
