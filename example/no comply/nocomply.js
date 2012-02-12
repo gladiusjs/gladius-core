@@ -65,8 +65,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
       
       //
       const WALK_ANI_SPEED = 0.085;
-      const PUNCH_DURATION   = 0.125;
+      const PUNCH_DURATION   = 0.425;
+      const THROW_FIREBALL_DURATION = 0.5;
       
+      // Time needed to walk backwards before throwing fireball
+      const FIREBALL_WAIT = 1.0;
       const FIREBALL_SPEED = 0.8;
       
       // Global state of the keyboard.
@@ -77,6 +80,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
       function colladaLoader(url, onsuccess, onfailure) {
         // XXX figure out why this is necessary
         window.CubicVR = engine.graphics.target.context;
+
+        // XXX move this out
+        CubicVR.setGlobalAmbient([1,1,1]);
 
         try {
           var context = engine.graphics.target.context;
@@ -457,10 +463,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
               //pl.setState(pl.getDeadState());
             //};
             
-            
-            this.hit = function(){
-               alert('fix me');
-            };
+            // XXX
+            this.hit = function(){};
             
             this.onActivate = function(){
               timeElapsed = 0;
@@ -522,7 +526,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
 
             this.toString = function () {
-              return "Frozen State: " + (2 - timeElapsed);
+              return "Frozen State";
             };
           }
 
@@ -635,53 +639,55 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var pl = player;
             var timeElapsed = 0;
 
-            this.onActivate = function() {
+            // Sprite can still get hit by a fireball.
+            this.hit = function(d){
+              pl.health -= d;
+              if(pl.health <= 0){
+                pl.setState(pl.getKnockedOutState());
+              }
+            };
             
-              if(pl.timeWalkingBK > 2.0){
-                pl.timeWalkingBK = 0;
-                // Reuse the punch animation because we're cheap.
-                pl.model.updateAction('punch');
-                timeElapsed = 0;
-                
-                // Sprite can't move when they're throwing a fireball.
-                pl.speed[0] = 0;
-                
-                var pos = pl.trans.position;
-                //   var pos = [pl.position[0], pl.position[1], pl.position[2]];
-                // XXX
-                var dir = pl.dir;
+            this.onActivate = function() {
+          
+              pl.timeWalkingBK = 0;
+              // Reuse the punch animation because we're cheap.
+              pl.model.updateAction('punch');
+              timeElapsed = 0;
+              
+              // Sprite can't move when they're throwing a fireball.
+              pl.speed[0] = 0;
+              
+              var pos = pl.trans.position;
+              //   var pos = [pl.position[0], pl.position[1], pl.position[2]];
+              // XXX
+              var dir = pl.dir;
 
-                // Add owner to fireball
-                new space.Entity({
-                    name: 'fireball',
-                    components: [
-                      new engine.core.component.Transform({
-                        position: math.Vector3( pos[0], pos[1], pos[2] ),
-                        rotation: math.Vector3( 0, 0, 0 ),
-                        scale: math.Vector3(1.5, 1.5, 1.5)
-                      }),
-                      new engine.graphics.component.Model({
-                        mesh: resources.mesh,
-                        material: resources.material
-                      }),
-                      new FireBallComponent({position:pos, direction: dir})
-                    ]
-                  });
-                }
+              // Add owner to fireball
+              new space.Entity({
+                  name: 'fireball',
+                  components: [
+                    new engine.core.component.Transform({
+                      position: math.Vector3( pos[0], pos[1], pos[2] ),
+                      rotation: math.Vector3( 0, 0, 0 ),
+                      scale: math.Vector3(1.5, 1.5, 1.5)
+                    }),
+                    new engine.graphics.component.Model({
+                      mesh: resources.mesh,
+                      material: resources.material
+                    }),
+                    new FireBallComponent({position:pos, direction: dir})
+                  ]
+                });
             };
             
             this.spin = function () {
               pl.setState(pl.getSpinState());
             };
 
-            /*this.dead = function () {
-              pl.setState(pl.getDeadState());
-            }*/
-
             this.update = function (t, pc) {
               timeElapsed += t;
 
-              if (timeElapsed > 0.5) {
+              if (timeElapsed > THROW_FIREBALL_DURATION) {
                 pl.setState(pl.getIdleState());
               }
             };
@@ -709,16 +715,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
             // run into the punch?
             // this.spin
             
-            
-            /*this.dead = function () {
-              pl.setState(pl.getDeadState());
-            }*/
-            
             this.knockOut = function(){
-              //pl.getState(pl.getKnockedOutState());
-            };
+              pl.setState(pl.getKnockedOutState());
+            }
             
-            // Sprite can get hit by a fireball if punching
+            // Sprite can still get hit by a fireball if punching
             this.hit = function(d){
               pl.health -= d;
               if(pl.health <= 0){
@@ -727,9 +728,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
             }
 
             this.onActivate = function(){
-              pl.model.updateAction('punch');
-              punchTimeElapsed = 0;
-              pl.speed[0] = 0;
+            
+              // Check to see if this is actually a fireball
+              if(pl.timeWalkingBK >= FIREBALL_WAIT){
+                pl.setState(pl.getThrowFireBallState());
+              }
+              else{
+                pl.model.updateAction('punch');
+                punchTimeElapsed = 0;
+                pl.speed[0] = 0;
+              }
             }
 
             this.update = function (t, pc) {
@@ -1246,9 +1254,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
         this.onHit = function(event){
           state.hit && state.hit(15);
         };
-        this.onThrowFireBall = function (event) {
-          state.throwFireBall && state.throwFireBall();
-        };
+        // Can no longer directly throw fireballs
+        //this.onThrowFireBall = function (event) {
+        //  state.throwFireBall && state.throwFireBall();
+        //};
         this.onKill = function (event) {
           state.dead && state.dead();
         };
@@ -1558,13 +1567,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   }).dispatch([this.owner]);
                   break;
 
-                  // Fireball
-                case 'F':
-                  new engine.core.Event({
-                    type: 'ThrowFireBall'
-                  }).dispatch([this.owner]);
-                  break;
-
                   // Spin player
                 case 'W':
                   new engine.core.Event({
@@ -1608,7 +1610,17 @@ document.addEventListener("DOMContentLoaded", function (e) {
               width: canvas.width,
               height: canvas.height,
               fov: 60
-            })]
+            }),
+            // !!!We need this light so white borders around sprites aren't drawn.
+             new engine.graphics.component.Light({
+                type: "point",
+                method: "dynamic",
+                diffuse: [0, 0, 0,0 ],
+                specular: [0, 0, 0 ],
+                intensity: 10,
+                distance: 0
+            })
+            ]
           });
           camera.find('Camera').target = math.Vector3(-60, 10, 30);
 
