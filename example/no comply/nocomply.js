@@ -1657,45 +1657,45 @@ document.addEventListener("DOMContentLoaded", function (e) {
               var p1Xpos = p1Pos[2];
               var p2Xpos = p2Pos[2];
               
-                //
-                if( p1Xpos < p2Xpos ){
-                  p1Com.setFacing(FACING_LEFT);
-                  p2Com.setFacing(FACING_RIGHT); 
-                }
-                else{
-                  p1Com.setFacing(FACING_RIGHT);
-                  p2Com.setFacing(FACING_LEFT);
-                } 
+              //
+              if( p1Xpos < p2Xpos ){
+                p1Com.setFacing(FACING_LEFT);
+                p2Com.setFacing(FACING_RIGHT); 
+              }
+              else{
+                p1Com.setFacing(FACING_RIGHT);
+                p2Com.setFacing(FACING_LEFT);
+              } 
 
-                // XXX fix this
-                var midPoint = (p1Pos[2] + p2Pos[2])/2;
-                var newPos = camera.find('Transform').position;
-                newPos[2] = midPoint;
-                camera.find('Camera').target = math.Vector3(-60, 10, midPoint);
-                                
-                // XXX fix this
-                var diff = Math.abs(p1Xpos - p2Xpos);
-                
-                if(diff > 20){
-                  newPos[0] = -33 - (20 - diff);
-                }
-                
-                camera.find('Transform').position = newPos;
-                
-                // XXX fix this
-                if( p1Com.isKnockedOut() && p2Com.isKnockedOut()){ 
-                  //console.log('Double KO');
-                }
-                else if(p1Com.isKnockedOut()){
-                  //console.log('P2 wins');
-                }
-                else if(p2Com.isKnockedOut()){
-                  //console.log('P1 wins');
-                }
-                
-                if(p1Com.isKnockedOut() || p2Com.isKnockedOut()){
-                  restartGame();
-                }
+              // XXX fix this
+              var midPoint = (p1Pos[2] + p2Pos[2])/2;
+              var newPos = camera.find('Transform').position;
+              newPos[2] = midPoint;
+              camera.find('Camera').target = math.Vector3(-60, 10, midPoint);
+                              
+              // XXX fix this
+              var diff = Math.abs(p1Xpos - p2Xpos);
+              
+              if(diff > 20){
+                newPos[0] = -33 - (20 - diff);
+              }
+              
+              camera.find('Transform').position = newPos;
+              
+              // XXX fix this
+              if( p1Com.isKnockedOut() && p2Com.isKnockedOut()){ 
+                //console.log('Double KO');
+              }
+              else if(p1Com.isKnockedOut()){
+                //console.log('P2 wins');
+              }
+              else if(p2Com.isKnockedOut()){
+                //console.log('P1 wins');
+              }
+              
+              if(p1Com.isKnockedOut() || p2Com.isKnockedOut()){
+                restartGame();
+              }
             }
           });
 
