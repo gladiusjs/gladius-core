@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
       
       //
       const WALK_ANI_SPEED = 0.085;
-      const PUNCH_SPEED   = 0.25;
+      const PUNCH_DURATION   = 0.125;
       
       const FIREBALL_SPEED = 0.8;
       
@@ -358,14 +358,22 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.idle = function () {};
             this.block = function () {pl.setState(pl.getBlockState());};
             this.punch = function () {pl.setState(pl.getPunchState());};
-            this.kick = function () {pl.setState(pl.getKickState());};
+            //this.kick = function () {pl.setState(pl.getKickState());};
             this.throwFireBall = function () {pl.setState(pl.getThrowFireBallState());};
             this.spin = function () {pl.setState(pl.getSpinState());};
-            this.dead = function () {pl.setState(pl.getDeadState());}
+            //this.dead = function () {pl.setState(pl.getDeadState());}
             this.knockOut = function(){pl.setState(pl.getKnockedOutState());};
             
             this.forwardJump = function () {  pl.setState(pl.getForwardJumpState());};
             this.backwardJump = function (){  pl.setState(pl.getBackwardJumpState());};
+
+            this.hit = function(){
+              pl.health -= 15;
+              
+              if(pl.health <= 0){
+                this.knockOut();
+              }
+            }
 
             this.update = function (t, pc, m) {
               m.updateAction('idle');
@@ -397,6 +405,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
           function FallingDownState(player) {
             var pl = player;
 
+            // XXX Can this happen?
+            this.hit = function(){
+            };
+
             this.update = function (t, pc, m) {
               pl.model.updateAction('falling-down');              
               
@@ -409,8 +421,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
               pl.speed[0] = 15 * pl.dir;
               
               if(pc.position[1] <= FLOOR_POS){
-                //pl.speed[1] = 0;
-                pl.setState(pl.getIdleState());
+              
+                // Once the player lands, find out if they just died
+                if(pl.health <= 0){
+                  pl.setState(pl.getKnockedOutState());
+                }
+                else{
+                  pl.setState(pl.getIdleState());
+                }
               }
             };
 
@@ -435,8 +453,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var pl = player;
             var timeElapsed = 0;
 
-            this.dead = function () {
-              pl.setState(pl.getDeadState());
+            //this.dead = function () {
+              //pl.setState(pl.getDeadState());
+            //};
+            
+            
+            this.hit = function(){
+               alert('fix me');
             };
             
             this.onActivate = function(){
@@ -472,7 +495,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
 
             this.toString = function () {
-              return "Spin State: " + (2 - timeElapsed);
+              return "Spin State";
             };
           }
 
@@ -489,9 +512,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var pl = player;
             var timeElapsed = 0;
 
-            this.dead = function () {
-              pl.setState(pl.getDeadState());
-            }
+            //this.dead = function () {
+              //pl.setState(pl.getDeadState());
+            //}
 
             // Should we slow down the character?
             this.update = function (t, pc) {
@@ -509,7 +532,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         /**
           Users can't transition to another state from the dead state.
         */
-        var DeadState = (function () {
+        /*var DeadState = (function () {
 
           function DeadState(player) {
             var pl = player;
@@ -524,8 +547,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           }
 
           return DeadState;
-        }());
-
+        }());*/
 
 
         /**
@@ -543,7 +565,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             }
             
             this.update = function (t, pc) {
-              console.log('ko');
+              pl.speed[0] = 0;
             };
 
             this.toString = function () {
@@ -553,7 +575,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           return KnockedOutState;
         }());
-
 
 
         /**
@@ -570,9 +591,22 @@ document.addEventListener("DOMContentLoaded", function (e) {
               pl.setState(pl.getIdleState());
             };
             
-            this.dead = function () {
-              pl.setState(pl.getDeadState());
+            // XXX should this method exist?
+            this.knockOut = function(){
+              pl.setState(pl.getKnockedOutState());
             }
+            
+            // Since sprite is blocking, only take a bit of the damage.
+            this.hit = function(d){
+              pl.health -= d/3;
+              if(pl.health <= 0){
+                this.knockOut();
+              }
+            };
+            
+            /*this.dead = function () {
+              pl.setState(pl.getDeadState());
+            }*/
 
             this.onActivate = function(){
               pl.model.updateAction('block');
@@ -640,9 +674,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
               pl.setState(pl.getSpinState());
             };
 
-            this.dead = function () {
+            /*this.dead = function () {
               pl.setState(pl.getDeadState());
-            }
+            }*/
 
             this.update = function (t, pc) {
               timeElapsed += t;
@@ -676,8 +710,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
             // this.spin
             
             
-            this.dead = function () {
+            /*this.dead = function () {
               pl.setState(pl.getDeadState());
+            }*/
+            
+            this.knockOut = function(){
+              //pl.getState(pl.getKnockedOutState());
+            };
+            
+            // Sprite can get hit by a fireball if punching
+            this.hit = function(d){
+              pl.health -= d;
+              if(pl.health <= 0){
+                this.knockOut();
+              }
             }
 
             this.onActivate = function(){
@@ -689,7 +735,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.update = function (t, pc) {
               punchTimeElapsed += t;
               
-              if (punchTimeElapsed > PUNCH_SPEED) {
+              if (punchTimeElapsed > PUNCH_DURATION) {
                 pl.setState(pl.getIdleState());
               }
             };
@@ -704,14 +750,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
         /**
          */
-        var KickState = (function () {
+        /*var KickState = (function () {
 
           function KickState(player) {
             var pl = player;
             var kickTimeElapsed = 0;
 
             this.dead = function () {
-              pl.setState(pl.getDeadState());
+//              pl.setState(pl.getDeadState());
             }
 
             this.update = function (t) {
@@ -731,7 +777,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           }
 
           return KickState;
-        }());
+        }());*/
 
         /**
         *
@@ -743,11 +789,18 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var pl = player;
             var timer = 0;
 
-            this.moveForward = function () {
-              //console.log('already moving forward');
+            this.moveForward = function () {/*console.log('already moving forward');*/};
+            this.moveBackward = function () {/*console.log('already moving backward');*/};
+            
+            this.knockOut = function(){
+              pl.setState(pl.getKnockedOutState());
             };
-            this.moveBackward = function () {
-              //console.log('already moving backward');
+            
+            this.hit = function(d){
+              pl.health -= d;
+              if(pl.health <= 0){
+                this.knockOut();
+              }
             };
 
             // XXX
@@ -766,14 +819,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.punch = function () {
               pl.setState(pl.getPunchState());
             };
-            this.kick = function () {
-              pl.setState(pl.getKickState());
-            };
+            //this.kick = function () {
+            //  pl.setState(pl.getKickState());
+            //};
             this.throwFireBall = function () {
               pl.setState(pl.getThrowFireBallState());
             };
             this.dead = function () {
-              pl.setState(pl.getDeadState());
+//              pl.setState(pl.getDeadState());
             };
             this.spin = function () {
               pl.setState(pl.getSpinState());
@@ -812,6 +865,17 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.moveForward = function () {};
             this.moveBackward = function () {};
 
+            //this.knockOut = function(){
+            //  pl.setState(pl.getKnockedOutState());
+            //};
+            
+            this.hit = function(d){
+              pl.health -= d;
+              if(pl.health <= 0){
+                pl.setState(pl.getKnockedOutState());
+              }
+            };
+
             this.jump = function () {
               pl.setState(pl.getBackwardJumpState());
             };
@@ -824,9 +888,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.punch = function () {
               pl.setState(pl.getPunchState());
             };
-            this.kick = function () {
-              pl.setState(pl.getKickState());
-            };
+            //this.kick = function () {
+            //  pl.setState(pl.getKickState());
+            //};
             this.throwFireBall = function () {
               pl.setState(pl.getThrowFireBallState());
             };
@@ -835,7 +899,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
 
             this.dead = function () {
-              pl.setState(pl.getDeadState());
+//              pl.setState(pl.getDeadState());
             }
             this.onActivate = function(){
               timer = 0;
@@ -871,7 +935,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var pl = player;
 
             this.dead = function () {
-              pl.setState(pl.getDeadState());
+//              pl.setState(pl.getDeadState());
             }
 
             this.update = function (t, pc) {
@@ -898,8 +962,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             // XXX can they be spun?
             this.kick = function () {};
-            this.hit = function () {};
-
+            
             this.onActivate = function(){
               jumpTimeElapsed = 0;
               pl.model.updateAction('jump');
@@ -910,13 +973,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
               }
             };
             
-            this.hit = function(){
+            this.hit = function(d){
+              pl.health -= d;
               pl.setState(pl.getFallingDownState());
             };
 
-            this.dead = function () {
-              pl.setState(pl.getDeadState());
-            };
+
+
+//            this.dead = function () {
+//              pl.setState(pl.getDeadState());
+//            };
 
             this.update = function (t, pc, m) {
               jumpTimeElapsed += t;
@@ -929,7 +995,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
 
             this.toString = function () {
-              return "Jump State: " + jumpTimeElapsed;
+              return "Jump State";
             };
 
           }
@@ -950,7 +1016,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
             // XXX fix me
             this.kick = function () {};
 
-            this.hit = function(){
+            this.hit = function(d){
+              pl.health -= d;
               pl.setState(pl.getFallingDownState());
             };
                         
@@ -965,16 +1032,15 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
             
             this.dead = function () {
-              pl.setState(pl.getDeadState());
+//              pl.setState(pl.getDeadState());
             };
             
 
             this.update = function (t, pc, m) {
               jumpTimeElapsed += t;
 
-              var test = pc.rotation;
-              
               // XXX
+              //var test = pc.rotation;
               //test[2] += t * math.TAU;
               //pc.rotation = test;
               
@@ -986,7 +1052,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
 
             this.toString = function () {
-              return "Forward Jump State: " + jumpTimeElapsed;
+              return "Forward Jump State";
             };
 
           }
@@ -1008,7 +1074,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
             // XXX fix me
             this.kick = function () {};
 
-            this.hit = function(){
+            this.hit = function(d){
+              pl.health -= d;
               pl.setState(pl.getFallingDownState());
             };
 
@@ -1023,7 +1090,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
 
             this.dead = function () {
-              pl.setState(pl.getDeadState());
+//              pl.setState(pl.getDeadState());
             };
 
             this.update = function (t, pc, m) {
@@ -1034,8 +1101,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
               //test[0] += t * math.TAU;
               //pc.rotation = test;
               
-
-              
               if(pc.position[1] <= FLOOR_POS && jumpTimeElapsed > 0.5){
                 //test[0] = 0
                 //pc.rotation = test;
@@ -1044,7 +1109,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
 
             this.toString = function () {
-              return "Backward Jump State: " + jumpTimeElapsed;
+              return "Backward Jump State";
             };
 
           }
@@ -1052,7 +1117,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         }());
 
 
-        var health = 500;
+        this.health = 500;
         var playerName = options.name || "NoName";
         this.dir = options.dir;
         this.speed = [0, 0];
@@ -1067,8 +1132,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
         var blockState = new BlockState(this);
         var jumpState = new JumpState(this);
         var punchState = new PunchState(this);
-        var kickState = new KickState(this);
-        var deadState = new DeadState(this);
+        //var kickState = new KickState(this);
+        //var deadState = new DeadState(this);
         var recoverState = new RecoverState(this);
         var spinState = new SpinState(this);
         var frozenState = new FrozenState(this);
@@ -1089,8 +1154,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
         this.getBlockState = function () {    return blockState;  };
         this.getJumpState = function () {     return jumpState;  };
         this.getPunchState = function () {    return punchState;  };
-        this.getKickState = function () {     return kickState;  };  
-        this.getDeadState = function () {     return deadState;  };  
+        //this.getKickState = function () {     return kickState;  };  
+        //this.getDeadState = function () {     return deadState;  };  
         this.getRecoverState = function () {  return recoverState;  }  
         this.getSpinState = function () {     return spinState;  };  
         this.getFrozenState = function () {   return frozenState;  };  
@@ -1105,6 +1170,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
                     
         var service = engine.logic; // This is a hack so that this component will have its message queue processed
 
+
+
+        
         //
         this.stayInBounds = function(pos){
           if(pos[2] > LEFT_BORDER){
@@ -1150,9 +1218,21 @@ document.addEventListener("DOMContentLoaded", function (e) {
         this.onStopBlock = function (event) {
            state.idle && state.idle();
         };
-        this.onPunch = function (event) {
-          state.punch && state.punch();
+                
+        var punchP = false;
+        
+        this.onPunchReleased = function(){
+          punchP = false;
         };
+        
+        this.onPunch = function (event) {
+          if(!punchP){
+            state.punch && state.punch();
+            punchP = true;
+          }
+        };
+        
+        
         this.onKick = function (event) {
           state.kick && state.kick();
         };
@@ -1162,17 +1242,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
         this.onKnockOut = function(event){
           state.knockOut && state.knockOut();
         };
-        
+        // XXX get damage from event
         this.onHit = function(event){
-          state.hit && state.hit();
+          state.hit && state.hit(15);
         };
-        
-        // XXX test code
-        this.onTest = function(){
-          //health -= 15;
-          //document.getElementById(playerName).style.width = health + "px";
-        };
-        
         this.onThrowFireBall = function (event) {
           state.throwFireBall && state.throwFireBall();
         };
@@ -1193,11 +1266,18 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
         this.onUpdate = function (event) {
           var delta = service.time.delta / 1000;
+          
+          // XXX Move this out
+          if(document.getElementById(playerName)){
+            document.getElementById(playerName).style.width = this.health + "px";
+          }
+          
+          // XXX
           var transform = this.owner.find('Transform');
 
           this.trans = this.owner.find('Transform');
-          this.model = this.owner.find('Model');          
- 
+          this.model = this.owner.find('Model');
+
           state.update(delta, transform, this.model);
                     
           var pos = transform.position;
@@ -1223,11 +1303,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
           
           // XXX fix direction
           if (keyStates[options.RIGHT_KEY] && keyStates[options.JUMP_KEY]){
-            console.log('FW jump: ' + state.toString());
             state.forwardJump && state.forwardJump();
           }
           else if (keyStates[options.LEFT_KEY] && keyStates[options.JUMP_KEY]){
-            console.log('BW jump: ' + state.toString());
             state.backwardJump && state.backwardJump();
           }
 
@@ -1250,7 +1328,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
           else if (keyStates[options.JUMP_KEY]) {
             state.jump && state.jump();
           }
-
           
           printd(playerName, state.toString());
         }; // onUpdate
@@ -1281,7 +1358,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
       var run = function () {
 
           canvas = engine.graphics.target.element;
-            
 
           ////////////                      
           // Player 2
@@ -1290,7 +1366,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             name: 'player2',
             components: [
             new engine.core.component.Transform({
-              position: math.Vector3(-50, 15.7, 20),
+              position: math.Vector3(-50, FLOOR_POS, 20),
               rotation: math.Vector3(0, -math.PI / 2, 0),
               scale: math.Vector3(7, 7, 7)
             }),
@@ -1340,7 +1416,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   // Punch
                 case 'Y':
                   new engine.core.Event({
-                    type: 'Punch'
+                    type: e.data.state === 'down' ? 'Punch' : 'PunchReleased'
                   }).dispatch([this.owner]);
                   break;
 
@@ -1397,7 +1473,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           ///////////////
           /// NPC 1
           ///////////////
-          var npc1 = new space.Entity({
+          /*var npc1 = new space.Entity({
             name: 'NPC1',
             components: [
               new engine.core.component.Transform({
@@ -1409,11 +1485,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               }),
               new PlayerComponent()
             ]
-          });
-
-
-
-
+          });*/
 
 
 
@@ -1468,7 +1540,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
                 case 'A':
                   new engine.core.Event({
-                    type: 'Punch'
+                    type: e.data.state === 'down' ? 'Punch' : 'PunchReleased'
                   }).dispatch([this.owner]);
                   break;
 
@@ -1604,7 +1676,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 --animationTimer;
               }*/
               
-              npc1.find('Model').updateAction('walk-front');;
+              //npc1.find('Model').updateAction('walk-front');;
               
             }
           });
