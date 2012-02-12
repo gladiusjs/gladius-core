@@ -15,6 +15,25 @@ document.addEventListener("DOMContentLoaded", function (e) {
       const FACING_RIGHT = -1;
       const FACING_LEFT   = 1;
 
+      const LEFT_BORDER = 60;
+      const RIGHT_BORDER = 10;
+      const MOVE_SPEED = 15;
+      
+      const FLOOR_POS = 9.9;
+      const GRAVITY = 0.98;
+      const JUMP_HEIGHT = 45;
+      
+      //
+      const WALK_ANI_SPEED = 0.085;
+      const PUNCH_DURATION   = 0.12;
+      const THROW_FIREBALL_DURATION = 0.5;
+      
+      // Time needed to walk backwards before throwing fireball
+      const FIREBALL_WAIT = 1.0;
+      const FIREBALL_SPEED = 0.8;
+      
+      var MAX_HEALTH = 500;
+      
       //////////////////
       // Player config
       /////////////////
@@ -24,9 +43,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
         RIGHT_KEY:  'RIGHT',
         LEFT_KEY:   'LEFT',
         JUMP_KEY:   'UP',
-        CROUCH_KEY: 'DOWN',
+        DOWN_KEY:   'DOWN',
+        PUNCH_KEY:  'A',
         name:       'player1',
-        dir:        FACING_RIGHT
+        dir:        FACING_RIGHT,
+        initialPos: [-50, 9.9 , 35 ]
       };
 
       // Player 2 starts on the right side of the screen facing left
@@ -34,11 +55,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
         RIGHT_KEY:  'L',
         LEFT_KEY:   'J',
         JUMP_KEY:   'I',
-        CROUCH_KEY: 'K',
+        DOWN_KEY:   'K',
+        PUNCH_KEY:  'U',
         name:       'player2',
-        dir:        FACING_LEFT
+        dir:        FACING_LEFT,
+        initialPos: [-50, 9.9 , 20 ]
       };
 
+      
       //////////////////////
       // Debugging
       //////////////////////
@@ -55,27 +79,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
       var space;
       var math = engine.math;
 
-      const LEFT_BORDER = 60;
-      const RIGHT_BORDER = 10;
-      const MOVE_SPEED = 15;
-      
-      const FLOOR_POS = 9.9;
-      const GRAVITY = 0.98;
-      const JUMP_HEIGHT = 45;
-      
-      //
-      const WALK_ANI_SPEED = 0.085;
-      const PUNCH_DURATION   = 0.425;
-      const THROW_FIREBALL_DURATION = 0.5;
-      
-      // Time needed to walk backwards before throwing fireball
-      const FIREBALL_WAIT = 1.0;
-      const FIREBALL_SPEED = 0.8;
+
       
       // Global state of the keyboard.
       var keyStates = [];
 
       ///////////////
+      //
       ///////////////
       function colladaLoader(url, onsuccess, onfailure) {
         // XXX figure out why this is necessary
@@ -246,7 +256,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           options = options || {};
           
           var service = engine.logic;          
-          var val = 500;
+          var val = MAX_HEALTH;
           var domId = options.domId;
             
           this.onHealth = function(h){
@@ -255,6 +265,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
             // XXX use h variable
             val -= 15;
             document.getElementById(domId).style.width = val + "px";
+          }
+          
+          
+          
+          
+          this.getName = function(){
+            return domId;
           }
           
           this.onUpdate = function(){
@@ -345,6 +362,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
         options = options || {};
         var that = this;
         
+        this.initialPos = options.initialPos || [0,0,0];
+        
+        
+        
         //////////////////////
         // Character states
         //////////////////////
@@ -373,8 +394,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.forwardJump = function () {  pl.setState(pl.getForwardJumpState());};
             this.backwardJump = function (){  pl.setState(pl.getBackwardJumpState());};
 
-            this.hit = function(){
-              pl.health -= 15;
+            this.hit = function(d){
+              pl.health -= d;
               
               if(pl.health <= 0){
                 this.knockOut();
@@ -459,10 +480,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var pl = player;
             var timeElapsed = 0;
 
-            //this.dead = function () {
-              //pl.setState(pl.getDeadState());
-            //};
-            
             // XXX
             this.hit = function(){};
             
@@ -563,13 +580,21 @@ document.addEventListener("DOMContentLoaded", function (e) {
           
           function KnockedOutState(player) {
             var pl = player;
+            var timeElapsed = 0;
             
             this.onActivate = function(){
+              timeElapsed = 0;
               pl.model.updateAction('knocked-out');
             }
             
             this.update = function (t, pc) {
               pl.speed[0] = 0;
+              timeElapsed += t;
+              
+              if(timeElapsed >= 2){
+                /// XXX
+                pl.resetPlayer();
+              }
             };
 
             this.toString = function () {
@@ -602,15 +627,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
             
             // Since sprite is blocking, only take a bit of the damage.
             this.hit = function(d){
-              pl.health -= d/3;
+              pl.health -= d/2;
               if(pl.health <= 0){
                 this.knockOut();
               }
             };
-            
-            /*this.dead = function () {
-              pl.setState(pl.getDeadState());
-            }*/
 
             this.onActivate = function(){
               pl.model.updateAction('block');
@@ -764,10 +785,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var pl = player;
             var kickTimeElapsed = 0;
 
-            this.dead = function () {
-//              pl.setState(pl.getDeadState());
-            }
-
             this.update = function (t) {
               // XXX
               //pl.aniState = 'kick';
@@ -833,9 +850,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.throwFireBall = function () {
               pl.setState(pl.getThrowFireBallState());
             };
-            this.dead = function () {
-//              pl.setState(pl.getDeadState());
-            };
             this.spin = function () {
               pl.setState(pl.getSpinState());
             };
@@ -872,10 +886,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             this.moveForward = function () {};
             this.moveBackward = function () {};
-
-            //this.knockOut = function(){
-            //  pl.setState(pl.getKnockedOutState());
-            //};
             
             this.hit = function(d){
               pl.health -= d;
@@ -883,7 +893,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 pl.setState(pl.getKnockedOutState());
               }
             };
-
             this.jump = function () {
               pl.setState(pl.getBackwardJumpState());
             };
@@ -905,10 +914,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.spin = function () {
               pl.setState(pl.getSpinState());
             };
-
-            this.dead = function () {
-//              pl.setState(pl.getDeadState());
-            }
             this.onActivate = function(){
               timer = 0;
               player.model.updateAction('walk');
@@ -934,17 +939,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
         }());
 
         /**
-          Player is recovering from being hit. At this point they just need to wait until
-          the character gets back up.
+        *  Player is recovering from being hit. At this point they just need to wait until
+        *  the character gets back up.
         */
         var RecoverState = (function () {
 
           function RecoverState(player) {
             var pl = player;
-
-            this.dead = function () {
-//              pl.setState(pl.getDeadState());
-            }
 
             this.update = function (t, pc) {
               //pl.aniState = 'hurt';
@@ -986,12 +987,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
               pl.setState(pl.getFallingDownState());
             };
 
-
-
-//            this.dead = function () {
-//              pl.setState(pl.getDeadState());
-//            };
-
             this.update = function (t, pc, m) {
               jumpTimeElapsed += t;
 
@@ -1020,12 +1015,21 @@ document.addEventListener("DOMContentLoaded", function (e) {
           function ForwardJumpState(player) {
             var pl = player;
             var jumpTimeElapsed = 0;
-
+            
+            function standStraight(){
+              var test = pl.trans.rotation;
+              test[2] = 0;
+              pl.trans.rotation = test;
+            }
+            
             // XXX fix me
             this.kick = function () {};
 
             this.hit = function(d){
               pl.health -= d;
+              
+              //
+              standStraight();
               pl.setState(pl.getFallingDownState());
             };
                         
@@ -1039,27 +1043,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
               }
             };
             
-            this.dead = function () {
-//              pl.setState(pl.getDeadState());
-            };
-            
-
             this.update = function (t, pc, m) {
               jumpTimeElapsed += t;
 
-
-
-
-
-              // XXX
+              // XXX fix me
               var test = pc.rotation;
               test[2] += t * math.TAU;
-              test[0] += t * math.TAU;
               pc.rotation = test;
               
               if(pc.position[1] <= FLOOR_POS && jumpTimeElapsed > 0.5){
-                //test[2] = 0
-                //pc.rotation = test;
+                standStraight();
                 pl.setState(pl.getIdleState());
               }
             };
@@ -1089,9 +1082,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             this.hit = function(d){
               pl.health -= d;
+              standStraight();
               pl.setState(pl.getFallingDownState());
             };
-
+            
+            function standStraight(){
+              var test = pl.trans.rotation;
+              test[0] = -Math.PI * 2;
+              pl.trans.rotation = test;
+            };
+            
             this.onActivate = function(){
               pl.model.updateAction('jump');
               jumpTimeElapsed = 0;
@@ -1102,21 +1102,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
               }
             };
 
-            this.dead = function () {
-//              pl.setState(pl.getDeadState());
-            };
-
             this.update = function (t, pc, m) {
               jumpTimeElapsed += t;
               
-              // XXX
-              //var test = pc.rotation;
-              //test[0] += t * math.TAU;
-              //pc.rotation = test;
+              // XXX fix me
+              var test = pc.rotation;
+              test[0] -= t * math.TAU;
+              pc.rotation = test;
               
               if(pc.position[1] <= FLOOR_POS && jumpTimeElapsed > 0.5){
-                //test[0] = 0
-                //pc.rotation = test;
+                standStraight();
                 pl.setState(pl.getIdleState());
               }
             };
@@ -1130,7 +1125,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         }());
 
 
-        this.health = 500;
+        this.health = MAX_HEALTH;
         var playerName = options.name || "NoName";
         this.dir = options.dir;
         this.speed = [0, 0];
@@ -1183,8 +1178,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
                     
         var service = engine.logic; // This is a hack so that this component will have its message queue processed
 
-
-
+        //
+        this.isKnockedOut = function(){
+          return this.health <= 0;
+        }
         
         //
         this.stayInBounds = function(pos){
@@ -1245,6 +1242,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
           }
         };
         
+        //
+        this.resetPlayer = function(){
+          this.health = MAX_HEALTH;
+          state = idleState;
+          this.owner.find('Transform').position = this.initialPos;
+        };
         
         this.onKick = function (event) {
           state.kick && state.kick();
@@ -1252,17 +1255,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
         this.onJump = function (event) {
           state.jump && state.jump();
         };
+        
+        // XXX broken
         this.onKnockOut = function(event){
-          state.knockOut && state.knockOut();
+          state.hit && state.hit(10000);
+          //state.knockOut && state.knockOut();
         };
         // XXX get damage from event
         this.onHit = function(event){
-          state.hit && state.hit(15);
+          state.hit && state.hit(25);
         };
-        // Can no longer directly throw fireballs
-        //this.onThrowFireBall = function (event) {
-        //  state.throwFireBall && state.throwFireBall();
-        //};
         this.onKill = function (event) {
           state.dead && state.dead();
         };
@@ -1296,6 +1298,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                     
           var pos = transform.position;
           
+          // XXX
           this.speed[1] -= GRAVITY * 100 * delta;
           
           pos[1] += this.speed[1] * delta;
@@ -1343,7 +1346,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             state.jump && state.jump();
           }
           
-          printd(playerName, state.toString());
+          //printd(playerName, state.toString());
         }; // onUpdate
         
         // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -1400,61 +1403,55 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
                 switch (e.data.code) {
 
-                  // walk right
-                case 'L':
+                  // WAlK RIGHT
+                case playerTwoConfig.RIGHT_KEY:
                   new engine.core.Event({
                     type: e.data.state === 'down' ? 'StartMoveForward' : 'StopMoveForward'
                   }).dispatch([this.owner]);
                   break;
-                  
-                case 'T':
-                 /*   new engine.core.Event({
-                      type: 'Health'
-                    }).dispatch([this.owner]);*/
-                  break;
 
-                  // walk left
-                case 'J':
+                  // WALK LEFT
+                case playerTwoConfig.LEFT_KEY:
                   new engine.core.Event({
                     type: e.data.state === 'down' ? 'StartMoveBackward' : 'StopMoveBackward'
                   }).dispatch([this.owner]);
                   break;
-
-                  // jump
-                case 'I':
+                  
+                  // JUMP
+                case playerTwoConfig.JUMP_KEY:
                   new engine.core.Event({
                     type: e.data.state === 'down' ? 'Jump' : null
                   }).dispatch([this.owner]);
                   break;
 
-                  // Punch
-                case 'Y':
+                  // PUNCH
+                case playerTwoConfig.PUNCH_KEY:
                   new engine.core.Event({
                     type: e.data.state === 'down' ? 'Punch' : 'PunchReleased'
                   }).dispatch([this.owner]);
                   break;
 
-                  // Kick
-                case 'U':
-                  new engine.core.Event({
-                    type: 'Kick'
-                  }).dispatch([this.owner]);
-                  break;
-
-                  // Block
-                case 'B':
+                  // BLOCK
+                case playerTwoConfig.DOWN_KEY:
                   new engine.core.Event({
                     type: e.data.state === 'down' ? 'StartBlock' : 'StopBlock'
                   }).dispatch([this.owner]);
                   break;
 
                   // Fireball!
-                case 'M':
+                /*case 'M':
                   new engine.core.Event({
                     type: 'ThrowFireBall'
                   }).dispatch([this.owner]);
-                  break;
-
+                  break;*/
+                  
+                  /* Kick
+                case 'U':
+                  new engine.core.Event({
+                    type: 'Kick'
+                  }).dispatch([this.owner]);
+                  break;*/
+                  
                 case '0':
                   new engine.core.Event({
                     type: 'KnockOut'
@@ -1463,7 +1460,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
                 case '5':
                   new engine.core.Event({
-                    type: 'Hit'
+                    type: e.data.state === 'down' ? 'Hit' : null
                     }).dispatch([this.owner]);
                   break;
 
@@ -1474,9 +1471,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   }).dispatch([this.owner]);
                   break;
 
-                } //switdh
-              } //onKey
-            }), //controller
+                }  // switdh
+              }  // onKey
+            }), // controller
             new PlayerComponent(playerTwoConfig)
 
             ]
@@ -1512,7 +1509,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             new engine.core.component.Transform({
               position: math.Vector3(-50, FLOOR_POS, 35),
               // in front of red house.
-              rotation: math.Vector3(0.5, math.PI / 2, 0.5),
+              rotation: math.Vector3(0, math.PI / 2, 0),
               scale: math.Vector3(7, 7, 7)
             }),
             
@@ -1552,25 +1549,21 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   }).dispatch([this.owner]);
                   break;
 
+                  // Block
+                case 'DOWN':
+                  new engine.core.Event({
+                    type: e.data.state === 'down' ? 'StartBlock' : 'StopBlock'
+                  }).dispatch([this.owner]);
+                  break;
+
                 case 'A':
                   new engine.core.Event({
                     type: e.data.state === 'down' ? 'Punch' : 'PunchReleased'
                   }).dispatch([this.owner]);
                   break;
 
-                  // Kick
-                case 'S':
-                  new engine.core.Event({
-                    type: 'Kick'
-                  }).dispatch([this.owner]);
-                  break;
 
-                  // Block
-                case 'D':
-                  new engine.core.Event({
-                    type: e.data.state === 'down' ? 'StartBlock' : 'StopBlock'
-                  }).dispatch([this.owner]);
-                  break;
+
 
                   // Spin player
                 case 'W':
@@ -1579,15 +1572,17 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   }).dispatch([this.owner]);
                   break;
                   
+                // XXX Test code
                 case '0':
                   new engine.core.Event({
                     type: 'KnockOut'
                     }).dispatch([this.owner]);
                   break;
-
+                  
+                // XXX Test code
                 case '5':
                   new engine.core.Event({
-                    type: 'Hit'
+                    type: e.data.state === 'down' ? 'Hit' : null
                     }).dispatch([this.owner]);
                   break;
                   
@@ -1620,7 +1615,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
              new engine.graphics.component.Light({
                 type: "point",
                 method: "dynamic",
-                diffuse: [0, 0, 0,0 ],
+                diffuse: [0, 0, 0 ],
                 specular: [0, 0, 0 ],
                 intensity: 10,
                 distance: 0
@@ -1637,6 +1632,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
           // var animationTime = 25;
           // var animationTimer = 0;
 
+          // XXX
+          // camera?
+          var restartGame = function(){
+          }
+          
           ////////////////
           // Task
           ////////////////
@@ -1646,25 +1646,25 @@ document.addEventListener("DOMContentLoaded", function (e) {
             },
             callback: function () {
               var delta = engine.scheduler.simulationTime.delta / 1000;
-              //bitwall.find('Transform').rotation = 
-              //  math.matrix4.add([bitwall.find('Transform').rotation,
-              //                   [0, math.TAU * delta * 0.1, 0]]);
               
-                  var p1Xpos = player1.find('Transform').position[2];
-                var p2Xpos = player2.find('Transform').position[2];
-                
+              // Player components
+              var p1Com = player1.find('Player');
+              var p2Com = player2.find('Player');
+              
+              var p1Xpos = player1.find('Transform').position[2];
+              var p2Xpos = player2.find('Transform').position[2];
                 
                 //
                 if( p1Xpos < p2Xpos ){
-                  player1.find('Player').setFacing(FACING_LEFT);
-                  player2.find('Player').setFacing(FACING_RIGHT); 
+                  p1Com.setFacing(FACING_LEFT);
+                  p2Com.setFacing(FACING_RIGHT); 
                 }
                 else{
-                  player1.find('Player').setFacing(FACING_RIGHT);
-                  player2.find('Player').setFacing(FACING_LEFT);
+                  p1Com.setFacing(FACING_RIGHT);
+                  p2Com.setFacing(FACING_LEFT);
                 }
                 
-                // First cut for cam movement
+                // XXX fix this
                 var diff = p1Xpos - p2Xpos;
                 
                 if(diff > 19){
@@ -1672,32 +1672,23 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   test[0] = -33 - (20-diff);
                   camera.find('Transform').position = test;
                 }
-
-              // Start/Restart animation
-              /*if (!animationTimer) {
                 
-                var p1ani = player1.find('Player').aniState;
-                var p2ani = player2.find('Player').aniState;
-                            
-                player1.find('Model').updateAction(p1ani);
-                player2.find('Model').updateAction(p2ani);
+                // XXX fix this
+                if( p1Com.isKnockedOut() && p2Com.isKnockedOut()){ 
+                  //console.log('Double KO');
+                }
+                else if(p1Com.isKnockedOut()){
+                  //console.log('P2 wins');
+                }
+                else if(p2Com.isKnockedOut()){
+                  //console.log('P1 wins');
+                }
                 
-                // Move fireballs?
-                // console.log(space.find('fireball'));
-              
-                // reset the timer
-                animationTimer = animationTime;
-              }
-              // Update animation
-              else {
-                --animationTimer;
-              }*/
-              
-              //npc1.find('Model').updateAction('walk-front');;
-              
+                if(p1Com.isKnockedOut() || p2Com.isKnockedOut()){
+                  restartGame();
+                }
             }
           });
-
 
           //  var player1 = space.find('player1').find('Player').getPlayer();
           // If player1 is punching and player2 can get hit and player1's hitbox intersects player2's
