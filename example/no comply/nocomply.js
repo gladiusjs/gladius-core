@@ -15,8 +15,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
       const FACING_RIGHT = -1;
       const FACING_LEFT   = 1;
 
-      const LEFT_BORDER = 60;
-      const RIGHT_BORDER = 10;
+      const LEFT_BORDER = 70;
+      const RIGHT_BORDER = -30;
       const MOVE_SPEED = 15;
       
       const FLOOR_POS = 9.9;
@@ -1651,9 +1651,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
               var p1Com = player1.find('Player');
               var p2Com = player2.find('Player');
               
-              var p1Xpos = player1.find('Transform').position[2];
-              var p2Xpos = player2.find('Transform').position[2];
-                
+              var p1Pos = player1.find('Transform').position;
+              var p2Pos = player2.find('Transform').position;
+              
+              var p1Xpos = p1Pos[2];
+              var p2Xpos = p2Pos[2];
+              
                 //
                 if( p1Xpos < p2Xpos ){
                   p1Com.setFacing(FACING_LEFT);
@@ -1662,16 +1665,22 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 else{
                   p1Com.setFacing(FACING_RIGHT);
                   p2Com.setFacing(FACING_LEFT);
-                }
-                
+                } 
+
                 // XXX fix this
-                var diff = p1Xpos - p2Xpos;
+                var midPoint = (p1Pos[2] + p2Pos[2])/2;
+                var newPos = camera.find('Transform').position;
+                newPos[2] = midPoint;
+                camera.find('Camera').target = math.Vector3(-60, 10, midPoint);
+                                
+                // XXX fix this
+                var diff = Math.abs(p1Xpos - p2Xpos);
                 
-                if(diff > 19){
-                  var test = camera.find('Transform').position;
-                  test[0] = -33 - (20-diff);
-                  camera.find('Transform').position = test;
+                if(diff > 20){
+                  newPos[0] = -33 - (20 - diff);
                 }
+                
+                camera.find('Transform').position = newPos;
                 
                 // XXX fix this
                 if( p1Com.isKnockedOut() && p2Com.isKnockedOut()){ 
