@@ -1047,10 +1047,15 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.update = function (t, pc, m) {
               jumpTimeElapsed += t;
 
+
+
+
+
               // XXX
-              //var test = pc.rotation;
-              //test[2] += t * math.TAU;
-              //pc.rotation = test;
+              var test = pc.rotation;
+              test[2] += t * math.TAU;
+              test[0] += t * math.TAU;
+              pc.rotation = test;
               
               if(pc.position[1] <= FLOOR_POS && jumpTimeElapsed > 0.5){
                 //test[2] = 0
@@ -1507,7 +1512,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             new engine.core.component.Transform({
               position: math.Vector3(-50, FLOOR_POS, 35),
               // in front of red house.
-              rotation: math.Vector3(0, math.PI / 2, 0),
+              rotation: math.Vector3(0.5, math.PI / 2, 0.5),
               scale: math.Vector3(7, 7, 7)
             }),
             
