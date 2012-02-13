@@ -1,9 +1,29 @@
 /**
   Simple fighting game based on the "No Comply" WebGL video.
+
+  TODO:
+  - add collision detection
+  - add material for p2 fireball
+  - fix fireball logic
+  - 
+  -
+
 */
 document.addEventListener("DOMContentLoaded", function (e) {
 
+  var getById = function(id){
+    return document.getElementById(id);
+  }
+
   var canvas = document.getElementById("test-canvas");
+  
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  // Do something awesome with this.
+  // function mozOrientationHandler(e){}
+	// window.addEventListener('devicemotion', mozOrientationHandler, false);
+
   var resources = {};
 
   // XXX fix me
@@ -246,9 +266,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
       });
 
 
-      //////////
-      // Health Component
-      //////////
+      /*
+      * Health Component
+      * XXX need to actually use this
+      */
       var HealthComponent = engine.base.Component({
         type: 'Health'
         }, function( options ){
@@ -265,13 +286,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
             // XXX use h variable
             val -= 15;
             document.getElementById(domId).style.width = val + "px";
-          }
-          
-          
-          
-          
-          this.getName = function(){
-            return domId;
           }
           
           this.onUpdate = function(){
@@ -499,7 +513,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
               if (timeElapsed < 2) {              
                 var a = pl.trans;
                 a.rotation[1] += 1;
-                console.log(a[1]);
                 //  rot[1] += 15;
                 pl.trans = a;
                 //pc.rotation = rot;
@@ -814,8 +827,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var pl = player;
             var timer = 0;
 
-            this.moveForward = function () {/*console.log('already moving forward');*/};
-            this.moveBackward = function () {/*console.log('already moving backward');*/};
+            this.moveForward = function () {};
+            this.moveBackward = function () {};
             
             this.knockOut = function(){
               pl.setState(pl.getKnockedOutState());
@@ -1047,9 +1060,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
               jumpTimeElapsed += t;
 
               // XXX fix me
-              var test = pc.rotation;
-              test[2] += t * math.TAU;
-              pc.rotation = test;
+              var rot = pc.rotation;
+              rot[2] += t * math.TAU;
+              pc.rotation = rot;
               
               if(pc.position[1] <= FLOOR_POS && jumpTimeElapsed > 0.5){
                 standStraight();
@@ -1087,9 +1100,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
             
             function standStraight(){
-              var test = pl.trans.rotation;
-              test[0] = -Math.PI * 2;
-              pl.trans.rotation = test;
+              var rot = pl.trans.rotation;
+              rot[0] = -Math.PI * 2;
+              pl.trans.rotation = rot;
             };
             
             this.onActivate = function(){
@@ -1106,9 +1119,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
               jumpTimeElapsed += t;
               
               // XXX fix me
-              var test = pc.rotation;
-              test[0] -= t * math.TAU;
-              pc.rotation = test;
+              var rot = pc.rotation;
+              rot[0] -= t * math.TAU;
+              pc.rotation = rot;
               
               if(pc.position[1] <= FLOOR_POS && jumpTimeElapsed > 0.5){
                 standStraight();
@@ -1285,7 +1298,18 @@ document.addEventListener("DOMContentLoaded", function (e) {
           
           // XXX Move this out
           if(document.getElementById(playerName)){
-            document.getElementById(playerName).style.width = this.health + "px";
+
+            // If health is zero, we only see the ugly border around the
+            // health bar, so just hide it in that case.
+            var show = this.health > 0 ? "visible" : "hidden";
+            document.getElementById(playerName).style.visibility = show;
+            
+            // allow some buffer 
+            var halfClientAreaWidth = (window.innerWidth-150)/2;
+            var normalizedHealth = this.health/MAX_HEALTH;
+            var final = normalizedHealth * halfClientAreaWidth;
+            
+            document.getElementById(playerName).style.width = final + "px";
           }
           
           // XXX
@@ -1345,8 +1369,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
           else if (keyStates[options.JUMP_KEY]) {
             state.jump && state.jump();
           }
-          
-          //printd(playerName, state.toString());
         }; // onUpdate
         
         // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -1373,6 +1395,23 @@ document.addEventListener("DOMContentLoaded", function (e) {
       
       
       var run = function () {
+
+
+        // Add some tunes
+        var audioElement = document.createElement('audio');
+        audioElement.setAttribute('src', 'music/no-comply.ogg');
+        audioElement.addEventListener("load", function() {
+          audioElement.play();
+        }, true);
+        audioElement.play();
+        audioElement.volume = 0;
+
+        // "M" for toggle
+        window.addEventListener("keyup", function(e){
+          if(e.keyCode == 77){
+            audioElement.volume = !audioElement.volume
+          }          
+        }, true);
 
           canvas = engine.graphics.target.element;
 
@@ -1632,9 +1671,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
           // var animationTime = 25;
           // var animationTimer = 0;
 
-          // XXX
-          // camera?
+          // XXX Make the camera move slowly back to the starting point instead of this.
           var restartGame = function(){
+            camera.find('Transform').position = math.Vector3(-33, 15, 30);
+            camera.find('Camera').target = math.Vector3(-60, 10, 30);
           }
           
           ////////////////
@@ -1657,16 +1697,40 @@ document.addEventListener("DOMContentLoaded", function (e) {
               var p1Xpos = p1Pos[2];
               var p2Xpos = p2Pos[2];
               
+              var p1Div = getById('player1');
+              var p2Div = getById('player2');
+                
               //
               if( p1Xpos < p2Xpos ){
                 p1Com.setFacing(FACING_LEFT);
-                p2Com.setFacing(FACING_RIGHT); 
+                p2Com.setFacing(FACING_RIGHT);
+                // XXX fix this
+                getById('player2').id = 'temp';
+                getById('player1').id = 'player2';
+                getById('temp').id = 'player1';
               }
               else{
                 p1Com.setFacing(FACING_RIGHT);
-                p2Com.setFacing(FACING_LEFT);
-              } 
-
+                p2Com.setFacing(FACING_LEFT);                
+                // XXX why isn't this necessary?
+                //getById('player1').id = 'temp';
+                //getById('player2').id = 'player1';
+                //getById('temp').id = 'player2';
+              }
+              
+              // XXX fix me
+              p1Div = getById('player1');
+              p2Div = getById('player2');
+              
+              if( p1Xpos < p2Xpos ){
+                p1Div.style.backgroundColor = "green";
+                p2Div.style.backgroundColor = "orange";   
+              }
+              else{
+                p1Div.style.backgroundColor = "orange";
+                p2Div.style.backgroundColor = "green";                
+              }
+                                
               // XXX fix this
               var midPoint = (p1Pos[2] + p2Pos[2])/2;
               var newPos = camera.find('Transform').position;
@@ -1705,6 +1769,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           // Start the engine!
           engine.run();
         };
+
 
       ////////////////
       // Load some sprites
