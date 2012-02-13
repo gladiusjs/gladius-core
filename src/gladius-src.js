@@ -116,7 +116,8 @@ define( function ( require ) {
                 base: {
                     Service: Service( this ),
                     Resource: Resource,
-                    Component: Component
+                    Component: Component,
+                    require: require
                 }                
             });
             
