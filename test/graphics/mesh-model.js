@@ -73,10 +73,10 @@
                       }
         };
 
-        var mesh = new engine.graphics.resource.Mesh(meshData);
+        var mesh = new engine.graphics.resource.Mesh( meshData );
 
-        ok(mesh instanceof engine.graphics.resource.Mesh, 
-           "mesh constructed and correctly typed");
+        ok( mesh instanceof engine.graphics.resource.Mesh, 
+           "mesh constructed and correctly typed" );
         
         mesh.prepare();
         ok( true, "mesh.prepare called without arguments doesn't throw" );
@@ -85,7 +85,7 @@
         // TD: check that passing in options.material actually sets the face 
         // material
 
-        var model = new engine.graphics.component.Model({mesh: mesh});
+        var model = new engine.graphics.component.Model({ mesh: mesh });
         deepEqual( mesh._cvr.mesh, model.mesh._cvr.mesh, "Model's mesh is correct" );
 
         start();
