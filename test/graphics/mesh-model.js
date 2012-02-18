@@ -88,7 +88,6 @@
         var model = new engine.graphics.component.Model({mesh: mesh});
         deepEqual( mesh._cvr.mesh, model.mesh._cvr.mesh, "Model's mesh is correct" );
 
-        // TD: test that the cube actually renders
         start();
     });
 
