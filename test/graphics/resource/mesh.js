@@ -12,11 +12,7 @@
         setup: function () {
             stop();
 
-            var canvas = document.createElement( "canvas" );
-            canvas.width = 300;
-            canvas.height = 300;
-            document.getElementById( "canvas-container" ).appendChild( canvas );
-
+            var canvas = document.getElementById( "test-canvas"); 
             gladius.create({
                   debug: true,
                   services: {
@@ -38,18 +34,57 @@
             engine = null;
         }
     });
-
+  
     asyncTest( 'Simple Cube', function () {
-        expect( 1 );
+        expect( 2 );
 
-        engine.graphics.resource.Mesh({
-            script: engine.graphics.script.mesh.cube,
-            onsuccess: function( instance ) {
-                ok( true );
-                start();
-            }
+        var point = 0.5;
+        var mesh = new engine.graphics.resource.Mesh({
+           
+            points:   [
+                [ point, -point,  point],
+                [ point,  point,  point],
+                [-point,  point,  point],
+                [-point, -point,  point],
+                [ point, -point, -point],
+                [ point,  point, -point],
+                [-point,  point, -point],
+                [-point, -point, -point]
+                      ],
+            faces:    [
+                [0, 1, 2, 3],
+                [7, 6, 5, 4],
+                [4, 5, 1, 0],
+                [5, 6, 2, 1],
+                [6, 7, 3, 2],
+                [7, 4, 0, 3]
+                      ],
+            uv:       [
+                [ [0, 1], [1, 1], [1, 0], [0, 0] ],
+                [ [0, 1], [1, 1], [1, 0], [0, 0] ],
+                [ [0, 1], [1, 1], [1, 0], [0, 0] ],
+                [ [0, 1], [1, 1], [1, 0], [0, 0] ],
+                [ [0, 1], [1, 1], [1, 0], [0, 0] ],
+                [ [0, 1], [1, 1], [1, 0], [0, 0] ]
+                      ],
+            uvmapper: {
+                projectionMode: "cubic",
+                scale: [1, 1, 1]
+                      }
         });
 
+        ok(mesh instanceof engine.graphics.resource.Mesh, 
+           "mesh constructed and correctly typed");
+           
+        mesh.prepare();
+        ok( true, "mesh.prepare called without arguments doesn't throw" );
+        // TD: check that it actually does the right thing
+        
+        // TD: check that passing in options.material actually sets the face 
+        // material
+        
+        // TD: test that the cube actually renders
+        start();
     });
 
 }());
