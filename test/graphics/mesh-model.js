@@ -2,13 +2,13 @@
   nomen: false */
 /*global gladius: false, document: false, window: false, module: false, start,
   test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false,
-  asyncTest: false */
+  asyncTest: false, deepEqual: false */
 
 (function() {
 
     var engine = null;
 
-    module( 'graphics/resource/Mesh', {
+    module( 'graphics/Mesh-Model', {
         setup: function () {
             stop();
 
@@ -36,11 +36,11 @@
     });
   
     asyncTest( 'Simple Cube', function () {
-        expect( 2 );
+        expect( 3 );
 
         var point = 0.5;
-        var mesh = new engine.graphics.resource.Mesh({
-           
+        var meshData =
+        {           
             points:   [
                 [ point, -point,  point],
                 [ point,  point,  point],
@@ -71,18 +71,23 @@
                 projectionMode: "cubic",
                 scale: [1, 1, 1]
                       }
-        });
+        };
+
+        var mesh = new engine.graphics.resource.Mesh(meshData);
 
         ok(mesh instanceof engine.graphics.resource.Mesh, 
            "mesh constructed and correctly typed");
-           
+        
         mesh.prepare();
         ok( true, "mesh.prepare called without arguments doesn't throw" );
         // TD: check that it actually does the right thing
         
         // TD: check that passing in options.material actually sets the face 
         // material
-        
+
+        var model = new engine.graphics.component.Model({mesh: mesh});
+        deepEqual( mesh._cvr.mesh, model.mesh._cvr.mesh, "Model's mesh is correct" );
+
         // TD: test that the cube actually renders
         start();
     });
