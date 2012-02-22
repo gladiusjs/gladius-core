@@ -122,7 +122,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
             var task = new engine.scheduler.Task({
                 schedule: {
-                    phase: engine.scheduler.phases.UPDATE,
+                    phase: engine.scheduler.phases.UPDATE
                 },
                 callback: function() {
                     var delta = engine.scheduler.simulationTime.delta/1000;
@@ -149,7 +149,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     url: 'procedural-mesh.js',                          
                     load: engine.core.resource.proceduralLoad,
                     onsuccess: function( mesh ) {
-                        resources['mesh'] = mesh;
+                        resources.mesh = mesh;
                     },
                     onfailure: function( error ) {
                     }
@@ -159,23 +159,11 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     url: 'procedural-material.js',
                     load: engine.core.resource.proceduralLoad,
                     onsuccess: function( material ) {
-                        resources['material'] = material;
-                    },
-                    onfailure: function( error ) {
-                    }
-                },
-                /*
-                {
-                    type: engine.graphics.resource.Light,
-                    url: 'procedural-light.js',
-                    load: engine.core.resource.proceduralLoad,
-                    onsuccess: function( light ) {
-                        resources['light'] = light;
+                        resources.material = material;
                     },
                     onfailure: function( error ) {
                     }
                 }
-                */
             ],
             {
                 oncomplete: run
