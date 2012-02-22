@@ -130,11 +130,11 @@ define( function ( require ) {
                         Transform: Transform( this )
                     },
                     resource: {
-                        Script: Script,
+                        Script: Script( this ),
                         Template: Template( this ),
                         get: get,
                         defaultLoad: defaultLoad,
-                        proceduralLoad: proceduralLoad,
+                        proceduralLoad: proceduralLoad( this ),
                         Collada: Collada( this )
                     }
                 }

@@ -17,6 +17,8 @@ define( function ( require ) {
             this._cvr.mesh = _cvrMesh;
 
             this.prepare = function( options ) {
+                options = options || {};
+                
                 if( options.material ) {
                     var cvrMaterial = options.material._cvr.material;
                     _cvrMesh.setFaceMaterial( cvrMaterial );

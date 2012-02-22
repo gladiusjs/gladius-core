@@ -31,7 +31,7 @@ define( function( require ) {
         // Exposed functions are searched (by name) when looking for message handlers.
         var _exposed = {};
         var expose = function( f, alias ) {
-            assert( f.name || alias );
+            lang.assert( f.name || alias );
             var name = f.name || alias;
             _exposed[ name ] = f;
         };
