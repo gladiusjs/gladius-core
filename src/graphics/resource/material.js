@@ -16,17 +16,10 @@ define( function ( require ) {
             var _cvrMaterial = new context.Material( data );
             this._cvr.material = _cvrMaterial;
 
-            this.prepare = function( options ) {
-                var _cvrMaterial;
-                if ( options.material ) {
-                    _cvrMaterial = options.material._cvr.material;
-                    _cvrMesh.setFaceMaterial( _cvrMaterial );
-                } //if
-                _cvrMaterial.prepare();
-            }; //prepare
-
+            // pass through the prepare function from CubicVR's object
+            this.prepare = _cvrMaterial.prepare;
         });
-        
+  
         return Material;
 
     };

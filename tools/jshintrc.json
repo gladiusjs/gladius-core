@@ -14,7 +14,11 @@
     "start",
     "stop",
     "raises",
-    "same"
+    "same",
+    
+    // HTML5 browser APIs that jshint will learn about someday
+    "requestAnimationFrame",
+    "BlobBuilder"
     
   ],
   
