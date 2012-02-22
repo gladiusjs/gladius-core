@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           var task = new engine.scheduler.Task({
             schedule: {
-              phase: engine.scheduler.phases.UPDATE,
+              phase: engine.scheduler.phases.UPDATE
             },
             callback: function () {}
           });
