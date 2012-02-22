@@ -1,6 +1,7 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
   nomen: false */
-/*global define: false, console: false, window: false, setTimeout: false */
+/*global define: false, console: false, window: false, setTimeout: false,
+ self: false */
 
 define( function( require ) {
 
@@ -65,7 +66,6 @@ define( function( require ) {
         expose( handle_dispatch, '__dispatch' );
 
         var handle_run = function __run( message ) {
-            _id = message.id;
         };
         expose( handle_run, '__run' );
 
