@@ -29,8 +29,6 @@ define(function() {
     var service = engine.graphics;
     var CubicVR = service.target.context;
 
-    var _mesh = new engine.graphics.resource.Mesh();
-    var _cvrmesh = _mesh._cvr.mesh;
 
     var gl = CubicVR.GLCore.gl;
 
@@ -48,6 +46,7 @@ define(function() {
                     options.sprite[action].frame());
       gl.bindTexture(gl.TEXTURE_2D, null);
     }
+    
     // BitwallModel's primary external API: set the bitwall to a particular
     // action (which encompasses a set of animation frames), and update the
     // texture to the next frame of that action.  Note that if the action
@@ -74,15 +73,20 @@ define(function() {
     }
 
     function buildMesh(material) {
+      
       var _cvrmat = material._cvr.material;
 
+      // gladius Mesh object that we will return
+      var mesh = new engine.graphics.resource.Mesh();
+      var _cvrmesh = mesh._cvr.mesh; // CubicVR Mesh that it wraps 
+
+      // The work of building the mesh of stacked sprites is all done using
+      // CubicVR primitives into the wrapped CVR Mesh.
+      var transform = new CubicVR.Transform();
+      transform.clearStack();
+      transform.scale([1, 1, 1]);
+
       var tmpMesh = new CubicVR.Mesh();
-
-      var trans = new CubicVR.Transform();
-
-      trans.clearStack();
-      trans.scale([1, 1, 1]);
-
       CubicVR.genPlaneObject(tmpMesh, 1.0, _cvrmat);
 
       tmpMesh.faces[0].uvs = [[1, 0], [1, 1], [0, 1], [0, 0]];
@@ -91,30 +95,31 @@ define(function() {
       var is = 0.1 / 8.0;
 
       // create outside faces first to help with Early-Z
-      trans.clearStack();
-      trans.translate([0, 0, -0.05]);
-      _cvrmesh.booleanAdd(tmpMesh, trans);
-      trans.clearStack();
-      trans.translate([0, 0, 0.05]);
-      _cvrmesh.booleanAdd(tmpMesh, trans);
+      transform.clearStack();
+      transform.translate([0, 0, -0.05]);
+      _cvrmesh.booleanAdd(tmpMesh, transform);
+      transform.clearStack();
+      transform.translate([0, 0, 0.05]);
+      _cvrmesh.booleanAdd(tmpMesh, transform);
 
       var p;
 
       for(var i = -0.05 + is; i < 0.05 - is; i += is) {
-        trans.clearStack();
-        trans.translate([0, 0, i]);
-        _cvrmesh.booleanAdd(tmpMesh, trans);
+        transform.clearStack();
+        transform.translate([0, 0, i]);
+        _cvrmesh.booleanAdd(tmpMesh, transform);
         p++;
       }
 
       _cvrmesh.calcNormals();
       _cvrmesh.triangulateQuads();
       _cvrmesh.compile();
+
+      return mesh;
     }
 
     var material = buildMaterial();
-    buildMesh(material);
-
+    var _mesh = buildMesh(material);
 
     // The remaining bits are boilerplate code taken from the generic model
     // code so that this object behaves the way the engine expects.
