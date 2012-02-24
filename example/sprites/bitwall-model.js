@@ -28,8 +28,6 @@ define(function() {
     var _this = this;
     var service = engine.graphics;
     var CubicVR = service.target.context;
-
-
     var gl = CubicVR.GLCore.gl;
 
     // We use a single texture, and animate the bitwall by updating the image
