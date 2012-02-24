@@ -13,7 +13,7 @@ define( function ( require ) {
 
     // Services
         Service = require( 'base/service' ),
-        // Graphics = require( './graphics/service' ),
+        Graphics = require( './graphics/service' ),
         // ActionLists = require( './behavior/action-list/service' ),
 
         Resource = require( 'base/resource' ),
@@ -190,7 +190,7 @@ define( function ( require ) {
     // services in the options.
     global.services = {
             // physics: 'physics/default',
-            // graphics: 'graphics/service',
+            graphics: 'graphics/service'
             // sound: 'sound/default'
     };
 
