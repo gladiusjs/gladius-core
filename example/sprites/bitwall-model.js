@@ -8,9 +8,6 @@ define(function() {
 
   var thugAction = 'walk-front'; // XXX
   
-  
-  // Thanks to the NoComply demo's CubicVR-bitmap_cube_array.js' for the
-  // much of the following code
   var BitwallModel = engine.base.Component({
     type : 'Model',
     depends : ['Transform']
@@ -25,6 +22,9 @@ define(function() {
     var _cvrmesh = _mesh._cvr.mesh;
     var _material;
     var tex = new CubicVR.Texture();
+
+    // Thanks to the NoComply demo's CubicVR-bitmap_cube_array.js' for the
+    // much of the following code
 
     function _updateTexture(action) {
       gl.bindTexture(gl.TEXTURE_2D, CubicVR.Textures[tex.tex_id]);
