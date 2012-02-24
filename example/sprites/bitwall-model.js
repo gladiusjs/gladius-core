@@ -1,13 +1,11 @@
-/*global CubicVR:false, engine:false, define:false */
+/*global engine:false, define:false */
 
-/* XXX yeah, we get the above vars from the global scope. some upcoming
+/* XXX we get the engine instance from the global scope. some upcoming
  * refactoring will fix this.
  */
 
 define(function() {
 
-  var thugAction = 'walk-front'; // XXX
-  
   var BitwallModel = engine.base.Component({
     type : 'Model',
     depends : ['Transform']
@@ -15,17 +13,23 @@ define(function() {
     options = options || {};
     var _this = this;
     var service = engine.graphics;
-    var gl = CubicVR.GLCore.gl;
+    var CubicVR = service.target.context;
 
-    var _sprite = options.sprite;
     var _mesh = new engine.graphics.resource.Mesh();
     var _cvrmesh = _mesh._cvr.mesh;
     var _material;
-    var tex = new CubicVR.Texture();
+
 
     // Thanks to the NoComply demo's CubicVR-bitmap_cube_array.js' for the
     // much of the following code
 
+    var gl = CubicVR.GLCore.gl;
+    var tex = new CubicVR.Texture();    
+    var _sprite = options.sprite;
+
+    // Update the texture by setting it to the next frame of a specific action.
+    // Note the reading it by calling .frame() increments has the side-effect
+    // of incrementing the next pointer
     function _updateTexture(action) {
       gl.bindTexture(gl.TEXTURE_2D, CubicVR.Textures[tex.tex_id]);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -34,21 +38,25 @@ define(function() {
       gl.bindTexture(gl.TEXTURE_2D, null);
     }
 
+    // Set the bitwall to a particular action (which encompasses a set of
+    // animation frames), and update the texture to the next frame of that 
+    // action.  Note that if the action param is omitted, the existing action
+    // will continue stepping.
     var _action = options.action || null;
     this.updateAction = function(action) {
-      _action = action;
-      _updateTexture(action);
+      _action = action || _action;
+      _updateTexture(_action);
     };
+
     
     function buildMaterial() {
 
-      // create an empty texture
       tex.setFilter(CubicVR.enums.texture.filter.NEAREST);
       tex.use();
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-      _updateTexture(thugAction);
+      _updateTexture(_action);
       _material = new engine.graphics.resource.Material({
         color : [1, 1, 1],
         textures : {

@@ -22,8 +22,6 @@ document.addEventListener("DOMContentLoaded", function(e) {
     var CubicVR = engine.graphics.target.context;
     var math = engine.math;
        
-    var thugAction = 'walk-front';
-
     var run = function() {
 
       // Make a new space for our entities
@@ -33,12 +31,13 @@ document.addEventListener("DOMContentLoaded", function(e) {
       // loaded, we can get a handle to the returned constructor and instantiate
       var BitwallModel = require('../example/sprites/bitwall-model');
       var bitwall = new space.Entity({
-        name : 'cube0',
+        name : 'walking-thug',
         components : [new engine.core.component.Transform({
           position : math.Vector3(0, 0, 0),
           rotation : math.Vector3(0, 0, 0)
         }), new BitwallModel({
-          sprite : viking.sprites.thug1
+          sprite : viking.sprites.thug1,
+          action : 'walk-front'
         })]
       });
 
@@ -84,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function(e) {
 
           // update the animation timer, as well as the animation if it's time
           if(!animationTimer) {
-            bitwall.find('Model').updateAction(thugAction);
+            bitwall.find('Model').updateAction();
 
             // reset the timer
             animationTimer = animationTime;
