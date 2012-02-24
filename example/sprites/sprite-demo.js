@@ -24,8 +24,6 @@ document.addEventListener("DOMContentLoaded", function(e) {
       // Make a new space for our entities
       var space = new engine.core.Space();
 
-      canvas = engine.graphics.target.element;
-
       // because we've already asynchronously loaded our sprite '
       var BitwallModel = require('../example/sprites/bitwall-model');
       var bitwall = new space.Entity({
