@@ -1,6 +1,6 @@
 /*global Sprite, viking, console */
 
-var engine, CubicVR;
+var engine;
 
 document.addEventListener("DOMContentLoaded", function(e) {
 
@@ -13,8 +13,13 @@ document.addEventListener("DOMContentLoaded", function(e) {
   var canvas = document.getElementById("test-canvas");
 
   var game = function(engineInstance) {
+
+    // Save the engine in the global scope so that Bitwall Model can inherit
+    // from it.  A future refactoring will fix this.
     engine = engineInstance;
-    CubicVR = engine.graphics.target.context;
+
+    // convenience vars
+    var CubicVR = engine.graphics.target.context;
     var math = engine.math;
        
     var thugAction = 'walk-front';
@@ -24,7 +29,8 @@ document.addEventListener("DOMContentLoaded", function(e) {
       // Make a new space for our entities
       var space = new engine.core.Space();
 
-      // because we've already asynchronously loaded our sprite '
+      // because we know the async require([]) of bitwall-model has already
+      // loaded, we can get a handle to the returned constructor and instantiate
       var BitwallModel = require('../example/sprites/bitwall-model');
       var bitwall = new space.Entity({
         name : 'cube0',
@@ -36,6 +42,8 @@ document.addEventListener("DOMContentLoaded", function(e) {
         })]
       });
 
+      // set up a camera with a light so that we can actually see the
+      // rotating sprite
       var camera = new space.Entity({
         name : 'camera',
         components : [new engine.core.component.Transform({
@@ -51,24 +59,31 @@ document.addEventListener("DOMContentLoaded", function(e) {
       });
       camera.find('Camera').target = math.Vector3(0, 0, 0);
 
+
+
       // XXX the animation time of 10 is totally random.  It should actually
       // be something sane, probably picked to interact with the
-      // simulationTime.delta and then that as well as the speed
-      // that the spritesheet includes factored in.  I suspect this code
-      // is gonna want some optimization too.
+      // simulationTime.delta as well as the speed that the spritesheet
+      // includes factored in.  I suspect this code is gonna want some
+      // optimization too.
       var animationTime = 10;
       var animationTimer = 0;
 
+      // set up a task to do the animation
       var task = new engine.scheduler.Task({
         schedule : {
           phase : engine.scheduler.phases.UPDATE
         },
         callback : function() {
+          
+          // rotate the whole entity
           var delta = engine.scheduler.simulationTime.delta / 1000;
-          bitwall.find('Transform').rotation = math.matrix4.add([bitwall.find('Transform').rotation, [0, math.TAU * delta * 0.1, 0]]);
+          bitwall.find('Transform').rotation = 
+            math.matrix4.add([bitwall.find('Transform').rotation, 
+                              [0, math.TAU * delta * 0.1, 0]]);
 
+          // update the animation timer, as well as the animation if it's time
           if(!animationTimer) {
-            // XXX update animation
             bitwall.find('Model').updateAction(thugAction);
 
             // reset the timer
