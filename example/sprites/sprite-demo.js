@@ -88,7 +88,8 @@ document.addEventListener("DOMContentLoaded", function(e) {
             // reset the timer
             animationTimer = animationTime;
 
-          } else {--animationTimer;
+          } else {
+            --animationTimer;
           }
         }
       });
