@@ -12,6 +12,10 @@ document.addEventListener("DOMContentLoaded", function(e) {
 
   var canvas = document.getElementById("test-canvas");
 
+  // get another configuration of require.js that loads things relative to
+  // this directory
+  var localRequire = require.config({context: "local", baseUrl: "."});
+
   var game = function(engineInstance) {
 
     // Save the engine in the global scope so that Bitwall Model can inherit
@@ -27,9 +31,9 @@ document.addEventListener("DOMContentLoaded", function(e) {
       // Make a new space for our entities
       var space = new engine.core.Space();
 
-      // because we know the async require([]) of bitwall-model has already
+      // because we know the async localRequire([]) of bitwall-model has already
       // loaded, we can get a handle to the returned constructor and instantiate
-      var BitwallModel = require('../example/sprites/bitwall-model');
+      var BitwallModel = localRequire('bitwall-model');
       var bitwall = new space.Entity({
         name : 'walking-thug',
         components : [new engine.core.component.Transform({
@@ -104,8 +108,8 @@ document.addEventListener("DOMContentLoaded", function(e) {
       });
     }
 
-    // XXX shouldn't require path contortions
-    require(['../example/sprites/bitwall-model'], loadSprite);
+    // pull in the bitwall-model code, and once we've got it, load our sprite
+    localRequire(['bitwall-model'], loadSprite);
 
   };
 
