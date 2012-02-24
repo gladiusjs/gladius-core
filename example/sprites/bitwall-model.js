@@ -4,6 +4,20 @@
  * refactoring will fix this.
  */
 
+/* 
+ * BitWallModel is a 3d model created by taking a 2d sprite image from the
+ * F1LT3R's Sprite-Viking Blitr library and extruding it into 3 dimensions
+ * creating layered look.
+ * 
+ * Sprite-Viking Blitr sprite sheets offer a set of actions for each sprite
+ * sheet, each comprised of a number of animation frames.  
+ * 
+ * Calling myBitwallModel.updateAction will update the model to the next
+ * frame of the specified action.
+ * 
+ * Thanks to the NoComply demo's CubicVR-bitmap_cube_array.js' for the
+ * much of the following code.
+ */
 define(function() {
 
   var BitwallModel = engine.base.Component({
@@ -17,56 +31,50 @@ define(function() {
 
     var _mesh = new engine.graphics.resource.Mesh();
     var _cvrmesh = _mesh._cvr.mesh;
-    var _material;
-
-
-    // Thanks to the NoComply demo's CubicVR-bitmap_cube_array.js' for the
-    // much of the following code
 
     var gl = CubicVR.GLCore.gl;
-    var tex = new CubicVR.Texture();    
-    var _sprite = options.sprite;
 
-    // Update the texture by setting it to the next frame of a specific action.
-    // Note the reading it by calling .frame() increments has the side-effect
-    // of incrementing the next pointer
+    // We use a single texture, and animate the bitwall by updating the image
+    // on it.
+    var texture = new CubicVR.Texture();    
+
+    // Update the texture for the bitwall by setting it to the next frame 
+    // of the given action.  This has the side effect of incrementing the next
+    // frame pointer inside the action.
     function _updateTexture(action) {
-      gl.bindTexture(gl.TEXTURE_2D, CubicVR.Textures[tex.tex_id]);
+      gl.bindTexture(gl.TEXTURE_2D, CubicVR.Textures[texture.tex_id]);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
-                    _sprite[action].frame());
+                    options.sprite[action].frame());
       gl.bindTexture(gl.TEXTURE_2D, null);
     }
-
-    // Set the bitwall to a particular action (which encompasses a set of
-    // animation frames), and update the texture to the next frame of that 
-    // action.  Note that if the action param is omitted, the existing action
-    // will continue stepping.
+    // BitwallModel's primary external API: set the bitwall to a particular
+    // action (which encompasses a set of animation frames), and update the
+    // texture to the next frame of that action.  Note that if the action
+    // param is omitted, the existing action will update to the next frame.
     var _action = options.action || null;
     this.updateAction = function(action) {
       _action = action || _action;
       _updateTexture(_action);
     };
 
-    
     function buildMaterial() {
-
-      tex.setFilter(CubicVR.enums.texture.filter.NEAREST);
-      tex.use();
+      texture.setFilter(CubicVR.enums.texture.filter.NEAREST);
+      texture.use();
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
       _updateTexture(_action);
-      _material = new engine.graphics.resource.Material({
+      return new engine.graphics.resource.Material({
         color : [1, 1, 1],
         textures : {
-          color : tex
+          color : texture
         }
       });
     }
 
-    function buildMesh() {
-      var _cvrmat = _material._cvr.material;
+    function buildMesh(material) {
+      var _cvrmat = material._cvr.material;
 
       var tmpMesh = new CubicVR.Mesh();
 
@@ -104,8 +112,12 @@ define(function() {
       _cvrmesh.compile();
     }
 
-    buildMaterial();
-    buildMesh();
+    var material = buildMaterial();
+    buildMesh(material);
+
+
+    // The remaining bits are boilerplate code taken from the generic model
+    // code so that this object behaves the way the engine expects.
 
     Object.defineProperty(this, "mesh", {
       enumerable : true,
@@ -135,9 +147,9 @@ define(function() {
     };
 
     this.prepare = function() {
-      if(_mesh && _material && _mesh._cvr && _material._cvr) {
+      if(_mesh && material && _mesh._cvr && material._cvr) {
         _mesh.prepare({
-          material : _material
+          material : material
         });
       } //if
     };
