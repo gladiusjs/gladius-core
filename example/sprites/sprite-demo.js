@@ -1,4 +1,4 @@
-/*global Sprite, viking, console */
+/*global console */
 
 var engine;
 
@@ -12,10 +12,6 @@ document.addEventListener("DOMContentLoaded", function(e) {
 
   var canvas = document.getElementById("test-canvas");
 
-  // get another configuration of require.js that loads things relative to
-  // this directory
-  var localRequire = require.config({context: "local", baseUrl: "."});
-
   var game = function(engineInstance) {
 
     // Save the engine in the global scope so that Bitwall Model can inherit
@@ -25,28 +21,24 @@ document.addEventListener("DOMContentLoaded", function(e) {
     // convenience vars
     var CubicVR = engine.graphics.target.context;
     var math = engine.math;
+    var bitwallModel;
        
     var run = function() {
 
-      // Make a new space for our entities
+      // somewhere to put our entities
       var space = new engine.core.Space();
-
-      // because we know the async localRequire([]) of bitwall-model has already
-      // loaded, we can get a handle to the returned constructor and instantiate
-      var BitwallModel = localRequire('bitwall-model');
+      
+      // a entity to hold the bitwall model
       var bitwall = new space.Entity({
         name : 'walking-thug',
         components : [new engine.core.component.Transform({
           position : math.Vector3(0, 0, 0),
           rotation : math.Vector3(0, 0, 0)
-        }), new BitwallModel({
-          sprite : viking.sprites.thug1,
-          action : 'walk-front'
-        })]
+        }), bitwallModel]
       });
 
       // set up a camera with a light so that we can actually see the
-      // rotating sprite
+      // rotating  bitwall
       var camera = new space.Entity({
         name : 'camera',
         components : [new engine.core.component.Transform({
@@ -61,7 +53,6 @@ document.addEventListener("DOMContentLoaded", function(e) {
         })]
       });
       camera.find('Camera').target = math.Vector3(0, 0, 0);
-
 
 
       // XXX the animation time of 10 is totally random.  It should actually
@@ -102,14 +93,28 @@ document.addEventListener("DOMContentLoaded", function(e) {
       engine.run();
 
     };
-    function loadSprite() {
-      viking.loadSprite('./thug1.sprite', {
-        callback : run
-      });
-    }
 
-    // pull in the bitwall-model code, and once we've got it, load our sprite
-    localRequire(['bitwall-model'], loadSprite);
+  
+    // We may be sharing a copy of require.js with Gladius if we're developing
+    // If so, this next line guarantees that we have a configuration of
+    // require.js that loads things relative to this directory 
+    var localRequire = require.config({context: "local", baseUrl: "."});
+
+    // pull in the bitwall-model code, and once we've got it, load our sprite,
+    // and run the game!
+    localRequire(['bitwall-model'], function ( BitwallModel ) {
+      
+      bitwallModel = new BitwallModel({
+        spriteURL: 'thug1.sprite',
+        action: 'walk-front'
+      });
+      
+      // initialize the model, and the 
+      bitwallModel.init(function() {
+        run();
+      });
+      
+    });
 
   };
 

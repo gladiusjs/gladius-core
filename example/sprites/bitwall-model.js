@@ -1,13 +1,13 @@
-/*global engine:false, define:false */
+/*global engine:false, define:false, viking:false */
 
 /* XXX we get the engine instance from the global scope. some upcoming
  * refactoring will fix this.
  */
 
 /* 
- * BitWallModel is a 3d model created by taking a 2d sprite image from the
- * F1LT3R's Sprite-Viking Blitr library and extruding it into 3 dimensions
- * creating layered look.
+ * BitWallModel is an animated 3d model created by taking a 2d sprite image
+ * from the F1LT3R's Sprite-Viking Blitr library and extruding it into 
+ * 3 dimensions creating a layered look.
  * 
  * Sprite-Viking Blitr sprite sheets offer a set of actions for each sprite
  * sheet, each comprised of a number of animation frames.  
@@ -18,7 +18,9 @@
  * Thanks to the NoComply demo's CubicVR-bitmap_cube_array.js' for the
  * much of the following code.
  */
-define(function() {
+
+// define this module to depend on sprite-viking-blitr 
+define(['sprite-viking-blitr'], function() {
 
   var BitwallModel = engine.base.Component({
     type : 'Model',
@@ -30,6 +32,12 @@ define(function() {
     var CubicVR = service.target.context;
     var gl = CubicVR.GLCore.gl;
 
+    // XXX This is super fragile and depends on the sprite JSON file being
+    // named with the same prefix that is used inside the JSON file as "name"
+    // property (which is what viking uses to expose the loaded sprite on
+    // viking's global object).
+    var spriteName = options.spriteURL.split(".")[0];
+    
     // We use a single texture, and animate the bitwall by updating the image
     // on it.
     var texture = new CubicVR.Texture();    
@@ -41,14 +49,15 @@ define(function() {
       gl.bindTexture(gl.TEXTURE_2D, CubicVR.Textures[texture.tex_id]);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
-                    options.sprite[action].frame());
+                    viking.sprites[spriteName][action].frame());
       gl.bindTexture(gl.TEXTURE_2D, null);
     }
     
-    // BitwallModel's primary external API: set the bitwall to a particular
-    // action (which encompasses a set of animation frames), and update the
-    // texture to the next frame of that action.  Note that if the action
-    // param is omitted, the existing action will update to the next frame.
+
+    // Set the bitwall to a particular action (which encompasses a set of
+    // animation frames), and update the texture to the next frame of that
+    // action.  Note that if the action param is omitted, the existing
+    // action will update to the next frame.
     var _action = options.action || null;
     this.updateAction = function(action) {
       _action = action || _action;
@@ -116,8 +125,26 @@ define(function() {
       return mesh;
     }
 
-    var material = buildMaterial();
-    var _mesh = buildMesh(material);
+    var material;
+    var _mesh;    
+
+    // Loads spriteURL (expected to have been passed in via options) into 
+    // viking.  Once this completes the model is constructed and initialized,
+    // and the callback is called.
+    this.init = function bitwallModelInit(callback) {
+      
+      function callbackWrapper() {
+
+        // now that the sprite has loaded, we can build our material and mesh
+        material = buildMaterial();
+        _mesh = buildMesh(material);
+        
+        // tell the caller that we're all done!
+        callback();
+      }
+      viking.loadSprite(options.spriteURL, {callback: callbackWrapper});
+    };
+
 
     // The remaining bits are boilerplate code taken from the generic model
     // code so that this object behaves the way the engine expects.
