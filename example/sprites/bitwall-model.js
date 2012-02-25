@@ -111,7 +111,7 @@ define(['sprite-viking-blitr'], function() {
 
       var p;
 
-      for(var i = -0.05 + is; i < 0.05 - is; i += is) {
+      for (var i = -0.05 + is; i < 0.05 - is; i += is) {
         transform.clearStack();
         transform.translate([0, 0, i]);
         _cvrmesh.booleanAdd(tmpMesh, transform);
