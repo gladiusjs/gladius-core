@@ -190,7 +190,7 @@ define( function ( require ) {
     // services in the options.
     global.services = {
             // physics: 'physics/default',
-            graphics: 'graphics/service'
+            // graphics: 'graphics/service'
             // sound: 'sound/default'
     };
 
