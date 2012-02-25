@@ -5,17 +5,14 @@ var engine;
 document.addEventListener("DOMContentLoaded", function(e) {
 
   // TODOs
-  // * hoist bitwall model into other file so we can iterate while andor uses
   // * instead of rotation, use walk-back and walk-front with transforms & scaling
-  // * sort out the loading story
-  // * make the animation speed sane
 
   var canvas = document.getElementById("test-canvas");
 
   var game = function(engineInstance) {
 
     // Save the engine in the global scope so that Bitwall Model can inherit
-    // from it.  A future refactoring will fix this.
+    // from it.  A future refactoring will make this unnecessary.
     engine = engineInstance;
 
     // convenience vars
