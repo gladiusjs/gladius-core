@@ -15,6 +15,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
             canvas = engine.graphics.target.element;
 
+            // create one cube
             space.add( new engine.core.Entity({
                 name: 'cube0',
                 components: [
@@ -28,6 +29,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     })
                 ]
             }) );
+            
+            // create a second cube parented to the first
             space.add( new engine.core.Entity({
                 name: 'cube1',
                 parent: space.find( 'cube0' ),
@@ -43,7 +46,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     })
                 ]
             }) );  
-            
+
+            // set up a camera in the space so we can see            
             space.add( new engine.core.Entity({
                 name: 'camera',
                 components: [
@@ -64,6 +68,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             space.find( 'camera' ).find( 'Camera' ).target = 
               space.find( 'cube0' ).find( 'Transform' ).position;
 
+            // rotate both cubes
             var cube0 = space.find( 'cube0' );
             var cube1 = space.find( 'cube1' );
             var task = new engine.scheduler.Task({
@@ -120,7 +125,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
     };
 
-
+    // create an instance of the Gladius engine
     gladius.create(
             {
                 debug: true,
@@ -133,7 +138,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     }
                 }
             },
-            game
+            game // call our game() once the engine is ready
     );
 
 });
