@@ -27,7 +27,7 @@ define(['sprite-viking-blitr'], function() {
     depends : ['Transform']
   }, function(options) {
     options = options || {};
-    var _this = this;
+    var that = this;
     var service = engine.graphics;
     var CubicVR = service.target.context;
     var gl = CubicVR.GLCore.gl;
@@ -45,7 +45,7 @@ define(['sprite-viking-blitr'], function() {
     // Update the texture for the bitwall by setting it to the next frame 
     // of the given action.  This has the side effect of incrementing the next
     // frame pointer inside the action.
-    function _updateTexture(action) {
+    function updateTexture(action) {
       gl.bindTexture(gl.TEXTURE_2D, CubicVR.Textures[texture.tex_id]);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
@@ -58,10 +58,10 @@ define(['sprite-viking-blitr'], function() {
     // animation frames), and update the texture to the next frame of that
     // action.  Note that if the action param is omitted, the existing
     // action will update to the next frame.
-    var _action = options.action || null;
+    var currentAction = options.action || null;
     this.updateAction = function(action) {
-      _action = action || _action;
-      _updateTexture(_action);
+      currentAction = action || currentAction;
+      updateTexture(currentAction);
     };
 
     function buildMaterial() {
@@ -70,7 +70,7 @@ define(['sprite-viking-blitr'], function() {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-      _updateTexture(_action);
+      updateTexture(currentAction);
       return new engine.graphics.resource.Material({
         color : [1, 1, 1],
         textures : {
@@ -125,9 +125,10 @@ define(['sprite-viking-blitr'], function() {
       return mesh;
     }
 
+    // stuff we're going to build up after we load
     var material;
-    var _mesh;    
-
+    this.mesh = null;
+    
     // Loads spriteURL (expected to have been passed in via options) into 
     // viking.  Once this completes the model is constructed and initialized,
     // and the callback is called.
@@ -137,7 +138,7 @@ define(['sprite-viking-blitr'], function() {
 
         // now that the sprite has loaded, we can build our material and mesh
         material = buildMaterial();
-        _mesh = buildMesh(material);
+        that.mesh = buildMesh(material);
         
         // tell the caller that we're all done!
         callback();
@@ -148,13 +149,6 @@ define(['sprite-viking-blitr'], function() {
 
     // The remaining bits are boilerplate code taken from the generic model
     // code so that this object behaves the way the engine expects.
-
-    Object.defineProperty(this, "mesh", {
-      enumerable : true,
-      get : function() {
-        return _mesh;
-      }
-    });
 
     this.onComponentOwnerChanged = function(e) {
       if(e.data.previous === null && this.owner !== null) {
@@ -177,15 +171,15 @@ define(['sprite-viking-blitr'], function() {
     };
 
     this.prepare = function() {
-      if(_mesh && material && _mesh._cvr && material._cvr) {
-        _mesh.prepare({
+      if(that.mesh && material && that.mesh._cvr && material._cvr) {
+        that.mesh.prepare({
           material : material
         });
       } //if
     };
     //prepare
 
-    _this.prepare();
+    that.prepare();
 
   });
   return BitwallModel;
