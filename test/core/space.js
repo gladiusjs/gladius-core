@@ -60,7 +60,7 @@
         );
     });
 
-    test( 'Entity', function() {
+    test( 'new Entity creation', function() {
         expect( 5 );
 
         var space = new engine.core.Space();
