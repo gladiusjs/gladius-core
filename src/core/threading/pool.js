@@ -18,8 +18,7 @@ define( function( require ) {
         var _terminate = false;
 
         var ready = function( thread ) {
-            lang.assert( _threads[thread.id], 'thread ' + thread.id +
-                         ' does not belong to this thread pool' );
+            lang.assert( _threads[thread.id], 'thread ' + thread.id + ' does not belong to this thread pool' );
             if( _terminate ) {
                 thread.terminate();
                 delete _threads[thread.id];
@@ -38,8 +37,7 @@ define( function( require ) {
 
         // Dispatch work to this pool; Will be picked up by the first available thread
         this.dispatch = function( options ) {
-            lang.assert( !_terminate, 
-                         'call invoked on terminated thread pool' );
+            lang.assert( !_terminate, 'call invoked on terminated thread pool' );
             if( _readyThreads.length > 0 ) {
                 var thread = _readyThreads.shift();
                 thread.dispatch( options );
