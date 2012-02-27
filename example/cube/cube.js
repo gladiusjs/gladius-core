@@ -1,12 +1,5 @@
 document.addEventListener( "DOMContentLoaded", function( e ){
 
-    var printd = function( div, str ) {
-        document.getElementById( div ).innerHTML = str + '<p>';
-    };
-    var cleard = function( div ) {
-        document.getElementById( div ).innerHTML = '';
-    };
-
     var canvas = document.getElementById( "test-canvas" );    
     var resources = {};
 
@@ -20,12 +13,9 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             // Make a new space for our entities
             var space = new engine.core.Space();
 
-            // Make some entities and arrange them
-            var cubes = [];
-
             canvas = engine.graphics.target.element;
 
-            cubes.push( new space.Entity({
+            space.add( new engine.core.Entity({
                 name: 'cube0',
                 components: [
                     new engine.core.component.Transform({
@@ -38,10 +28,9 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     })
                 ]
             }) );
-
-            cubes.push( new space.Entity({
+            space.add( new engine.core.Entity({
                 name: 'cube1',
-                parent: cubes[0],
+                parent: space.find( 'cube0' ),
                 components: [
                     new engine.core.component.Transform({
                         position: math.Vector3( 2, 2, 2 ),
@@ -55,55 +44,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 ]
             }) );  
             
-            cubes.push( new space.Entity({
-                name: 'cube2',
-                parent: cubes[0],
-                components: [
-                    new engine.core.component.Transform({
-                        position: math.Vector3( -2, 2, 2 ),
-                        rotation: math.Vector3( 0, 0, 0 ),
-                        scale: math.Vector3( 0.5, 0.5, 0.5 )
-                    }),
-                    new engine.graphics.component.Model({
-                        mesh: resources.mesh,
-                        material: resources.material
-                    })
-                ]
-            }) ); 
-            
-            cubes.push( new space.Entity({
-                name: 'cube2',
-                parent: cubes[0],
-                components: [
-                    new engine.core.component.Transform({
-                        position: math.Vector3( 2, -2, 2 ),
-                        rotation: math.Vector3( 0, 0, 0 ),
-                        scale: math.Vector3( 0.5, 0.5, 0.5 )
-                    }),
-                    new engine.graphics.component.Model({
-                        mesh: resources.mesh,
-                        material: resources.material
-                    })
-                ]
-            }) );
-            
-            cubes.push( new space.Entity({
-                name: 'cube2',
-                parent: cubes[0],
-                components: [
-                    new engine.core.component.Transform({
-                        position: math.Vector3( 2, 2, -2 ),
-                        rotation: math.Vector3( 0, 0, 0 ),
-                        scale: math.Vector3( 0.5, 0.5, 0.5 )
-                    }),
-                    new engine.graphics.component.Model({
-                        mesh: resources.mesh,
-                        material: resources.material
-                    })
-                ]
-            }) );
-                      
-            var camera = new space.Entity({
+            space.add( new engine.core.Entity({
                 name: 'camera',
                 components: [
                     new engine.core.component.Transform({
@@ -117,21 +58,26 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     }),
                     new engine.graphics.component.Light({ intensity: 50 })
                 ]
-            });
-            camera.find( 'Camera' ).target = math.Vector3( 0, 0, 0 );
+            }));
 
+            // aim the camera at cube0 
+            space.find( 'camera' ).find( 'Camera' ).target = 
+              space.find( 'cube0' ).find( 'Transform' ).position;
+
+            var cube0 = space.find( 'cube0' );
+            var cube1 = space.find( 'cube1' );
             var task = new engine.scheduler.Task({
                 schedule: {
                     phase: engine.scheduler.phases.UPDATE
                 },
                 callback: function() {
                     var delta = engine.scheduler.simulationTime.delta/1000;
-                    cubes[0].find( 'Transform' ).rotation = math.matrix4.add([
-                        cubes[0].find( 'Transform' ).rotation,
+                    cube0.find( 'Transform' ).rotation = math.matrix4.add([
+                        cube0.find( 'Transform' ).rotation,
                         [ math.TAU * delta * 0.1, math.TAU * delta * 0.2, 0 ]
                     ]);
-                    cubes[1].find( 'Transform' ).rotation = math.matrix4.add([
-                        cubes[1].find( 'Transform' ).rotation,
+                    cube1.find( 'Transform' ).rotation = math.matrix4.add([
+                        cube1.find( 'Transform' ).rotation,
                         [ math.TAU * delta * 0.1, math.TAU * delta * 0.2, 0 ]
                     ]);                   
                 }
@@ -142,6 +88,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
         };
         
+        // load a mesh and a material to cover that mesh, both of which
+        // are generated procedurally by JavaScript files.
         engine.core.resource.get(
             [
                 {
