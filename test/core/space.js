@@ -94,6 +94,18 @@
         );
     });
 
-
+    test( 'add an Entity', function() {
+      expect(1);
+      
+      var space = new engine.core.Space();
+      
+      var entity = new engine.core.Entity();
+      
+      space.add( entity );
+      equal( entity.manager.id, space.id, "entity is managed by space");
+      
+      // TD test cases where entity is changing spaces (eg that entity
+      // gets propertly unparented from previous space).
+    });
 
 }());
