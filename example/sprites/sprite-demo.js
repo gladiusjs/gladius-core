@@ -4,9 +4,6 @@ var engine;
 
 document.addEventListener("DOMContentLoaded", function(e) {
 
-  // TODOs
-  // * instead of rotation, use walk-back and walk-front with transforms & scaling
-
   var canvas = document.getElementById("test-canvas");
 
   var game = function(engineInstance) {
@@ -15,8 +12,6 @@ document.addEventListener("DOMContentLoaded", function(e) {
     // from it.  A future refactoring will make this unnecessary.
     engine = engineInstance;
 
-    // convenience vars
-    var CubicVR = engine.graphics.target.context;
     var math = engine.math;
     var bitwallModel;
        
@@ -51,17 +46,12 @@ document.addEventListener("DOMContentLoaded", function(e) {
       });
       camera.find('Camera').target = math.Vector3(0, 0, 0);
 
-
-      // XXX the animation time of 10 is totally random.  It should actually
-      // be something sane, probably picked to interact with the
-      // simulationTime.delta as well as the speed that the spritesheet
-      // includes factored in.  I suspect this code is gonna want some
-      // optimization too.
-      var animationTime = 200;
+      var moveSpeed = 0.001;    // move distance per millisecond
+      var animationFrameTime = 0.2 / moveSpeed;
       var animationTimer = 0;      
       var direction = 1;
       var actions = [ 'walk-front', 'walk-back' ];
-      var currentAction = 0;
+      var currentAction = 0;    // index into actions array
 
       // set up a task to do the animation
       var task = new engine.scheduler.Task({
@@ -70,34 +60,40 @@ document.addEventListener("DOMContentLoaded", function(e) {
         },
         callback : function() {
           
-          var delta = engine.scheduler.simulationTime.delta / 1000;
-          var maxWalk = 1;
-          var directionChanged = false;
-          animationTimer += engine.scheduler.simulationTime.delta;
+          var delta = engine.scheduler.simulationTime.delta;    // time delta from previous frame
+          var maxWalk = 1;  // maximum walk distance for sprite
+          var directionChanged = false;          
           
+          // update direction and animation if sprite has moved too far
           var position = bitwall.find( 'Transform' ).position;
           if( Math.abs( position[2] ) > maxWalk ) {
-              position = [0, 0, direction * maxWalk];
-              direction *= -1;
-              currentAction = (++ currentAction) % 2;
+              position = [0, 0, direction * maxWalk];   // reset our position to maxWalk              
+              currentAction = (++ currentAction) % 2;   // flip the walk animation
               bitwall.find( 'Model' ).currentAction = actions[currentAction];
+              
+              direction *= -1;
               directionChanged = true;
           }
+          // update sprite position
           bitwall.find( 'Transform' ).position = math.vector3.add(
                   position,
-                  [0, 0, direction * delta * 1]
+                  [0, 0, direction * delta * moveSpeed]
           );
           
+          // update the timer sprite animation
+          animationTimer += delta;
           if( directionChanged ) {
+              // reset the animation if we've changed direction
               bitwall.find('Model').updateAction();  
               animationTimer = 0;
           } else {
-              while( animationTimer >= animationTime ) {
+              // advance the animation to the correct state before we render
+              while( animationTimer >= animationFrameTime ) {
                   bitwall.find('Model').updateAction();
-                  animationTimer -= animationTime;
+                  animationTimer -= animationFrameTime;
               }
           }
-                   
+
         }
       });
 
