@@ -13,6 +13,7 @@ SRC_DIR := ./src
 TEST_DIR := ./test
 DIST_DIR := ./dist
 EXTERNAL_DIR := ./external
+EXAMPLE_DIR := ./example
 GLADIUS_SRC := $(SRC_DIR)/$(GLADIUS).js
 GLADIUS_DIST := $(DIST_DIR)/$(GLADIUS).js
 GLADIUS_MIN := $(DIST_DIR)/$(GLADIUS).min.js
@@ -23,7 +24,9 @@ JSHINT := $(TOOLS_DIR)/node_modules/.bin/jshint
 
 CUBICVR_LIB := $(EXTERNAL_DIR)/CubicVR.js/dist/CubicVR.js
 
-GLADIUS_JSHINT_DIRS := $(SRC_DIR) $(TEST_DIR) ./example/collada
+GLADIUS_JSHINT_DIRS := $(SRC_DIR) $(TEST_DIR) ./example/collada \
+	example/sprites example/cube
+
 
 compile = node $(TOOLS_DIR)/node_modules/uglify-js/bin/uglifyjs -o $(1) $(GLADIUS_DIST)
 

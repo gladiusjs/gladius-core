@@ -10,4 +10,4 @@
             intensity: options.intensity || 10,
             distance: 10
         };
-    };
+    }
