@@ -58,10 +58,10 @@ define(['sprite-viking-blitr'], function() {
     // animation frames), and update the texture to the next frame of that
     // action.  Note that if the action param is omitted, the existing
     // action will update to the next frame.
-    var currentAction = options.action || null;
+    this.currentAction = options.action || null;
     this.updateAction = function(action) {
-      currentAction = action || currentAction;
-      updateTexture(currentAction);
+      that.currentAction = action || that.currentAction;
+      updateTexture(that.currentAction);
     };
 
     function buildMaterial() {
@@ -70,7 +70,7 @@ define(['sprite-viking-blitr'], function() {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-      updateTexture(currentAction);
+      updateTexture(that.currentAction);
       return new engine.graphics.resource.Material({
         color : [1, 1, 1],
         textures : {

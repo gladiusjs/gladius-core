@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function(e) {
       var camera = new space.Entity({
         name : 'camera',
         components : [new engine.core.component.Transform({
-          position : math.Vector3(0, 0, 2)
+          position : math.Vector3(1, 1, 2)
         }), new engine.graphics.component.Camera({
           active : true,
           width : canvas.width,
@@ -57,8 +57,11 @@ document.addEventListener("DOMContentLoaded", function(e) {
       // simulationTime.delta as well as the speed that the spritesheet
       // includes factored in.  I suspect this code is gonna want some
       // optimization too.
-      var animationTime = 10;
-      var animationTimer = 0;
+      var animationTime = 200;
+      var animationTimer = 0;      
+      var direction = 1;
+      var actions = [ 'walk-front', 'walk-back' ];
+      var currentAction = 0;
 
       // set up a task to do the animation
       var task = new engine.scheduler.Task({
@@ -67,22 +70,34 @@ document.addEventListener("DOMContentLoaded", function(e) {
         },
         callback : function() {
           
-          // rotate the whole entity
           var delta = engine.scheduler.simulationTime.delta / 1000;
-          bitwall.find('Transform').rotation = 
-            math.matrix4.add([bitwall.find('Transform').rotation, 
-                              [0, math.TAU * delta * 0.1, 0]]);
-
-          // update the animation timer, as well as the animation if it's time
-          if(!animationTimer) {
-            bitwall.find('Model').updateAction();
-
-            // reset the timer
-            animationTimer = animationTime;
-
-          } else {
-            --animationTimer;
+          var maxWalk = 1;
+          var directionChanged = false;
+          animationTimer += engine.scheduler.simulationTime.delta;
+          
+          var position = bitwall.find( 'Transform' ).position;
+          if( Math.abs( position[2] ) > maxWalk ) {
+              position = [0, 0, direction * maxWalk];
+              direction *= -1;
+              currentAction = (++ currentAction) % 2;
+              bitwall.find( 'Model' ).currentAction = actions[currentAction];
+              directionChanged = true;
           }
+          bitwall.find( 'Transform' ).position = math.vector3.add(
+                  position,
+                  [0, 0, direction * delta * 1]
+          );
+          
+          if( directionChanged ) {
+              bitwall.find('Model').updateAction();  
+              animationTimer = 0;
+          } else {
+              while( animationTimer >= animationTime ) {
+                  bitwall.find('Model').updateAction();
+                  animationTimer -= animationTime;
+              }
+          }
+                   
         }
       });
 
