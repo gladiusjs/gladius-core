@@ -233,8 +233,8 @@ define( function ( require ) {
                     key = keys[0]; // Unknown
                 } else {
                     var componentList = [];
-                    for( var entityId in that.components['Controller'] ) {
-                        componentList.push( that.components['Controller'][entityId] );
+                    for( var entityId in that.components.Controller ) {
+                        componentList.push( that.components.Controller[entityId] );
                     }
                     new engine.core.Event({
                         type: 'Key',
@@ -260,12 +260,12 @@ define( function ( require ) {
                     for( var entityId in that.components[componentType] ) {
                         while( that.components[componentType][entityId].handleQueuedEvent() ) {}
                     }
-                };
+                }
             };
 
             var _components = {
 
-                    Controller: Controller( engine, this ),
+                    Controller: Controller( engine, this )
 
             };
 

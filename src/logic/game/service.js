@@ -30,7 +30,7 @@ define( function ( require ) {
                         while( component.handleQueuedEvent() ) {}                        
                         updateEvent.dispatch( [component] );
                     }
-                };
+                }
             };
 
         });
