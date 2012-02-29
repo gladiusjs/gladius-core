@@ -119,7 +119,6 @@ define( function ( require ) {
                             task.callback();
                         } catch( e ) {
                             // Suspend the scheduler and return
-                            console.log( e );
                             that.suspend();
                             return;
                         }
