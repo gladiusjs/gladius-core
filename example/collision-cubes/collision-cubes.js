@@ -31,13 +31,13 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             var that = this;
             var service = this;
 
-            var BoundingBox = engine.base.Component({
+            var AABB = engine.base.Component({
                 type: 'Collision',
                 depends: ['Transform']
             },
             function( options ) {
-                this.lowerLeft = options.lowerLeft;
-                this.upperRight = options.upperRight;               
+                this.halfWidth = options.halfWidth;
+                this.halfHeight = options.halfHeight;
 
                 // Boilerplate component registration; Lets our service know that we exist and want to do things
                 this.onComponentOwnerChanged = function( e ){
@@ -68,29 +68,28 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                         while( that.components[componentType][entityId].handleQueuedEvent() ) {}
                     }
                 }
-
-                function checkCollision( box1, box2 ) {
-                    var top1, top2,
-                        bottom1, bottom2,
-                        left1, left2,
-                        right1, right2;
+                
+                var checkCollision = function( box1, box2 ) {
+                    var T = math.vector2.subtract( box2.center, box1.center );  // vector from center of box1 to center of box2
                     
-                    top1 = box1.upperRight[1];
-                    top2 = box2.upperRight[1];
-                    bottom1 = box1.lowerLeft[1];
-                    bottom2 = box2.lowerLeft[1];
-                    left1 = box1.lowerLeft[0];
-                    left2 = box2.lowerLeft[0];
-                    right1 = box1.upperRight[0];
-                    right2 = box2.upperRight[0];
+                    // test x-axis
+                    var proj_T_x = math.vector2.length( math.vector2.project( T, math.vector2.x ) );                    
+                    var proj_AABB_x = box1.halfWidth + 
+                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.x, box2.halfWidth ), math.vector2.x ) ) + 
+                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.y, box2.halfHeight ), math.vector2.x ) );
+                    if( proj_T_x > proj_AABB_x ) return false;
                     
-                    var outsideBottom = bottom1 > top2,
-                        outsideTop = top1 < bottom2,
-                        outsideLeft = left1 > right2,
-                        outsideRight = right1 < left2;
-                        
-                    return !( outsideBottom || outsideTop || outsideLeft || outsideRight );
-                }
+                    // test y-axis
+                    var proj_T_y = math.vector2.length( math.vector2.project( T, math.vector2.y ) );
+                    var proj_AABB_y = box1.halfHeight + 
+                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.x, box2.halfWidth ), math.vector2.y ) ) + 
+                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.y, box2.halfHeight ), math.vector2.y ) );
+                    if( proj_T_y > proj_AABB_y ) return false;
+                    
+                    console.log( proj_AABB_x - proj_T_x, proj_AABB_y - proj_T_y );
+                    
+                    return true;
+                };
 
                 for( var collisionEntity1 in that.components.Collision ) {
                     var component1 = that.components.Collision[collisionEntity1];
@@ -104,27 +103,17 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                             if( !box1 ) {
                                 var transform1 = component1.owner.find( 'Transform' );
                                 box1 = {
-                                        lowerLeft: math.vector2.add(
-                                                    transform1.position,
-                                                    component1.lowerLeft
-                                                ),
-                                        upperRight: math.vector2.add(
-                                                    transform1.position,
-                                                    component1.upperRight
-                                                )
+                                        halfWidth: component1.halfWidth,
+                                        halfHeight: component1.halfHeight,
+                                        center: transform1.position
                                 };
                             }
                             
                             var transform2 = component2.owner.find( 'Transform' );
                             box2 = {
-                                    lowerLeft: math.vector2.add(
-                                                transform2.position,
-                                                component2.lowerLeft
-                                            ),
-                                    upperRight: math.vector2.add(
-                                                transform2.position,
-                                                component2.upperRight
-                                            )
+                                    halfWidth: component2.halfWidth,
+                                    halfHeight: component2.halfHeight,
+                                    center: transform2.position
                             };
 
                             if ( checkCollision( box1, box2 ) ) {
@@ -143,7 +132,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
             var _components = {
 
-                    BoundingBox: BoundingBox
+                    AABB: AABB
 
             };
 
@@ -267,10 +256,10 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                                  }
                              }),
                              new PlayerComponent(),
-                             new collision2Service.component.BoundingBox({
-                                 lowerLeft: math.Vector2( -0.5, -0.5 ),
-                                 upperRight: math.Vector2( 0.5, 0.5 )
-                             }) 
+                             new collision2Service.component.AABB({
+                                 halfWidth: 1,
+                                 halfHeight: 1
+                             })
                              ]
             });
 
@@ -312,9 +301,9 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                                  }
                              }),
                              new PlayerComponent(),
-                             new collision2Service.component.BoundingBox({
-                                 lowerLeft: math.Vector2( -0.5, -0.5 ),
-                                 upperRight: math.Vector2( 0.5, 0.5 )
+                             new collision2Service.component.AABB({
+                                 halfWidth: 1,
+                                 halfHeight: 1
                              })
                              ]
             });
@@ -356,7 +345,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 [
                  {
                      type: engine.graphics.resource.Mesh,
-                     url: 'procedural-mesh.js',                          
+                     url: 'procedural-mesh.js?size=2',                          
                      load: engine.core.resource.proceduralLoad,
                      onsuccess: function( mesh ) {
                          resources.mesh = mesh;
