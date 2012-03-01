@@ -66,13 +66,10 @@
     // inject a fake keystroke
     var e = document.createEvent("KeyboardEvent");
     if ('initKeyboardEvent' in e) {
-      // e.initKeyboardEvent(args.type, args.canBubble, args.cancelable,
-      // args.view, "U+0041", e.DOM_KEY_LOCATION_STANDARD,
-      // args.modifiersList, args.repeat, args.locale);
-      ok(true, "can't easily test on webkit because of bug 13368");
-      ok(true, "do what expect is expecting");
-      start();
-      return;
+      // currently known to fail on webkit browsers because of webkit bug 13368
+      e.initKeyboardEvent("keydown", true, true,
+      document.defaultView, "U+0041", e.DOM_KEY_LOCATION_STANDARD,
+      "", false, "");
     } else {
       e.initKeyEvent("keydown",
                      true, // canBubble
