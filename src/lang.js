@@ -73,6 +73,7 @@ define( function ( require ) {
                         object[prop] = extra[prop];
                     } //if
                 } //for
+                return object;
             }, //extend
 
             clone: function clone( object ) {

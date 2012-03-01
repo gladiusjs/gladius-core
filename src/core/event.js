@@ -43,8 +43,12 @@ define( function ( require ) {
         
         // Send this event to each entity in targets
         this.dispatch = function( targets ) {
-            for( var i = 0, l = targets.length; i < l; ++ i ) {                
-                targets[i].handleEvent( that );
+            if( Array.isArray( targets ) ) {
+                for( var i = 0, l = targets.length; i < l; ++ i ) {                
+                    targets[i].handleEvent( that );
+                }
+            } else {
+                targets.handleEvent( that );
             }
         };
 

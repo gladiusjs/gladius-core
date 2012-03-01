@@ -109,6 +109,7 @@ define( function ( require ) {
             // Expose engine objects, partially
             // applying items needed for their constructors.
             lang.extend( this, {
+                lang: lang,
                 common: {
                     Queue: Queue,
                     Delegate: Delegate
