@@ -171,65 +171,60 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     }
                 }
                 
-                var checkCollision = function( box1, box2 ) {
-                    var T = math.vector2.subtract( box2.center, box1.center );  // vector from center of box1 to center of box2
+                var doCollision = function( component1, component2 ) {
+                    var halfWidth1 = component1.halfWidth,
+                        halfHeight1 = component1.halfHeight,
+                        center1 = component1.owner.find( 'Transform' ).position;
+                    var halfWidth2 = component2.halfWidth,
+                        halfHeight2 = component2.halfHeight,
+                        center2 = component2.owner.find( 'Transform' ).position;
+                    
+                    var T = math.vector2.subtract( center2, center1 );  // vector from center of box1 to center of box2
                     
                     // test x-axis
                     var proj_T_x = math.vector2.length( math.vector2.project( T, math.vector2.x ) );                    
-                    var proj_AABB_x = box1.halfWidth + 
-                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.x, box2.halfWidth ), math.vector2.x ) ) + 
-                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.y, box2.halfHeight ), math.vector2.x ) );
+                    var proj_AABB_x = halfWidth1 + 
+                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.x, halfWidth2 ), math.vector2.x ) ) + 
+                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.y, halfHeight2 ), math.vector2.x ) );
                     if( proj_T_x > proj_AABB_x ) return false;
                     
                     // test y-axis
                     var proj_T_y = math.vector2.length( math.vector2.project( T, math.vector2.y ) );
-                    var proj_AABB_y = box1.halfHeight + 
-                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.x, box2.halfWidth ), math.vector2.y ) ) + 
-                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.y, box2.halfHeight ), math.vector2.y ) );
+                    var proj_AABB_y = halfHeight1 + 
+                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.x, halfWidth2 ), math.vector2.y ) ) + 
+                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.y, halfHeight2 ), math.vector2.y ) );
                     if( proj_T_y > proj_AABB_y ) return false;
                     
                     console.log( proj_AABB_x - proj_T_x, proj_AABB_y - proj_T_y );
                     
                     return true;
                 };
-
-                for( var collisionEntity1 in that.components.Collision ) {
-                    var component1 = that.components.Collision[collisionEntity1];
-                    var box1 = null;
-                    var box2 = null;
-
-                    for( var collisionEntity2 in that.components.Collision ) {
-                        if( collisionEntity1 !== collisionEntity2 ) {
-                            var component2 = that.components.Collision[collisionEntity2];
-                            
-                            if( !box1 ) {
-                                var transform1 = component1.owner.find( 'Transform' );
-                                box1 = {
-                                        halfWidth: component1.halfWidth,
-                                        halfHeight: component1.halfHeight,
-                                        center: transform1.position
-                                };
-                            }
-                            
-                            var transform2 = component2.owner.find( 'Transform' );
-                            box2 = {
-                                    halfWidth: component2.halfWidth,
-                                    halfHeight: component2.halfHeight,
-                                    center: transform2.position
-                            };
-
-                            if ( checkCollision( box1, box2 ) ) {
-                                new engine.core.Event({
-                                    type: 'Collision',
-                                    data: {
-                                        entity: component2.owner
-                                    }
-                                }).dispatch( component1.owner );
-                            }
-
-                        }
-                    }
+                
+                // Build a list of components to check
+                var collisionComponents = [];
+                for( var collisionEntity in that.components.Collision ) {
+                    collisionComponents.push( that.components.Collision[collisionEntity] );
                 }
+                
+                // Test each component against each other component
+                while( collisionComponents.length > 0 ) {
+                    var component1 = collisionComponents.shift();                    
+                    collisionComponents.forEach( function( component2 ) {
+                        var collisionData = doCollision( component1, component2 );                        
+                        if ( collisionData ) {
+                            // Dispatch events to each entity naming the other entity as the target
+                            new engine.core.Event({
+                                type: 'Collision',
+                                data: engine.lang.extend( { entity: component2.owner }, collisionData )
+                            }).dispatch( component1.owner );
+                            new engine.core.Event({
+                                type: 'Collision',
+                                data: engine.lang.extend( { entity: component1.owner }, collisionData )
+                            }).dispatch( component2.owner );
+                        }                        
+                    });
+                }
+
             };
 
             var _components = {
