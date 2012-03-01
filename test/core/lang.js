@@ -1,11 +1,13 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
   nomen: false */
 /*global gladius: false, document: false, window: false, module: false, start,
-  test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false */
+  test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false,
+  KeyboardEvent: false,  */
 
 (function() {
 
     var engine = null;
+    var lang;
 
     module( 'core/lang', {
         setup: function () {
@@ -13,6 +15,7 @@
 
             gladius.create( { debug: true }, function( instance ) {       
                 engine = instance;
+                lang = engine.lang;
                 start();
             });
         },
@@ -39,4 +42,11 @@
         ok( array.indexOf( element ) === -1, 'Element is not found in array' );
     });
 
+   test( 'createTestKbdEvent', function() {
+     expect( 1 );
+     
+     var e = lang.createTestKbdEvent( "KeyboardEvent" );
+     ok( e instanceof KeyboardEvent, "created event has the correct type");
+     
+   });
 }());

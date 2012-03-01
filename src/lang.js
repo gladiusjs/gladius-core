@@ -134,6 +134,10 @@ define( function ( require ) {
                 }
 
                 return result;
+            },
+            
+            createTestKbdEvent: function langCreateTestKbdEvent() {
+              return document.createEvent("KeyboardEvent");
             }
     };
 
