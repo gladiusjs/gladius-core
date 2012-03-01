@@ -31,20 +31,12 @@
   });
 
   test( 'Construction', function() {
-    expect( 3 );
+    expect( 2 );
     
     ok( engine.input, 'input subsystem exists' );
 
     var controller = new engine.input.component.Controller();
     ok( controller, "input Controller creation works" );
-       
-    var space = new engine.core.Space();
-    var entity = space.Entity({ // XXX new space.Entity?
-                               name: 'test',
-                               components: [controller]
-                              });
-    ok( entity.find( 'Controller' ),
-      "input controller is an embeddable/findable Component");
   });
   
   asyncTest( 'key event reception', function () {
@@ -56,19 +48,19 @@
           equal(e.data.code, "A", "'A' event received by onKey function"); 
           equal(e.data.state, 'down', 
                 "'A' event had the correct state of 'down'"); 
+          start();
           return;                                    
         }
     });
  
     var space = new engine.core.Space();
-    var entity = space.Entity({ // XXX see above
+    var entity = new space.Entity({
                                 name: 'test',
                                 components: [inputController]
                                 
     });      
 
-    // run the game loop once to ensure that everything is set up
-    // (XXX should this really be necessary?)
+    // start the engine
     engine.run();
     
     // inject a fake keystroke
@@ -93,12 +85,6 @@
       console.log("event canceled");
       ok(false, "someone unexpectedly cancelled our event!");
     }
-    
-    // XXX ick setTimeout
-    setTimeout(function() {
-      engine.run();
-      start();
-    }, 500);
   });
   
 }());
