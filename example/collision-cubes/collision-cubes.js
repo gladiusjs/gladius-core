@@ -48,40 +48,26 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 }
             };
             
-            var Planar = engine.base.Component({
+            var AutoPlanar = engine.base.Component({
                 type: 'Motion',
                 depends: ['Transform']
             },
             function( options ) {
                 var that = this;
-                var _directions = {
-                    UP: options.forward || math.Vector3( 0, 1, 0 ),
-                    LEFT: options.right || math.Vector3( -1, 0, 0 ),
-                    RIGHT: options.reverse || math.Vector3( 1, 0, 0 ),
-                    DOWN: options.left || math.Vector3( 0, -1, 0 )
-                };
-                var _move = null;
-                this.lastPosition = null;
-                this.velocity = null;
+                var speed = options.speed || 1;
+                var direction = math.Vector3( [1, 0, 0] );
+                var displacement = 0;
+                var maxDisplacement = 3;
                 
-                this.onMoveStart = function( event ) {
-                    _move = event.data.direction;
-                };
-                
-                this.onMoveStop = function( event ) {
-                    _move = null;
-                };
-                               
                 this.onUpdate = function( event ) {
                     var transform = this.owner.find( 'Transform' );
-
-                    if( _move ) {
-                        var direction = math.vector3.multiply( _directions[_move], event.data.delta / 1000 );
-                        transform.position = math.vector3.add( transform.position, direction );
-                    }
                     
-                    that.velocity = math.vector2.subtract( transform.position, that.lastPosition );
-                    that.lastPosition = transform.position;
+                    var iVelocity = math.vector3.multiply( direction, speed * event.data.delta / 1000 );
+                    transform.position = math.vector3.add( transform.position, iVelocity );
+                    displacement += iVelocity[0];
+                    if( Math.abs( displacement ) > maxDisplacement ) {
+                        direction = math.vector3.multiply( direction, -1 );
+                    }
                 };
                 
                 // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -93,7 +79,61 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     if( this.owner === null && e.data.previous !== null ) {
                         service.unregisterComponent( e.data.previous.id, this );
                     }
-                    that.lastPosition = this.owner.find( 'Transform' ).position;
+                };
+
+                this.onEntityManagerChanged = function( e ) {
+                    if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
+                        service.registerComponent( this.owner.id, this );
+                    }
+
+                    if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
+                        service.unregisterComponent( this.owner.id, this );
+                    }
+                };
+                
+            });
+            
+            var Planar = engine.base.Component({
+                type: 'Motion',
+                depends: ['Transform']
+            },
+            function( options ) {
+                var that = this;
+                var speed = options.speed || 1;
+                var _directions = {
+                    UP: math.Vector3( 0, 1, 0 ),
+                    LEFT: math.Vector3( -1, 0, 0 ),
+                    RIGHT: math.Vector3( 1, 0, 0 ),
+                    DOWN: math.Vector3( 0, -1, 0 )
+                };
+                var _move = null;
+                
+                this.onMoveStart = function( event ) {
+                    _move = event.data.direction;
+                };
+                
+                this.onMoveStop = function( event ) {
+                    _move = null;
+                };
+                
+                this.onUpdate = function( event ) {
+                    var transform = this.owner.find( 'Transform' );
+
+                    if( _move ) {
+                        var displacement = math.vector3.multiply( _directions[_move], speed * event.data.delta / 1000 );   // scaled motion using time delta
+                        transform.position = math.vector3.add( transform.position, displacement );
+                    }
+                };
+                
+                // Boilerplate component registration; Lets our service know that we exist and want to do things
+                this.onComponentOwnerChanged = function( e ){
+                    if( e.data.previous === null && this.owner !== null ) {
+                        service.registerComponent( this.owner.id, this );
+                    }
+
+                    if( this.owner === null && e.data.previous !== null ) {
+                        service.unregisterComponent( e.data.previous.id, this );
+                    }
                 };
 
                 this.onEntityManagerChanged = function( e ) {
@@ -108,7 +148,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             });
             
             var _components = {
-                Planar: Planar
+                Planar: Planar,
+                AutoPlanar: AutoPlanar
             };
             Object.defineProperty( this, 'component', {
                 get: function() {
@@ -138,29 +179,6 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 depends: ['Transform']
             },
             function( options ) {
-                this.halfWidth = options.halfWidth;
-                this.halfHeight = options.halfHeight;
-
-                // Boilerplate component registration; Lets our service know that we exist and want to do things
-                this.onComponentOwnerChanged = function( e ){
-                    if( e.data.previous === null && this.owner !== null ) {
-                        service.registerComponent( this.owner.id, this );
-                    }
-
-                    if( this.owner === null && e.data.previous !== null ) {
-                        service.unregisterComponent( e.data.previous.id, this );
-                    }
-                };
-
-                this.onEntityManagerChanged = function( e ) {
-                    if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
-                        service.registerComponent( this.owner.id, this );
-                    }
-
-                    if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
-                        service.unregisterComponent( this.owner.id, this );
-                    }
-                };
             });
 
             this.update = function() {
@@ -169,113 +187,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     for( var entityId in that.components[componentType] ) {
                         while( that.components[componentType][entityId].handleQueuedEvent() ) {}
                     }
-                }
-                
-                var doCollision = function( component1, component2 ) {
-                    var transform1 = component1.owner.find( 'Transform' ),
-                        transform2 = component2.owner.find( 'Transform' );
-                    var halfWidth1 = component1.halfWidth,
-                        halfHeight1 = component1.halfHeight,
-                        center1 = transform1.position;
-                    var halfWidth2 = component2.halfWidth,
-                        halfHeight2 = component2.halfHeight,
-                        center2 = transform2.position;
-                    
-                    var T = math.vector2.subtract( center2, center1 );  // vector from center of box1 to center of box2
-                    
-                    // test x-axis
-                    var proj_T_x = math.vector2.length( math.vector2.project( T, math.vector2.x ) );                    
-                    var proj_AABB_x = halfWidth1 + 
-                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.x, halfWidth2 ), math.vector2.x ) ) + 
-                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.y, halfHeight2 ), math.vector2.x ) );
-                    if( proj_T_x > proj_AABB_x ) return false;
-                    
-                    // test y-axis
-                    var proj_T_y = math.vector2.length( math.vector2.project( T, math.vector2.y ) );
-                    var proj_AABB_y = halfHeight1 + 
-                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.x, halfWidth2 ), math.vector2.y ) ) + 
-                                      math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.y, halfHeight2 ), math.vector2.y ) );
-                    if( proj_T_y > proj_AABB_y ) return false;
-                    
-                    // Resolve collision                    
-                    var component1_velocity = component1.owner.find( 'Motion' ) ? component1.owner.find( 'Motion' ).velocity : math.Vector2( 0, 0 ),
-                        component2_velocity = component2.owner.find( 'Motion' ) ? component2.owner.find( 'Motion' ).velocity : math.Vector2( 0, 0 );
-                    
-                    var x_intersection = proj_AABB_x - proj_T_x;
-                    var y_intersection = proj_AABB_y - proj_T_y;
-                    
-                    var sum_distance_x = Math.abs( component1_velocity[0] ) + Math.abs( component2_velocity[0] );
-                    var sum_distance_y = Math.abs( component1_velocity[1] ) + Math.abs( component2_velocity[1] );
-                    
-                    if( !math.vector2.equal( component1_velocity, math.vector2.zero ) ) {
-                        var component1_move_x_amount = sum_distance_x ? Math.abs(component1_velocity[0]/sum_distance_x) * x_intersection + 0.01 : 0;
-                        var component1_move_x = math.vector2.normalize( component1_velocity )[0] * -1 * component1_move_x_amount;
-                        
-                        var component1_move_y_amount = sum_distance_y ? Math.abs(component1_velocity[1]/sum_distance_y) * y_intersection + 0.01 : 0;
-                        var component1_move_y = math.vector2.normalize( component1_velocity )[1] * -1 * component1_move_y_amount;
-                        
-                        var component1_move = math.Vector3( component1_move_x, component1_move_y, 0 );
-                        
-                        transform1.position = math.vector3.add(
-                                transform1.position,
-                                component1_move
-                                );
-                        var motion1 = component1.owner.find( 'Motion' );
-                        if( motion1 ) {
-                            motion1.lastPosition = math.Vector2( transform1.position );
-                            motion1.velocity = math.vector2.add( motion1.velocity, component1_move );
-                        }
-                    }
-                    
-                    if( !math.vector2.equal( component2_velocity, math.vector2.zero ) ) {
-                        var component2_move_x_amount = sum_distance_x ? Math.abs(component2_velocity[0]/sum_distance_x) * x_intersection + 0.01 : 0;
-                        var component2_move_x = math.vector2.normalize( component2_velocity )[0] * -1 * component2_move_x_amount;
-                        
-                        var component2_move_y_amount = sum_distance_y ? Math.abs(component2_velocity[1]/sum_distance_y) * y_intersection + 0.01 : 0;
-                        var component2_move_y = math.vector2.normalize( component2_velocity )[1] * -1 * component2_move_y_amount;
-                        
-                        var component2_move = math.Vector3( component2_move_x, component2_move_y, 0 );
-                        
-                        transform2.position = math.vector3.add(
-                                transform2.position,
-                                component2_move
-                                );
-                        var motion2 = component2.owner.find( 'Motion' );
-                        if( motion2 ) {
-                            motion2.lastPosition = math.Vector2( transform2.position );
-                            motion2.velocity = math.vector2.zero;
-                        }
-                    }
-                    
-                    // TD: decide what extra data is useful to report about the collision
-                    return {};
                 };
-                
-                // Build a list of components to check
-                var collisionComponents = [];
-                for( var collisionEntity in that.components.Collision ) {
-                    collisionComponents.push( that.components.Collision[collisionEntity] );
-                }
-                
-                // Test each component against each other component
-                var detectCollision = function( component2 ) {
-                    var collisionData = doCollision( component1, component2 );                        
-                    if ( collisionData ) {
-                        // Dispatch events to each entity naming the other entity as the target
-                        new engine.core.Event({
-                            type: 'Collision',
-                            data: engine.lang.extend( { entity: component2.owner }, collisionData )
-                        }).dispatch( component1.owner );
-                        new engine.core.Event({
-                            type: 'Collision',
-                            data: engine.lang.extend( { entity: component1.owner }, collisionData )
-                        }).dispatch( component2.owner );
-                    }                        
-                };
-                while( collisionComponents.length > 0 ) {
-                    var component1 = collisionComponents.shift();                    
-                    collisionComponents.forEach( detectCollision );
-                }
 
             };
 
@@ -350,14 +262,53 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                                  mesh: resources.mesh,
                                  material: resources.material
                              }),
-                             new engine.collision.component.AABB({
-                                 halfWidth: 1,
-                                 halfHeight: 1
-                             })
+                             new engine.motion.component.AutoPlanar()
                              ]
             });
 
             // Make a user-controllable object that can collide with the obstacle
+            var playerKeyHandler = function(e) {
+                if( this.owner ) {                                         
+                    // If we have an owner, dispatch a game event for it to enjoy
+                    var keyCode = e.data.code;
+                    var keyState = e.data.state;
+                    switch( keyCode ) {
+                    case 'W':
+                        new engine.core.Event({
+                            type: keyState === 'down' ? 'MoveStart' : 'MoveStop',
+                                    data: {
+                                        direction: 'UP'
+                                    }
+                        }).dispatch( this.owner );
+                        break;
+                    case 'A': 
+                        new engine.core.Event({
+                            type: keyState === 'down' ? 'MoveStart' : 'MoveStop',
+                                    data: {
+                                        direction: 'LEFT'                                                             
+                                    }
+                        }).dispatch( this.owner );
+                        break;
+                    case 'S': 
+                        new engine.core.Event({
+                            type: keyState === 'down' ? 'MoveStart' : 'MoveStop',
+                                    data: {
+                                        direction: 'DOWN'                                                             
+                                    }
+                        }).dispatch( this.owner );
+                        break;
+                    case 'D': 
+                        new engine.core.Event({
+                            type: keyState === 'down' ? 'MoveStart' : 'MoveStop',
+                                    data: {
+                                        direction: 'RIGHT'                                                             
+                                    }
+                        }).dispatch( this.owner );
+                        break;
+
+                    }
+                }
+            };
             var player = new space.Entity({
                 name: 'player',
                 components: [
@@ -370,52 +321,9 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                                  material: resources.material
                              }),
                              new engine.input.component.Controller({
-                                 onKey: function(e) {
-                                     if( this.owner ) {                                         
-                                         // If we have an owner, dispatch a game event for it to enjoy                                        
-                                         switch( e.data.code ) {
-                                         case 'W':
-                                             new engine.core.Event({
-                                                 type: e.data.state === 'down' ? 'MoveStart' : 'MoveStop',
-                                                         data: {
-                                                             direction: 'UP'
-                                                         }
-                                             }).dispatch( this.owner );
-                                             break;
-                                         case 'A': 
-                                             new engine.core.Event({
-                                                 type: e.data.state === 'down' ? 'MoveStart' : 'MoveStop',
-                                                         data: {
-                                                             direction: 'LEFT'                                                             
-                                                         }
-                                             }).dispatch( this.owner );
-                                             break;
-                                         case 'S': 
-                                             new engine.core.Event({
-                                                 type: e.data.state === 'down' ? 'MoveStart' : 'MoveStop',
-                                                         data: {
-                                                             direction: 'DOWN'                                                             
-                                                         }
-                                             }).dispatch( this.owner );
-                                             break;
-                                         case 'D': 
-                                             new engine.core.Event({
-                                                 type: e.data.state === 'down' ? 'MoveStart' : 'MoveStop',
-                                                         data: {
-                                                             direction: 'RIGHT'                                                             
-                                                         }
-                                             }).dispatch( this.owner );
-                                             break;
-
-                                         }
-                                     }
-                                 }
+                                 onKey: playerKeyHandler
                              }),
-                             new engine.motion.component.Planar(),
-                             new engine.collision.component.AABB({
-                                 halfWidth: 1,
-                                 halfHeight: 1
-                             }),
+                             new engine.motion.component.Planar({ speed: 5 }),
                              new PlayerComponent()
                              ]
             });
