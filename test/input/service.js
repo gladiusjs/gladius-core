@@ -5,6 +5,7 @@
 
   var engine;
   var canvas;
+  var lang;
 
   module('input/service', {
     setup : function() {
@@ -22,6 +23,7 @@
         }
       }, function(instance) {
         engine = instance;
+        lang = engine.lang;
         start();
       });
     },
@@ -64,19 +66,8 @@
     engine.run();
     
     // inject a fake keystroke
-    var e = document.createEvent("KeyboardEvent");
-    if ('initKeyboardEvent' in e) {
-      // currently known to fail on webkit browsers because of webkit bug 13368
-      e.initKeyboardEvent("keydown", true, true,
-      document.defaultView, "U+0041", e.DOM_KEY_LOCATION_STANDARD,
-      "", false, "");
-    } else {
-      e.initKeyEvent("keydown",
-                     true, // canBubble
-                     true, // cancelable
-                     document.defaultView, // view
-                     false, false, false, false, "A".charCodeAt(0), 0);
-    }
+    var e = lang.createTestKbdEvent("keydown", true, true, null, 'A', 'A',
+                                     "", false, "");
                          
     if (!document.dispatchEvent(e)) {
       console.log("event canceled");
