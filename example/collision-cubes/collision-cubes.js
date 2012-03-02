@@ -61,7 +61,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     DOWN: options.left || math.Vector3( 0, -1, 0 )
                 };
                 var _move = null;
-                var _lastPosition = null;
+                this.lastPosition = null;
                 this.velocity = null;
                 
                 this.onMoveStart = function( event ) {
@@ -80,8 +80,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                         transform.position = math.vector3.add( transform.position, direction );
                     }
                     
-                    that.velocity = math.vector2.subtract( transform.position, _lastPosition );
-                    _lastPosition = transform.position;
+                    that.velocity = math.vector2.subtract( transform.position, that.lastPosition );
+                    that.lastPosition = transform.position;
                 };
                 
                 // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -93,7 +93,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     if( this.owner === null && e.data.previous !== null ) {
                         service.unregisterComponent( e.data.previous.id, this );
                     }
-                    _lastPosition = this.owner.find( 'Transform' ).position;
+                    that.lastPosition = this.owner.find( 'Transform' ).position;
                 };
 
                 this.onEntityManagerChanged = function( e ) {
@@ -172,12 +172,14 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 }
                 
                 var doCollision = function( component1, component2 ) {
+                    var transform1 = component1.owner.find( 'Transform' ),
+                        transform2 = component2.owner.find( 'Transform' );
                     var halfWidth1 = component1.halfWidth,
                         halfHeight1 = component1.halfHeight,
-                        center1 = component1.owner.find( 'Transform' ).position;
+                        center1 = transform1.position;
                     var halfWidth2 = component2.halfWidth,
                         halfHeight2 = component2.halfHeight,
-                        center2 = component2.owner.find( 'Transform' ).position;
+                        center2 = transform2.position;
                     
                     var T = math.vector2.subtract( center2, center1 );  // vector from center of box1 to center of box2
                     
@@ -195,9 +197,57 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                                       math.vector2.length( math.vector2.project( math.vector2.multiply( math.vector2.y, halfHeight2 ), math.vector2.y ) );
                     if( proj_T_y > proj_AABB_y ) return false;
                     
-                    console.log( proj_AABB_x - proj_T_x, proj_AABB_y - proj_T_y );
+                    // Resolve collision                    
+                    var component1_velocity = component1.owner.find( 'Motion' ) ? component1.owner.find( 'Motion' ).velocity : math.Vector2( 0, 0 ),
+                        component2_velocity = component2.owner.find( 'Motion' ) ? component2.owner.find( 'Motion' ).velocity : math.Vector2( 0, 0 );
                     
-                    return true;
+                    var x_intersection = proj_AABB_x - proj_T_x;
+                    var y_intersection = proj_AABB_y - proj_T_y;
+                    
+                    var sum_distance_x = Math.abs( component1_velocity[0] ) + Math.abs( component2_velocity[0] );
+                    var sum_distance_y = Math.abs( component1_velocity[1] ) + Math.abs( component2_velocity[1] );
+                    
+                    if( !math.vector2.equal( component1_velocity, math.vector2.zero ) ) {
+                        var component1_move_x_amount = sum_distance_x ? Math.abs(component1_velocity[0]/sum_distance_x) * x_intersection + 0.01 : 0;
+                        var component1_move_x = math.vector2.normalize( component1_velocity )[0] * -1 * component1_move_x_amount;
+                        
+                        var component1_move_y_amount = sum_distance_y ? Math.abs(component1_velocity[1]/sum_distance_y) * y_intersection + 0.01 : 0;
+                        var component1_move_y = math.vector2.normalize( component1_velocity )[1] * -1 * component1_move_y_amount;
+                        
+                        var component1_move = math.Vector3( component1_move_x, component1_move_y, 0 );
+                        
+                        transform1.position = math.vector3.add(
+                                transform1.position,
+                                component1_move
+                                );
+                        var motion1 = component1.owner.find( 'Motion' );
+                        if( motion1 ) {
+                            motion1.lastPosition = math.Vector2( transform1.position );
+                            motion1.velocity = math.vector2.add( motion1.velocity, component1_move );
+                        }
+                    }
+                    
+                    if( !math.vector2.equal( component2_velocity, math.vector2.zero ) ) {
+                        var component2_move_x_amount = sum_distance_x ? Math.abs(component2_velocity[0]/sum_distance_x) * x_intersection + 0.01 : 0;
+                        var component2_move_x = math.vector2.normalize( component2_velocity )[0] * -1 * component2_move_x_amount;
+                        
+                        var component2_move_y_amount = sum_distance_y ? Math.abs(component2_velocity[1]/sum_distance_y) * y_intersection + 0.01 : 0;
+                        var component2_move_y = math.vector2.normalize( component2_velocity )[1] * -1 * component2_move_y_amount;
+                        
+                        var component2_move = math.Vector3( component2_move_x, component2_move_y, 0 );
+                        
+                        transform2.position = math.vector3.add(
+                                transform2.position,
+                                component2_move
+                                );
+                        var motion2 = component2.owner.find( 'Motion' );
+                        if( motion2 ) {
+                            motion2.lastPosition = math.Vector2( transform2.position );
+                            motion2.velocity = math.vector2.zero;
+                        }
+                    }
+                    
+                    return {};
                 };
                 
                 // Build a list of components to check
@@ -253,7 +303,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             var service = engine.logic; 
            
             this.onCollision = function( event ) {
-                console.log( that.owner.id, '->', event.data.entity.id );
+                // console.log( that.owner.id, '<->', event.data.entity.id );
             };
 
             this.onUpdate = function( event ) {
@@ -310,7 +360,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 name: 'player',
                 components: [
                              new engine.core.component.Transform({
-                                 position: math.Vector3( 3, 3, 0 ),
+                                 position: math.Vector3( 3, 1.5, 0 ),
                                  rotation: math.Vector3( 0, 0, 0 )
                              }),
                              new engine.graphics.component.Model({
@@ -319,9 +369,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                              }),
                              new engine.input.component.Controller({
                                  onKey: function(e) {
-                                     if( this.owner ) {
-                                         // If we have an owner, dispatch a game event for it to enjoy
-                                         var rotate;
+                                     if( this.owner ) {                                         
+                                         // If we have an owner, dispatch a game event for it to enjoy                                        
                                          switch( e.data.code ) {
                                          case 'W':
                                              new engine.core.Event({
@@ -373,7 +422,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 name: 'camera',
                 components: [
                              new engine.core.component.Transform({
-                                 position: math.Vector3( 0, 1, 10 )
+                                 position: math.Vector3( 0, 2, 10 )
                              }),
                              new engine.graphics.component.Camera({
                                  active: true,
