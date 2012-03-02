@@ -247,6 +247,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                         }
                     }
                     
+                    // TD: decide what extra data is useful to report about the collision
                     return {};
                 };
                 
@@ -257,22 +258,23 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 }
                 
                 // Test each component against each other component
+                var detectCollision = function( component2 ) {
+                    var collisionData = doCollision( component1, component2 );                        
+                    if ( collisionData ) {
+                        // Dispatch events to each entity naming the other entity as the target
+                        new engine.core.Event({
+                            type: 'Collision',
+                            data: engine.lang.extend( { entity: component2.owner }, collisionData )
+                        }).dispatch( component1.owner );
+                        new engine.core.Event({
+                            type: 'Collision',
+                            data: engine.lang.extend( { entity: component1.owner }, collisionData )
+                        }).dispatch( component2.owner );
+                    }                        
+                };
                 while( collisionComponents.length > 0 ) {
                     var component1 = collisionComponents.shift();                    
-                    collisionComponents.forEach( function( component2 ) {
-                        var collisionData = doCollision( component1, component2 );                        
-                        if ( collisionData ) {
-                            // Dispatch events to each entity naming the other entity as the target
-                            new engine.core.Event({
-                                type: 'Collision',
-                                data: engine.lang.extend( { entity: component2.owner }, collisionData )
-                            }).dispatch( component1.owner );
-                            new engine.core.Event({
-                                type: 'Collision',
-                                data: engine.lang.extend( { entity: component1.owner }, collisionData )
-                            }).dispatch( component2.owner );
-                        }                        
-                    });
+                    collisionComponents.forEach( detectCollision );
                 }
 
             };
