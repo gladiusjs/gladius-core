@@ -1,5 +1,4 @@
-/*global gladius, console */
-
+/*global gladius, console, Box2D */
 document.addEventListener( "DOMContentLoaded", function( e ){
 
     var printd = function( div, str ) {
@@ -174,8 +173,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             var that = this;
             var service = this;
 
-            var AABB = engine.base.Component({
-                type: 'Collision',
+            var Body = engine.base.Component({
+                type: 'Body',
                 depends: ['Transform']
             },
             function( options ) {
@@ -187,12 +186,15 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     for( var entityId in that.components[componentType] ) {
                         while( that.components[componentType][entityId].handleQueuedEvent() ) {}
                     }
-                };
+                }
 
             };
 
+            var gravity = math.vector2.zero;
+            var world = new Box2D.b2World(gravity);
+
             var _components = {
-                    AABB: AABB
+              Body: Body
             };
 
             Object.defineProperty( this, 'component', {
@@ -379,8 +381,17 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
     };
 
+    // We may be sharing a copy of require.js with Gladius if we're developing
+    // If so, this next line guarantees that we have a configuration of
+    // require.js that loads things relative to this directory 
+    var localRequire = require.config({context: "local", baseUrl: "."});
 
-    gladius.create(
+    // pull in the bitwall-model code, and once we've got it, load our sprite,
+    // and run the game!
+    localRequire(['../../external/box2d.js/box2d'], function ( Box2D ) {
+
+
+      gladius.create(
             {
                 debug: true,
                 services: {
@@ -400,6 +411,9 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 }
             },
             game
-    );
+      );    
+
+    });
+
 
 });
