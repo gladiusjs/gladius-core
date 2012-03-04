@@ -16,6 +16,98 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
         var CubicVR = engine.graphics.target.context;
         
+        var Physics = engine.base.Service({
+            type: 'Physics',
+            schedule: {
+                update: {
+                    phase: engine.scheduler.phases.UPDATE
+                }
+            },
+            depends: [ 'Motion' ],
+            time: engine.scheduler.simulationTime
+        },
+        function( options ) {
+
+            var that = this;
+            var service = this;
+            var gravity = options.gravity || math.vector2.zero;
+            
+            this.update = function() {
+
+                for( var componentType in that.components ) {
+                    for( var entityId in that.components[componentType] ) {
+                        while( that.components[componentType][entityId].handleQueuedEvent() ) {}
+                    }
+                }
+
+            };
+
+            var Body = engine.base.Component({
+                type: 'Body',
+                depends: ['Transform']
+            },
+            function( options ) {
+                options = options || {};                
+                var that = this;
+                
+                this.onComponentOwnerChanged = function( e ){
+                    if( e.data.previous === null && this.owner !== null ) {
+                        service.registerComponent( this.owner.id, this );
+                    }
+                    
+                    if( this.owner === null && e.data.previous !== null ) {
+                        service.unregisterComponent( e.data.previous.id, this );
+                    }
+                };
+                
+                this.onEntityManagerChanged = function( e ) {
+                    if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
+                        service.registerComponent( this.owner.id, this );
+                    }
+                    
+                    if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
+                        service.unregisterComponent( this.owner.id, this );
+                    }
+                };
+                
+                var body = new world.CreateBody( options.bodyDefinition );
+                this.mesh = options.mesh || null;
+                if( null != this.mesh ) {
+                    body.CreateFixture( this.mesh );
+                }
+            });
+
+            this.component = {
+                Body: Body
+            };
+            
+            var Box = function( hx, hy ) {
+                var shape = new Box2D.b2PolygonShape();
+                shape.setAsBox( hx, hy );
+                return shape;
+            };
+            
+            var BodyDefinition = function( type ) {
+                var bd = new Box2D.b2BodyDef();
+                bd.set_type( type );
+                return bd;
+            };
+            BodyDefinition.bodyType = {
+                STATIC: Box2D.b2_staticBody,
+                KINEMATIC: Box2D.b2_kinematicBody,
+                DYNAMIC: Box2D.b2_dynamicBody
+            };
+            
+            this.resource = {
+                Box: Box,
+                BodyDefinition: BodyDefinition
+            };
+            
+            var world = new Box2D.b2World( gravity );
+
+        });
+        engine.physics = new Physics();
+        
         var MotionService = engine.base.Service({
             type: 'Motion',
             schedule: {
@@ -157,53 +249,6 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             });
         });
         engine.motion = new MotionService();
-
-        var CollisionService = engine.base.Service({
-            type: 'Physics',
-            schedule: {
-                update: {
-                    phase: engine.scheduler.phases.UPDATE
-                }
-            },
-            depends: [ 'Motion' ],
-            time: engine.scheduler.simulationTime
-        },
-        function( options ) {
-
-            var that = this;
-            var service = this;
-
-            var Body = engine.base.Component({
-                type: 'Body',
-                depends: ['Transform']
-            },
-            function( options ) {
-            });
-
-            this.update = function() {
-
-                for( var componentType in that.components ) {
-                    for( var entityId in that.components[componentType] ) {
-                        while( that.components[componentType][entityId].handleQueuedEvent() ) {}
-                    }
-                }
-
-            };
-
-            var gravity = math.vector2.zero;
-            var world = new Box2D.b2World(gravity);
-
-            var _components = {
-              Body: Body
-            };
-
-            Object.defineProperty( this, 'component', {
-                get: function() {
-                    return _components;
-                }
-            });
-        });
-        engine.collision = new CollisionService();
 
         var PlayerComponent = engine.base.Component({
             type: 'Player',
