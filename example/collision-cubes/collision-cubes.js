@@ -32,8 +32,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     right: new Box2D.b2Vec2( 1, 0 )
             };
             var rotations = {
-                    cw: 1,
-                    ccw: -1
+                    cw: -1,
+                    ccw: 1
             };
             
             this.update = function() {
@@ -94,37 +94,37 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                 this.onMoveStart = function( e ) {
                     var direction = directions[e.data.direction];
                     
-                    if( moveEventStates[direction] ) {
+                    if( moveEventStates[e.data.direction] ) {
                         return;
                     }
                     
                     moveDirection.Set( moveDirection.get_x() + direction.get_x(), 
                             moveDirection.get_y() + direction.get_y() );
-                    moveEventStates[direction] = true;
+                    moveEventStates[e.data.direction] = true;
                 };
                 
                 this.onMoveStop = function( e ) {
                     var direction = directions[e.data.direction];
                     moveDirection.Set( moveDirection.get_x() - direction.get_x(), 
                             moveDirection.get_y() - direction.get_y() );
-                    moveEventStates[direction] = false;
+                    moveEventStates[e.data.direction] = false;
                 };
                 
                 this.onRotateStart = function( e ) {
                     var rotation = rotations[e.data.direction];
                     
-                    if( rotationEventStates[rotation] ) {
+                    if( rotationEventStates[e.data.direction] ) {
                         return;
                     }
                     
                     rotationDirection += rotation;
-                    rotationEventStates[rotation] = true;
+                    rotationEventStates[e.data.direction] = true;
                 };
                 
                 this.onRotateStop = function( e ) {
                     var rotation = rotations[e.data.direction];
                     rotationDirection -= rotation;
-                    rotationEventStates[rotation] = false;
+                    rotationEventStates[e.data.direction] = false;
                 };
                                
                 var frameImpulse = new Box2D.b2Vec2( 0, 0 );
