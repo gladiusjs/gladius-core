@@ -1,3 +1,12 @@
+
+var yvel = 0;
+var a = 0;
+var vel = 0;
+var rrr = 0;
+var aaa = false;
+var testCube;
+var testState = 0;
+var shake = 0;
 /**
   Simple fighting game based on the "No Comply" WebGL video.
 
@@ -5,7 +14,8 @@
   - add collision detection
   - add material for p2 fireball
   - fix fireball logic
-  - 
+  
+  - Bug: user needs to hold down 'down' to make sure char crouches as soon as they hit the floor.
   -
 
 */
@@ -67,11 +77,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
         PUNCH_KEY:  'A',
         name:       'player1',
         dir:        FACING_RIGHT,
-        initialPos: [-50, 9.9 , 35 ]
+        initialPos: [-20, FLOOR_POS, 0]
       };
 
       // Player 2 starts on the right side of the screen facing left
-      var playerTwoConfig = {
+/*      var playerTwoConfig = {
         RIGHT_KEY:  'L',
         LEFT_KEY:   'J',
         JUMP_KEY:   'I',
@@ -81,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         dir:        FACING_LEFT,
         initialPos: [-50, 9.9 , 20 ]
       };
-
+*/
       
       //////////////////////
       // Debugging
@@ -98,6 +108,162 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
       var space;
       var math = engine.math;
+
+
+
+
+
+
+
+        var Collision2Service = engine.base.Service({
+            type: 'Physics',
+            schedule: {
+                update: {
+                    phase: engine.scheduler.phases.UPDATE
+                }
+            },
+            time: engine.scheduler.simulationTime
+        },
+        function( options ) {
+
+            var that = this;
+            var service = this;
+
+            var BoundingBox = engine.base.Component({
+                type: 'Collision',
+                depends: ['Transform']
+            },
+            function( options ) {
+                this.lowerLeft = options.lowerLeft;
+                this.upperRight = options.upperRight;
+                
+                /// XXXX fix
+                this.midPoint =  [
+(                  this.upperRight[0] - this.lowerLeft[0])/2,
+                  0,
+ (                 this.upperRight[2] - this.lowerLeft[2])/2,
+                ]
+
+                // Boilerplate component registration; Lets our service know that we exist and want to do things
+                this.onComponentOwnerChanged = function( e ){
+                    if( e.data.previous === null && this.owner !== null ) {
+                        service.registerComponent( this.owner.id, this );
+                    }
+
+                    if( this.owner === null && e.data.previous !== null ) {
+                        service.unregisterComponent( e.data.previous.id, this );
+                    }
+                };
+
+                this.onEntityManagerChanged = function( e ) {
+                    if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
+                        service.registerComponent( this.owner.id, this );
+                    }
+
+                    if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
+                        service.unregisterComponent( this.owner.id, this );
+                    }
+                };
+            });
+
+            this.update = function() {
+
+                for( var componentType in that.components ) {
+                    for( var entityId in that.components[componentType] ) {
+                        while( that.components[componentType][entityId].handleQueuedEvent() ) {}
+                    }
+                }
+
+                function checkCollision( box1, box2 ) {
+                    var top1, top2,
+                        bottom1, bottom2,
+                        left1, left2,
+                        right1, right2;
+                    
+                    top1 = box1.upperRight[1];
+                    top2 = box2.upperRight[1];
+                    bottom1 = box1.lowerLeft[1];
+                    bottom2 = box2.lowerLeft[1];
+                    
+                    left1 = box1.lowerLeft[0];
+                    left2 = box2.lowerLeft[0];
+                    right1 = box1.upperRight[0];
+                    right2 = box2.upperRight[0];
+                    
+                    var outsideBottom = bottom1 > top2,
+                        outsideTop = top1 < bottom2,
+                        outsideLeft = left1 > right2,
+                        outsideRight = right1 < left2;
+                        
+                    return !( outsideBottom || outsideTop || outsideLeft || outsideRight );
+                }
+
+                for( var collisionEntity1 in that.components.Collision ) {
+                    var component1 = that.components.Collision[collisionEntity1];
+                    var box1 = null;
+                    var box2 = null;
+
+                    for( var collisionEntity2 in that.components.Collision ) {
+                        if( collisionEntity1 !== collisionEntity2 ) {
+                            var component2 = that.components.Collision[collisionEntity2];
+                            
+                            if( !box1 ) {
+                                var transform1 = component1.owner.find( 'Transform' );
+                                box1 = {
+                                        lowerLeft: math.vector3.add(
+                                                    transform1.position,
+                                                    component1.lowerLeft
+                                                ),
+                                        upperRight: math.vector3.add(
+                                                    transform1.position,
+                                                    component1.upperRight
+                                                )
+                                };
+                            }
+                            
+                            var transform2 = component2.owner.find( 'Transform' );
+                            box2 = {
+                                    lowerLeft: math.vector3.add(
+                                                transform2.position,
+                                                component2.lowerLeft
+                                            ),
+                                    upperRight: math.vector3.add(
+                                                transform2.position,
+                                                component2.upperRight
+                                            )
+                            };
+
+                            if ( checkCollision( box1, box2 ) ) {
+                                new engine.core.Event({
+                                    type: 'Collision',
+                                    data: {
+                                        entity: component2.owner,
+                                        test: component1.owner
+                                    }
+                                }).dispatch( [component1.owner] );
+                            }
+
+                        }
+                    }
+                }
+            };
+
+            var _components = {
+
+                    BoundingBox: BoundingBox
+
+            };
+
+            Object.defineProperty( this, 'component', {
+                get: function() {
+                    return _components;
+                }
+            });
+        });
+
+        var collision2Service = new Collision2Service();
+        
+      
 
 
       
@@ -312,6 +478,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
             }
           };
         });
+        
+      
 
 
       /////////////
@@ -368,776 +536,438 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
 
 
-      // PlayerComponent
-      var PlayerComponent = engine.base.Component({
-        type: 'Player',
+
+      /*
+      *
+      *
+      */
+      var StateComponent = engine.base.Component({
+        type: 'State'
+        },
+        
+        function( options ){
+          options = options || {};
+          var that = this;
+          
+          var service = engine.logic;
+
+          // Idle State - Player is just standing there.
+          var IdleState = (function () {
+            function IdleState(player) {
+              var pl = player;
+
+              this.moveForward = function (){ pl.setState(pl.getMoveForwardState());};
+              this.jump = function () {       pl.setState(pl.getJumpState());};
+              this.moveForward = function(){  pl.setState(pl.getMoveForwardState());};
+              this.crouch = function(){       pl.setState(pl.getCrouchState());};
+              this.spinKick = function(){     pl.setState(pl.getSpinKickState());};
+              
+              this.hit = function(d){
+                pl.health -= d;
+                
+                if(pl.health <= 0){
+                  this.knockOut();
+                }
+              }
+
+              this.update = function (event) {
+                pl.owner.find('Model').updateAction('idle');
+                
+//                pl.player.position;
+                
+                var test = pl.getPlayer().speed;
+                test[0] = 0;
+                pl.getPlayer().position = test;
+                
+                
+                // ??
+              //  if(pl.speed[1] === 0){
+                //  pl.speed[0] = 0;
+               // }
+                // XXX
+              };
+            }
+            return IdleState;
+          }());
+
+          // MoveForwardState - 
+          var MoveForwardState = (function () {
+            function MoveForwardState(player) {
+              var pl = player;
+              var timer = 0;
+              
+              // State transitions
+              this.idle = function () {   pl.setState(pl.getIdleState());};
+              this.jump = function () {   pl.setState(pl.getForwardJumpState());};
+              this.spinKick = function(){ pl.setState(pl.getSpinKickState());};
+
+              this.onActivate = function(){
+                timer = 0;
+              };
+
+              this.update = function (event) {
+                var delta = service.time.delta / 1000;
+                
+                pl.owner.find('Model').updateAction('walk');
+                pl.owner.find('Player').speed[0] = MOVE_SPEED;
+                
+                timer += delta;
+
+                if(timer >= WALK_ANI_SPEED){
+                  timer = 0;
+                  pl.owner.find('Model').updateAction('walk');
+                }                
+              };
+            }
+
+            return MoveForwardState;
+          }());
+
+          // CrouchState - Player is crouching
+          var CrouchState = (function () {
+            function CrouchState(player) {
+              var pl = player;
+
+              // State transitions
+              this.idle = function () {   pl.setState(pl.getIdleState());};
+              
+              this.activate = function(){
+//                pl.owner.find('Player').
+              };
+              
+              this.update = function (event) {
+                pl.owner.find('Model').updateAction('crouch');                
+              };
+            }
+            return CrouchState;
+          }());
+
+          // JumpState - Allows player to jump straight up
+          var JumpState = (function () {
+            function JumpState(player) {
+              var pl = player;
+              var timeElapsed = 0;
+
+              this.update = function (event) {
+                var delta = service.time.delta / 1000;
+                        
+                timeElapsed += delta;
+                var pp = pl.owner.find('Transform').position;
+                
+                // only do the check if he left the floor, otherwise
+                // the test will pass as soon as the jump starts.
+                if(pp[1] <= FLOOR_POS && timeElapsed > 0.5){
+                  pl.setState(pl.getIdleState());
+                }
+              };
+              
+              this.activate = function(){
+                timeElapsed = 0;
+
+                pl.owner.find('Player').speed[1] = JUMP_HEIGHT;
+                pl.owner.find('Model').updateAction('jump');
+                
+                //if(blah[1] === 0){
+                //  blah[1] = JUMP_HEIGHT;
+                //}                
+              //pl.speed[0] = 0;
+             // if(pl.speed[1] === 0){
+              //  pl.speed[1] = JUMP_HEIGHT;
+              //}
+              }
+            }
+            return JumpState;
+          }());
+          
+          // SpinKickState - 
+          var SpinKickState = (function () {
+            function SpinKickState(player) {
+              var pl = player;
+              var timeElapsed = 0;
+
+              this.update = function (event) {
+                var delta = service.time.delta / 1000;
+
+                timeElapsed += delta * 2.5;
+                
+                /// XXXX fix
+                var rot3 = pl.owner.find('Transform').rotation;
+                rot3[1] =  timeElapsed * math.TAU;
+                pl.owner.find('Transform').rotation = rot3;
+                                
+                if(timeElapsed > 1){
+                  pl.owner.find('Transform').rotation = [0, 0, 0];
+                  
+                  pl.setState(pl.getIdleState());
+                }
+              };
+              
+              this.activate = function(){
+                timeElapsed = 0;
+                rrr = true;
+                pl.owner.find('Model').updateAction('twirl-kick');
+              }
+            }
+            return SpinKickState;
+          }());
+
+
+
+          // Forward Jump State
+          var ForwardJumpState = (function () {
+            function ForwardJumpState(player) {
+              var pl = player;
+              var timeElapsed = 0;
+              
+              function standStraight(){
+               // var test = pl.trans.rotation;
+               // test[2] = 0;
+               // pl.trans.rotation = test;
+              }
+              
+              /*this.hit = function(d){
+                pl.health -= d;
+                
+                //
+                standStraight();
+                pl.setState(pl.getFallingDownState());
+              };*/
+              
+              this.activate = function(){              
+                timeElapsed = 0;
+                pl.owner.find('Model').updateAction('jump');
+                
+                pl.owner.find('Player').speed[1] = JUMP_HEIGHT;
+                                        
+               // if(pl.speed[1] === 0){
+                //  pl.speed[1] = JUMP_HEIGHT;
+               // }
+              };
+              
+              this.update = function () {
+                var delta = service.time.delta / 1000;
+                
+                timeElapsed += delta;
+                
+                //var pp = pl.owner.find('Transform').position;
+                var pos = pl.getTransform().position;
+                if(pos[1] <= FLOOR_POS && timeElapsed > 0.5){
+                  pl.setState(pl.getIdleState());
+                }
+                
+                var rot = pl.getTransform().rotation;
+                //rot[2] = pos[1]/JUMP_HEIGHT * math.PI*5;
+//                rot[2] += delta * math.TAU;
+                //delta * math.TAU/ JUMP_HEIGHT;
+                pl.getTransform().rotation = rot;
+
+                //var rot = pc.rotation;
+                //rot[2] += t * math.TAU;
+                //pc.rotation = rot;
+                
+                if(pos[1] <= FLOOR_POS && timeElapsed > 0.5){
+                 // standStraight();
+                  rot[2] = 0;
+                  pl.getTransform().rotation = rot;                  
+                  pl.setState(pl.getIdleState());
+                }
+              };
+            }
+            return ForwardJumpState;
+          }());
+
+
+
+
+
+          // instances of all the state
+          var idleState = new IdleState(this);
+          var jumpState = new JumpState(this);
+          var moveForwardState = new MoveForwardState(this);
+          var forwardJumpState = new ForwardJumpState(this);
+          var crouchState = new CrouchState(this);
+          var spinKickState = new SpinKickState(this);
+          var state = idleState;
+          
+          this.getPlayer = function(){
+            return this.owner.find('Player');
+          }
+          
+          this.getTransform = function(){
+            return this.owner.find('Transform');
+          }
+          
+          this.setState = function(s){
+            if(state !== s){
+              state = s;
+              state.activate && state.activate();
+            }
+            
+          };
+          
+          this.onUpdate = function(t){
+            state && state.update(t);
+          }
+          
+          this.onJump = function(){         state.jump && state.jump();}
+          this.onIdle = function(){         state.idle && state.idle();}
+          this.onMoveForward = function(){  state.moveForward && state.moveForward();}
+          this.onCrouch = function(){       state.crouch && state.crouch();}
+          this.onPunch = function(){        state.punch && state.punch();}
+          this.onSpinKick = function(){     shake =200; state.spinKick && state.spinKick();};
+          
+          //this.onStopMoveForward = function(){
+          //  state = (state === moveForwardState) ? idleState : state;
+          //}
+
+          this.getJumpState = function(){return jumpState;}
+          this.getIdleState = function(){return idleState;}
+          this.getMoveForwardState = function (){return moveForwardState;};
+          this.getForwardJumpState = function(){return forwardJumpState;};
+          this.getCrouchState = function(){     return crouchState;};
+          this.getSpinKickState = function(){     return spinKickState;}; 
+          
+          this.getCurrState = function(){
+            if(state === spinKickState){
+              return "test";
+            }
+            return "asdf";
+          };
+          
+          // Boilerplate component registration; Lets our service know that we exist and want to do things
+          this.onComponentOwnerChanged = function (e) {
+            if (e.data.previous === null && this.owner !== null) {
+              service.registerComponent(this.owner.id, this);
+            }
+
+            if (this.owner === null && e.data.previous !== null) {
+              service.unregisterComponent(e.data.previous.id, this);
+            }
+          };
+
+          this.onEntityManagerChanged = function (e) {
+            if (e.data.previous === null && e.data.current !== null && this.owner !== null) {
+              service.registerComponent(this.owner.id, this);
+            }
+
+            if (e.data.previous !== null && e.data.current === null && this.owner !== null) {
+              service.unregisterComponent(this.owner.id, this);
+            }
+          };
+        });
+        
+
+
+
+      ////////////////////
+      // BoxComponent
+      ////////////////////
+      var BoxComponent = engine.base.Component({
+        type: 'Box',
         depends: ['Transform', 'Model']
-      }, function (options) {
+      },
+      function (options) {
+      
         options = options || {};
         var that = this;
         
+        // This is a hack so that this component will have its message queue processed
+        var service = engine.logic; 
+        
+        var didCollide = false;
+        this.velocity = [0, 0, 0];
+        this.acceleration = [0, 0, 0];
+
+        this.onCollision = function(e){
+        
+          if(e.data.entity.find('State')){
+          var playerState = e.data.entity.find('State').getCurrState();
+          var playerTrans = e.data.entity.find('Transform');
+
+          // XXX move this out
+          if(playerState === "test"){
+            console.log(playerState);
+            this.velocity = [0, 100, -10];
+            this.acceleration[1] = 9.8 * 80;
+          }
+          else if(playerState === "asdf"){
+            e.data.entity.find('Transform').position = [-4, FLOOR_POS, 0];
+          }
+          }
+        };
+        
+        this.onUpdate = function (event) {
+          var delta = service.time.delta / 1000;
+          
+          var trans = this.owner.find('Transform').position;
+
+          trans[0] += this.velocity[0] * delta;
+          trans[1] += this.velocity[1] * delta;
+          trans[2] -= this.velocity[2] * delta;
+          
+          this.velocity[1] -= this.acceleration[1] * delta;
+          
+          this.owner.find('Transform').position = trans;
+        }; // onUpdate
+        
+        // Boilerplate component registration; Lets our service know that we exist and want to do things
+        this.onComponentOwnerChanged = function (e) {
+          if (e.data.previous === null && this.owner !== null) {
+            service.registerComponent(this.owner.id, this);
+          }
+
+          if (this.owner === null && e.data.previous !== null) {
+            service.unregisterComponent(e.data.previous.id, this);
+          }
+        };
+
+        this.onEntityManagerChanged = function (e) {
+          if (e.data.previous === null && e.data.current !== null && this.owner !== null) {
+            service.registerComponent(this.owner.id, this);
+          }
+
+          if (e.data.previous !== null && e.data.current === null && this.owner !== null) {
+            service.unregisterComponent(this.owner.id, this);
+          }
+        };
+      }); // BoxComponent
+      
+
+
+
+
+      ////////////////////
+      // PlayerComponent
+      ////////////////////
+      var PlayerComponent = engine.base.Component({
+        type: 'Player',
+        depends: ['Transform', 'Model', 'State']
+      },
+      function (options) {
+      
+        options = options || {};
+        var that = this;
+        
+        // This is a hack so that this component will have its message queue processed
+        var service = engine.logic; 
+        
         this.initialPos = options.initialPos || [0,0,0];
         
+        this.onCollision = function(e){
+          var state = this.owner.find('State');
+
+      if(state.getCurrState() === "test"){
+      }
+//                  console.log(   state);
+        };
         
+//        var state = this.owner.find('State');
         
-        //////////////////////
-        // Character states
-        //////////////////////
+  //      this.onJump = function (event) {
+//          this.owner.find('State').jump();        
+          //state.jump && state.jump();
+    //    };
         
-        /**
-        *
-        *
-        */
-        var IdleState = (function () {
-
-          function IdleState(player) {
-            var pl = player;
-
-            this.moveForward = function () {pl.setState(pl.getMoveForwardState());};
-            this.moveBackward = function () {pl.setState(pl.getMoveBackwardState());};
-            this.jump = function () {pl.setState(pl.getJumpState());};
-            this.idle = function () {};
-            this.block = function () {pl.setState(pl.getBlockState());};
-            this.punch = function () {pl.setState(pl.getPunchState());};
-            //this.kick = function () {pl.setState(pl.getKickState());};
-            this.throwFireBall = function () {pl.setState(pl.getThrowFireBallState());};
-            this.spin = function () {pl.setState(pl.getSpinState());};
-            //this.dead = function () {pl.setState(pl.getDeadState());}
-            this.knockOut = function(){pl.setState(pl.getKnockedOutState());};
-            
-            this.forwardJump = function () {  pl.setState(pl.getForwardJumpState());};
-            this.backwardJump = function (){  pl.setState(pl.getBackwardJumpState());};
-
-            this.hit = function(d){
-              pl.health -= d;
-              
-              if(pl.health <= 0){
-                this.knockOut();
-              }
-            }
-
-            this.update = function (t, pc, m) {
-              m.updateAction('idle');
-              
-              if(pl.speed[1] === 0){
-                pl.speed[0] = 0;
-              }
-              // XXX
-              // When the character is idle, we may want to switch between
-              // two images so they don't look so static.
-            };
-
-            this.toString = function () {
-              return "Idle State";
-            };
-          }
-
-          return IdleState;
-        }());
-
-
-        /**
-        *
-        * Sprite jumps and can't block, then is hit and goes into this state.
-        *
-        */
-        var FallingDownState = (function () {
-
-          function FallingDownState(player) {
-            var pl = player;
-
-            // XXX Can this happen?
-            this.hit = function(){
-            };
-
-            this.update = function (t, pc, m) {
-              pl.model.updateAction('falling-down');              
-              
-              // XXX
-              if(pl.speed[1] === 0){
-                //pl.speed[0] = 0;
-              }
-              
-              // XXX if alrady jumping back, do we puch them back farther?
-              pl.speed[0] = 15 * pl.dir;
-              
-              if(pc.position[1] <= FLOOR_POS){
-              
-                // Once the player lands, find out if they just died
-                if(pl.health <= 0){
-                  pl.setState(pl.getKnockedOutState());
-                }
-                else{
-                  pl.setState(pl.getIdleState());
-                }
-              }
-            };
-
-            this.toString = function () {
-              return "Idle State";
-            };
-          }
-
-          return FallingDownState;
-        }());
-
-
-        /**
-        *
-        * Character is spinning around and can get hit by the other player.
-        *
-        */
-        var SpinState = (function () {
-
-          function SpinState(player) {
-
-            var pl = player;
-            var timeElapsed = 0;
-
-            // XXX
-            this.hit = function(){};
-            
-            this.onActivate = function(){
-              timeElapsed = 0;
-            };
-
-            // Should we slow down the character?
-            this.update = function (t, pc, m) {
-              //pl.aniState = 'idle';
-              //pl.trans.position;
-              
-              timeElapsed += t;
-              var rot = pc.rotation;
-
-              // rotate the sprite very fast          
-              if (timeElapsed < 2) {              
-                var a = pl.trans;
-                a.rotation[1] += 1;
-                //  rot[1] += 15;
-                pl.trans = a;
-                //pc.rotation = rot;
-              }
-              else {
-                timeElapsed = 0;
-
-                // re-orient the character
-                rot[1] = 3.14159/2;
-                pc.rotation = rot;
-
-                pl.setState(pl.getIdleState());
-              }
-            };
-
-            this.toString = function () {
-              return "Spin State";
-            };
-          }
-
-          return SpinState;
-        }());
-
-        /**
-          Character is frozen and can get hit by the other player.
-        */
-        var FrozenState = (function () {
-
-          function FrozenState(player) {
-
-            var pl = player;
-            var timeElapsed = 0;
-
-            //this.dead = function () {
-              //pl.setState(pl.getDeadState());
-            //}
-
-            // Should we slow down the character?
-            this.update = function (t, pc) {
-              timeElapsed += t;
-            };
-
-            this.toString = function () {
-              return "Frozen State";
-            };
-          }
-
-          return FrozenState;
-        }());
-
-        /**
-          Users can't transition to another state from the dead state.
-        */
-        /*var DeadState = (function () {
-
-          function DeadState(player) {
-            var pl = player;
-
-            this.update = function (t, pc) {
-              //pl.aniState = 'knock-down';
-            };
-
-            this.toString = function () {
-              return "Dead State";
-            };
-          }
-
-          return DeadState;
-        }());*/
-
-
-        /**
-        *
-        * Users can't transition to another state from the dead state.
-        *
-        */
-        var KnockedOutState = (function () {
-          
-          function KnockedOutState(player) {
-            var pl = player;
-            var timeElapsed = 0;
-            
-            this.onActivate = function(){
-              timeElapsed = 0;
-              pl.model.updateAction('knocked-out');
-            }
-            
-            this.update = function (t, pc) {
-              pl.speed[0] = 0;
-              timeElapsed += t;
-              
-              if(timeElapsed >= 2){
-                /// XXX
-                pl.resetPlayer();
-              }
-            };
-
-            this.toString = function () {
-              return "Knocked Out State";
-            };
-          }
-
-          return KnockedOutState;
-        }());
-
-
-        /**
-        *
-        *  Blocking
-        *
-        */
-        var BlockState = (function () {
-
-          function BlockState(player) {
-            var pl = player;
-
-            this.idle = function () {
-              pl.setState(pl.getIdleState());
-            };
-            
-            // XXX should this method exist?
-            this.knockOut = function(){
-              pl.setState(pl.getKnockedOutState());
-            }
-            
-            // Since sprite is blocking, only take a bit of the damage.
-            this.hit = function(d){
-              pl.health -= d/2;
-              if(pl.health <= 0){
-                this.knockOut();
-              }
-            };
-
-            this.onActivate = function(){
-              pl.model.updateAction('block');
-              pl.speed[0] = 0;
-            };
-            
-            this.update = function (t) {
-            };
-
-            this.toString = function () {
-              return "Block State";
-            };
-          }
-
-          return BlockState;
-        }());
-
-
-        /**
-        *
-        *
-        */
-        var ThrowFireBallState = (function () {
-
-          function ThrowFireBallState(player) {
-            var pl = player;
-            var timeElapsed = 0;
-
-            // Sprite can still get hit by a fireball.
-            this.hit = function(d){
-              pl.health -= d;
-              if(pl.health <= 0){
-                pl.setState(pl.getKnockedOutState());
-              }
-            };
-            
-            this.onActivate = function() {
-          
-              pl.timeWalkingBK = 0;
-              // Reuse the punch animation because we're cheap.
-              pl.model.updateAction('punch');
-              timeElapsed = 0;
-              
-              // Sprite can't move when they're throwing a fireball.
-              pl.speed[0] = 0;
-              
-              var pos = pl.trans.position;
-              //   var pos = [pl.position[0], pl.position[1], pl.position[2]];
-              // XXX
-              var dir = pl.dir;
-
-              // Add owner to fireball
-              new space.Entity({
-                  name: 'fireball',
-                  components: [
-                    new engine.core.component.Transform({
-                      position: math.Vector3( pos[0], pos[1], pos[2] ),
-                      rotation: math.Vector3( 0, 0, 0 ),
-                      scale: math.Vector3(1.5, 1.5, 1.5)
-                    }),
-                    new engine.graphics.component.Model({
-                      mesh: resources.mesh,
-                      material: resources.material
-                    }),
-                    new FireBallComponent({position:pos, direction: dir})
-                  ]
-                });
-            };
-            
-            this.spin = function () {
-              pl.setState(pl.getSpinState());
-            };
-
-            this.update = function (t, pc) {
-              timeElapsed += t;
-
-              if (timeElapsed > THROW_FIREBALL_DURATION) {
-                pl.setState(pl.getIdleState());
-              }
-            };
-
-            this.toString = function () {
-              return "Throw Fire Ball State";
-            };
-          }
-
-          return ThrowFireBallState;
-        }());
-
-        /**
-        *
-        *
-        */
-        var PunchState = (function () {
-
-          function PunchState(player) {
-            var pl = player;
-            var punchTimeElapsed = 0;
-
-            // XXX
-            // If a character is punching, can they be spun? Wouldn't the other sprite
-            // run into the punch?
-            // this.spin
-            
-            this.knockOut = function(){
-              pl.setState(pl.getKnockedOutState());
-            }
-            
-            // Sprite can still get hit by a fireball if punching
-            this.hit = function(d){
-              pl.health -= d;
-              if(pl.health <= 0){
-                this.knockOut();
-              }
-            }
-
-            this.onActivate = function(){
-            
-              // Check to see if this is actually a fireball
-              if(pl.timeWalkingBK >= FIREBALL_WAIT){
-                pl.setState(pl.getThrowFireBallState());
-              }
-              else{
-                pl.model.updateAction('punch');
-                punchTimeElapsed = 0;
-                pl.speed[0] = 0;
-              }
-            }
-
-            this.update = function (t, pc) {
-              punchTimeElapsed += t;
-              
-              if (punchTimeElapsed > PUNCH_DURATION) {
-                pl.setState(pl.getIdleState());
-              }
-            };
-
-            this.toString = function () {
-              return "Punch State";
-            };
-          }
-
-          return PunchState;
-        }());
-
-        /**
-         */
-        /*var KickState = (function () {
-
-          function KickState(player) {
-            var pl = player;
-            var kickTimeElapsed = 0;
-
-            this.update = function (t) {
-              // XXX
-              //pl.aniState = 'kick';
-
-              kickTimeElapsed += t;
-              if (kickTimeElapsed > 0.5) {
-                kickTimeElapsed = 0;
-                pl.setState(pl.getIdleState());
-              }
-            };
-
-            this.toString = function () {
-              return "Kick State";
-            };
-          }
-
-          return KickState;
-        }());*/
-
-        /**
-        *
-        *
-        */
-        var MoveForwardState = (function () {
-
-          function MoveForwardState(player) {
-            var pl = player;
-            var timer = 0;
-
-            this.moveForward = function () {};
-            this.moveBackward = function () {};
-            
-            this.knockOut = function(){
-              pl.setState(pl.getKnockedOutState());
-            };
-            
-            this.hit = function(d){
-              pl.health -= d;
-              if(pl.health <= 0){
-                this.knockOut();
-              }
-            };
-
-            // XXX
-            this.forwardJump = function () {
-              pl.setState(pl.getForwardJumpState());
-            };
-            this.jump = function () {
-              pl.setState(pl.getForwardJumpState());
-            };
-            this.idle = function () {
-              pl.setState(pl.getIdleState());
-            };
-            this.block = function () {
-              pl.setState(pl.getBlockState());
-            };
-            this.punch = function () {
-              pl.setState(pl.getPunchState());
-            };
-            //this.kick = function () {
-            //  pl.setState(pl.getKickState());
-            //};
-            this.throwFireBall = function () {
-              pl.setState(pl.getThrowFireBallState());
-            };
-            this.spin = function () {
-              pl.setState(pl.getSpinState());
-            };
-            this.onActivate = function(){
-              timer = 0;
-            };
-
-            this.update = function (t, pc, m) {
-              pl.speed[0] = MOVE_SPEED;
-              
-              timer += t;
-              
-              if(timer >= WALK_ANI_SPEED){
-                timer = 0;
-                m.updateAction('walk');
-              }
-            };
-
-            this.toString = function () {
-              return "Move Forward State";
-            };
-          }
-
-          return MoveForwardState;
-        }());
-
-        /**
-         */
-        var MoveBackwardState = (function () {
-
-          function MoveBackwardState(player) {
-            var pl = player;
-            var timer = 0;
-
-            this.moveForward = function () {};
-            this.moveBackward = function () {};
-            
-            this.hit = function(d){
-              pl.health -= d;
-              if(pl.health <= 0){
-                pl.setState(pl.getKnockedOutState());
-              }
-            };
-            this.jump = function () {
-              pl.setState(pl.getBackwardJumpState());
-            };
-            this.idle = function () {
-              pl.setState(pl.getIdleState());
-            };
-            this.block = function () {
-              pl.setState(pl.getBlockState());
-            };
-            this.punch = function () {
-              pl.setState(pl.getPunchState());
-            };
-            //this.kick = function () {
-            //  pl.setState(pl.getKickState());
-            //};
-            this.throwFireBall = function () {
-              pl.setState(pl.getThrowFireBallState());
-            };
-            this.spin = function () {
-              pl.setState(pl.getSpinState());
-            };
-            this.onActivate = function(){
-              timer = 0;
-              player.model.updateAction('walk');
-            };
-            this.update = function (t, pc, m) {
-              timer += t;
-              pl.timeWalkingBK += t;
-              
-              if(timer >= WALK_ANI_SPEED){
-                timer = 0;
-                m.updateAction('walk');
-              }
-
-              pl.speed[0] = -MOVE_SPEED;
-            };
-
-            this.toString = function () {
-              return "Move Backward State";
-            };
-          }
-
-          return MoveBackwardState;
-        }());
-
-        /**
-        *  Player is recovering from being hit. At this point they just need to wait until
-        *  the character gets back up.
-        */
-        var RecoverState = (function () {
-
-          function RecoverState(player) {
-            var pl = player;
-
-            this.update = function (t, pc) {
-              //pl.aniState = 'hurt';
-              // change sprite animation here of character getting back up.
-            };
-
-            this.toString = function () {
-              return "Recover State";
-            };
-          }
-
-          return RecoverState;
-        }());
-
-
-        /**
-         */
-        var JumpState = (function () {
-
-          function JumpState(player) {
-            var pl = player;
-            var jumpTimeElapsed = 0;
-
-            // XXX can they be spun?
-            this.kick = function () {};
-            
-            this.onActivate = function(){
-              jumpTimeElapsed = 0;
-              pl.model.updateAction('jump');
-              pl.speed[0] = 0;
-              
-              if(pl.speed[1] === 0){
-                pl.speed[1] = JUMP_HEIGHT;
-              }
-            };
-            
-            this.hit = function(d){
-              pl.health -= d;
-              pl.setState(pl.getFallingDownState());
-            };
-
-            this.update = function (t, pc, m) {
-              jumpTimeElapsed += t;
-
-              // only do the check if he left the floor, otherwise
-              // the test will pass as soon as the jump starts.
-              if(pc.position[1] <= FLOOR_POS && jumpTimeElapsed > 0.5){
-                pl.setState(pl.getIdleState());
-              }
-            };
-
-            this.toString = function () {
-              return "Jump State";
-            };
-
-          }
-          return JumpState;
-        }());
-
-        /**
-        *
-        *  Character walks forward and jumps
-        *  
-        */
-        var ForwardJumpState = (function () {
-
-          function ForwardJumpState(player) {
-            var pl = player;
-            var jumpTimeElapsed = 0;
-            
-            function standStraight(){
-              var test = pl.trans.rotation;
-              test[2] = 0;
-              pl.trans.rotation = test;
-            }
-            
-            // XXX fix me
-            this.kick = function () {};
-
-            this.hit = function(d){
-              pl.health -= d;
-              
-              //
-              standStraight();
-              pl.setState(pl.getFallingDownState());
-            };
-                        
-            this.onActivate = function(){              
-              jumpTimeElapsed = 0;
-              pl.model.updateAction('jump');
-              pl.speed[0] = MOVE_SPEED;
-                                      
-              if(pl.speed[1] === 0){
-                pl.speed[1] = JUMP_HEIGHT;
-              }
-            };
-            
-            this.update = function (t, pc, m) {
-              jumpTimeElapsed += t;
-
-              // XXX fix me
-              var rot = pc.rotation;
-              rot[2] += t * math.TAU;
-              pc.rotation = rot;
-              
-              if(pc.position[1] <= FLOOR_POS && jumpTimeElapsed > 0.5){
-                standStraight();
-                pl.setState(pl.getIdleState());
-              }
-            };
-
-            this.toString = function () {
-              return "Forward Jump State";
-            };
-
-          }
-          return ForwardJumpState;
-        }());
-
-
-        /**
-        *
-        * Character walks backward and jumps
-        *
-        */
-        var BackwardJumpState = (function () {
-
-          function BackwardJumpState(player) {
-            var pl = player;
-            var jumpTimeElapsed = 0;
-
-            // XXX fix me
-            this.kick = function () {};
-
-            this.hit = function(d){
-              pl.health -= d;
-              standStraight();
-              pl.setState(pl.getFallingDownState());
-            };
-            
-            function standStraight(){
-              var rot = pl.trans.rotation;
-              rot[0] = -Math.PI * 2;
-              pl.trans.rotation = rot;
-            };
-            
-            this.onActivate = function(){
-              pl.model.updateAction('jump');
-              jumpTimeElapsed = 0;
-              pl.speed[0] = -MOVE_SPEED;
-                       
-              if(pl.speed[1] === 0){
-                pl.speed[1] = JUMP_HEIGHT;
-              }
-            };
-
-            this.update = function (t, pc, m) {
-              jumpTimeElapsed += t;
-              
-              // XXX fix me
-              var rot = pc.rotation;
-              rot[0] -= t * math.TAU;
-              pc.rotation = rot;
-              
-              if(pc.position[1] <= FLOOR_POS && jumpTimeElapsed > 0.5){
-                standStraight();
-                pl.setState(pl.getIdleState());
-              }
-            };
-
-            this.toString = function () {
-              return "Backward Jump State";
-            };
-
-          }
-          return BackwardJumpState;
-        }());
-
-
         this.health = MAX_HEALTH;
         var playerName = options.name || "NoName";
         this.dir = options.dir;
@@ -1148,48 +978,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
         
         // for fireballs
         this.timeWalkingBK = 0;
-        
-        var idleState = new IdleState(this);
-        var blockState = new BlockState(this);
-        var jumpState = new JumpState(this);
-        var punchState = new PunchState(this);
-        //var kickState = new KickState(this);
-        //var deadState = new DeadState(this);
-        var recoverState = new RecoverState(this);
-        var spinState = new SpinState(this);
-        var frozenState = new FrozenState(this);
-        var throwFireBallState = new ThrowFireBallState(this);
-        var moveForwardState = new MoveForwardState(this);
-        var moveBackwardState = new MoveBackwardState(this);
-        var forwardJumpState = new ForwardJumpState(this);
-        var backwardJumpState = new BackwardJumpState(this);
-        var fallingDownState = new FallingDownState(this);
-        
-        var knockedOutState = new KnockedOutState(this);
-                    
-        // XXX rename to currentState
-        var state = idleState;
-        
-        // convert to getters
-        this.getIdleState = function () {     return idleState;  };
-        this.getBlockState = function () {    return blockState;  };
-        this.getJumpState = function () {     return jumpState;  };
-        this.getPunchState = function () {    return punchState;  };
-        //this.getKickState = function () {     return kickState;  };  
-        //this.getDeadState = function () {     return deadState;  };  
-        this.getRecoverState = function () {  return recoverState;  }  
-        this.getSpinState = function () {     return spinState;  };  
-        this.getFrozenState = function () {   return frozenState;  };  
-        this.getThrowFireBallState = function () {  return throwFireBallState;};  
-        this.getMoveForwardState = function () {    return moveForwardState;  };  
-        this.getMoveBackwardState = function () {   return moveBackwardState;  };  
-        this.getForwardJumpState = function () {    return forwardJumpState;  };  
-        this.getBackwardJumpState = function () {   return backwardJumpState };
-        this.getFallingDownState = function() {     return fallingDownState; };
-        
-        this.getKnockedOutState = function(){ return knockedOutState;}
-                    
-        var service = engine.logic; // This is a hack so that this component will have its message queue processed
+                            
+
 
         //
         this.isKnockedOut = function(){
@@ -1199,10 +989,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
         //
         this.stayInBounds = function(pos){
           if(pos[2] > LEFT_BORDER){
-            pos[2] = LEFT_BORDER;
+      //      pos[2] = LEFT_BORDER;
           }
           if(pos[2] < RIGHT_BORDER){
-            pos[2] = RIGHT_BORDER;
+//            pos[2] = RIGHT_BORDER;
           }
 
           if(pos[1] <= FLOOR_POS){//JUMP_HEIGHT) {
@@ -1211,6 +1001,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           }
         }
 
+/*
         this.setState = function (s) {
           if(state !== s){
             console.log('State changed: ' + s.toString());
@@ -1253,21 +1044,19 @@ document.addEventListener("DOMContentLoaded", function (e) {
             state.punch && state.punch();
             punchP = true;
           }
-        };
+        };*/
         
         //
         this.resetPlayer = function(){
           this.health = MAX_HEALTH;
-          state = idleState;
+         // state = idleState;
           this.owner.find('Transform').position = this.initialPos;
         };
         
-        this.onKick = function (event) {
+       /* this.onKick = function (event) {
           state.kick && state.kick();
         };
-        this.onJump = function (event) {
-          state.jump && state.jump();
-        };
+
         
         // XXX broken
         this.onKnockOut = function(event){
@@ -1283,7 +1072,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         };
         this.onSpin = function (event) {
           state.spin && state.spin();
-        };
+        };*/
         
         // XXX
         var trans;
@@ -1295,6 +1084,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
         this.onUpdate = function (event) {
           var delta = service.time.delta / 1000;
+
           
           // XXX Move this out
           if(document.getElementById(playerName)){
@@ -1305,6 +1095,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             document.getElementById(playerName).style.visibility = show;
             
             // allow some buffer 
+            // XXX comment
             var halfClientAreaWidth = (window.innerWidth-150)/2;
             var normalizedHealth = this.health/MAX_HEALTH;
             var final = normalizedHealth * halfClientAreaWidth;
@@ -1317,8 +1108,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           this.trans = this.owner.find('Transform');
           this.model = this.owner.find('Model');
+          var state = this.owner.find('State');
 
-          state.update(delta, transform, this.model);
+            //this.ownder.find('State').update(delta);
+        //  state.update(delta, transform, this.model);
                     
           var pos = transform.position;
           
@@ -1326,22 +1119,25 @@ document.addEventListener("DOMContentLoaded", function (e) {
           this.speed[1] -= GRAVITY * 100 * delta;
           
           pos[1] += this.speed[1] * delta;
-          pos[2] -= this.speed[0] * delta;
+          pos[0] += this.speed[0] * delta;
           this.stayInBounds(pos);
           
           transform.position = pos;
           
           if(this.dir === FACING_RIGHT){
-            var temp = this.owner.find('Transform').rotation;
-            temp[1] = math.PI/2;
-            this.owner.find('Transform').rotation = temp;
+//            var temp = this.owner.find('Transform').rotation;
+  //          temp[1] = math.PI/2;
+    //        this.owner.find('Transform').rotation = temp;
           }
           else{
-            var temp = this.owner.find('Transform').rotation;
-            temp[1] = -math.PI/2;
-            this.owner.find('Transform').rotation = temp;
+      //      var temp = this.owner.find('Transform').rotation;
+        //    temp[1] = -math.PI/2;
+          //  this.owner.find('Transform').rotation = temp;
           }
           
+          
+          
+        
           // XXX fix direction
           if (keyStates[options.RIGHT_KEY] && keyStates[options.JUMP_KEY]){
             state.forwardJump && state.forwardJump();
@@ -1351,24 +1147,18 @@ document.addEventListener("DOMContentLoaded", function (e) {
           }
 
           // Don't move the user if they're trying to move in both directions.
-          else if (keyStates[options.RIGHT_KEY] && keyStates[options.LEFT_KEY]) {
-             state.idle && state.idle();
-          }
+          else if (keyStates[options.RIGHT_KEY] && keyStates[options.LEFT_KEY]) {state.onIdle();}
 
-          // Move them right if released the left key.
-          else if (keyStates[options.RIGHT_KEY]) {
-            state.moveForward && state.moveForward();
-          }
+          // Move them right if released the right key.
+          else if (keyStates[options.RIGHT_KEY]) {state.onMoveForward();}
 
           // Move them left if they released the right key.
           else if (keyStates[options.LEFT_KEY]) {
-             state.moveForward && state.moveBackward();
+             //fix on state.moveBackward && state.moveBackward();
           }
 
           // 
-          else if (keyStates[options.JUMP_KEY]) {
-            state.jump && state.jump();
-          }
+          else if (keyStates[options.JUMP_KEY]) {state.onJump();}
         }; // onUpdate
         
         // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -1394,8 +1184,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
       }); // PlayerComponent
       
       
+      ////////////////
+      // RUN
+      ////////////////
       var run = function () {
-
 
         // Add some tunes
         var audioElement = document.createElement('audio');
@@ -1406,7 +1198,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         audioElement.play();
         audioElement.volume = 0;
 
-        // "M" for toggle
+        // "M" to toggle music mute
         window.addEventListener("keyup", function(e){
           if(e.keyCode == 77){
             audioElement.volume = !audioElement.volume
@@ -1415,127 +1207,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           canvas = engine.graphics.target.element;
 
-          ////////////                      
-          // Player 2
-          ////////////
-          var player2 = new space.Entity({
-            name: 'player2',
-            components: [
-            new engine.core.component.Transform({
-              position: math.Vector3(-50, FLOOR_POS, 20),
-              rotation: math.Vector3(0, -math.PI / 2, 0),
-              scale: math.Vector3(7, 7, 7)
-            }),
-
-            new BitwallModel({
-              sprite: viking.sprites.thug1
-            }),
-            
-            new HealthComponent({domId: 'player2'}),
-            
-            new engine.input.component.Controller({
-              onKey: function (e) {
-
-                // keep state of the keys
-                var keyName = e.data.code;
-                keyStates[keyName] = (e.data.state === 'down');
-
-                switch (e.data.code) {
-
-                  // WAlK RIGHT
-                case playerTwoConfig.RIGHT_KEY:
-                  new engine.core.Event({
-                    type: e.data.state === 'down' ? 'StartMoveForward' : 'StopMoveForward'
-                  }).dispatch([this.owner]);
-                  break;
-
-                  // WALK LEFT
-                case playerTwoConfig.LEFT_KEY:
-                  new engine.core.Event({
-                    type: e.data.state === 'down' ? 'StartMoveBackward' : 'StopMoveBackward'
-                  }).dispatch([this.owner]);
-                  break;
-                  
-                  // JUMP
-                case playerTwoConfig.JUMP_KEY:
-                  new engine.core.Event({
-                    type: e.data.state === 'down' ? 'Jump' : null
-                  }).dispatch([this.owner]);
-                  break;
-
-                  // PUNCH
-                case playerTwoConfig.PUNCH_KEY:
-                  new engine.core.Event({
-                    type: e.data.state === 'down' ? 'Punch' : 'PunchReleased'
-                  }).dispatch([this.owner]);
-                  break;
-
-                  // BLOCK
-                case playerTwoConfig.DOWN_KEY:
-                  new engine.core.Event({
-                    type: e.data.state === 'down' ? 'StartBlock' : 'StopBlock'
-                  }).dispatch([this.owner]);
-                  break;
-
-                  // Fireball!
-                /*case 'M':
-                  new engine.core.Event({
-                    type: 'ThrowFireBall'
-                  }).dispatch([this.owner]);
-                  break;*/
-                  
-                  /* Kick
-                case 'U':
-                  new engine.core.Event({
-                    type: 'Kick'
-                  }).dispatch([this.owner]);
-                  break;*/
-                  
-                case '0':
-                  new engine.core.Event({
-                    type: 'KnockOut'
-                    }).dispatch([this.owner]);
-                  break;
-
-                case '5':
-                  new engine.core.Event({
-                    type: e.data.state === 'down' ? 'Hit' : null
-                    }).dispatch([this.owner]);
-                  break;
-
-                  // Spin player
-                case '1':
-                  new engine.core.Event({
-                    type: 'Spin'
-                  }).dispatch([this.owner]);
-                  break;
-
-                }  // switdh
-              }  // onKey
-            }), // controller
-            new PlayerComponent(playerTwoConfig)
-
-            ]
-          });
-
-
-
-          ///////////////
-          /// NPC 1
-          ///////////////
-          /*var npc1 = new space.Entity({
-            name: 'NPC1',
-            components: [
-              new engine.core.component.Transform({
-                position: math.Vector3(-53, FLOOR_POS, 25),
-                rotation: math.Vector3(0, math.PI / 2, 0),
-                scale: math.Vector3(4, 4, 4)
-              }), new BitwallModel({
-                sprite: viking.sprites.thug5
-              }),
-              new PlayerComponent()
-            ]
-          });*/
 
 
 
@@ -1545,19 +1216,22 @@ document.addEventListener("DOMContentLoaded", function (e) {
           var player1 = new space.Entity({
             name: 'player1',
             components: [
+            
+            // Model
             new engine.core.component.Transform({
-              position: math.Vector3(-50, FLOOR_POS, 35),
-              // in front of red house.
-              rotation: math.Vector3(0, math.PI / 2, 0),
+              /// XXX use initial pos
+              position: math.Vector3(-5, FLOOR_POS, 0),
+              rotation: math.Vector3(0, 0, 0),
               scale: math.Vector3(7, 7, 7)
             }),
             
+            // Graphic Representation
             new BitwallModel({
               sprite: viking.sprites.kraddy
             }),
             
             new HealthComponent({domId: 'player1'}),
-                        
+            
             new engine.input.component.Controller({
               onKey: function (e) {
 
@@ -1570,7 +1244,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   // walk right
                 case 'RIGHT':
                   new engine.core.Event({
-                    type: e.data.state === 'down' ? 'StartMoveForward' : 'StopMoveForward'
+                  //////!!!!fix!!
+                    type: e.data.state === 'down' ? 'MoveForward' : 'Idle'
                   }).dispatch([this.owner]);
                   break;
 
@@ -1591,23 +1266,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   // Block
                 case 'DOWN':
                   new engine.core.Event({
-                    type: e.data.state === 'down' ? 'StartBlock' : 'StopBlock'
+                    type: e.data.state === 'down' ? 'Crouch' : 'Idle'
                   }).dispatch([this.owner]);
                   break;
 
                 case 'A':
                   new engine.core.Event({
-                    type: e.data.state === 'down' ? 'Punch' : 'PunchReleased'
+                    type: e.data.state === 'down' ? 'Punch' : null
                   }).dispatch([this.owner]);
                   break;
-
-
-
 
                   // Spin player
                 case 'W':
                   new engine.core.Event({
-                    type: 'Spin'
+                    type: e.data.state === 'down' ? 'SpinKick' : null
                   }).dispatch([this.owner]);
                   break;
                   
@@ -1635,15 +1307,105 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 } // switch
               } // onKey
             }), //controller
-            new PlayerComponent(playerOneConfig)]
+            
+            
+            new PlayerComponent(playerOneConfig),
+            
+            new StateComponent(), 
+            
+            new collision2Service.component.BoundingBox({
+                lowerLeft: math.Vector3( -2, -3,  0),
+                upperRight: math.Vector3( 0.5,  2,  0 )
+            })
+            ]
           });
+
+
+
+
+      for(var i = 0; i < 20; i++){
+
+           new space.Entity({
+                name: 'cube' + i,
+                components: [
+                    new engine.core.component.Transform({
+                        position: math.Vector3( i * 12, FLOOR_POS-3, 0 ),
+                        rotation: math.Vector3( 0, 0, 0 ),
+                      //  scale: math.Vector3( 0.8, 5, 2)
+                    }),
+                    
+                    new engine.graphics.component.Model({
+                        mesh: resources.mesh,
+                        material: resources.material
+                    }),
+                    
+                    new BoxComponent(),
+                    
+                    new collision2Service.component.BoundingBox({
+                        lowerLeft: math.Vector3(  -1, -1, 0 ),
+                        upperRight: math.Vector3(  1,  1, 0 )
+                    })
+                    ]
+            }); 
+            }
+          
+          
+          
+
+           new space.Entity({
+                name: 'cube' + i,
+                components: [
+                    new engine.core.component.Transform({
+                        position: math.Vector3( i * 15, FLOOR_POS-3, 0 ),
+                        rotation: math.Vector3( 0, 0, 0 ),
+                      //  scale: math.Vector3( 0.8, 5, 2)
+                    }),
+                    
+                    new engine.graphics.component.Model({
+                        mesh: resources.mesh,
+                        material: resources.material
+                    }),
+                    
+                    new BoxComponent(),
+                    
+                    new collision2Service.component.BoundingBox({
+                        lowerLeft: math.Vector3(  -1, -1, 0 ),
+                        upperRight: math.Vector3(  1,  1, 0 )
+                    })
+                    ]
+            }); 
+             
+/*
+           new space.Entity({
+                name: 'cube1',
+                components: [
+                    new engine.core.component.Transform({
+                        position: math.Vector3( 16, FLOOR_POS-3, 0 ),
+                        rotation: math.Vector3( 0, 0, 0 ),
+                      //  scale: math.Vector3( 0.8, 5, 2)
+                    }),
+                    
+                      new engine.graphics.component.Model({
+                        mesh: resources.mesh,
+                        material: resources.material
+                    }),
+                    
+                    new BoxComponent(),
+                            
+                    new collision2Service.component.BoundingBox({
+                        lowerLeft: math.Vector3( -1, -1, 0 ),
+                        upperRight: math.Vector3( 1,  1, 0 )
+                    })
+                    ]
+            }); 
+            */
 
 
           var camera = new space.Entity({
             name: 'camera',
             components: [
             new engine.core.component.Transform({
-              position: math.Vector3(-33, 15, 30)
+              position: math.Vector3(0, 15, 20)
             }), new engine.graphics.component.Camera({
               active: true,
               width: canvas.width,
@@ -1661,7 +1423,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             })
             ]
           });
-          camera.find('Camera').target = math.Vector3(-60, 10, 30);
+          camera.find('Camera').target = math.Vector3(0, 15, -1);
 
           // XXX the animation time is totally random.  It should actually
           // be something sane, probably picked to interact with the
@@ -1673,8 +1435,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           // XXX Make the camera move slowly back to the starting point instead of this.
           var restartGame = function(){
-            camera.find('Transform').position = math.Vector3(-33, 15, 30);
-            camera.find('Camera').target = math.Vector3(-60, 10, 30);
+            camera.find('Transform').position = math.Vector3(0, 10, -1);
+            camera.find('Camera').target = math.Vector3(0, 10, 30);
           }
           
           ////////////////
@@ -1687,67 +1449,124 @@ document.addEventListener("DOMContentLoaded", function (e) {
             callback: function () {
               var delta = engine.scheduler.simulationTime.delta / 1000;
               
+             /* if(testCube){
+              
+              
+if(rrr){
+  vel = 25;
+  yvel = 45;
+
+  aaa = true;
+  a = 9.8;
+  rrr= false;
+}
+
+if(aaa){ 
+  yvel -= a*a * delta;
+  // console.log(vel);
+}
+
+var cubePos = testCube.find('Transform').position;
+cubePos[2] -= vel * delta;
+cubePos[1] += yvel*1.4 * delta;
+cubePos[0] += vel/2 * delta;
+testCube.find('Transform').position = cubePos;
+              
+              //  var cubePos = testCube.find('Transform').position;
+                
+               // var rot = testCube.find('Transform').rotation;
+                
+              //  rot[0] += delta;
+               // rot[1] += delta;
+               // rot[2] += delta;
+
+                
+               // cubePos[2] -= velocity + (9.8*9.8* delta);
+               // cubePos[1] += 15 * delta;
+                //cubePos[0] += 15 * delta;
+               
+               //  testCube.find('Transform').position = cubePos;
+                }*/
+
+               // if(cubePos[2] > 30){
+               //   cubePos[2] = -10;
+              //  }
+
+               // testCube.find('Transform').position = cubePos;
+              
+              
               // Player components
               var p1Com = player1.find('Player');
-              var p2Com = player2.find('Player');
+//              var p2Com = player2.find('Player');
               
               var p1Pos = player1.find('Transform').position;
-              var p2Pos = player2.find('Transform').position;
+//              var p2Pos = player2.find('Transform').position;
               
               var p1Xpos = p1Pos[2];
-              var p2Xpos = p2Pos[2];
+//              var p2Xpos = p2Pos[2];
               
               var p1Div = getById('player1');
-              var p2Div = getById('player2');
+//              var p2Div = getById('player2');
                 
               //
-              if( p1Xpos < p2Xpos ){
-                p1Com.setFacing(FACING_LEFT);
-                p2Com.setFacing(FACING_RIGHT);
+            //  if( p1Xpos < p2Xpos ){
+              //  p1Com.setFacing(FACING_LEFT);
+//                p2Com.setFacing(FACING_RIGHT);
                 // XXX fix this
-                getById('player2').id = 'temp';
-                getById('player1').id = 'player2';
-                getById('temp').id = 'player1';
-              }
-              else{
-                p1Com.setFacing(FACING_RIGHT);
-                p2Com.setFacing(FACING_LEFT);                
+//                getById('player2').id = 'temp';
+  //              getById('player1').id = 'player2';
+    //            getById('temp').id = 'player1';
+            //  }
+            // // else{
+                //p1Com.setFacing(FACING_RIGHT);
+  //              p2Com.setFacing(FACING_LEFT);                
                 // XXX why isn't this necessary?
                 //getById('player1').id = 'temp';
                 //getById('player2').id = 'player1';
                 //getById('temp').id = 'player2';
-              }
+             // }
               
               // XXX fix me
               p1Div = getById('player1');
-              p2Div = getById('player2');
+//              p2Div = getById('player2');
               
-              if( p1Xpos < p2Xpos ){
+            /*  if( p1Xpos < p2Xpos ){
                 p1Div.style.backgroundColor = "green";
-                p2Div.style.backgroundColor = "orange";   
+             //  p2Div.style.backgroundColor = "orange";   
               }
               else{
                 p1Div.style.backgroundColor = "orange";
-                p2Div.style.backgroundColor = "green";                
-              }
+            //    p2Div.style.backgroundColor = "green";                
+              }*/
                                 
               // XXX fix this
-              var midPoint = (p1Pos[2] + p2Pos[2])/2;
+//              var midPoint = (p1Pos[2] + p2Pos[2])/2;
               var newPos = camera.find('Transform').position;
-              newPos[2] = midPoint;
-              camera.find('Camera').target = math.Vector3(-60, 10, midPoint);
-                              
-              // XXX fix this
-              var diff = Math.abs(p1Xpos - p2Xpos);
-              
-              if(diff > 20){
-                newPos[0] = -33 - (20 - diff);
-              }
-              
+              newPos[0] = p1Pos[0];
               camera.find('Transform').position = newPos;
               
+              camera.find('Camera').target = math.Vector3(newPos[0], 10, -1);
+           
+              //math.Vector3(-60, 10, midPoint);
+                              
               // XXX fix this
-              if( p1Com.isKnockedOut() && p2Com.isKnockedOut()){ 
+              //var diff = Math.abs(p1Xpos - p2Xpos);
+              
+              //if(diff > 20){
+              //  newPos[0] = -33 - (20 - diff);
+              //}
+              var testPos = p1Pos;
+              testPos[0] += 20;
+              testPos[1] = 20 + (Math.cos(shake)*3);
+             // testPos[2] +=  (Math.cos(shake+5)*3);
+              
+                 //shake /= 1.5;
+
+              
+              //camera.find('Transform').position = testPos;
+              
+              // XXX fix this
+/*              if( p1Com.isKnockedOut() && p2Com.isKnockedOut()){ 
                 //console.log('Double KO');
               }
               else if(p1Com.isKnockedOut()){
@@ -1759,7 +1578,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               
               if(p1Com.isKnockedOut() || p2Com.isKnockedOut()){
                 restartGame();
-              }
+              }*/
             }
           });
 

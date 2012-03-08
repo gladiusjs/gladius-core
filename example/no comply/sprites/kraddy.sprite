@@ -306,7 +306,7 @@
     },
 
 
-    "knocked-out": {
+    "crouch": {
       "speed": 0.8,
       "rects": [
         17
@@ -348,11 +348,9 @@
     "twirl-kick": {
       "speed": 0.5,
       "rects": [
-        24,
-        25,
-        26,
-        27
-      ]
+       
+        26
+             ]
     }
   }
 }
