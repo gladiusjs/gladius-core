@@ -20,10 +20,10 @@ define( function ( require ) {
             }
         });
         
-        var _immediate = options.hasOwnProperty( 'immediate' ) ? options.immediate : false;
-        Object.defineProperty( this, 'immediate', {
+        var _queue = options.hasOwnProperty( 'queue' ) ? options.queue : true;
+        Object.defineProperty( this, 'queue', {
             get: function() {
-                return _immediate;
+                return _queue;
             }
         });
         
@@ -43,8 +43,12 @@ define( function ( require ) {
         
         // Send this event to each entity in targets
         this.dispatch = function( targets ) {
-            for( var i = 0, l = targets.length; i < l; ++ i ) {
-                targets[i].handleEvent( that );
+            if( Array.isArray( targets ) ) {
+                for( var i = 0, l = targets.length; i < l; ++ i ) {                
+                    targets[i].handleEvent( that );
+                }
+            } else {
+                targets.handleEvent( that );
             }
         };
 

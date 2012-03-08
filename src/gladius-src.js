@@ -109,6 +109,7 @@ define( function ( require ) {
             // Expose engine objects, partially
             // applying items needed for their constructors.
             lang.extend( this, {
+                lang: lang,
                 common: {
                     Queue: Queue,
                     Delegate: Delegate
@@ -154,7 +155,7 @@ define( function ( require ) {
             if ( this.options.setup ) {
                 this.options.setup( this );
             }
-
+            
             // Let caller know the engine instance is ready.
             if (callback) {
                 callback(this);
@@ -169,7 +170,7 @@ define( function ( require ) {
             run: function () {
                 if ( this.options.run ) {
                     this.options.run( this );
-                }                
+                }            
                 this.scheduler.resume();                
             },
     
