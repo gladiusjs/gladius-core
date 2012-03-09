@@ -35,6 +35,8 @@ define( function ( require ) {
     // for when gladius is built for deployment.
     global = window.gladius || ( window.gladius = {} );
     
+    require( 'box2d.js/box2d' );
+    
     /***
      * Gladius
      *
@@ -146,7 +148,7 @@ define( function ( require ) {
             var subs = this.service = {},
               i;
             for (i = 0; i < arguments.length; i++) {
-                var s = arguments[ i ]( this ); 
+                var s = arguments[ i ]( this );
                 subs[ sNames[ i ] ] = new s( sOptions[ i ] );
             }
             lang.extend( this, subs );

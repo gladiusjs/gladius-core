@@ -9,265 +9,10 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
         var CubicVR = engine.graphics.target.context;      
         
-        var Physics = engine.base.Service({
-            type: 'Physics',
-            schedule: {
-                update: {
-                    phase: engine.scheduler.phases.UPDATE
-                }
-            },
-            depends: [ 'Motion' ],
-            time: engine.scheduler.simulationTime
-        },
-        function( options ) {
-
-            var that = this;
-            var service = this;
-            var gravity = options.gravity || new Box2D.b2Vec2( 0, 0 );
-            var world = new Box2D.b2World( gravity );
-            var directions = {
-                    up: new Box2D.b2Vec2( 0, 1 ),
-                    down: new Box2D.b2Vec2( 0, -1 ),
-                    left: new Box2D.b2Vec2( -1, 0 ),
-                    right: new Box2D.b2Vec2( 1, 0 )
-            };
-            var rotations = {
-                    cw: -1,
-                    ccw: 1
-            };
-            
-            this.update = function() {
-                
-                var component;
-                
-                var updateEvent = new engine.core.Event({
-                    type: 'Update',
-                    queue: false,
-                    data: {
-                        delta: that.time.delta
-                    }
-                });
-                for( var componentType in that.components ) {
-                    for( var entityId in that.components[componentType] ) {
-                        component = that.components[componentType][entityId];
-                        while( component.handleQueuedEvent() ) {}
-                        updateEvent.dispatch( component );
-                    }
-                }
-                
-                // Box2D steps in seconds
-                var deltaInSeconds = that.time.delta / 1000; 
-                world.Step( deltaInSeconds, 2, 2 );
-                
-            };
-
-            var Body = engine.base.Component({
-                type: 'Body',
-                depends: ['Transform']
-            },
-            function( options ) {
-                options = options || {};  
-                var that = this;
-                var i;
-                var moveSpeed = 1.0;
-                var rotationSpeed = 1.0;
-               
-                // Create the body as a box2d object
-                var body = world.CreateBody( options.bodyDefinition );
-                body.CreateFixture( options.fixtureDefinition );
-                body.SetLinearVelocity( new Box2D.b2Vec2( 0, 0 ) );
-                
-                var moveDirection = new Box2D.b2Vec2( 0, 0 );
-                var moveEventStates = {
-                        up: false,
-                        down: false,
-                        left: false,
-                        right: false
-                };
-                
-                var rotationDirection = 0;
-                var rotationEventStates = {
-                        cw: false,
-                        ccw: false
-                };
-                
-                this.onMoveStart = function( e ) {
-                    var direction = directions[e.data.direction];
-                    
-                    if( moveEventStates[e.data.direction] ) {
-                        return;
-                    }
-                    
-                    moveDirection.Set( moveDirection.get_x() + direction.get_x(), 
-                            moveDirection.get_y() + direction.get_y() );
-                    moveEventStates[e.data.direction] = true;
-                };
-                
-                this.onMoveStop = function( e ) {
-                    var direction = directions[e.data.direction];
-                    moveDirection.Set( moveDirection.get_x() - direction.get_x(), 
-                            moveDirection.get_y() - direction.get_y() );
-                    moveEventStates[e.data.direction] = false;
-                };
-                
-                this.onRotateStart = function( e ) {
-                    var rotation = rotations[e.data.direction];
-                    
-                    if( rotationEventStates[e.data.direction] ) {
-                        return;
-                    }
-                    
-                    rotationDirection += rotation;
-                    rotationEventStates[e.data.direction] = true;
-                };
-                
-                this.onRotateStop = function( e ) {
-                    var rotation = rotations[e.data.direction];
-                    rotationDirection -= rotation;
-                    rotationEventStates[e.data.direction] = false;
-                };
-                               
-                var frameImpulse = new Box2D.b2Vec2( 0, 0 );
-                this.onUpdate = function( e ) {
-                    frameImpulse.Set( moveDirection.get_x(), moveDirection.get_y() );
-                    frameImpulse.Normalize();
-                    frameImpulse.Set( moveSpeed * frameImpulse.get_x(), moveSpeed * frameImpulse.get_y() );
-                    body.ApplyLinearImpulse( frameImpulse, body.GetPosition() );
-                    body.ApplyAngularImpulse( rotationSpeed * rotationDirection );
-                    
-                    var position2 = body.GetPosition();
-                    var angle2 = body.GetAngle();
-                    
-                    // TD: This will cause the transform to emit an event that we handle below. Blech!
-                    var transform = this.owner.find( 'Transform' );  
-                    transform.position = math.Vector3( position2.get_x(), position2.get_y(), transform.position[2] );
-                    transform.rotation = math.Vector3( transform.rotation[0], transform.rotation[1], angle2 );
-                };
-                               
-                this.onComponentOwnerChanged = function( e ){
-                    if( e.data.previous === null && this.owner !== null ) {
-                        service.registerComponent( this.owner.id, this );
-                        body.SetActive( true );
-                        body.SetAwake( true );
-                        var transform = this.owner.find( 'Transform' );
-                        body.SetTransform( new Box2D.b2Vec2( transform.position[0], transform.position[1] ), transform.rotation[2] );
-                    }
-                    
-                    if( this.owner === null && e.data.previous !== null ) {
-                        service.unregisterComponent( e.data.previous.id, this );
-                        body.SetActive( false );
-                        body.SetAwake( false );
-                    }
-                };
-                
-                this.onEntityManagerChanged = function( e ) {
-                    if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
-                        service.registerComponent( this.owner.id, this );
-                        body.SetActive( true );
-                        body.SetAwake( true );
-                        body.SetTransform( new Box2D.b2Vec2( transform.position[0], transform.position[1] ), transform.rotation[2] );
-                    }
-                    
-                    if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
-                        service.unregisterComponent( this.owner.id, this );
-                        body.SetActive( false );
-                        body.SetAwake( false );
-                    }
-                };
-                
-            });
-
-            this.component = {
-                Body: Body
-            };
-            
-            var Box = function( hx, hy ) {
-                var shape = new Box2D.b2PolygonShape();
-                shape.SetAsBox( hx, hy );
-                return shape;
-            };
-            
-            var BodyDefinition = function( type, linearDamping, angularDamping ) {
-                var bd = new Box2D.b2BodyDef();
-                bd.set_type( type );                
-                bd.set_linearDamping( linearDamping );
-                bd.set_angularDamping( angularDamping );
-                bd.set_position( new Box2D.b2Vec2( 0, 0 ) );
-                bd.active = false;
-                bd.awake = false;
-                return bd;
-            };
-            BodyDefinition.bodyType = {
-                STATIC: Box2D.b2_staticBody,
-                KINEMATIC: Box2D.b2_kinematicBody,
-                DYNAMIC: Box2D.b2_dynamicBody
-            };
-            
-            var FixtureDefinition = function( shape, density ) {
-                var fd = new Box2D.b2FixtureDef();
-                fd.set_density( density );
-                fd.set_shape( shape );
-                return fd;
-            };
-            
-            this.resource = {
-                Box: Box,
-                BodyDefinition: BodyDefinition,
-                FixtureDefinition: FixtureDefinition
-            };
-            
-        });
-        engine.physics = new Physics({ gravity: new Box2D.b2Vec2( 0, 0 ) });
-        
-        var PlayerComponent = engine.base.Component({
-            type: 'Player',
-            depends: ['Transform']    // We're going to be moving stuff
-        },
-        function( options ) {
-
-            options = options || {};
-            var that = this;
-
-            // This is a hack so that this component will have its message
-            // queue processed
-            var service = engine.logic; 
-           
-            this.onCollision = function( event ) {
-                // console.log( that.owner.id, '<->', event.data.entity.id );
-            };
-
-            this.onUpdate = function( event ) {
-            };
-
-            // Boilerplate component registration; Lets our service know that we exist and want to do things
-            this.onComponentOwnerChanged = function( e ){
-                if( e.data.previous === null && this.owner !== null ) {
-                    service.registerComponent( this.owner.id, this );
-                }
-
-                if( this.owner === null && e.data.previous !== null ) {
-                    service.unregisterComponent( e.data.previous.id, this );
-                }
-            };
-
-            this.onEntityManagerChanged = function( e ) {
-                if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
-                    service.registerComponent( this.owner.id, this );
-                }
-
-                if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
-                    service.unregisterComponent( this.owner.id, this );
-                }
-            };
-
-        });
-
         var run = function() {
 
             // Make a new space for our entities
-            var space = new engine.core.Space();
-
-            canvas = engine.graphics.target.element;
+            var space = new engine.core.Space();            
             
             var cubeBodyDefinition = engine.physics.resource.BodyDefinition(
                     engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,    // body type
@@ -368,11 +113,11 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                              new engine.physics.component.Body({
                                  bodyDefinition: cubeBodyDefinition,
                                  fixtureDefinition: cubeFixtureDefinition
-                             }),
-                             new PlayerComponent()
+                             })
                              ]
             });
 
+            canvas = engine.graphics.target.element;
             var camera = new space.Entity({
                 name: 'camera',
                 components: [
@@ -424,16 +169,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
     };
 
-    // We may be sharing a copy of require.js with Gladius if we're developing
-    // If so, this next line guarantees that we have a configuration of
-    // require.js that loads things relative to this directory 
-    var localRequire = require.config({context: "local", baseUrl: "."});
-
-    // pull in the bitwall-model code, and once we've got it, load our sprite,
-    // and run the game!
-    localRequire(['../../external/box2d.js/box2d'], function ( Box2D ) {
-
-          gladius.create(
+    gladius.create(
             {
                 debug: true,
                 services: {
@@ -449,15 +185,15 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
                         }
                     },
-                    logic: 'logic/game/service'
+                    physics: {
+                        src: 'physics/2d/box2d/service',
+                        options: {
+                            gravity: [0, 0]
+                        }
+                    }
                 }
             },
             game
-      );
-
-    });
- 
-
-
+    );
 
 });
