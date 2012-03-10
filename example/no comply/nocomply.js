@@ -813,7 +813,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
               this.idle = function () {   pl.setState(pl.getIdleState());};
               
               this.activate = function(){
-                //pl.owner.find('Player').
               };
               
               this.update = function (event) {
@@ -1472,6 +1471,56 @@ document.addEventListener("DOMContentLoaded", function (e) {
         }, true);
 
           canvas = engine.graphics.target.element;
+
+
+          ////////////                      
+          // Thug test
+          ////////////
+          var thugBodyDef = engine.physics.resource.BodyDefinition(
+                  engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,    // body type
+                  6, // linear damping
+                  1  // angular damping
+                  );
+
+          // Make an obstacle that will collide with the player
+          var thugShape = engine.physics.resource.Box( 1, 1 );//0.4, 2
+          var thugFixDef = engine.physics.resource.FixtureDefinition( thugShape, 5.0 );
+
+          var thug1 = new space.Entity({
+            name: 'thug',
+            components: [
+            
+            // Model
+            new engine.core.component.Transform({
+              /// XXX use initial pos
+              position: math.Vector3(-20, FLOOR_POS + 15, 0),
+              scale: math.Vector3(3, 3, 3)
+            }),
+            
+            // Graphic Representation
+            new BitwallModel({
+              sprite: viking.sprites.thug1
+            }),
+            
+//            new HealthComponent({domId: 'thug1'}),
+
+            //new PlayerComponent(playerOneConfig),
+            
+            //new StateComponent(), 
+            
+            new engine.physics.component.Body({
+              bodyDefinition: thugBodyDef,
+              fixtureDefinition: thugFixDef
+            }),
+
+            new collision2Service.component.BoundingBox({
+               lowerLeft: math.Vector3( -2, -3,  0),
+                upperRight: math.Vector3( 0.5,  2,  0 )
+              })
+            ]
+          });
+
+
 
 
           ////////////                      
