@@ -14,8 +14,14 @@
     "start",
     "stop",
     "raises",
-    "same"
+    "same",
     
+    // HTML5 browser APIs that jshint will learn about someday
+    "requestAnimationFrame",
+    "BlobBuilder",
+    
+    // misc
+    "gladius"
   ],
   
   // want to toggle these and eliminate the bugs they catch, one by one

@@ -1,13 +1,31 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script src="../../external/require.js"></script>
+
+<!-- gladius.min.js for an optimized version; gladius.js for fast development -->
+<!--        <script src="../../dist/gladius.min.js"></script> -->
         <script src="../../src/gladius.js"></script>
+
         <script src="sprite-demo.js"></script>
-        <script src="sprite-viking-blitr.js"></script>
+
         <title>Gladius/Sprite-Viking-Blitr Example</title>
     </head>
     <body>
-    	<canvas id="test-canvas" width="500" height="500"></canvas>
-    <div id="out"></div>
+    	<canvas style="float: left;" id="test-canvas" width="500" height="500"></canvas>
+
+    	<p>
+    	  This example shows how to extend Gladius to create animated models
+    	  using <a href="http://f1lt3r.com">F1LT3R</a>'s Sprite-Viking Bltr
+    	  library.
+    	</p>
+    	
+      <p>
+        A BitwallModel Component takes images from a sprite sheet and extrudes
+        them into 3D figures with a layered look.  They are animated by
+        rendering subsequent frames from the sprite sheet on a timer. The animation
+        runs at a fixed frame rate by consuming available time in fixed quantities.
+      </p>
+      
   	</body>
 </html>

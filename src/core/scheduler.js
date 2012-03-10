@@ -70,7 +70,7 @@ define( function ( require ) {
         };
         
         this.clear = function() {
-            _queue = [];
+            _tasks = {};
         };
         
         this.resume = function() {

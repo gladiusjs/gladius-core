@@ -92,6 +92,8 @@ define( function ( require ) {
 
                     ++ _size;
                     
+                    entity.manager = that;
+
                     var children = entity.children;
                     for( var i = 0, l = children.length; i < l; ++ i ) {
                         that.add( children[i] );

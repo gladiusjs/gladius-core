@@ -30,12 +30,6 @@ if( !window.BlobBuilder ) {
     }
 }
 
-if( !window.assert ) {
-    window.assert = function( condition, message ) {
-        if( !condition ) throw message;
-    };
-}
-
 if( !window.requestAnimationFrame ) {
     window.requestAnimationFrame = window.webkitRequestAnimationFrame ||
     window.mozRequestAnimationFrame ||

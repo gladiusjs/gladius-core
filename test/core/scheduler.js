@@ -80,4 +80,7 @@
     });
     */
 
+    /* TODO
+     * clear() needs to be tested
+     */
 }());
