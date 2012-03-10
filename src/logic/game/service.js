@@ -13,6 +13,7 @@ define( function ( require ) {
                     phase: engine.scheduler.phases.UPDATE
                 }
             },
+            depends: [ 'Physics' ],
             time: engine.scheduler.simulationTime
         },
         function( options ) {
@@ -30,7 +31,7 @@ define( function ( require ) {
                         while( component.handleQueuedEvent() ) {}                        
                         updateEvent.dispatch( [component] );
                     }
-                };
+                }
             };
 
         });

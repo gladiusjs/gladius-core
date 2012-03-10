@@ -71,7 +71,12 @@ define( function ( require ) {
                         _queuedEvents.push( event );            // Queue the event to be handled later
                     } else {
                         var handler = that['on' + event.type];  // Find the handler
-                        handler.call( that, event );            // Invoke the handler with the event      
+                        try{
+                            handler.call( that, event );            // Invoke the handler with the event
+                        } catch( e ) {
+                            console.log( e );
+                            debugger;
+                        }
                     }
                 }
             };
@@ -86,7 +91,12 @@ define( function ( require ) {
                 if( _queuedEvents.length > 0 ) {
                     var event = _queuedEvents.shift();
                     var handler = that['on' + event.type];  // Find the handler
-                    handler.call( that, event );            // Invoke the handler with the event
+                    try{
+                        handler.call( that, event );            // Invoke the handler with the event
+                    } catch( e ) {
+                        console.log( e );
+                        debugger;
+                    }
                 }
                 return _queuedEvents.lenght;
             };
@@ -96,7 +106,6 @@ define( function ( require ) {
                 }
             });
 
-            
             c.call( this, options );
             
         };
