@@ -430,7 +430,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                                     type: 'Collision',
                                     data: {
                                         entity: component2.owner,
-                                        test: component1.owner
                                     }
                                 }).dispatch( [component1.owner] );
                             }
@@ -1084,6 +1083,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         this.acceleration = [0, 0, 0];
 
         this.onCollision = function(e){
+          console.log('collide');
         
           if(e.data.entity.find('State')){
             var playerState = e.data.entity.find('State').getCurrState();
@@ -1091,7 +1091,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             // XXX move this out
             if(playerState === "spin"){
-              console.log(playerState);
+              //console.log(playerState);
               //this.velocity = [0, 100, -10];
               //this.acceleration[1] = 9.8 * 80;
             }
@@ -1143,6 +1143,81 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
 
 
+      ////////////////////
+      // BoxComponent
+      ////////////////////
+      var EnemyComponent = engine.base.Component({
+        type: 'Enemy',
+        depends: ['Transform', 'Model']
+      },
+      function (options) {
+      
+        options = options || {};
+        var that = this;
+        
+        // This is a hack so that this component will have its message queue processed
+
+        var service = engine.logic; 
+
+        this.velocity = [0, 0, 0];
+        this.acceleration = [0, 0, 0];
+
+        this.onCollision = function(e){
+        
+          if(e.data.entity.find('State')){
+            var playerState = e.data.entity.find('State').getCurrState();
+            var playerTrans = e.data.entity.find('Transform');
+
+            // XXX move this out
+            if(playerState === "spin"){
+              // Prevent the object from colliding with anything else.
+              this.onCollision = function(){};
+
+              this.velocity = [5, 50, 5];
+              this.acceleration[1] = -9.8 * 20;
+            }
+            else{
+              // Tell box2d to move this object
+              //e.data.entity.find('Transform').position = [-20, 20, 0];
+            }
+          }
+        };
+        
+        this.onUpdate = function (event) {
+          var delta = service.time.delta / 1000;
+          
+          var trans = this.owner.find('Transform').position;
+          trans[0] += this.velocity[0] * delta;
+          trans[1] += this.velocity[1] * delta;
+          trans[2] += this.velocity[2] * delta;
+          
+          this.velocity[1] += this.acceleration[1] * delta;
+          
+          this.owner.find('Transform').position = trans;
+        }; // onUpdate
+        
+        // Boilerplate component registration; Lets our service know that we exist and want to do things
+        this.onComponentOwnerChanged = function (e) {
+          if (e.data.previous === null && this.owner !== null) {
+            service.registerComponent(this.owner.id, this);
+          }
+
+          if (this.owner === null && e.data.previous !== null) {
+            service.unregisterComponent(e.data.previous.id, this);
+          }
+        };
+
+        this.onEntityManagerChanged = function (e) {
+          if (e.data.previous === null && e.data.current !== null && this.owner !== null) {
+            service.registerComponent(this.owner.id, this);
+          }
+
+          if (e.data.previous !== null && e.data.current === null && this.owner !== null) {
+            service.unregisterComponent(this.owner.id, this);
+          }
+        };
+      }); // BoxComponent
+      
 
       ////////////////////
       // PlayerComponent
@@ -1399,6 +1474,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
           canvas = engine.graphics.target.element;
 
 
+          ////////////                      
+          // Player1 Entity
+          ////////////
           var cubeBodyDefinition = engine.physics.resource.BodyDefinition(
                   engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,    // body type
                   6, // linear damping
@@ -1406,13 +1484,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   );
 
           // Make an obstacle that will collide with the player
-          var cubeCollisionShape = engine.physics.resource.Box( 0.4, 3 );
+          var cubeCollisionShape = engine.physics.resource.Box( 1, 1 );//0.4, 2
           var cubeFixtureDefinition = engine.physics.resource.FixtureDefinition( cubeCollisionShape, 5.0 );
 
-
-          ////////////                      
-          // Player1 Entity
-          ////////////
           var player1 = new space.Entity({
             name: 'player1',
             components: [
@@ -1420,8 +1494,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
             // Model
             new engine.core.component.Transform({
               /// XXX use initial pos
-              position: math.Vector3(-15, FLOOR_POS+20, 0),
-              scale: math.Vector3(7, 7, 7)
+              position: math.Vector3(-15, FLOOR_POS + 15, 0),
+              scale: math.Vector3(3, 3, 3)
             }),
             
             // Graphic Representation
@@ -1502,7 +1576,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   break;
 
                   // Spin player
-                case 'W':
+                case 'SPACE':
                   new engine.core.Event({
                     type: e.data.state === 'down' ? 'SpinKick' : null
                   }).dispatch([this.owner]);
@@ -1543,29 +1617,65 @@ document.addEventListener("DOMContentLoaded", function (e) {
               fixtureDefinition: cubeFixtureDefinition
             }),
 
-            // new collision2Service.component.BoundingBox({
-            //   lowerLeft: math.Vector3( -2, -3,  0),
-            // upperRight: math.Vector3( 0.5,  2,  0 )
-            //  })
+             new collision2Service.component.BoundingBox({
+               lowerLeft: math.Vector3( -2, -3,  0),
+                upperRight: math.Vector3( 0.5,  2,  0 )
+              })
             ]
           });
 
 
-            // floor
-            var cubeBodyDefinition2 = engine.physics.resource.BodyDefinition(
+          // floor
+          var floorBodyDef = engine.physics.resource.BodyDefinition(
+                  engine.physics.resource.BodyDefinition.bodyType.STATIC,    // body type
+                  0.9, // linear damping
+                  0.9  // angular damping
+                );
+
+          var floorCollisionShape = engine.physics.resource.Box( 150, 1 );
+          var floorFixtureDef = engine.physics.resource.FixtureDefinition( floorCollisionShape, 5.0 );
+
+          var floor = new space.Entity({
+              name: 'floor',
+              components: [
+                 new engine.core.component.Transform({
+                  position: math.Vector3( 0, FLOOR_POS, 0 ),
+                  scale: math.Vector3( 300, 1, 1)
+                  }),
+
+                 new engine.graphics.component.Model({
+                     mesh: resources.mesh,
+                     material: resources.material
+                 }),
+                 
+                 new BoxComponent(),
+                 
+                 new engine.physics.component.Body({
+                     bodyDefinition: floorBodyDef,
+                     fixtureDefinition: floorFixtureDef
+                 }),
+                 ]
+          });
+
+          // Add some platforms
+          for(var i = 0; i < 10; i++){
+
+            // platform
+            var bodyDef = engine.physics.resource.BodyDefinition(
                     engine.physics.resource.BodyDefinition.bodyType.STATIC,    // body type
                     0.9, // linear damping
                     0.9  // angular damping
                   );
 
-            var cubeCollisionShape2 = engine.physics.resource.Box( 50, 1 );
-            var cubeFixtureDefinition2 = engine.physics.resource.FixtureDefinition( cubeCollisionShape2, 5.0 );
-            var obstacle2 = new space.Entity({
-                name: 'cube2',
+            var collisionShape = engine.physics.resource.Box( 2.5, 1 );
+            var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 5.0 );
+            
+            new space.Entity({
+                name: 'platform' + i,
                 components: [
                    new engine.core.component.Transform({
-                    position: math.Vector3( -25, FLOOR_POS-3, 0 ),
-                    scale: math.Vector3( 100, 1, 1)
+                    position: math.Vector3( 5 + (i*10), FLOOR_POS + (i*2) + 1, 0 ),
+                    scale: math.Vector3( 5, 1, 5)
                     }),
 
                    new engine.graphics.component.Model({
@@ -1576,46 +1686,48 @@ document.addEventListener("DOMContentLoaded", function (e) {
                    new BoxComponent(),
                    
                    new engine.physics.component.Body({
-                       bodyDefinition: cubeBodyDefinition2,
-                       fixtureDefinition: cubeFixtureDefinition2
+                       bodyDefinition: bodyDef,
+                       fixtureDefinition: fixtureDef
                    }),
                    ]
             });
-           
-
-            for(var i = 0; i < 10; i++){
-
-              // platform
-              var bodyDef = engine.physics.resource.BodyDefinition(
-                      engine.physics.resource.BodyDefinition.bodyType.STATIC,    // body type
-                      0.9, // linear damping
-                      0.9  // angular damping
-                    );
-
-              var collisionShape = engine.physics.resource.Box( 2.5, 1 );
-              var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 5.0 );
-              var obstacle2 = new space.Entity({
-                  name: 'cube2',
-                  components: [
-                     new engine.core.component.Transform({
-                      position: math.Vector3( 5 + (i*10), -2 + FLOOR_POS + (i*2), 0 ),
-                      scale: math.Vector3( 5, 1, 1)
-                      }),
-
-                     new engine.graphics.component.Model({
-                         mesh: resources.mesh,
-                         material: resources.material
-                     }),
-                     
-                     new BoxComponent(),
-                     
-                     new engine.physics.component.Body({
-                         bodyDefinition: bodyDef,
-                         fixtureDefinition: fixtureDef
-                     }),
-                     ]
-              });
           }
+          
+          
+          
+          
+          
+          
+          
+          
+            new space.Entity({
+                name: 'enemy' + i,
+                components: [
+                   new engine.core.component.Transform({
+                    position: math.Vector3( -3, 11, 0 ),
+                    scale: math.Vector3( 1, 1, 1)
+                    }),
+
+                   new engine.graphics.component.Model({
+                       mesh: resources.mesh,
+                       material: resources.material
+                   }),
+                   
+                   new EnemyComponent(),
+                   
+                   new collision2Service.component.BoundingBox({
+                     lowerLeft: math.Vector3( -2, -3,  0),
+                      upperRight: math.Vector3( 0.5,  2,  0 )
+                    })
+              
+//                   new engine.physics.component.Body({
+  //                     bodyDefinition: bodyDef,
+    //                   fixtureDefinition: fixtureDef
+      //             }),
+                   ]
+            });
+            
+            
 
 
           var camera = new space.Entity({
@@ -1728,7 +1840,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           resources['material'] = material;
         },
         onfailure: function (error) {}
-      }
+      },
       ], {
         oncomplete: run
       });
