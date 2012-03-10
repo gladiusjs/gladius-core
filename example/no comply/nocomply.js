@@ -301,12 +301,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 fd.set_density( density );
                 fd.set_shape( shape );
 
-var s = "";
-for( x in shape){
-  s += x + "\n";
-}
-//alert(s);
-
                 return fd;
             };
             
