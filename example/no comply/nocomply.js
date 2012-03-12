@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
       const RIGHT_BORDER = -30;
       const MOVE_SPEED = 15;
       
-      const FLOOR_POS = 8;
+      const FLOOR_POS = 7;
       const GRAVITY = 0.98;
       const JUMP_HEIGHT = 45;
       
@@ -2033,7 +2033,50 @@ document.addEventListener("DOMContentLoaded", function (e) {
             });
           }
           
+       
           
+             
+                
+   // Add some platforms
+          for(var i = 0; i < 3; i++){
+
+            // platform
+            var bodyDef = engine.physics.resource.BodyDefinition(
+                    engine.physics.resource.BodyDefinition.bodyType.STATIC, 1, 1, false);
+
+            var collisionShape = engine.physics.resource.Box( 4, 0.5 );
+            var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 5.0 );
+            
+            new space.Entity({
+                name: 'platform' + i,
+                components: [
+                   new engine.core.component.Transform({
+                    position: math.Vector3( 30 +  -25 + i*10, 2 + FLOOR_POS + (i*7) + 1, -50 ),
+                    scale: math.Vector3( 8, 1, 5)
+                    }),
+
+                   new engine.graphics.component.Model({
+                       mesh: resources.mesh,
+                       material: resources.material
+                   }),
+                   
+                   new PlatformComponent(),
+                   
+                   new collision2Service.component.BoundingBox({
+                     lowerLeft: math.Vector3( -4, -0.5,  0),
+                      upperRight: math.Vector3( 4,  0.5,  0 )
+                    }),
+                    
+                   new engine.physics.component.Body({
+                       bodyDefinition: bodyDef,
+                       fixtureDefinition: fixtureDef
+                   }),
+                   ]
+            });
+          }
+          
+
+   
           // Add crates
           for(var i = 0; i < 10; i++){
 
@@ -2041,14 +2084,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var bodyDef = engine.physics.resource.BodyDefinition(
                     engine.physics.resource.BodyDefinition.bodyType.DYNAMIC, 1, 1, false);
 
-            var collisionShape = engine.physics.resource.Box( 1, 1 );
+            var collisionShape = engine.physics.resource.Box( 0.5, 0.5 );
             var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 1.0 );
             
             new space.Entity({
                 name: 'crate' + i,
                 components: [
                    new engine.core.component.Transform({
-                    position: math.Vector3( -20 + (i*5), 30 + FLOOR_POS, -50 ),
+                    position: math.Vector3( -20 + (i*5), 50 + FLOOR_POS, -50 ),
                     scale: math.Vector3( 3, 3, 3)
                     }),
 
@@ -2152,11 +2195,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
               newPos[0] = p1Pos[0];
               newPos[1] = p1Pos[1];
               
-              camera.find('Transform').position = [newPos[0], newPos[1], 2];
+              camera.find('Transform').position = [newPos[0],  4 +newPos[1], 2];
               
               //[40, 10, 50]
               //
-              camera.find('Camera').target = [newPos[0], p1Pos[1], -1];
+              camera.find('Camera').target = [newPos[0], 4 + p1Pos[1], -1];
 //              math.Vector3(0, 0, -1);
               
               
