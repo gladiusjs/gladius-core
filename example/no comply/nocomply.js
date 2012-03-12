@@ -1617,7 +1617,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           // If this is the first instance of us colliding with a platform,
           // we must have just landed, which means we should go into an idle state.
           // new collision
-          if(collideID !== e.data.entity.id /* && on platform */){
+          if(collideID !== e.data.entity.id /* && on platform */ && e.data.entity.name === 'platform'){
           
            console.log('NEW collide');
           
@@ -2006,7 +2006,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 5.0 );
             
             new space.Entity({
-                name: 'platform' + i,
+                name: 'platform',
                 components: [
                    new engine.core.component.Transform({
                     position: math.Vector3( -25 + i*10, 20 + FLOOR_POS - (i*7) + 1, -50 ),
