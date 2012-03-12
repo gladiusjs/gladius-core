@@ -604,169 +604,169 @@
   </library_lights>
   <library_images>
     <image id="wood2_jpg" name="wood2_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/wood2.jpg</init_from>
+      <init_from>wood2.jpg</init_from>
     </image>
     <image id="crate_jpg" name="crate_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/crate.jpg</init_from>
+      <init_from>crate.jpg</init_from>
     </image>
     <image id="door-01_jpg" name="door-01_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/door-01.jpg</init_from>
+      <init_from>door-01.jpg</init_from>
     </image>
     <image id="metal6_jpg" name="metal6_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/metal6.jpg</init_from>
+      <init_from>metal6.jpg</init_from>
     </image>
     <image id="window-broken-01b_jpg" name="window-broken-01b_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/window-broken-01b.jpg</init_from>
+      <init_from>window-broken-01b.jpg</init_from>
     </image>
     <image id="window-broken-01a_jpg" name="window-broken-01a_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/window-broken-01a.jpg</init_from>
+      <init_from>window-broken-01a.jpg</init_from>
     </image>
     <image id="concrete1_jpg" name="concrete1_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/concrete1.jpg</init_from>
+      <init_from>concrete1.jpg</init_from>
     </image>
     <image id="brick_wall1_jpg" name="brick_wall1_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/brick_wall1.jpg</init_from>
+      <init_from>brick_wall1.jpg</init_from>
     </image>
     <image id="window-broken-01c_jpg" name="window-broken-01c_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/window-broken-01c.jpg</init_from>
+      <init_from>window-broken-01c.jpg</init_from>
     </image>
     <image id="sewer-cover_png" name="sewer-cover_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/sewer-cover.png</init_from>
+      <init_from>sewer-cover.png</init_from>
     </image>
     <image id="graffiti-postnobills_" name="graffiti-postnobills_">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/graffiti-postnobills.png</init_from>
+      <init_from>graffiti-postnobills.png</init_from>
     </image>
     <image id="graffiti-anarchy_png" name="graffiti-anarchy_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/graffiti-anarchy.png</init_from>
+      <init_from>graffiti-anarchy.png</init_from>
     </image>
     <image id="poster-secret-robo_pn" name="poster-secret-robo_pn">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/poster-secret-robo.png</init_from>
+      <init_from>poster-secret-robo.png</init_from>
     </image>
     <image id="stone_tile2_jpg" name="stone_tile2_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/stone_tile2.jpg</init_from>
+      <init_from>stone_tile2.jpg</init_from>
     </image>
     <image id="stone_tile1_jpg" name="stone_tile1_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/stone_tile1.jpg</init_from>
+      <init_from>stone_tile1.jpg</init_from>
     </image>
     <image id="bricks-light-grey_jpg" name="bricks-light-grey_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/bricks-light-grey.jpg</init_from>
+      <init_from>bricks-light-grey.jpg</init_from>
     </image>
     <image id="bricks-dark-grey_jpg" name="bricks-dark-grey_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/bricks-dark-grey.jpg</init_from>
+      <init_from>bricks-dark-grey.jpg</init_from>
     </image>
     <image id="concrete3-dark_jpg" name="concrete3-dark_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/concrete3-dark.jpg</init_from>
+      <init_from>concrete3-dark.jpg</init_from>
     </image>
     <image id="lamp-post_png" name="lamp-post_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/lamp-post.png</init_from>
+      <init_from>lamp-post.png</init_from>
     </image>
     <image id="plank-04_png" name="plank-04_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/plank-04.png</init_from>
+      <init_from>plank-04.png</init_from>
     </image>
     <image id="plank-02_png" name="plank-02_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/plank-02.png</init_from>
+      <init_from>plank-02.png</init_from>
     </image>
     <image id="plank-01_png" name="plank-01_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/plank-01.png</init_from>
+      <init_from>plank-01.png</init_from>
     </image>
     <image id="graffiti-minotaur_png" name="graffiti-minotaur_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/graffiti-minotaur.png</init_from>
+      <init_from>graffiti-minotaur.png</init_from>
     </image>
     <image id="trash-papers_png" name="trash-papers_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/trash-papers.png</init_from>
+      <init_from>trash-papers.png</init_from>
     </image>
     <image id="graffiti-king_png" name="graffiti-king_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/graffiti-king.png</init_from>
+      <init_from>graffiti-king.png</init_from>
     </image>
     <image id="graffiti-skum_png" name="graffiti-skum_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/graffiti-skum.png</init_from>
+      <init_from>graffiti-skum.png</init_from>
     </image>
     <image id="graffiti-space-invade" name="graffiti-space-invade">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/graffiti-space-invader.png</init_from>
+      <init_from>graffiti-space-invader.png</init_from>
     </image>
     <image id="graffiti-audioapi_png" name="graffiti-audioapi_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/graffiti-audioapi.png</init_from>
+      <init_from>graffiti-audioapi.png</init_from>
     </image>
     <image id="graffiti-firefox_png" name="graffiti-firefox_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/graffiti-firefox.png</init_from>
+      <init_from>graffiti-firefox.png</init_from>
     </image>
     <image id="poster-omar_png" name="poster-omar_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/poster-omar.png</init_from>
+      <init_from>poster-omar.png</init_from>
     </image>
     <image id="dumpster-front_png" name="dumpster-front_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/dumpster-front.png</init_from>
+      <init_from>dumpster-front.png</init_from>
     </image>
     <image id="trash-bag_png" name="trash-bag_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/trash-bag.png</init_from>
+      <init_from>trash-bag.png</init_from>
     </image>
     <image id="building-large-02_jpg" name="building-large-02_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/building-large-02.jpg</init_from>
+      <init_from>building-large-02.jpg</init_from>
     </image>
     <image id="concrete-tile-dark_jp" name="concrete-tile-dark_jp">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/concrete-tile-dark.jpg</init_from>
+      <init_from>concrete-tile-dark.jpg</init_from>
     </image>
     <image id="building-large-03_jpg" name="building-large-03_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/building-large-03.jpg</init_from>
+      <init_from>building-large-03.jpg</init_from>
     </image>
     <image id="door-04_jpg" name="door-04_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/door-04.jpg</init_from>
+      <init_from>door-04.jpg</init_from>
     </image>
     <image id="door-03_jpg" name="door-03_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/door-03.jpg</init_from>
+      <init_from>door-03.jpg</init_from>
     </image>
     <image id="bricks-dark-red_jpg" name="bricks-dark-red_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/bricks-dark-red.jpg</init_from>
+      <init_from>bricks-dark-red.jpg</init_from>
     </image>
     <image id="siding_jpg" name="siding_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/siding.jpg</init_from>
+      <init_from>siding.jpg</init_from>
     </image>
     <image id="dried-mud_jpg" name="dried-mud_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/dried-mud.jpg</init_from>
+      <init_from>dried-mud.jpg</init_from>
     </image>
     <image id="dne_fence_png" name="dne_fence_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/dne_fence.png</init_from>
+      <init_from>dne_fence.png</init_from>
     </image>
     <image id="building-01_jpg" name="building-01_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/building-01.jpg</init_from>
+      <init_from>building-01.jpg</init_from>
     </image>
     <image id="dark-trim_jpg" name="dark-trim_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/dark-trim.jpg</init_from>
+      <init_from>dark-trim.jpg</init_from>
     </image>
     <image id="bench-slats_png" name="bench-slats_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/bench-slats.png</init_from>
+      <init_from>bench-slats.png</init_from>
     </image>
     <image id="rod-fence_png" name="rod-fence_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/rod-fence.png</init_from>
+      <init_from>rod-fence.png</init_from>
     </image>
     <image id="water1_jpg" name="water1_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/water1.jpg</init_from>
+      <init_from>water1.jpg</init_from>
     </image>
     <image id="concrete-tile-light_j" name="concrete-tile-light_j">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/concrete-tile-light.jpg</init_from>
+      <init_from>concrete-tile-light.jpg</init_from>
     </image>
     <image id="shrub-sides_jpg" name="shrub-sides_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/shrub-sides.jpg</init_from>
+      <init_from>shrub-sides.jpg</init_from>
     </image>
     <image id="shrub-top_jpg" name="shrub-top_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/shrub-top.jpg</init_from>
+      <init_from>shrub-top.jpg</init_from>
     </image>
     <image id="building-02_jpg" name="building-02_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/building-02.jpg</init_from>
+      <init_from>building-02.jpg</init_from>
     </image>
     <image id="building-large-04_jpg" name="building-large-04_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/building-large-04.jpg</init_from>
+      <init_from>building-large-04.jpg</init_from>
     </image>
     <image id="sign-dreamovision_png" name="sign-dreamovision_png">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/sign-dreamovision.png</init_from>
+      <init_from>sign-dreamovision.png</init_from>
     </image>
     <image id="bricks-dark-brown_jpg" name="bricks-dark-brown_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/bricks-dark-brown.jpg</init_from>
+      <init_from>bricks-dark-brown.jpg</init_from>
     </image>
     <image id="building-large-01_jpg" name="building-large-01_jpg">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/building-large-01.jpg</init_from>
+      <init_from>building-large-01.jpg</init_from>
     </image>
     <image id="bricks-light-brown_jp" name="bricks-light-brown_jp">
-      <init_from>/Users/asalga/Sites/example/no%20comply/city/Users/asalga/Sites/example/no%20comply/city/bricks-light-brown.jpg</init_from>
+      <init_from>bricks-light-brown.jpg</init_from>
     </image>
   </library_images>
   <library_effects>

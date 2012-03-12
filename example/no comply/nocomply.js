@@ -2,8 +2,12 @@
   Simple game based on the "No Comply" WebGL video.
 
   TODO:
-   - add material for p2 fireball
+  - add material for p2 fireball
   - fix fireball logic
+  - fix infinite "fall" (user collides with two platforms at the same time)
+  - Need a uniform time constant to compare against when user is jumping
+
+ - FIX: MUST KEEP COLLISION and BOX2d values the SAME!!!
   
   - Bug: user needs to hold down 'down' to make sure char crouches as soon as they hit the floor.
 */
@@ -30,16 +34,18 @@ document.addEventListener("DOMContentLoaded", function (e) {
   //
   var game = function (engine) {
     
-      const FACING_RIGHT = -1;
-      const FACING_LEFT   = 1;
+      const FACING_RIGHT =   1;
+      const FACING_LEFT   = -1;
 
       const LEFT_BORDER = 70;
       const RIGHT_BORDER = -30;
       const MOVE_SPEED = 15;
       
-      const FLOOR_POS = 9.9;
+      const FLOOR_POS = 8;
       const GRAVITY = 0.98;
       const JUMP_HEIGHT = 45;
+      
+      const PLAYER_BB_HEIGHT = 3.5;
       
       //
       const WALK_ANI_SPEED = 0.085;
@@ -61,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
       /////////////////
       
       // Player 1 starts on the left side of the screen facing right
-      var playerOneConfig = {
+      var keyConfig = {
         RIGHT_KEY:  'RIGHT',
         LEFT_KEY:   'LEFT',
         JUMP_KEY:   'UP',
@@ -85,10 +91,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
           document.getElementById(div).innerHTML = '';
       };
 
-      var space = new engine.core.Space();
+      var space;// = new engine.core.Space();
       var math = engine.math;
 
-       var Physics = engine.base.Service({
+
+      ////////////
+      // Physics
+      ////////////
+      var Physics = engine.base.Service({
             type: 'Physics',
             schedule: {
                 update: {
@@ -147,8 +157,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 options = options || {};  
                 var that = this;
                 var i;
-                var horizMoveSpeed = 40;
-                var vertMoveSpeed = 1000;
+                var horizMoveSpeed = 35;
+                var vertMoveSpeed = 2500;
                 
                 var rotationSpeed = 1.0;
                 
@@ -171,9 +181,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
                         ccw: false
                 };
                 
+                this.setLinearVel = function(v){
+                  body.SetLinearVelocity( new Box2D.b2Vec2( v[0], v[1] ) );
+                };
+                
                 this.onMove = function(e){
                   var frameImpulse = new Box2D.b2Vec2( 0, vertMoveSpeed );
-                  //this.onUpdate = function( e ) {
                   //frameImpulse.Set( moveDirection.get_x(), moveDirection.get_y() );
                   //frameImpulse.Normalize();
                   //frameImpulse.Set( moveSpeed * frameImpulse.get_x(), moveSpeed * frameImpulse.get_y() );
@@ -181,6 +194,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 };
                 
                 this.onMoveStart = function( e ) {
+                console.log('f');
                     var direction = directions[e.data.direction];
                     
                     if( moveEventStates[e.data.direction] ) {
@@ -193,10 +207,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 };
                 
                 this.onMoveStop = function( e ) {
+                
+                  if(moveEventStates[e.data.direction]){
+                
                     var direction = directions[e.data.direction];
                     moveDirection.Set( moveDirection.get_x() - direction.get_x(), 
                             moveDirection.get_y() - direction.get_y() );
                     moveEventStates[e.data.direction] = false;
+                    }
                 };
                 
                 this.onRotateStart = function( e ) {
@@ -218,6 +236,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                                
                 var frameImpulse = new Box2D.b2Vec2( 0, 0 );
                 this.onUpdate = function( e ) {
+                //console.log(body.GetPosition().get_x());
                     frameImpulse.Set( moveDirection.get_x(), moveDirection.get_y() );
                     frameImpulse.Normalize();
                     frameImpulse.Set( horizMoveSpeed * frameImpulse.get_x(), vertMoveSpeed * frameImpulse.get_y() );
@@ -276,12 +295,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 return shape;
             };
             
-            var BodyDefinition = function( type, linearDamping, angularDamping ) {
+            var BodyDefinition = function( type, linearDamping, angularDamping, fixedRot ) {
                 var bd = new Box2D.b2BodyDef();
                 bd.set_type( type );
                 
                 // Sprites are falling down too easily, so for now, prevent rotations.
-                bd.set_fixedRotation(true);
+                bd.set_fixedRotation(fixedRot || false);
                 bd.set_linearDamping( linearDamping );
                 bd.set_angularDamping( angularDamping );
                 bd.set_position( new Box2D.b2Vec2( 0, 0 ) );
@@ -310,10 +329,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 FixtureDefinition: FixtureDefinition
             };
         });
-        engine.physics = new Physics({ gravity: new Box2D.b2Vec2( 0, -80.8 ) });
+        
+        // FIXME
+        engine.physics = new Physics({ gravity: new Box2D.b2Vec2( 0, -198 ) });
         
 
-
+        /////////
+        // Collision Service
+        /////////
         var Collision2Service = engine.base.Service({
             type: 'Physics',
             schedule: {
@@ -440,9 +463,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             };
 
             var _components = {
-
                     BoundingBox: BoundingBox
-
             };
 
             Object.defineProperty( this, 'component', {
@@ -625,7 +646,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
       /*
       * Health Component
-      * XXX need to actually use this
+      * FIX ME need to actually use this
       */
       var HealthComponent = engine.base.Component({
         type: 'Health'
@@ -730,6 +751,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
       /*
       *
       *  StateComponent
+      *
       */
       var StateComponent = engine.base.Component({
         type: 'State'
@@ -741,31 +763,42 @@ document.addEventListener("DOMContentLoaded", function (e) {
           
           var service = engine.logic;
 
+          //
           // Idle State - Player is just standing there.
+          //
           var IdleState = (function () {
             function IdleState(player) {
               var pl = player;
 
+              this.activate = function(){
+                console.log('activated idle state');
+                
+                /*pl.owner.find('Body').onMoveStop({data:{direction:"up"}});
+                pl.owner.find('Body').onMoveStop({data:{direction:"right"}});
+                pl.owner.find('Body').onMoveStop({data:{direction:"left"}});*/
+              }
+
               this.moveForward = function (){ pl.setState(pl.getMoveForwardState());};
+              this.moveLeft = function(){ pl.setState(pl.getMoveLeftState());};
+              
               this.jump = function () {       pl.setState(pl.getJumpState());};
-              this.moveForward = function(){  pl.setState(pl.getMoveForwardState());};
               this.crouch = function(){       pl.setState(pl.getCrouchState());};
               this.spinKick = function(){     pl.setState(pl.getSpinKickState());};
+              this.knockOut = function(){     pl.setState(pl.getKnockedOutState());};
+              this.fall = function(){         pl.setState(pl.getFallState());};
               
               this.hit = function(d){
-                pl.health -= d;
-                
-                if(pl.health <= 0){
-                  this.knockOut();
-                }
+                //pl.health -= d;
+                //if(pl.health <= 0){
+                //this.knockOut();
+                //}
               }
 
               this.update = function (event) {
-                pl.owner.find('Model').updateAction('idle');
-                
-                var test = pl.getPlayer().speed;
-                test[0] = 0;
-                pl.getPlayer().position = test;
+                pl.owner.find('Model').updateAction('idle');                
+              };
+              this.toString = function(){
+                return "idle";
               };
             }
             return IdleState;
@@ -778,51 +811,168 @@ document.addEventListener("DOMContentLoaded", function (e) {
               var timer = 0;
               
               // State transitions
-              this.idle = function () {   pl.setState(pl.getIdleState());};
+              this.idle = function () {
+                //pl.owner.find('Body').onMoveStart({data:{direction:"right"}});
+                pl.setState(pl.getIdleState());
+              };
+               
               this.jump = function () {   pl.setState(pl.getForwardJumpState());};
               this.spinKick = function(){ pl.setState(pl.getSpinKickState());};
+              this.fall = function(){     pl.setState(pl.getFallState());};
 
               this.onActivate = function(){
                 timer = 0;
               };
 
               this.update = function (event) {
-                var delta = service.time.delta / 1000;
+                timer += service.time.delta / 1000;
                 
-                pl.owner.find('Model').updateAction('walk');
-                pl.owner.find('Player').speed[0] = MOVE_SPEED;
+                // get direction
                 
-                timer += delta;
+                //var dir = pl.owner.find('Player').getDirection();
+
+                var char = pl.owner.find('Player');// || pl.owner.find('Enemy');
+                var facing = char.getFacing();
+
+                var dirStr = facing === -1 ? 'left' : 'right';
+                
+               // pl.owner.find('Body').onMoveStart({data:{direction: 'right'}});
+                          
+                // FIXME
+                //var char = pl.owner.find('Player');// || pl.owner.find('Enemy');
+                //var facing = char.getFacing();
+                
+                // FIXME
+                //pl.owner.find('Body').setLinearVel([15*facing, 0]);
+                //pl.owner.find('Body').onMoveStart({data:{direction:"right"}});
+                
+                // FIXME, remove?
+                //convert -1..1 to 0..PI
+                //pl.owner.find('Transform').rotation = [0, -(facing+1)*math.PI/2, 0];
 
                 if(timer >= WALK_ANI_SPEED){
                   timer = 0;
                   pl.owner.find('Model').updateAction('walk');
                 }                
               };
+              
+              this.toString = function(){
+                return "move forward";
+              }
             }
 
             return MoveForwardState;
           }());
+          
+          
+          
+          
+          
+          
+          var MoveLeftState = (function () {
+            function MoveLeftState(player) {
+              var pl = player;
+              var timer = 0;
+              
+              // State transitions
+              this.idle = function () {                  
+                pl.owner.find('Body').onMoveStop({data:{direction:"left"}});
+                
+               pl.setState(pl.getIdleState());};
+               
+              this.jump = function () {   pl.setState(pl.getForwardJumpState());};
+              this.spinKick = function(){ pl.setState(pl.getSpinKickState());};
+              this.fall = function(){     pl.setState(pl.getFallState());};
 
+              this.onActivate = function(){
+                timer = 0;
+              };
+
+              this.update = function (event) {
+                timer += service.time.delta / 1000;
+                
+                // FIXME
+                var char = pl.owner.find('Player');// || pl.owner.find('Enemy');
+                var facing = char.getFacing();
+                //console.log(facing);
+                
+                // FIXME
+                //pl.owner.find('Body').setLinearVel([15*facing, 0]);
+                pl.owner.find('Body').onMoveStart({data:{direction:'left'}});
+                
+                // FIXME, remove?
+                //convert -1..1 to 0..PI
+                //pl.owner.find('Transform').rotation = [0, -(facing+1)*math.PI/2, 0];
+
+                if(timer >= WALK_ANI_SPEED){
+                  timer = 0;
+                  pl.owner.find('Model').updateAction('walk');
+                }                
+              };
+              
+              this.toString = function(){
+                return "move forward";
+              }
+            }
+
+            return MoveLeftState;
+          }());
+
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          //
           // CrouchState - Player is crouching
+          //
           var CrouchState = (function () {
             function CrouchState(player) {
               var pl = player;
-
               // State transitions
               this.idle = function () {   pl.setState(pl.getIdleState());};
-              
               this.activate = function(){
+                pl.owner.find('Model').updateAction('crouch');
               };
-              
-              this.update = function (event) {
-                pl.owner.find('Model').updateAction('crouch');                
-              };
+              this.update = function (event) {};
             }
             return CrouchState;
           }());
 
+
+
+          //
+          // FallState - Sprite is falling down, waiting to land on something.
+          // Once we collide with something, the state of the sprite will be
+          // changed to idle.
+          var FallState = (function () {
+            function FallState(player) {
+              var pl = player;
+              var timeElapsed = 0;
+
+              this.update = function (event) {};
+              this.idle = function () {   pl.setState(pl.getIdleState());};
+              
+              this.activate = function(){
+                timeElapsed = 0;
+                pl.owner.find('Model').updateAction('jump');
+              };
+              
+              this.toString = function(){
+                return "falling";
+              };
+            }
+            return FallState;
+          }());
+
+
+          //
           // JumpState - Allows player to jump straight up
+          //
           var JumpState = (function () {
             function JumpState(player) {
               var pl = player;
@@ -830,47 +980,71 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
               this.update = function (event) {
                 var delta = service.time.delta / 1000;
-                        
+
                 timeElapsed += delta;
-                var pp = pl.owner.find('Transform').position;
+                //var yPos = pl.owner.find('Transform').position[1];
                 
-                // only do the check if he left the floor, otherwise
-                // the test will pass as soon as the jump starts.
-                if(/*pp[1] <= FLOOR_POS+3 &&*/ timeElapsed > 1){
-                  pl.setState(pl.getIdleState());
+                if(timeElapsed > 0.15 /* && if not colliding with something */){
+                  pl.setState(pl.getFallState());
+                  console.log('falling');
+                  
+                  // FIXME: Do we need this?
+                  collideID = 0;
+                  platformEntity = null;
                 }
               };
               
+              this.idle = function () {   pl.setState(pl.getIdleState());};
+              
               this.activate = function(){
                 timeElapsed = 0;
-                
-                pl.owner.find('Player').speed[1] = JUMP_HEIGHT;
+                console.log('jump state act');
                 pl.owner.find('Model').updateAction('jump');
                 
-                 new engine.core.Event({
-                      type: 'Move',
-                              data: {
-                                  direction: 'up'
-                              }
-                  }).dispatch( pl.owner );
-                  
-                //if(blah[1] === 0){
-                //  blah[1] = JUMP_HEIGHT;
-                //}                
-              //pl.speed[0] = 0;
-             // if(pl.speed[1] === 0){
-              //  pl.speed[1] = JUMP_HEIGHT;
-              //}
+                // FIX ME
+                new engine.core.Event({
+                  type: 'Move',
+                  data: {
+                    direction: 'up'
+                  }
+                }).dispatch( [pl.owner] );
               }
+              this.toString = function(){
+                return "jump";
+              }
+
             }
             return JumpState;
           }());
-          
+
+          // KnockedOutState
+          var KnockedOutState = (function () {
+            function KnockedOutState(player) {
+              var pl = player;
+              var timeElapsed = 0;
+
+              this.update = function (event) {
+                var delta = service.time.delta / 1000;
+              };
+              
+              this.activate = function(){
+                pl.owner.find('Model').updateAction('knocked-out');
+              }
+              this.toString = function(){
+                return "ko";
+              }
+
+            }
+            return KnockedOutState;
+          }());
+
           // SpinKickState - 
           var SpinKickState = (function () {
             function SpinKickState(player) {
               var pl = player;
               var timeElapsed = 0;
+
+              this.knockOut = function(){pl.setState(pl.getKnockedOutState());};
 
               this.update = function (event) {
                 var delta = service.time.delta / 1000;
@@ -894,11 +1068,57 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 
                 pl.owner.find('Model').updateAction('twirl-kick');
               }
+              this.toString = function(){
+                return "spin";
+              }
             }
             return SpinKickState;
           }());
 
 
+
+         // 
+         //
+         //
+         //
+         //
+          var WalkJumpState = (function () {
+            function ForwardJumpState(player) {
+              var pl = player;
+              var timeElapsed = 0;
+              
+              this.idle = function () {   pl.setState(pl.getIdleState());};
+              
+              this.activate = function(){              
+                timeElapsed = 0;
+                var char = pl.owner.find('Player') || pl.owner.find('Enemy');
+                var facing = char.facing;
+                
+                pl.owner.find('Body').setLinearVel([25*facing,0]);
+                
+                new engine.core.Event({
+                    type: 'Move',
+                            data: {
+                                direction: 'up'
+                            }
+                }).dispatch( pl.owner );
+              };
+              
+              this.update = function () {
+                var delta = service.time.delta / 1000;
+                timeElapsed += delta;
+                var yPos = pl.getTransform().position[1];
+                if(yPos <= FLOOR_POS + PLAYER_BB_HEIGHT*2 && timeElapsed > 0.2){
+                  pl.setState(pl.getIdleState());
+                }                
+              };
+              
+              this.toString = function(){
+                return 'walk jump';
+              }
+            }
+            return WalkJumpState;
+          }());
 
           // Forward Jump State
           var ForwardJumpState = (function () {
@@ -906,65 +1126,53 @@ document.addEventListener("DOMContentLoaded", function (e) {
               var pl = player;
               var timeElapsed = 0;
               
-              function standStraight(){
-               // var test = pl.trans.rotation;
-               // test[2] = 0;
-               // pl.trans.rotation = test;
-              }
-              
-              /*this.hit = function(d){
-                pl.health -= d;
-                
-                //
-                standStraight();
-                pl.setState(pl.getFallingDownState());
-              };*/
+              this.idle = function () {   pl.setState(pl.getIdleState());};
               
               this.activate = function(){              
                 timeElapsed = 0;
                 pl.owner.find('Model').updateAction('jump');
           
+                // FIX ME
+                var char = pl.owner.find('Player') || pl.owner.find('Enemy');
+                var facing = char.facing;
+                
                 new engine.core.Event({
                     type: 'Move',
                             data: {
                                 direction: 'up'
                             }
                 }).dispatch( pl.owner );
-                
-                                        
-               // if(pl.speed[1] === 0){
-                //  pl.speed[1] = JUMP_HEIGHT;
-               // }
               };
               
               this.update = function () {
                 var delta = service.time.delta / 1000;
-                
                 timeElapsed += delta;
-                
-                //var pp = pl.owner.find('Transform').position;
-                var pos = pl.getTransform().position;
-                if(pos[1] <= FLOOR_POS && timeElapsed > 0.5){
+                var yPos = pl.getTransform().position[1];
+                if(yPos <= FLOOR_POS + PLAYER_BB_HEIGHT*2 && timeElapsed > 0.2){
                   pl.setState(pl.getIdleState());
                 }
                 
-                var rot = pl.getTransform().rotation;
+                //var rot = pl.getTransform().rotation;
                 //rot[2] = pos[1]/JUMP_HEIGHT * math.PI*5;
                 // rot[2] += delta * math.TAU;
                 //delta * math.TAU/ JUMP_HEIGHT;
-                pl.getTransform().rotation = rot;
+                //pl.getTransform().rotation = rot;
 
                 //var rot = pc.rotation;
                 //rot[2] += t * math.TAU;
                 //pc.rotation = rot;
                 
-                if(/*pos[1] <= FLOOR_POS &&*/ timeElapsed > 0.5){
+                //if(/*pos[1] <= FLOOR_POS &&*/ timeElapsed > 0.5){
                  // standStraight();
-                  rot[2] = 0;
-                  pl.getTransform().rotation = rot;                  
-                  pl.setState(pl.getIdleState());
-                }
+                  //rot[2] = 0;
+                  //pl.getTransform().rotation = rot;                  
+                  //pl.setState(pl.getIdleState());
+                //}
               };
+              
+              this.toString = function(){
+                return 'forward jump';
+              }
             }
             return ForwardJumpState;
           }());
@@ -976,14 +1184,22 @@ document.addEventListener("DOMContentLoaded", function (e) {
           // instances of all the state
           var idleState = new IdleState(this);
           var jumpState = new JumpState(this);
+          
           var moveForwardState = new MoveForwardState(this);
+          var moveLeftState = new MoveLeftState(this);
+          
           var forwardJumpState = new ForwardJumpState(this);
           var crouchState = new CrouchState(this);
           var spinKickState = new SpinKickState(this);
+          var fallState = new FallState(this);
+          var knockedOutState = new KnockedOutState(this);
+
           var state = idleState;
           
           this.getPlayer = function(){
-            return this.owner.find('Player');
+            // FIXME
+            var ret = this.owner.find('Player') || this.owner.find('Enemy');
+            return ret;
           }
           
           this.getTransform = function(){
@@ -995,20 +1211,23 @@ document.addEventListener("DOMContentLoaded", function (e) {
               state = s;
               state.activate && state.activate();
             }
-            
           };
           
           this.onUpdate = function(t){
             state && state.update(t);
           }
           
-          this.onJump = function(){        state.jump && state.jump();}
-          
+          this.onJump = function(){         state.jump && state.jump();};
+          this.onFall = function(){         state.fall && state.fall();};
           this.onIdle = function(){         state.idle && state.idle();}
           this.onMoveForward = function(){  state.moveForward && state.moveForward();}
+          
+          this.onMoveLeft = function(){ state.moveLeft && state.moveLeft();};
+          
           this.onCrouch = function(){       state.crouch && state.crouch();}
           this.onPunch = function(){        state.punch && state.punch();}
           this.onSpinKick = function(){     state.spinKick && state.spinKick();};
+          this.onKnockOut = function(){     state.knockOut && state.knockOut();};
           
           this.onMoveStop = function(){
             state = (state === moveForwardState) ? idleState : state;
@@ -1016,16 +1235,18 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           this.getJumpState = function(){return jumpState;}
           this.getIdleState = function(){return idleState;}
+          
           this.getMoveForwardState = function (){return moveForwardState;};
+          this.getMoveLeftState = function(){return moveLeftState;};
+          
           this.getForwardJumpState = function(){return forwardJumpState;};
           this.getCrouchState = function(){     return crouchState;};
           this.getSpinKickState = function(){     return spinKickState;}; 
+          this.getFallState = function(){ return fallState;};
+          this.getKnockedOutState = function(){ return knockedOutState;};
           
           this.getCurrState = function(){
-            if(state === spinKickState){
-              return "spin";
-            }
-            return "nospin";
+            return state.toString();
           };
           
           // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -1054,10 +1275,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
 
       ////////////////////
-      // BoxComponent
+      // PlatformComponent
       ////////////////////
-      var BoxComponent = engine.base.Component({
-        type: 'Box',
+      var PlatformComponent = engine.base.Component({
+        type: 'Platform',
         depends: ['Transform', 'Model']
       },
       function (options) {
@@ -1066,7 +1287,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
         var that = this;
         
         // This is a hack so that this component will have its message queue processed
-
         var service = engine.logic; 
 
         /*var size = 5.0;
@@ -1082,6 +1302,84 @@ document.addEventListener("DOMContentLoaded", function (e) {
         this.acceleration = [0, 0, 0];
 
         this.onCollision = function(e){
+          /*
+          if(e.data.entity.find('State')){
+            var playerState = e.data.entity.find('State').getCurrState();
+            var playerTrans = e.data.entity.find('Transform');
+
+            // XXX move this out
+            if(playerState === "spin"){
+              //console.log(playerState);
+              //this.velocity = [0, 100, -10];
+              //this.acceleration[1] = 9.8 * 80;
+            }
+          }*/
+        };
+        
+        this.onUpdate = function (event) {
+          var delta = service.time.delta / 1000;
+          
+          
+          // var trans = this.owner.find('Transform').position;
+          // trans[0] += this.velocity[0] * delta;
+          // trans[1] += this.velocity[1] * delta;
+          // trans[2] -= this.velocity[2] * delta;
+          //this.owner.find('Transform').position;
+          //var data = { x: 0, y: 0, angle: 0 };
+          //readObject(1, data);
+          //this.owner.find('Transform').position = [data.x, data.y, 0];
+          /* var renderObject = boxes[i];
+            renderObject.position[0] = data.x;
+            renderObject.position[1] = data.y;
+            renderObject.position[2] = 0;
+            renderObject.rotation = [0, 0, data.angle*180/Math.PI];*/
+            // this.velocity[1] -= this.acceleration[1] * delta;
+            //this.owner.find('Transform').position = trans;
+        }; // onUpdate
+        
+        // Boilerplate component registration; Lets our service know that we exist and want to do things
+        this.onComponentOwnerChanged = function (e) {
+          if (e.data.previous === null && this.owner !== null) {
+            service.registerComponent(this.owner.id, this);
+          }
+
+          if (this.owner === null && e.data.previous !== null) {
+            service.unregisterComponent(e.data.previous.id, this);
+          }
+        };
+
+        this.onEntityManagerChanged = function (e) {
+          if (e.data.previous === null && e.data.current !== null && this.owner !== null) {
+            service.registerComponent(this.owner.id, this);
+          }
+
+          if (e.data.previous !== null && e.data.current === null && this.owner !== null) {
+            service.unregisterComponent(this.owner.id, this);
+          }
+        };
+      }); // PlatformComponent
+      
+
+
+       ////////////////////
+      // CrateComponent
+      ////////////////////
+      var CrateComponent = engine.base.Component({
+        type: 'Crate',
+        depends: ['Transform', 'Model']
+      },
+      function (options) {
+      
+        options = options || {};
+        var that = this;
+        
+        // This is a hack so that this component will have its message queue processed
+        var service = engine.logic; 
+
+        this.velocity = [0, 0, 0];
+        this.acceleration = [0, 0, 0];
+
+        this.onCollision = function(e){
           console.log('collide');
         
           if(e.data.entity.find('State')){
@@ -1090,7 +1388,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             // XXX move this out
             if(playerState === "spin"){
-              //console.log(playerState);
               //this.velocity = [0, 100, -10];
               //this.acceleration[1] = 9.8 * 80;
             }
@@ -1137,13 +1434,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
             service.unregisterComponent(this.owner.id, this);
           }
         };
-      }); // BoxComponent
+      }); // CrateComponent
       
 
 
-
       ////////////////////
-      // BoxComponent
+      // EnemyComponent
       ////////////////////
       var EnemyComponent = engine.base.Component({
         type: 'Enemy',
@@ -1160,6 +1456,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
         this.velocity = [0, 0, 0];
         this.acceleration = [0, 0, 0];
+        
+        this.facing = FACING_LEFT;
 
         this.onCollision = function(e){
         
@@ -1169,30 +1467,76 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             // XXX move this out
             if(playerState === "spin"){
-              // Prevent the object from colliding with anything else.
-              this.onCollision = function(){};
+              this.owner.find('State').onKnockOut();
+              console.log('hit');
 
-              this.velocity = [5, 50, 5];
-              this.acceleration[1] = -9.8 * 20;
+              // FIXME: Prevent the object from colliding with anything else.
+              // this.onCollision = function(){};
+              // this.velocity = [5, 50, 5];
+              // this.acceleration[1] = -9.8 * 20;
             }
-            else{
-              // Tell box2d to move this object
-              //e.data.entity.find('Transform').position = [-20, 20, 0];
-            }
+            //else{set Linear Vel of object}
           }
         };
         
+        this.setFacing = function(f){
+          this.stopWalk();
+          
+         /* if(this.facing === FACING_LEFT){
+            this.owner.find('Transform').rotation = [0, 0, 0];
+          }
+          else{
+            this.owner.find('Transform').rotation = [0, 3.14, 0];
+          }*/
+
+          this.facing = f;
+          this.walk();
+        }
+        
+        // FIXME
+        this.getBody = function(){
+          return this.owner.find('Body');
+        };
+        
+        // tell the sprite to walk forward
+        this.walk = function(){
+        /*
+          var dir = this.facing === 1 ? 'right' : 'left';
+        
+          new engine.core.Event({
+              type: 'MoveStart' ,
+              data: {
+                direction: dir
+              }
+          }).dispatch( this.owner );
+        };
+        
+        this.stopWalk = function(){
+        var dir = this.facing === 1 ? 'right' : 'left';
+          new engine.core.Event({
+              type: 'MoveStop',
+              data: {
+                direction: dir
+              }
+          }).dispatch( this.owner );*/
+        }
+        
+        
+        
         this.onUpdate = function (event) {
+
           var delta = service.time.delta / 1000;
+
+         // this.owner.find('Model').updateAction('walk');
+                    
+          //var trans = this.owner.find('Transform').position;
+          //trans[0] += this.velocity[0] * delta;
+          //trans[1] += this.velocity[1] * delta;
+          //trans[2] += this.velocity[2] * delta;
           
-          var trans = this.owner.find('Transform').position;
-          trans[0] += this.velocity[0] * delta;
-          trans[1] += this.velocity[1] * delta;
-          trans[2] += this.velocity[2] * delta;
-          
-          this.velocity[1] += this.acceleration[1] * delta;
-          
-          this.owner.find('Transform').position = trans;
+          //this.velocity[1] += this.acceleration[1] * delta;
+          //this.getBody().setLinearVel([-10,0]);
+          //this.owner.find('Transform').position = trans;
         }; // onUpdate
         
         // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -1215,8 +1559,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
             service.unregisterComponent(this.owner.id, this);
           }
         };
-      }); // BoxComponent
+      }); // Enemy Component
       
+
+
+
+
+
+
 
       ////////////////////
       // PlayerComponent
@@ -1230,11 +1580,27 @@ document.addEventListener("DOMContentLoaded", function (e) {
         options = options || {};
         var that = this;
         
+        var fallingState = true;
+        var landed = false;
+        var lastTime;
+        var thisTime;
+        var timer = 0;
+        
+        
+         collideID = 0;
+         platformEntity = null;
+        
         // This is a hack so that this component will have its message queue processed
         var service = engine.logic; 
         
         this.initialPos = options.initialPos || [0,0,0];
         
+        //this.health = MAX_HEALTH;
+        //this.speed = [0, 0];
+        var playerName = options.name || "NoName";
+        this.name = playerName;
+        var facing = FACING_RIGHT;
+
         /*var size = 1.0;
         var shape = new Box2D.b2PolygonShape();
         shape.SetAsBox(size, size);
@@ -1246,171 +1612,154 @@ document.addEventListener("DOMContentLoaded", function (e) {
         //bodies.push(body);
 
         this.onCollision = function(e){
-          var state = this.owner.find('State');
+          //onPlatform = true;
+
+          // If this is the first instance of us colliding with a platform,
+          // we must have just landed, which means we should go into an idle state.
+          // new collision
+          if(collideID !== e.data.entity.id /* && on platform */){
+          
+           console.log('NEW collide');
+          
+            // FIXME: hoisting FIXME: check if platform
+            var userPos = this.owner.find('Transform').position[1];          
+            var platPos =  e.data.entity.find('Transform').position[1];
+
+            // We could have collided with the platform by hitting our head on it,
+            // check that we didn't.
+            console.log(Math.abs(userPos - platPos));
+            
+            // FIX ME: add in users height
+            if( Math.abs(userPos - platPos) > 0.0001){
+              // grab a reference to the platform
+              platformEntity = e.data.entity;
+              collideID = e.data.entity.id;
+              
+              console.log('just landed');
+              this.owner.find('State').onIdle();
+            }
+          }
+          
+          // FIX ME
+          //if(collideID != e.data.entity.id){
+          //  this.owner.find('State').onIdle();
+          //  collideID = e.data.entity;
+          //}
         };
         
         this.onJump = function (event) {
-         this.owner.find('State').onJump();
-          //state.jump && state.jump();
+//          this.owner.find('Body').onMoveStart({data:{direction: 'up'}});
+          this.owner.find('State').onJump();
         };
         
-        this.health = MAX_HEALTH;
-        var playerName = options.name || "NoName";
-        this.dir = options.dir;
-        this.speed = [0, 0];
+        this.onRightJump = function(e){
+          console.log('right jump');
+          this.onStopMoveLeft();
+          this.owner.find('State').onJump();
+        };
         
-        // XXX
-        this.name = playerName;
+        this.onStartMoveRight = function(event){
+          this.setFacing(FACING_RIGHT);
+          this.owner.find('Body').onMoveStart({data:{direction: 'right'}});
+          this.owner.find('State').onMoveForward();
+        };
+
+        this.onStopMoveRight = function(event){
+          this.owner.find('Body').onMoveStop({data:{direction: 'right'}});
+          this.owner.find('State').onIdle();
+        };
         
-        // for fireballs
-        this.timeWalkingBK = 0;
-                            
+        this.onStartMoveLeft = function(event){
+          this.setFacing(FACING_LEFT);
+          this.owner.find('Body').onMoveStart({data:{direction: 'left'}});
+          this.owner.find('State').onMoveForward();
+        };
+        
+        this.onStopMoveLeft = function(event){
+          this.owner.find('Body').onMoveStop({data:{direction: 'left'}});
+          this.owner.find('State').onIdle();
+        };
 
 
-        //
-        this.isKnockedOut = function(){
-          return this.health <= 0;
-        }
-        
-        //
-        this.stayInBounds = function(pos){
-          if(pos[2] > LEFT_BORDER){
-            //pos[2] = LEFT_BORDER;
+                
+        this.setFacing = function(f){
+          if(f === FACING_LEFT || f === FACING_RIGHT){
+            facing = f;
+            // right = 1,   left = 0
+            // Convert -1..1 to 0..PI
+            this.owner.find('Transform').rotation = [0, ((facing-1) * -math.PI/2), 0];                      
           }
-          if(pos[2] < RIGHT_BORDER){
-            //pos[2] = RIGHT_BORDER;
-          }
-
-          if(pos[1] <= FLOOR_POS){//JUMP_HEIGHT) {
-            //pos[1] = FLOOR_POS;
-            //this.speed[1] = 0;
-          }
-        }
-        
-        //
-        this.resetPlayer = function(){
-          this.health = MAX_HEALTH;
-         // state = idleState;
-          this.owner.find('Transform').position = this.initialPos;
         };
         
-       /* this.onKick = function (event) {
-          state.kick && state.kick();
+        this.getFacing = function(){
+          return facing;
         };
-
         
-        // XXX broken
-        this.onKnockOut = function(event){
-          state.hit && state.hit(10000);
-          //state.knockOut && state.knockOut();
-        };
-        // XXX get damage from event
-        this.onHit = function(event){
-          state.hit && state.hit(25);
-        };
-        this.onKill = function (event) {
-          state.dead && state.dead();
-        };
-        this.onSpin = function (event) {
-          state.spin && state.spin();
-        };*/
-        
-        // XXX
-        var trans;
-
         // XXX fix me
         this.getPlayer = function () {
           return player;
-        }
+        };
 
         this.onUpdate = function (event) {
           var delta = service.time.delta / 1000;
 
+          var platPos,
+              userPos;
           
-          // XXX Move this out
-          if(document.getElementById(playerName)){
+          // If our feet are below the platform, that means we walked off the platform.
+          // We'll need to set our state to falling.
+          
 
-            // If health is zero, we only see the ugly border around the
-            // health bar, so just hide it in that case.
-            var show = this.health > 0 ? "visible" : "hidden";
-            document.getElementById(playerName).style.visibility = show;
+          // If we're attached to a platform,
+          // AND our feet are below the platform
+          // That means we just walked off the 
+          // platform and need to go into a falling state.
+          if(platformEntity && platformEntity.find){
+             platPos = platformEntity.find('Transform').position[1];
+             userPos = this.owner.find('Transform').position[1];
+
+            // Our feet are below the platform
+            if(userPos /* -something */ < platPos){
+              console.log('falling');
+              
+              // We no longer have an associated platform
+              platformEntity = null;
+              collideID = 0;
+              
+              this.owner.find('State').onFall();
+            }
+          }
+          
+          document.getElementById('debug').innerHTML = this.owner.find('State').getCurrState();
+          
+            //          if(!lastTime){
+            //lastTime = thisTime = 0;
+            //          timer = 0;
+            //this.owner.find('Transform').position[1];
+            //      }
+            //    else{
+            //            var delta = this.owner.find('Transform').position[1] - lastTime;
+
+            // lastTime += delta;
+            // timer += delta;
+                        
+             // if(Math.abs(delta) > 0.01){
+             //    fallingState = true;
+             //this.owner.find('State').onFall();
+             // must be falling
+             // set to falling state
+             //}
             
-            // allow some buffer 
-            // XXX comment
-            var halfClientAreaWidth = (window.innerWidth-150)/2;
-            var normalizedHealth = this.health/MAX_HEALTH;
-            var final = normalizedHealth * halfClientAreaWidth;
+             //if(fallingState && Math.abs(delta) < 0.1){
+             //  console.log('landed');
+             //  fallingState = false;
+             //  this.owner.find('State').onIdle();
+             //}
             
-            document.getElementById(playerName).style.width = final + "px";
-          }
+             //lastTime = this.owner.find('Transform').position[1];
+         // }
           
-          // XXX
-          var transform = this.owner.find('Transform');
-
-          this.trans = this.owner.find('Transform');
-          this.model = this.owner.find('Model');
-          var state = this.owner.find('State');
-
-          //this.ownder.find('State').update(delta);
-          //state.update(delta, transform, this.model);
-          //var pos = transform.position;
-          // XXX
-          //this.speed[1] -= GRAVITY * 100 * delta;
-          
-          //pos[1] += this.speed[1] * delta;
-          // pos[0] += this.speed[0] * delta;
-          // this.stayInBounds(pos);
-          // transform.position = pos;
-
-          /*var data = { x: 0, y: 0, angle: 0 };
-          readObject(0, data);
-          this.owner.find('Transform').position = [data.x, data.y, 0];
-          this.owner.find('Transform');*/
-          
-          /*
-          if(this.dir === FACING_RIGHT){
-            var temp = this.owner.find('Transform').rotation;
-            temp[1] = math.PI/2;
-            this.owner.find('Transform').rotation = temp;
-          }
-          else{
-            var temp = this.owner.find('Transform').rotation;
-            temp[1] = -math.PI/2;
-            this.owner.find('Transform').rotation = temp;
-          }*/
-          
-          
-          
-        
-          // XXX fix direction
-          if (keyStates[options.RIGHT_KEY] && keyStates[options.JUMP_KEY]){
-            state.forwardJump && state.forwardJump();
-          }
-          else if (keyStates[options.LEFT_KEY] && keyStates[options.JUMP_KEY]){
-            state.backwardJump && state.backwardJump();
-          }
-
-          // Don't move the user if they're trying to move in both directions.
-          else if (keyStates[options.RIGHT_KEY] && keyStates[options.LEFT_KEY]) {state.onIdle();}
-
-          // Move them right if released the right key.
-          else if (keyStates[options.RIGHT_KEY]) {
-            state.onMoveForward();
-            //var frameImpulse = new Box2D.b2Vec2( 5, 0 );
-            //body.ApplyLinearImpulse( frameImpulse, body.GetPosition() );  
-          }
-
-          // Move them left if they released the right key.
-          else if (keyStates[options.LEFT_KEY]) {
-             //fix on state.moveBackward && state.moveBackward();
-          }
-
-          // 
-          else if (keyStates[options.JUMP_KEY]) {
-            //var frameImpulse = new Box2D.b2Vec2( 0, 50 );
-            //body.ApplyLinearImpulse( frameImpulse, body.GetPosition() );  
-            state.onJump();
-          }
+          onPlatform = false;
         }; // onUpdate
         
         // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -1441,18 +1790,17 @@ document.addEventListener("DOMContentLoaded", function (e) {
       ////////////////
       var run = function () {
 
-
         // Create game floor
-        var gravity = new Box2D.b2Vec2(0.0, -9.8);
+        var gravity = new Box2D.b2Vec2(0.0, -19.8);
         world = new Box2D.b2World(gravity);
 
-        var bd_ground = new Box2D.b2BodyDef();
+        // FIXME
+        /* var bd_ground = new Box2D.b2BodyDef();
         var ground = world.CreateBody(bd_ground);
 
         var shape0 = new Box2D.b2EdgeShape();
         shape0.Set(new Box2D.b2Vec2(-400, 9), new Box2D.b2Vec2(400.0, 9));
-        ground.CreateFixture(shape0, 0);
-
+        ground.CreateFixture(shape0, 0);*/
 
         // Add some tunes
         var audioElement = document.createElement('audio');
@@ -1473,67 +1821,63 @@ document.addEventListener("DOMContentLoaded", function (e) {
           canvas = engine.graphics.target.element;
 
 
-          ////////////                      
+          ////////////  
           // Thug test
           ////////////
           var thugBodyDef = engine.physics.resource.BodyDefinition(
-                  engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,    // body type
-                  6, // linear damping
-                  1  // angular damping
-                  );
+                  engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,  6, 1, false);
 
           // Make an obstacle that will collide with the player
-          var thugShape = engine.physics.resource.Box( 1, 1 );//0.4, 2
+          var thugShape = engine.physics.resource.Box( 1, 2 );//0.4, 2
           var thugFixDef = engine.physics.resource.FixtureDefinition( thugShape, 5.0 );
 
-          var thug1 = new space.Entity({
-            name: 'thug',
-            components: [
-            
-            // Model
-            new engine.core.component.Transform({
-              /// XXX use initial pos
-              position: math.Vector3(-20, FLOOR_POS + 15, 0),
-              scale: math.Vector3(3, 3, 3)
-            }),
-            
-            // Graphic Representation
-            new BitwallModel({
-              sprite: viking.sprites.thug1
-            }),
-            
-//            new HealthComponent({domId: 'thug1'}),
 
-            //new PlayerComponent(playerOneConfig),
-            
-            //new StateComponent(), 
-            
-            new engine.physics.component.Body({
-              bodyDefinition: thugBodyDef,
-              fixtureDefinition: thugFixDef
-            }),
+          for(var i = 0; i < 0; i++){
+            var thug1 = new space.Entity({
+                name: 'thug' + i,
+                components: [
+                  
+                  // Model
+                  new engine.core.component.Transform({
+                    /// XXX use initial pos
+                    position: math.Vector3((i+1)*20, FLOOR_POS + 5, 0),
+                    scale: math.Vector3(7, 7, 7),
+                    rotation: math.Vector3(0, math.PI, 0)
+                  }),
+                  
+                  // Graphic Representation
+                  new BitwallModel({
+                    sprite: viking.sprites.thug1
+                  }),
+                  
+                  new EnemyComponent({}),
+                  
+                  //new StateComponent(), 
+                  
+                  new engine.physics.component.Body({
+                    bodyDefinition: thugBodyDef,
+                    fixtureDefinition: thugFixDef
+                  }),
 
-            new collision2Service.component.BoundingBox({
-               lowerLeft: math.Vector3( -2, -3,  0),
-                upperRight: math.Vector3( 0.5,  2,  0 )
-              })
-            ]
-          });
+                  new collision2Service.component.BoundingBox({
+                    lowerLeft: math.Vector3( -2, -3,  0),
+                    upperRight: math.Vector3( 0.5,  2,  0 )
+                  })
+                ]
+              });
+          }          
+          //thug1.find('Enemy').setFacing(1);
+          //thug1.find('Enemy').walk();
 
-
-
-
+                    
           ////////////                      
           // Player1 Entity
           ////////////
           var cubeBodyDefinition = engine.physics.resource.BodyDefinition(
-                  engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,    // body type
-                  6, // linear damping
-                  1  // angular damping
-                  );
+                  engine.physics.resource.BodyDefinition.bodyType.DYNAMIC, 1, 1, true);
 
           // Make an obstacle that will collide with the player
-          var cubeCollisionShape = engine.physics.resource.Box( 1, 1 );//0.4, 2
+          var cubeCollisionShape = engine.physics.resource.Box( 0.75, 2 ); // 0.4, 2
           var cubeFixtureDefinition = engine.physics.resource.FixtureDefinition( cubeCollisionShape, 5.0 );
 
           var player1 = new space.Entity({
@@ -1543,8 +1887,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
             // Model
             new engine.core.component.Transform({
               /// XXX use initial pos
-              position: math.Vector3(-15, FLOOR_POS + 15, 0),
-              scale: math.Vector3(3, 3, 3)
+              position: math.Vector3(-28, FLOOR_POS + 35, -50),
+              scale: math.Vector3(7, 7, 7)
             }),
             
             // Graphic Representation
@@ -1560,104 +1904,47 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
                 // keep state of the keys
                 var keyName = e.data.code;
-                
-                keyStates[keyName] = (e.data.state === 'down');
+                keyStates[keyName] = (e.data.state === 'down') ? true : false;
 
-                switch (e.data.code) {
+                var player = this.owner.find('Player');
 
-                  case 'UP':
-                  
-                    // if key is down and has just been pressed
-                    if(e.data.state === 'down' && justBeenPressed /* && has landed*/){
+                switch (keyName) {
 
-                    // Jump
-                    new engine.core.Event({
-                        type: e.data.state === 'down' ? 'Jump' : null
-                    }).dispatch( this.owner );
-                    break;
-
-
-
-                      justBeenPressed = false;
-                    }
-                    
-                    if(e.data.state === 'up'){
-                      justBeenPressed = true;
-                    }         
-                  break;
-
-              
+                  //
                   case 'RIGHT':
-                    new engine.core.Event({
-                        type: e.data.state === 'down' ? 'MoveStart' : 'MoveStop',
-                          data: {
-                              direction: 'right'                                                             
-                          }
-                    }).dispatch( this.owner );
-                    break;
-
-                  // walk left
-                case 'LEFT':
-                  new engine.core.Event({
-                    type: e.data.state === 'down' ? 'StartMoveBackward' : 'StopMoveBackward'
-                  }).dispatch([this.owner]);
-                  break;
-
-                  // jump
-               /* case 'UP':
-                  new engine.core.Event({
-                    type: e.data.state === 'down' ? 'Jump' : null
-                  }).dispatch([this.owner]);
-                  break;*/
-
-                                         
-                  // Block
-                case 'DOWN':
-                  new engine.core.Event({
-                    type: e.data.state === 'down' ? 'Crouch' : 'Idle'
-                  }).dispatch([this.owner]);
-                  break;
-
-                case 'A':
-                  new engine.core.Event({
-                    type: e.data.state === 'down' ? 'Punch' : null
-                  }).dispatch([this.owner]);
-                  break;
-
-                  // Spin player
-                case 'SPACE':
-                  new engine.core.Event({
-                    type: e.data.state === 'down' ? 'SpinKick' : null
-                  }).dispatch([this.owner]);
+                    if(keyStates[keyName]){
+                      player.onStartMoveRight();
+                      //this.owner.find('Body').onMoveStart({data:{direction: 'right'}});
+                    }
+                    else{
+                      player.onStopMoveRight();
+                      //this.owner.find('Body').onMoveStop({data:{direction: 'right'}});           
+                    }
                   break;
                   
-                // XXX Test code
-                case '0':
-                  new engine.core.Event({
-                    type: 'KnockOut'
-                    }).dispatch([this.owner]);
+                  case 'LEFT':
+                    if(keyStates[keyName]){
+                      player.onStartMoveLeft();
+                      //this.owner.find('Body').onMoveStart({data:{direction: 'left'}});
+                    }
+                    else{
+                      player.onStopMoveLeft();
+                      //this.owner.find('Body').onMoveStop({data:{direction: 'left'}});
+                    }
                   break;
                   
-                // XXX Test code
-                case '5':
-                  new engine.core.Event({
-                    type: e.data.state === 'down' ? 'Hit' : null
-                    }).dispatch([this.owner]);
+                  case 'UP':
+                    if(keyStates[keyName]){
+                      player.onJump();
+                    }
                   break;
-                  
-                  // Kill player
-                /*case 'X':
-                  new engine.core.Event({
-                    type: 'Kill'
-                  }).dispatch([this.owner]);
-                  break;*/
 
                 } // switch
               } // onKey
             }), //controller
             
             
-            new PlayerComponent(playerOneConfig),
+            new PlayerComponent(keyConfig),
             
             new StateComponent(), 
             
@@ -1668,7 +1955,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
              new collision2Service.component.BoundingBox({
                lowerLeft: math.Vector3( -2, -3,  0),
-                upperRight: math.Vector3( 0.5,  2,  0 )
+               upperRight: math.Vector3( 0.5,  2,  0 )
               })
             ]
           });
@@ -1676,12 +1963,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           // floor
           var floorBodyDef = engine.physics.resource.BodyDefinition(
-                  engine.physics.resource.BodyDefinition.bodyType.STATIC,    // body type
-                  0.9, // linear damping
-                  0.9  // angular damping
-                );
+                  engine.physics.resource.BodyDefinition.bodyType.STATIC, 1, 1, true);
 
-          var floorCollisionShape = engine.physics.resource.Box( 150, 1 );
+          var floorCollisionShape = engine.physics.resource.Box( 150, .1 );
           var floorFixtureDef = engine.physics.resource.FixtureDefinition( floorCollisionShape, 5.0 );
 
           var floor = new space.Entity({
@@ -1689,7 +1973,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               components: [
                  new engine.core.component.Transform({
                   position: math.Vector3( 0, FLOOR_POS, 0 ),
-                  scale: math.Vector3( 300, 1, 1)
+                  scale: math.Vector3( 300, .1, 1)
                   }),
 
                  new engine.graphics.component.Model({
@@ -1697,7 +1981,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
                      material: resources.material
                  }),
                  
-                 new BoxComponent(),
+                 new collision2Service.component.BoundingBox({
+                     lowerLeft: math.Vector3( -150,  -0.1,  0),
+                      upperRight: math.Vector3( 150,  0.1,  0 )
+                  }),
+                    
+                 new PlatformComponent(),
                  
                  new engine.physics.component.Body({
                      bodyDefinition: floorBodyDef,
@@ -1707,24 +1996,21 @@ document.addEventListener("DOMContentLoaded", function (e) {
           });
 
           // Add some platforms
-          for(var i = 0; i < 10; i++){
+          for(var i = 0; i < 3; i++){
 
             // platform
             var bodyDef = engine.physics.resource.BodyDefinition(
-                    engine.physics.resource.BodyDefinition.bodyType.STATIC,    // body type
-                    0.9, // linear damping
-                    0.9  // angular damping
-                  );
+                    engine.physics.resource.BodyDefinition.bodyType.STATIC, 1, 1, false);
 
-            var collisionShape = engine.physics.resource.Box( 2.5, 1 );
+            var collisionShape = engine.physics.resource.Box( 4, 0.5 );
             var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 5.0 );
             
             new space.Entity({
                 name: 'platform' + i,
                 components: [
                    new engine.core.component.Transform({
-                    position: math.Vector3( 5 + (i*10), FLOOR_POS + (i*2) + 1, 0 ),
-                    scale: math.Vector3( 5, 1, 5)
+                    position: math.Vector3( -25 + i*10, 20 + FLOOR_POS - (i*7) + 1, -50 ),
+                    scale: math.Vector3( 8, 1, 5)
                     }),
 
                    new engine.graphics.component.Model({
@@ -1732,8 +2018,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
                        material: resources.material
                    }),
                    
-                   new BoxComponent(),
+                   new PlatformComponent(),
                    
+                   new collision2Service.component.BoundingBox({
+                     lowerLeft: math.Vector3( -4, -0.5,  0),
+                      upperRight: math.Vector3( 4,  0.5,  0 )
+                    }),
+                    
                    new engine.physics.component.Body({
                        bodyDefinition: bodyDef,
                        fixtureDefinition: fixtureDef
@@ -1743,12 +2034,42 @@ document.addEventListener("DOMContentLoaded", function (e) {
           }
           
           
+          // Add crates
+          for(var i = 0; i < 10; i++){
+
+            // platform
+            var bodyDef = engine.physics.resource.BodyDefinition(
+                    engine.physics.resource.BodyDefinition.bodyType.DYNAMIC, 1, 1, false);
+
+            var collisionShape = engine.physics.resource.Box( 1, 1 );
+            var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 1.0 );
+            
+            new space.Entity({
+                name: 'crate' + i,
+                components: [
+                   new engine.core.component.Transform({
+                    position: math.Vector3( -20 + (i*5), 30 + FLOOR_POS, -50 ),
+                    scale: math.Vector3( 3, 3, 3)
+                    }),
+
+                   new engine.graphics.component.Model({
+                       mesh: resources.mesh,
+                       material: resources.material
+                   }),
+                   
+                   new CrateComponent(),
+                   
+                   new engine.physics.component.Body({
+                       bodyDefinition: bodyDef,
+                       fixtureDefinition: fixtureDef
+                   }),
+                   ]
+            });
+          }
+
           
           
-          
-          
-          
-          
+          /*
             new space.Entity({
                 name: 'enemy' + i,
                 components: [
@@ -1769,15 +2090,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
                       upperRight: math.Vector3( 0.5,  2,  0 )
                     })
               
-//                   new engine.physics.component.Body({
-  //                     bodyDefinition: bodyDef,
-    //                   fixtureDefinition: fixtureDef
-      //             }),
+                   new engine.physics.component.Body({
+                       bodyDefinition: bodyDef,
+                       fixtureDefinition: fixtureDef
+                   }),
                    ]
-            });
-            
-            
-
+            });*/
 
           var camera = new space.Entity({
             name: 'camera',
@@ -1820,33 +2138,82 @@ document.addEventListener("DOMContentLoaded", function (e) {
               var delta = engine.scheduler.simulationTime.delta / 1000;
               
               world.Step(delta, 2, 2);
-
                          
               // Player components
               var p1Com = player1.find('Player');
-              
               var p1Pos = player1.find('Transform').position;
-              
               var p1Xpos = p1Pos[0];
-              
               var p1Div = getById('player1');
-                
               // XXX fix me
-              p1Div = getById('player1');
-                                              
+              p1Div = getById('player1'); 
               // XXX fix this
+              
               var newPos = camera.find('Transform').position;
               newPos[0] = p1Pos[0];
               newPos[1] = p1Pos[1];
               
-              camera.find('Transform').position = newPos;
-              camera.find('Camera').target = math.Vector3(newPos[0], p1Pos[1], -1);
+              camera.find('Transform').position = [newPos[0], newPos[1], 2];
+              
+              //[40, 10, 50]
+              //
+              camera.find('Camera').target = [newPos[0], p1Pos[1], -1];
+//              math.Vector3(0, 0, -1);
+              
+              
+              
+              var playerState = player1.find('State');
+              //var thugState = thug1.find('State');
+              //var thugPos = thug1.find('Transform').position;
+              
+              //var currFacing = thug1.find('Enemy').facing;
+              
+              /*if(thugPos[0] < -10 && currFacing === -1){
+                  thug1.find('Enemy').setFacing(1);
+               }
+               else if( thugPos[0] > 10 && currFacing === 1){
+                 thug1.find('Enemy').setFacing(-1);
+               }*/
+                              
+              //
+              if(keyStates[keyConfig.RIGHT_KEY] && keyStates[keyConfig.JUMP_KEY]){
+                console.log('forward jump');
+                //player1.find('Player').onRightJump();
+              }
+              else if (keyStates[keyConfig.LEFT_KEY] && keyStates[keyConfig.JUMP_KEY]){
+                //state.backwardJump && state.backwardJump();
+              }
+              // Don't move the user if they're trying to move in both directions.
+              else if (keyStates[keyConfig.RIGHT_KEY] && keyStates[keyConfig.LEFT_KEY]) {
+                // player doesn't have an onidle
+                // player1.find('Player').onIdle();
+                console.log('f');
+                //player1.find('Body').onMoveStop({data:{direction:"left"}});
+                //player1.find('Body').onMoveStop({data:{direction:"right"}});
+              }
+              // Move them right if released the right key.
+              else if (keyStates[keyConfig.RIGHT_KEY]) {
+                //player1.find('Body').onMoveStart({data:{direction:"right"}});
+                // playerState.onMoveForward();
+                // player1.find('Player').onStartMoveRight();
+              }
+              // Move them left if they released the left key.
+              else if (keyStates[keyConfig.LEFT_KEY]) {
+               // player1.find('Body').onMoveStart({data:{direction:"left"}});
+                // playerState.onMoveForward();
+                // player1.find('Player').onStartMoveLeft();
+              }
+              // 
+              else if (keyStates[keyConfig.JUMP_KEY]) {
+  //              console.log('straight jump');
+                //player1.find('Player').onJump();
+              }
+              else{
+                //player1.find('Body').onMoveStop({data:{direction:"left"}});
+                //playerState.onIdle();
+              }
             }
           });
 
-          //  var player1 = space.find('player1').find('Player').getPlayer();
-          // If player1 is punching and player2 can get hit and player1's hitbox intersects player2's
-          // if (..)
           // Start the engine!
           engine.run();
         };
@@ -1868,7 +2235,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         url: "city/intro_city-anim.dae",
         load: colladaLoader,
         onsuccess: function (instance) {
-//          space = instance.space;
+          space = instance.space;
         },
         onfailure: function (error) {
           console.log("error loading collada resource: " + error);
