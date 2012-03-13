@@ -1720,7 +1720,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               name: 'platform',
               components: [
                  new engine.core.component.Transform({
-                  position: math.Vector3( 0, FLOOR_POS, 0 ),
+                  position: math.Vector3( 0, FLOOR_POS - 1, 0 ),
                   scale: math.Vector3( 300, .1, 1)
                   }),
 
@@ -1827,13 +1827,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
    
           // Add crates
           for(var i = 0; i < 10; i++){
-
-            // platform
             var bodyDef = engine.physics.resource.BodyDefinition(
                     engine.physics.resource.BodyDefinition.bodyType.DYNAMIC, 1, 1, false);
 
-            var collisionShape = engine.physics.resource.Box( 0.5, 0.5 );
-            var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 1.0 );
+            var collisionShape = engine.physics.resource.Box( 1.5, 1.5 );
+            var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 0.5 );
             
             new space.Entity({
                 name: 'crate' + i,
