@@ -14,7 +14,6 @@ define( function ( require ) {
                     phase: engine.scheduler.phases.UPDATE
                 }
             },
-            depends: [ 'Motion' ],
             time: engine.scheduler.simulationTime
         },
         function( options ) {
@@ -23,6 +22,8 @@ define( function ( require ) {
             var service = this;
             var gravity = new Box2D.b2Vec2( options.gravity[0], options.gravity[1] ) || new Box2D.b2Vec2( 0, 0 );
             var world = new Box2D.b2World( gravity );
+            
+            // TD: define getter/setter for gravity
             
             var contactListener = new Box2D.b2ContactListener();
             Box2D.customizeVTable( contactListener, [
@@ -127,7 +128,8 @@ define( function ( require ) {
                 body.SetLinearVelocity( new Box2D.b2Vec2( 0, 0 ) );
                 
                 // TD: a bunch of this movement-related stuff is application
-                // code; should be factored back into the example
+                // code; should be factored back into the example, or another
+                // component
                 var moveDirection = new Box2D.b2Vec2( 0, 0 );
                 var moveEventStates = {
                         up: false,
