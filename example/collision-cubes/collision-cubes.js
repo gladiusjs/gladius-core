@@ -7,7 +7,54 @@ document.addEventListener( "DOMContentLoaded", function( e ){
     var game = function( engine ) {
         var math = engine.math;
 
-        var CubicVR = engine.graphics.target.context;      
+        var CubicVR = engine.graphics.target.context;   
+        
+        var PlayerComponent = engine.base.Component({
+            type: 'Player',
+            depends: ['Transform'] // We're going to be moving stuff
+        },
+        function( options ) {
+
+            options = options || {};
+            var that = this;
+
+            // This is a hack so that this component will have its message
+            // queue processed
+            var service = engine.logic;
+           
+            this.onContact2Begin = function( event ) {
+                console.log( 'START', this.owner.id, event.data.entities[0], '<->', event.data.entities[1] );
+            };
+            
+            this.onContact2End = function( event ) {
+                console.log( 'END', this.owner.id, event.data.entities[0], '<->', event.data.entities[1] );
+            };
+
+            this.onUpdate = function( event ) {
+            };
+
+            // Boilerplate component registration; Lets our service know that we exist and want to do things
+            this.onComponentOwnerChanged = function( e ){
+                if( e.data.previous === null && this.owner !== null ) {
+                    service.registerComponent( this.owner.id, this );
+                }
+
+                if( this.owner === null && e.data.previous !== null ) {
+                    service.unregisterComponent( e.data.previous.id, this );
+                }
+            };
+
+            this.onEntityManagerChanged = function( e ) {
+                if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
+                    service.registerComponent( this.owner.id, this );
+                }
+
+                if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
+                    service.unregisterComponent( this.owner.id, this );
+                }
+            };
+
+        });
         
         var run = function() {
 
@@ -113,7 +160,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                              new engine.physics.component.Body({
                                  bodyDefinition: cubeBodyDefinition,
                                  fixtureDefinition: cubeFixtureDefinition
-                             })
+                             }),
+                             new PlayerComponent()
                              ]
             });
 
@@ -190,7 +238,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                         options: {
                             gravity: [0, 0]
                         }
-                    }
+                    },
+                    logic: 'logic/game/service'
                 }
             },
             game

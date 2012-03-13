@@ -35,7 +35,7 @@ define( function ( require ) {
     // for when gladius is built for deployment.
     global = window.gladius || ( window.gladius = {} );
     
-    require( 'box2d.js/box2d' );
+    require( 'external/box2d.js/box2d' );
     
     /***
      * Gladius

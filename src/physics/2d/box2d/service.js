@@ -23,6 +23,58 @@ define( function ( require ) {
             var service = this;
             var gravity = new Box2D.b2Vec2( options.gravity[0], options.gravity[1] ) || new Box2D.b2Vec2( 0, 0 );
             var world = new Box2D.b2World( gravity );
+            
+            var contactListener = new Box2D.b2ContactListener();
+            Box2D.customizeVTable( contactListener, [
+                {
+                    original: Box2D.b2ContactListener.prototype.BeginContact,
+                    replacement: function( objPtr, contactPtr ) {
+                        var contact = Box2D.wrapPointer( contactPtr, Box2D.b2Contact );
+                        var fixtureA = contact.GetFixtureA();
+                        var fixtureB = contact.GetFixtureB();
+                        var bodyA = fixtureA.GetBody();
+                        var bodyB = fixtureB.GetBody();
+
+                        new engine.core.Event({
+                            type: 'Contact2Begin',
+                            data: {
+                                entities: [bodyA.component.owner, bodyB.component.owner]
+                            }
+                        }).dispatch( [bodyA.component.owner, bodyB.component.owner] );                        
+                    }
+                },
+                {
+                    original: Box2D.b2ContactListener.prototype.EndContact,
+                    replacement: function( objPtr, contactPtr ) {
+                        var contact = Box2D.wrapPointer( contactPtr, Box2D.b2Contact );
+                        var fixtureA = contact.GetFixtureA();
+                        var fixtureB = contact.GetFixtureB();
+                        var bodyA = fixtureA.GetBody();
+                        var bodyB = fixtureB.GetBody();
+
+                        new engine.core.Event({
+                            type: 'Contact2End',
+                            data: {
+                                entities: [bodyA.component.owner, bodyB.component.owner]
+                            }
+                        }).dispatch( [bodyA.component.owner, bodyB.component.owner] );
+                    }
+                },
+                {
+                    original: Box2D.b2ContactListener.prototype.PreSolve,
+                    replacement: function( objPtr, contactPtr, oldManifoldPtr ) {
+                        var contact = Box2D.wrapPointer( contactPtr, Box2D.b2Contact );
+                    }
+                },
+                {
+                    original: Box2D.b2ContactListener.prototype.PostSolve,
+                    replacement: function( objPtr, contactPtr, oldManifoldPtr ) {
+                        var contact = Box2D.wrapPointer( contactPtr, Box2D.b2Contact );
+                    }
+                }
+            ]);
+            world.SetContactListener( contactListener );
+            
             var directions = {
                     up: new Box2D.b2Vec2( 0, 1 ),
                     down: new Box2D.b2Vec2( 0, -1 ),
@@ -34,8 +86,7 @@ define( function ( require ) {
                     ccw: 1
             };
             
-            this.update = function() {
-                
+            this.update = function() {                
                 var component;
                 
                 var updateEvent = new engine.core.Event({
@@ -54,9 +105,8 @@ define( function ( require ) {
                 }
                 
                 // Box2D steps in seconds
-                var deltaInSeconds = that.time.delta / 1000; 
+                var deltaInSeconds = that.time.delta / 1000;
                 world.Step( deltaInSeconds, 2, 2 );
-                
             };
 
             var Body = engine.base.Component({
@@ -73,8 +123,11 @@ define( function ( require ) {
                 // Create the body as a box2d object
                 var body = world.CreateBody( options.bodyDefinition );
                 body.CreateFixture( options.fixtureDefinition );
+                body.component = this;  // TD: this might be a bad idea
                 body.SetLinearVelocity( new Box2D.b2Vec2( 0, 0 ) );
                 
+                // TD: a bunch of this movement-related stuff is application
+                // code; should be factored back into the example
                 var moveDirection = new Box2D.b2Vec2( 0, 0 );
                 var moveEventStates = {
                         up: false,
@@ -91,7 +144,6 @@ define( function ( require ) {
                 
                 this.onMoveStart = function( e ) {
                     var direction = directions[e.data.direction];
-                    
                     if( moveEventStates[e.data.direction] ) {
                         return;
                     }
@@ -163,6 +215,7 @@ define( function ( require ) {
                         service.registerComponent( this.owner.id, this );
                         body.SetActive( true );
                         body.SetAwake( true );
+                        var transform = this.owner.find( 'Transform' );
                         body.SetTransform( new Box2D.b2Vec2( transform.position[0], transform.position[1] ), transform.rotation[2] );
                     }
                     
