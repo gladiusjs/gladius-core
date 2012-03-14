@@ -1,6 +1,6 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
   nomen: false */
-/*global define: false, console: false, window: false, setTimeout: false */
+/*global Box2D: false, define: false, console: false, window: false, setTimeout: false */
 
 define( function ( require ) {
     
@@ -120,8 +120,9 @@ define( function ( require ) {
                 var i;
                
                 // Create the body as a box2d object
+                var body;
                 if( options.bodyDefinition ) {
-                    var body = world.CreateBody( options.bodyDefinition );
+                    body = world.CreateBody( options.bodyDefinition );
                 } else {
                     throw 'missing body definition';
                 }
