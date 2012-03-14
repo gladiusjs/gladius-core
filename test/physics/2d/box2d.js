@@ -2,7 +2,7 @@
  nomen: false */
 /*global gladius: false, document: false, window: false, module: false, start,
  test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false,
- asyncTest: false, equal: false */
+ asyncTest: false, equal: false, deepEqual: false */
 
 ( function() {
 
@@ -49,9 +49,9 @@
         deepEqual( [position.get_x(), position.get_y()], [0, 0], 
                 'correct default position' );
         
-        ok( bodyDefinition.get_active() == false, 
+        ok( bodyDefinition.get_active() === false, 
                 'correct default active state' );
-        ok( bodyDefinition.get_awake() == false,
+        ok( bodyDefinition.get_awake() === false,
                 'correct default awake state' );
     });
     
