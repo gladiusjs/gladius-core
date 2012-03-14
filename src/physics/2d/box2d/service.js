@@ -132,6 +132,15 @@ define( function ( require ) {
                 body.component = this;  // TD: this might be a bad idea
                 body.SetLinearVelocity( new Box2D.b2Vec2( 0, 0 ) );
                 
+                Object.defineProperty(this, 'active', {
+                  get: function getActive() {
+                    return body.IsActive() ? true : false;
+                  },
+                  set: function setActive( val ) {
+                    return body.SetActive( val ) ? true : false;
+                  }
+                });
+                
                 var linearImpulse = new Box2D.b2Vec2( 0, 0 );
                 this.onLinearImpulse = function( e ) {
                     var impulse = e.data.impulse;

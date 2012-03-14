@@ -72,6 +72,28 @@
                 'correct angular damping' );       
     });
     
+    test( 'default & all params to fixture construction', function() {
+      expect(3);
+      
+      var box = engine.physics.resource.Box( 1, 1 );  
+
+      var fixtureDef;
+      try {
+        fixtureDef = engine.physics.resource.FixtureDefinition();
+      } catch (e) {
+        ok(true, "Creating FixtureDefinition without params throws");
+      }
+      
+      fixtureDef = engine.physics.resource.FixtureDefinition({
+        shape: box,
+        density: 20
+      });
+      equal(fixtureDef.get_shape(), box.ptr, "fixture has correct shape");
+      equal(fixtureDef.get_density(), 20, "density is correct");
+
+    });
+
+    
     test( 'construct a body', function() {
         expect( 5 );
         
@@ -149,7 +171,31 @@
         equal( bodyDefinition.get_angularDamping(), 0, 'default angular damping is correct' );
     });
     
-    /*
+    test( 'body active property', 
+      function () {
+        expect(2);
+        
+        var bodyDef = engine.physics.resource.BodyDefinition();
+        var bodyComponent = new engine.physics.component.Body({
+          bodyDefinition: bodyDef
+        });
+
+        var transform = new engine.core.component.Transform({
+          position: [1, 2, 3],
+          rotation: [4, 5, 6]
+        });
+                      
+        var entity = new engine.core.Entity();
+        entity.add(transform);
+        entity.add(bodyComponent);
+
+        ok(bodyComponent.active,
+          "body component active after add to entity");
+        bodyComponent.active = false;
+        ok(bodyComponent.active === false, 
+          "body component active setter works");
+      });
+    
     test( 'contact start and end events are generated', function() {
         expect( 0 );
         
@@ -187,14 +233,8 @@
                          ]
         });        
     });
-    */
     
     /* TD: tests to write
-     * * fixture definition, default parameters
-     * * fixture definition, all parameters
-     * * body definition, default parameters
-     * * body definition, all parameters
-     * * body {position, active, awake} set when it's added to an entity
      * * contact events are generated for begin and end
      * * transform is updated when physics moves the body
      * ** verify new position and rotation
