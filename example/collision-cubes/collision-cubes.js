@@ -86,7 +86,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                              new engine.physics.component.Body({
                                  bodyDefinition: cubeBodyDefinition,
                                  fixtureDefinition: cubeFixtureDefinition
-                             }),
+                             })
                              ]
             });
 
