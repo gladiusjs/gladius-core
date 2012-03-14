@@ -33,6 +33,45 @@
         }
     });
     
+    test( 'body definition, default parameters', function() {
+        expect( 6 );
+        
+        var bodyDefinition = engine.physics.resource.BodyDefinition();
+        equal( bodyDefinition.get_type(), 
+                engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
+                'correct default type' );
+        equal( bodyDefinition.get_linearDamping(), 0, 
+                'correct default linear damping' );
+        equal( bodyDefinition.get_angularDamping(), 0, 
+                'correct default angular damping' );
+        
+        var position = bodyDefinition.get_position();
+        deepEqual( [position.get_x(), position.get_y()], [0, 0], 
+                'correct default position' );
+        
+        ok( bodyDefinition.get_active() == false, 
+                'correct default active state' );
+        ok( bodyDefinition.get_awake() == false,
+                'correct default awake state' );
+    });
+    
+    test( 'body definition, all parameters passed', function() {
+        expect( 3 );
+        
+        var bodyDefinition = engine.physics.resource.BodyDefinition({
+            type: engine.physics.resource.BodyDefinition.bodyType.STATIC,
+            linearDamping: 10,
+            angularDamping: 20
+        });
+        equal( bodyDefinition.get_type(), 
+                engine.physics.resource.BodyDefinition.bodyType.STATIC,
+                'correct type' );
+        equal( bodyDefinition.get_linearDamping(), 10, 
+                'correct linear damping' );
+        equal( bodyDefinition.get_angularDamping(), 20, 
+                'correct angular damping' );       
+    });
+    
     test( 'construct a body', function() {
         expect( 5 );
         
@@ -151,6 +190,11 @@
     */
     
     /* TD: tests to write
+     * * fixture definition, default parameters
+     * * fixture definition, all parameters
+     * * body definition, default parameters
+     * * body definition, all parameters
+     * * body {position, active, awake} set when it's added to an entity
      * * contact events are generated for begin and end
      * * transform is updated when physics moves the body
      * ** verify new position and rotation

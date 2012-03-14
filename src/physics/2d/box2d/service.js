@@ -208,13 +208,17 @@ define( function ( require ) {
             };
             
             var BodyDefinition = function( options ) {
+                options = options || {};
                 var bd = new Box2D.b2BodyDef();
-                bd.set_type( options.type || Box2D.b2_dynamicBody );
-                bd.set_linearDamping( options.linearDamping || 0 );
-                bd.set_angularDamping( options.angularDamping || 0 );
+                bd.set_type( options.hasOwnProperty( 'type' ) ? 
+                        options.type : Box2D.b2_dynamicBody );
+                bd.set_linearDamping( options.hasOwnProperty( 'linearDamping' ) ? 
+                        options.linearDamping : 0 );
+                bd.set_angularDamping( options.hasOwnProperty( 'angularDamping' ) ? 
+                        options.angularDamping : 0 );
                 bd.set_position( new Box2D.b2Vec2( 0, 0 ) );
-                bd.active = false;
-                bd.awake = false;
+                bd.set_active( false );
+                bd.set_awake( false );
                 return bd;
             };
             BodyDefinition.bodyType = {
@@ -224,6 +228,7 @@ define( function ( require ) {
             };
             
             var FixtureDefinition = function( options ) {
+                options = options || {};
                 var fd = new Box2D.b2FixtureDef();
                 fd.set_density( options.density || 1 );
                 fd.set_shape( options.shape );
