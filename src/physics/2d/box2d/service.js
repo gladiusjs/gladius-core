@@ -122,7 +122,11 @@ define( function ( require ) {
                 var rotationSpeed = 1.0;
                
                 // Create the body as a box2d object
-                var body = world.CreateBody( options.bodyDefinition );
+                if( options.bodyDefinition ) {
+                    var body = world.CreateBody( options.bodyDefinition );
+                } else {
+                    throw 'missing body definition';
+                }
                 if( options.fixtureDefinition ) {
                     body.CreateFixture( options.fixtureDefinition );
                 }

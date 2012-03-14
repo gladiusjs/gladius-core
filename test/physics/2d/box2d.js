@@ -65,11 +65,52 @@
         equal( body, entity.find( 'Body' ), 'body is added to the entity' );
     });
     
+    test( 'construct a body, no fixture definition', function() {
+        expect( 3 );
+        
+        var bodyDefinition = engine.physics.resource.BodyDefinition({
+                type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC
+        });        
+        ok( bodyDefinition, 'body definition is returned' );
+              
+        var body = new engine.physics.component.Body({
+            bodyDefinition: bodyDefinition
+        });
+        ok( body, 'body is returned' );
+        
+        var space = new engine.core.Space();        
+        var entity = new space.Entity({
+            components: [
+                         new engine.core.component.Transform(),
+                         body
+                         ]
+        });
+        equal( body, entity.find( 'Body' ), 'body is added to the entity' );
+    });
+    
+    test( 'construct a body, no body definition', function() {
+        expect( 1 );
+                     
+        try {
+            var body = new engine.physics.component.Body();
+        } catch( e ) {
+            equal( e, 'missing body definition', 'exception raised' );
+        }
+    });
+    
+    test( 'body definition, defaults for unspecified parameters', function() {
+        expect( 3 );
+                     
+        var bodyDefinition = engine.physics.resource.BodyDefinition({
+            type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC
+        });        
+        equal( bodyDefinition.get_type(), engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
+                'default type is correct');
+        equal( bodyDefinition.get_linearDamping(), 0, 'defualt linear damping is correct' );
+        equal( bodyDefinition.get_angularDamping(), 0, 'default angular damping is correct' );
+    });
+    
     /*
-     * * create a new body and attach it to an entity
-     * * create a body without a fixture definition (should work)
-     * * create a body without a body definition (should fail)
-     * * create a new body without passing in all parameters, make sure defaults work
      * * contact events are generated for begin and end
      * * transform is updated when physics moves the body
      * ** verify new position and rotation
