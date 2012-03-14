@@ -8,7 +8,7 @@
 
     var engine = null;    
 
-    module('graphics/service', {
+    module('physics/2d/box2d', {
         setup : function() {
             stop();
 
