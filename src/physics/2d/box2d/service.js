@@ -123,7 +123,9 @@ define( function ( require ) {
                
                 // Create the body as a box2d object
                 var body = world.CreateBody( options.bodyDefinition );
-                body.CreateFixture( options.fixtureDefinition );
+                if( options.fixtureDefinition ) {
+                    body.CreateFixture( options.fixtureDefinition );
+                }
                 body.component = this;  // TD: this might be a bad idea
                 body.SetLinearVelocity( new Box2D.b2Vec2( 0, 0 ) );
                 
@@ -201,6 +203,9 @@ define( function ( require ) {
                         service.registerComponent( this.owner.id, this );
                         body.SetActive( true );
                         body.SetAwake( true );
+                    }
+                    
+                    if( this.owner !== null ) {
                         var transform = this.owner.find( 'Transform' );
                         body.SetTransform( new Box2D.b2Vec2( transform.position[0], transform.position[1] ), transform.rotation[2] );
                     }
@@ -240,11 +245,11 @@ define( function ( require ) {
                 return shape;
             };
             
-            var BodyDefinition = function( type, linearDamping, angularDamping ) {
+            var BodyDefinition = function( options ) {
                 var bd = new Box2D.b2BodyDef();
-                bd.set_type( type );                
-                bd.set_linearDamping( linearDamping );
-                bd.set_angularDamping( angularDamping );
+                bd.set_type( options.type || Box2D.b2_dynamicBody );
+                bd.set_linearDamping( options.linearDamping || 0 );
+                bd.set_angularDamping( options.angularDamping || 0 );
                 bd.set_position( new Box2D.b2Vec2( 0, 0 ) );
                 bd.active = false;
                 bd.awake = false;
@@ -256,10 +261,10 @@ define( function ( require ) {
                 DYNAMIC: Box2D.b2_dynamicBody
             };
             
-            var FixtureDefinition = function( shape, density ) {
+            var FixtureDefinition = function( options ) {
                 var fd = new Box2D.b2FixtureDef();
-                fd.set_density( density );
-                fd.set_shape( shape );
+                fd.set_density( options.density || 1 );
+                fd.set_shape( options.shape );
                 return fd;
             };
             

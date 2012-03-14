@@ -61,19 +61,24 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             // Make a new space for our entities
             var space = new engine.core.Space();            
             
-            var cubeBodyDefinition = engine.physics.resource.BodyDefinition(
-                    engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,    // body type
-                    0.9, // linear damping
-                    0.9  // angular damping
-                    );
+            var cubeBodyDefinition = engine.physics.resource.BodyDefinition({
+                    type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,    // body type
+                    linearDamping: 0.9, // linear damping
+                    angluarDamping: 0.9  // angular damping
+            });
             var cubeCollisionShape = engine.physics.resource.Box( 1, 1 );
-            var cubeFixtureDefinition = engine.physics.resource.FixtureDefinition( cubeCollisionShape, 5.0 );
+            var cubeFixtureDefinition = engine.physics.resource.FixtureDefinition({
+                    shape: cubeCollisionShape,
+                    density: 5.0
+            });
             
             // Make an obstacle that will collide with the player
             var obstacle = new space.Entity({
                 name: 'obstacle',
                 components: [
-                             new engine.core.component.Transform(),
+                             new engine.core.component.Transform({
+                                 position: [0, 0, 0]
+                             }),
                              new engine.graphics.component.Model({
                                  mesh: resources.mesh,
                                  material: resources.material
