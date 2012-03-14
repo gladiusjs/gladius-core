@@ -37,7 +37,7 @@ define( function ( require ) {
                         var bodyB = fixtureB.GetBody();
 
                         new engine.core.Event({
-                            type: 'Contact2Begin',
+                            type: 'ContactBegin',
                             data: {
                                 entities: [bodyA.component.owner, bodyB.component.owner]
                             }
@@ -54,7 +54,7 @@ define( function ( require ) {
                         var bodyB = fixtureB.GetBody();
 
                         new engine.core.Event({
-                            type: 'Contact2End',
+                            type: 'ContactEnd',
                             data: {
                                 entities: [bodyA.component.owner, bodyB.component.owner]
                             }

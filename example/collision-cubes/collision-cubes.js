@@ -22,11 +22,11 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             // queue processed
             var service = engine.logic;
            
-            this.onContact2Begin = function( event ) {
+            this.onContactBegin = function( event ) {
                 console.log( 'START', this.owner.id, event.data.entities[0], '<->', event.data.entities[1] );
             };
             
-            this.onContact2End = function( event ) {
+            this.onContactEnd = function( event ) {
                 console.log( 'END', this.owner.id, event.data.entities[0], '<->', event.data.entities[1] );
             };
 
