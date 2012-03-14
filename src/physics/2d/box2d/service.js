@@ -118,8 +118,6 @@ define( function ( require ) {
                 options = options || {};  
                 var that = this;
                 var i;
-                var moveSpeed = 1.0;
-                var rotationSpeed = 1.0;
                
                 // Create the body as a box2d object
                 if( options.bodyDefinition ) {
@@ -133,65 +131,24 @@ define( function ( require ) {
                 body.component = this;  // TD: this might be a bad idea
                 body.SetLinearVelocity( new Box2D.b2Vec2( 0, 0 ) );
                 
-                // TD: a bunch of this movement-related stuff is application
-                // code; should be factored back into the example, or another
-                // component
-                var moveDirection = new Box2D.b2Vec2( 0, 0 );
-                var moveEventStates = {
-                        up: false,
-                        down: false,
-                        left: false,
-                        right: false
+                var linearImpulse = new Box2D.b2Vec2( 0, 0 );
+                this.onLinearImpulse = function( e ) {
+                    var impulse = e.data.impulse;
+                    linearImpulse.Set( linearImpulse.get_x() + impulse[0],
+                            linearImpulse.get_y() + impulse[1] );
                 };
                 
-                var rotationDirection = 0;
-                var rotationEventStates = {
-                        cw: false,
-                        ccw: false
-                };
-                
-                this.onMoveStart = function( e ) {
-                    var direction = directions[e.data.direction];
-                    if( moveEventStates[e.data.direction] ) {
-                        return;
-                    }
-                    
-                    moveDirection.Set( moveDirection.get_x() + direction.get_x(), 
-                            moveDirection.get_y() + direction.get_y() );
-                    moveEventStates[e.data.direction] = true;
-                };
-                
-                this.onMoveStop = function( e ) {
-                    var direction = directions[e.data.direction];
-                    moveDirection.Set( moveDirection.get_x() - direction.get_x(), 
-                            moveDirection.get_y() - direction.get_y() );
-                    moveEventStates[e.data.direction] = false;
-                };
-                
-                this.onRotateStart = function( e ) {
-                    var rotation = rotations[e.data.direction];
-                    
-                    if( rotationEventStates[e.data.direction] ) {
-                        return;
-                    }
-                    
-                    rotationDirection += rotation;
-                    rotationEventStates[e.data.direction] = true;
-                };
-                
-                this.onRotateStop = function( e ) {
-                    var rotation = rotations[e.data.direction];
-                    rotationDirection -= rotation;
-                    rotationEventStates[e.data.direction] = false;
-                };
+                var angularImpulse = 0;
+                this.onAngularImpulse = function( e ) {
+                    angularImpulse += e.data.impulse;
+                };               
                                
-                var frameImpulse = new Box2D.b2Vec2( 0, 0 );
                 this.onUpdate = function( e ) {
-                    frameImpulse.Set( moveDirection.get_x(), moveDirection.get_y() );
-                    frameImpulse.Normalize();
-                    frameImpulse.Set( moveSpeed * frameImpulse.get_x(), moveSpeed * frameImpulse.get_y() );
-                    body.ApplyLinearImpulse( frameImpulse, body.GetPosition() );
-                    body.ApplyAngularImpulse( rotationSpeed * rotationDirection );
+                    body.ApplyLinearImpulse( linearImpulse, body.GetPosition() );
+                    body.ApplyAngularImpulse( angularImpulse );
+                    
+                    linearImpulse.Set( 0, 0 );
+                    angularImpulse = 0;
                     
                     var position2 = body.GetPosition();
                     var angle2 = body.GetAngle();

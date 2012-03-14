@@ -63,8 +63,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             
             var cubeBodyDefinition = engine.physics.resource.BodyDefinition({
                     type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,    // body type
-                    linearDamping: 0.9, // linear damping
-                    angluarDamping: 0.9  // angular damping
+                    linearDamping: 0.7, // linear damping
+                    angularDamping: 0.7  // angular damping
             });
             var cubeCollisionShape = engine.physics.resource.Box( 1, 1 );
             var cubeFixtureDefinition = engine.physics.resource.FixtureDefinition({
@@ -97,53 +97,65 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                     var keyCode = e.data.code;
                     var keyState = e.data.state;
                     switch( keyCode ) {
-                    case 'W':
-                        new engine.core.Event({
-                            type: keyState === 'down' ? 'MoveStart' : 'MoveStop',
-                                    data: {
-                                        direction: 'up'
-                                    }
-                        }).dispatch( this.owner );
+                    case 'W':   // move up
+                        if( 'down' === keyState ) {
+                            new engine.core.Event({
+                                type: 'LinearImpulse',
+                                        data: {
+                                            impulse: [0, 1]
+                                        }
+                            }).dispatch( this.owner );
+                        }
                         break;
-                    case 'A': 
-                        new engine.core.Event({
-                            type: keyState === 'down' ? 'MoveStart' : 'MoveStop',
-                                    data: {
-                                        direction: 'left'                                                             
-                                    }
-                        }).dispatch( this.owner );
+                    case 'A':   // move left
+                        if( 'down' === keyState ) {
+                            new engine.core.Event({
+                                type: 'LinearImpulse',
+                                        data: {
+                                            impulse: [-1, 0]
+                                        }
+                            }).dispatch( this.owner );
+                        }
                         break;
-                    case 'S': 
-                        new engine.core.Event({
-                            type: keyState === 'down' ? 'MoveStart' : 'MoveStop',
-                                    data: {
-                                        direction: 'down'                                                             
-                                    }
-                        }).dispatch( this.owner );
+                    case 'S':   // move down
+                        if( 'down' === keyState ) {
+                            new engine.core.Event({
+                                type: 'LinearImpulse',
+                                        data: {
+                                            impulse: [0, -1]
+                                        }
+                            }).dispatch( this.owner );
+                        }
                         break;
-                    case 'D': 
-                        new engine.core.Event({
-                            type: keyState === 'down' ? 'MoveStart' : 'MoveStop',
-                                    data: {
-                                        direction: 'right'                                                             
-                                    }
-                        }).dispatch( this.owner );
+                    case 'D':   // move right
+                        if( 'down' === keyState ) {
+                            new engine.core.Event({
+                                type: 'LinearImpulse',
+                                        data: {
+                                            impulse: [1, 0]
+                                        }
+                            }).dispatch( this.owner );
+                        }
                         break;
                     case 'E':
-                        new engine.core.Event({
-                            type: keyState === 'down' ? 'RotateStart' : 'RotateStop',
-                                    data: {
-                                        direction: 'cw' // clockwise
-                                    }
-                        }).dispatch( this.owner );
+                        if( 'down' === keyState ) {
+                            new engine.core.Event({
+                                type: 'AngularImpulse',
+                                        data: {
+                                            impulse: -1 // clockwise
+                                        }
+                            }).dispatch( this.owner );
+                        }
                         break;
                     case 'Q':
-                        new engine.core.Event({
-                            type: keyState === 'down' ? 'RotateStart' : 'RotateStop',
-                                    data: {
-                                        direction: 'ccw' // counter-clockwise
-                                    }
-                        }).dispatch( this.owner );
+                        if( 'down' === keyState ) {
+                            new engine.core.Event({
+                                type: 'AngularImpulse',
+                                        data: {
+                                            impulse: 1 // counter-clockwise
+                                        }
+                            }).dispatch( this.owner );
+                        }
                         break;
                     }
                 }
