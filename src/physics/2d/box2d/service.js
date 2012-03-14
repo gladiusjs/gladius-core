@@ -228,8 +228,11 @@ define( function ( require ) {
             
             var FixtureDefinition = function( options ) {
                 options = options || {};
+                if( !options.hasOwnProperty( 'shape') ) {
+                    throw 'missing shape';
+                }
                 var fd = new Box2D.b2FixtureDef();
-                fd.set_density( options.density || 1 );
+                fd.set_density( options.hasOwnProperty( 'density' ) ? options.density : 1 );
                 fd.set_shape( options.shape );
                 return fd;
             };
