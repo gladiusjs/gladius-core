@@ -1,17 +1,20 @@
 /**
-  Simple game based on the "No Comply" WebGL video.
+  Simple game based on the "No Comply" WebGL music video.
 
   TODO:
-  - add material for p2 fireball
+  - Fix collision issues when kraddy hits side of a platform
+  - Translate kraddy sprite up so it corresponds to the collision box
+  - Prevent double jump (user goes into an idle state after he moves after a jump)
+  - Finish work on 'air walk' branch and merge in.
+  - Start using health component
+  - Add in collision events
+  - Expand scene to give user more walking space
+  - Fix landing on boxes
+  
+  Other things TODO (low priority):
   - fix fireball logic
   - fix infinite "fall" (user collides with two platforms at the same time)
-  - Need a uniform time constant to compare against when user is jumping
-  - Create a wrapper that will handle making sure our scaling and the box2d sizes are the same.
-  
-  - Bug: user needs to hold down 'down' to make sure char crouches as soon as they hit the floor.
-  
-  
-  - prevent double jump (use goes into an idle state after he moves after a jump)
+  - Bug: user needs to hold down 'down' to make sure char crouches as soon as they hit the floor.  
 */
 document.addEventListener("DOMContentLoaded", function (e) {
 
