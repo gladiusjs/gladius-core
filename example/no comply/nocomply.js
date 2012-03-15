@@ -1744,81 +1744,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                  ]
           });
 
-          // Add some platforms
-          for(var i = 0; i < 3; i++){
-
-            // platform
-            var bodyDef = engine.physics.resource.BodyDefinition(
-                    engine.physics.resource.BodyDefinition.bodyType.STATIC, 1, 1, false);
-
-            var collisionShape = engine.physics.resource.Box( 4, 0.5 );
-            var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 5.0 );
-            
-            new space.Entity({
-                name: 'platform',
-                components: [
-                   new engine.core.component.Transform({
-                    position: math.Vector3( -25 + i*14, 50 + FLOOR_POS - (i*7) + 1, -50 ),
-                    scale: math.Vector3( 8, 1, 5)
-                    }),
-
-                   new engine.graphics.component.Model({
-                       mesh: resources.mesh,
-                       material: resources.material
-                   }),
-                   
-                   new PlatformComponent(),
-                   
-                   new collision2Service.component.BoundingBox({
-                     lowerLeft: math.Vector3( -4, -0.5,  0),
-                      upperRight: math.Vector3( 4,  0.5,  0 )
-                    }),
-                    
-                   new engine.physics.component.Body({
-                       bodyDefinition: bodyDef,
-                       fixtureDefinition: fixtureDef
-                   }),
-                   ]
-            });
-          }             
-                
-          // Add some platforms
-          for(var i = 0; i < 3; i++){
-
-            // platform
-            var bodyDef = engine.physics.resource.BodyDefinition(
-                    engine.physics.resource.BodyDefinition.bodyType.STATIC, 1, 1, false);
-
-            var collisionShape = engine.physics.resource.Box( 4, 0.5 );
-            var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 5.0 );
-            
-            new space.Entity({
-                name: 'platform',
-                components: [
-                   new engine.core.component.Transform({
-                    position: math.Vector3( 30 +  -25 + i*13, 10 + FLOOR_POS + (i*7) + 1, -50 ),
-                    scale: math.Vector3( 8, 1, 5)
-                    }),
-
-                   new engine.graphics.component.Model({
-                       mesh: resources.mesh,
-                       material: resources.material
-                   }),
-                   
-                   new PlatformComponent(),
-                   
-                   new collision2Service.component.BoundingBox({
-                     lowerLeft: math.Vector3( -4, -0.5,  0),
-                      upperRight: math.Vector3( 4,  0.5,  0 )
-                    }),
-                    
-                   new engine.physics.component.Body({
-                       bodyDefinition: bodyDef,
-                       fixtureDefinition: fixtureDef
-                   }),
-                   ]
-            });
-          }
           
           /*
             new space.Entity({
@@ -1990,6 +1915,124 @@ document.addEventListener("DOMContentLoaded", function (e) {
           console.log("error loading collada resource: " + error);
         }
       },
+      
+      {
+        type: engine.core.resource.Collada,
+        url: "platform/cube.dae",
+        load: colladaLoader,
+        onsuccess: function (instance) {
+        
+          var platH = 4,
+              platW = 8;
+
+
+            // platform
+            var bodyDef = engine.physics.resource.BodyDefinition(
+                    engine.physics.resource.BodyDefinition.bodyType.STATIC, 1, 1, false);
+
+            var collisionShape = engine.physics.resource.Box( platW/2, platH/2 );
+            var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 0 );
+
+
+          // Add some platforms
+          for(var i = 0; i < 3; i++){
+            
+            new space.Entity({
+              name: 'platform',
+              components: [
+                new engine.core.component.Transform({
+                  position: math.Vector3( -25 + i*15, 50 + FLOOR_POS - (i*7), -50 ),
+                  scale: math.Vector3( platW, platH, 5)
+                }),
+                new engine.graphics.component.Model(
+                  instance.meshes[0]
+                ),                   
+                new PlatformComponent(),
+                new collision2Service.component.BoundingBox({
+                  lowerLeft: math.Vector3( -platW/2, -platH/2,  0),
+                  upperRight: math.Vector3( platW/2,  platH/2,  0 )
+                }),
+                new engine.physics.component.Body({
+                  bodyDefinition: bodyDef,
+                  fixtureDefinition: fixtureDef
+                }),
+              ]
+            });
+          }
+          
+
+          // Add some platforms
+          for(var i = 0; i < 3; i++){
+            
+            new space.Entity({
+              name: 'platform',
+              components: [
+                new engine.core.component.Transform({
+                  position: math.Vector3( 30 +  -25 + i*15, 10 + FLOOR_POS + (i*7), -50 ),
+                  scale: math.Vector3( platW, platH, 5)
+                }),
+                new engine.graphics.component.Model(
+                  instance.meshes[0]
+                ),                   
+                new PlatformComponent(),
+                new collision2Service.component.BoundingBox({
+                  lowerLeft: math.Vector3( -platW/2, -platH/2,  0),
+                  upperRight: math.Vector3( platW/2,  platH/2,  0 )
+                }),
+                new engine.physics.component.Body({
+                  bodyDefinition: bodyDef,
+                  fixtureDefinition: fixtureDef
+                }),
+              ]
+            });
+          }
+          
+        }
+      },
+            /*    
+          // Add some platforms
+          for(var i = 0; i < 3; i++){
+
+            // platform
+            var bodyDef = engine.physics.resource.BodyDefinition(
+                    engine.physics.resource.BodyDefinition.bodyType.STATIC, 1, 1, false);
+
+            var collisionShape = engine.physics.resource.Box( 4, 0.5 );
+            var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 5.0 );
+            
+            new space.Entity({
+                name: 'platform',
+                components: [
+                   new engine.core.component.Transform({
+                    position: math.Vector3( 30 +  -25 + i*13, 10 + FLOOR_POS + (i*7) + 1, -50 ),
+                    scale: math.Vector3( 8, 1, 5)
+                    }),
+
+                   new engine.graphics.component.Model({
+                       mesh: resources.mesh,
+                       material: resources.material
+                   }),
+                   
+                   new PlatformComponent(),
+                   
+                   new collision2Service.component.BoundingBox({
+                     lowerLeft: math.Vector3( -4, -0.5,  0),
+                      upperRight: math.Vector3( 4,  0.5,  0 )
+                    }),
+                    
+                   new engine.physics.component.Body({
+                       bodyDefinition: bodyDef,
+                       fixtureDefinition: fixtureDef
+                   }),
+                   ]
+            });
+          }*/
+
+        
+      
+    
+      
+      
       {
         type: engine.core.resource.Collada,
         url: "model/cube.dae",
@@ -2010,8 +2053,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   new engine.core.component.Transform({
                     position: math.Vector3( -20 + (i*5), 40 + FLOOR_POS + (instance.positions[0][1]), -50 ),
                     scale: math.Vector3( 3, 3, 3)
-                  }),  
-                   
+                  }),
                   new engine.graphics.component.Model(
                     instance.meshes[0]
                   ),
