@@ -1,18 +1,23 @@
 /**
   Simple game based on the "No Comply" WebGL music video.
 
-  TODO:
-  - Fix collision issues when kraddy hits side of a platform
+  TODO (high priority)
+  - Fix moving sprite in Firefox
   - Translate kraddy sprite up so it corresponds to the collision box
-  - Prevent double jump (user goes into an idle state after he moves after a jump)
   - Finish work on 'air walk' branch and merge in.
-  - Start using health component
   - Add in collision events
-  - Expand scene to give user more walking space
   - Fix landing on boxes
+    
+  (medium priority)
+  - Fix collision issues when kraddy hits side of a platform
+  - Prevent double jump (user goes into an idle state after he moves after a jump)
+  - Add thug sprites back in
+  - Start using health component
+  - Expand scene to give user more walking space
   
   Other things TODO (low priority):
   - fix fireball logic
+  - Add sounds
   - fix infinite "fall" (user collides with two platforms at the same time)
   - Bug: user needs to hold down 'down' to make sure char crouches as soon as they hit the floor.  
 */
