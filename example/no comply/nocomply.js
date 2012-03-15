@@ -99,237 +99,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
       var space = new engine.core.Space();
       var math = engine.math;
-
-
-      ////////////
-      // Physics
-      ////////////
-      var Physics = engine.base.Service({
-            type: 'Physics',
-            schedule: {
-                update: {
-                    phase: engine.scheduler.phases.UPDATE
-                }
-            },
-            depends: [ 'Motion' ],
-            time: engine.scheduler.simulationTime
-        },
-        function( options ) {
-
-            var that = this;
-            var service = this;
-            var gravity = options.gravity || new Box2D.b2Vec2( 0, 0 );
-            var world = new Box2D.b2World( gravity );
-            var directions = {
-                    up: new Box2D.b2Vec2( 0, 1 ),
-                    down: new Box2D.b2Vec2( 0, -1 ),
-                    left: new Box2D.b2Vec2( -1, 0 ),
-                    right: new Box2D.b2Vec2( 1, 0 )
-            };
-            var rotations = {
-                    cw: -1,
-                    ccw: 1
-            };
-            
-            this.update = function() {
-                
-                var component;
-                
-                var updateEvent = new engine.core.Event({
-                    type: 'Update',
-                    queue: false,
-                    data: {
-                        delta: that.time.delta
-                    }
-                });
-                for( var componentType in that.components ) {
-                    for( var entityId in that.components[componentType] ) {
-                        component = that.components[componentType][entityId];
-                        while( component.handleQueuedEvent() ) {}
-                        updateEvent.dispatch( component );
-                    }
-                }
-                
-                // Box2D steps in seconds
-                var deltaInSeconds = that.time.delta / 1000; 
-                world.Step( deltaInSeconds, 2, 2 );
-            };
-
-            var Body = engine.base.Component({
-                type: 'Body',
-                depends: ['Transform']
-            },
-            function( options ) {
-                options = options || {};  
-                var that = this;
-                var i;
-                var horizMoveSpeed = 35;
-                var vertMoveSpeed = 2500;
-                
-                var rotationSpeed = 1.0;
-                
-                // Create the body as a box2d object
-                var body = world.CreateBody( options.bodyDefinition );
-                body.CreateFixture( options.fixtureDefinition );
-                body.SetLinearVelocity( new Box2D.b2Vec2( 0, 0 ) );
-                
-                var moveDirection = new Box2D.b2Vec2( 0, 0 );
-                var moveEventStates = {
-                        up: false,
-                        down: false,
-                        left: false,
-                        right: false
-                };
-                
-                var rotationDirection = 0;
-                var rotationEventStates = {
-                        cw: false,
-                        ccw: false
-                };
-                
-                this.setLinearVel = function(v){
-                  body.SetLinearVelocity( new Box2D.b2Vec2( v[0], v[1] ) );
-                };
-                                
-                this.onMoveStart = function( e ) {
-                    var direction = directions[e.data.direction];
-                    
-                    if( moveEventStates[e.data.direction] ) {
-                        return;
-                    }
-                    
-                    moveDirection.Set( moveDirection.get_x() + direction.get_x(), 
-                            moveDirection.get_y() + direction.get_y() );
-                    moveEventStates[e.data.direction] = true;
-                };
-                
-                this.onMoveStop = function( e ) {
-                
-                  if(moveEventStates[e.data.direction]){
-                
-                    var direction = directions[e.data.direction];
-                    moveDirection.Set( moveDirection.get_x() - direction.get_x(), 
-                            moveDirection.get_y() - direction.get_y() );
-                    moveEventStates[e.data.direction] = false;
-                    }
-                };
-                
-                this.onRotateStart = function( e ) {
-                    var rotation = rotations[e.data.direction];
-                    
-                    if( rotationEventStates[e.data.direction] ) {
-                        return;
-                    }
-                    
-                    rotationDirection += rotation;
-                    rotationEventStates[e.data.direction] = true;
-                };
-                
-                this.onRotateStop = function( e ) {
-                    var rotation = rotations[e.data.direction];
-                    rotationDirection -= rotation;
-                    rotationEventStates[e.data.direction] = false;
-                };
-                               
-                var frameImpulse = new Box2D.b2Vec2( 0, 0 );
-                this.onUpdate = function( e ) {
-                    frameImpulse.Set( moveDirection.get_x(), moveDirection.get_y() );
-                    frameImpulse.Normalize();
-                    frameImpulse.Set( horizMoveSpeed * frameImpulse.get_x(), vertMoveSpeed * frameImpulse.get_y() );
-                    body.ApplyLinearImpulse( frameImpulse, body.GetPosition() );
-                    body.ApplyAngularImpulse( rotationSpeed * rotationDirection );
-                    
-                    var position2 = body.GetPosition();
-                    var angle2 = body.GetAngle();
-                    
-                    // TD: This will cause the transform to emit an event that we handle below. Blech!
-                    var transform = this.owner.find( 'Transform' );  
-                    transform.position = math.Vector3( position2.get_x(), position2.get_y(), transform.position[2] );
-                    transform.rotation = math.Vector3( transform.rotation[0], transform.rotation[1], angle2 );
-                };
-                               
-                this.onComponentOwnerChanged = function( e ){
-                    if( e.data.previous === null && this.owner !== null ) {
-                        service.registerComponent( this.owner.id, this );
-                        body.SetActive( true );
-                        body.SetAwake( true );
-                        var transform = this.owner.find( 'Transform' );
-                        body.SetTransform( new Box2D.b2Vec2( transform.position[0], transform.position[1] ), transform.rotation[2] );
-                    }
-                    
-                    if( this.owner === null && e.data.previous !== null ) {
-                        service.unregisterComponent( e.data.previous.id, this );
-                        body.SetActive( false );
-                        body.SetAwake( false );
-                    }
-                };
-                
-                this.onEntityManagerChanged = function( e ) {
-                    if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
-                        service.registerComponent( this.owner.id, this );
-                        body.SetActive( true );
-                        body.SetAwake( true );
-                        body.SetTransform( new Box2D.b2Vec2( transform.position[0], transform.position[1] ), transform.rotation[2] );
-                    }
-                    
-                    if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
-                        service.unregisterComponent( this.owner.id, this );
-                        body.SetActive( false );
-                        body.SetAwake( false );
-                    }
-                };
-                
-            });
-
-            this.component = {
-                Body: Body
-            };
-            
-            var Box = function( hx, hy ) {
-                var shape = new Box2D.b2PolygonShape();
-                shape.SetAsBox( hx, hy );
-                return shape;
-            };
-            
-            var BodyDefinition = function( type, linearDamping, angularDamping, fixedRot ) {
-                var bd = new Box2D.b2BodyDef();
-                bd.set_type( type );
-                
-                // Sprites are falling down too easily, so for now, prevent rotations.
-                bd.set_fixedRotation(fixedRot || false);
-                bd.set_linearDamping( linearDamping );
-                bd.set_angularDamping( angularDamping );
-                bd.set_position( new Box2D.b2Vec2( 0, 0 ) );
-                bd.active = false;
-                bd.awake = false;
-                return bd;
-            };
-            
-            BodyDefinition.bodyType = {
-                STATIC: Box2D.b2_staticBody,
-                KINEMATIC: Box2D.b2_kinematicBody,
-                DYNAMIC: Box2D.b2_dynamicBody
-            };
-            
-            var FixtureDefinition = function( shape, density ) {
-                var fd = new Box2D.b2FixtureDef();
-                fd.set_density( density );
-                fd.set_shape( shape );
-
-                return fd;
-            };
-            
-            this.resource = {
-                Box: Box,
-                BodyDefinition: BodyDefinition,
-                FixtureDefinition: FixtureDefinition
-            };
-        });
         
         // FIX ME
-        engine.physics = new Physics({ gravity: new Box2D.b2Vec2( 0, -198 ) });
-        
-
         /////////
         // Collision Service
         /////////
@@ -817,13 +588,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
               this.fall = function(){     pl.setState(pl.getFallState());};
 
               this.activate = function(){
-                new engine.core.Event({type: 'MoveStart', data: {direction: 'right'}}).dispatch( [pl.owner] );
+
                 timer = 0;
               };
 
               this.update = function (event) {
                 timer += service.time.delta / 1000;
-                
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [25, 0]}}).dispatch( pl.owner );
                 if(timer >= WALK_ANI_SPEED){
                   timer = 0;
                   pl.owner.find('Model').updateAction('walk');
@@ -856,12 +627,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
               this.activate = function(){
                 timer = 0;
-                new engine.core.Event({type: 'MoveStart', data: {direction: 'left'}}).dispatch( [pl.owner] );
               };
 
               this.update = function (event) {
                 timer += service.time.delta / 1000;
-
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [-25, 0]}}).dispatch( pl.owner );
                 if(timer >= WALK_ANI_SPEED){
                   timer = 0;
                   pl.owner.find('Model').updateAction('walk');
@@ -947,7 +717,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
               this.activate = function(){
                 timeElapsed = 0;
                 pl.owner.find('Model').updateAction('jump');
-                new engine.core.Event({type: 'MoveStart', data: {direction: 'up'}}).dispatch( [pl.owner] );
+                console.log('f');
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, 2000]}}).dispatch( pl.owner );
               }
               this.toString = function(){
                 return 'jump';
@@ -1025,13 +796,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
               
               this.activate = function(){              
                 timeElapsed = 0;
-                pl.owner.find('Model').updateAction('jump');
-                new engine.core.Event({type: 'MoveStart', data: {direction: 'up'}}).dispatch( [pl.owner] );
-                new engine.core.Event({type: 'MoveStart', data: {direction: 'right'}}).dispatch( [pl.owner] );
+                pl.owner.find('Model').updateAction('jump');                
+                
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, 2000]}}).dispatch( pl.owner );
               };
               
               this.update = function () {
                 var delta = service.time.delta / 1000;
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [25, 0]}}).dispatch( pl.owner );
                 timeElapsed += delta;
                 var yPos = pl.getTransform().position[1];
                 
@@ -1059,11 +831,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
               this.activate = function(){              
                 timeElapsed = 0;
                 pl.owner.find('Model').updateAction('jump');
-                new engine.core.Event({type: 'MoveStart', data: {direction: 'up'}}).dispatch( [pl.owner] );
-                new engine.core.Event({type: 'MoveStart', data: {direction: 'left'}}).dispatch( [pl.owner] );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, 2000]}}).dispatch( pl.owner );
               };
               
               this.update = function () {
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [-25, 0]}}).dispatch( pl.owner );
                 var delta = service.time.delta / 1000;
                 timeElapsed += delta;
                 var yPos = pl.getTransform().position[1];
@@ -1617,7 +1389,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           ////////////  
           // Thug test
           ////////////
-          var thugBodyDef = engine.physics.resource.BodyDefinition(
+/*          var thugBodyDef = engine.physics.resource.BodyDefinition(
                   engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,  6, 1, false);
 
           // Make an obstacle that will collide with the player
@@ -1660,18 +1432,24 @@ document.addEventListener("DOMContentLoaded", function (e) {
               });
           }          
           //thug1.find('Enemy').setFacing(1);
-          //thug1.find('Enemy').walk();
-
+          //thug1.find('Enemy').walk();*/
                     
           ////////////                      
           // Player1 Entity
           ////////////
-          var cubeBodyDefinition = engine.physics.resource.BodyDefinition(
-                  engine.physics.resource.BodyDefinition.bodyType.DYNAMIC, 2, 1, true);
+          var cubeBodyDefinition = engine.physics.resource.BodyDefinition({
+            type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
+            linearDamping: 2,
+            angularDamping: 1,
+            //true
+          });
 
           // Make an obstacle that will collide with the player
           var cubeCollisionShape = engine.physics.resource.Box( 0.75, 2 );
-          var cubeFixtureDefinition = engine.physics.resource.FixtureDefinition( cubeCollisionShape, 5.0 );
+          var cubeFixtureDefinition = engine.physics.resource.FixtureDefinition({
+            shape:   cubeCollisionShape,
+            density: 5
+          });
 
           var player1 = new space.Entity({
             name: 'player1',
@@ -1718,12 +1496,21 @@ document.addEventListener("DOMContentLoaded", function (e) {
           });
 
 
+
+
           // floor
-          var floorBodyDef = engine.physics.resource.BodyDefinition(
-                  engine.physics.resource.BodyDefinition.bodyType.STATIC, 1, 1, true);
+          var floorBodyDef = engine.physics.resource.BodyDefinition({
+            type: engine.physics.resource.BodyDefinition.bodyType.STATIC,
+            linearDamping: 1,
+            angularDamping: 1
+            //true
+          });
 
           var floorCollisionShape = engine.physics.resource.Box( 150, .1 );
-          var floorFixtureDef = engine.physics.resource.FixtureDefinition( floorCollisionShape, 5.0 );
+          var floorFixtureDef = engine.physics.resource.FixtureDefinition({
+            shape: floorCollisionShape,
+            density: 5
+          });
 
           var floor = new space.Entity({
               name: 'platform',
@@ -1935,11 +1722,18 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
 
             // platform
-            var bodyDef = engine.physics.resource.BodyDefinition(
-                    engine.physics.resource.BodyDefinition.bodyType.STATIC, 1, 1, false);
+            var bodyDef = engine.physics.resource.BodyDefinition({
+              type: engine.physics.resource.BodyDefinition.bodyType.STATIC,
+              linearDamping: 1,
+              angularDamping: 1,
+              //false
+            });
 
             var collisionShape = engine.physics.resource.Box( platW/2, platH/2 );
-            var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 0 );
+            var fixtureDef = engine.physics.resource.FixtureDefinition({
+              shape: collisionShape,
+              density: 0
+            });
 
 
           // Add some platforms
@@ -2006,11 +1800,19 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           // Add crates
           for(var i = 0; i < 10; i++){
-            var bodyDef = engine.physics.resource.BodyDefinition(
-                    engine.physics.resource.BodyDefinition.bodyType.DYNAMIC, 1, 1, false);
+          
+            var bodyDef = engine.physics.resource.BodyDefinition({
+              type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
+              linearDamping: 1,
+              angularDamping: 1,
+              //false
+            });
 
             var collisionShape = engine.physics.resource.Box( 1.5, 1.5 );
-            var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 0.5 );
+            var fixtureDef = engine.physics.resource.FixtureDefinition({
+              shape: collisionShape,
+              density: 0.5
+            });
             
             new space.Entity({
                 name: 'crate' + i,
@@ -2071,6 +1873,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
       input: {
         src: 'input/service',
         options: {}
+      },
+      physics: {
+          src: 'physics/2d/box2d/service',
+          options: {
+              gravity: [0, -98]
+          }
       },
       logic: 'logic/game/service'
     }
