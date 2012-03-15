@@ -1918,7 +1918,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
       
       {
         type: engine.core.resource.Collada,
-        url: "platform/cube.dae",
+        url: 'platform/platform.dae',
         load: colladaLoader,
         onsuccess: function (instance) {
         
@@ -1989,53 +1989,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
           
         }
       },
-            /*    
-          // Add some platforms
-          for(var i = 0; i < 3; i++){
 
-            // platform
-            var bodyDef = engine.physics.resource.BodyDefinition(
-                    engine.physics.resource.BodyDefinition.bodyType.STATIC, 1, 1, false);
-
-            var collisionShape = engine.physics.resource.Box( 4, 0.5 );
-            var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 5.0 );
-            
-            new space.Entity({
-                name: 'platform',
-                components: [
-                   new engine.core.component.Transform({
-                    position: math.Vector3( 30 +  -25 + i*13, 10 + FLOOR_POS + (i*7) + 1, -50 ),
-                    scale: math.Vector3( 8, 1, 5)
-                    }),
-
-                   new engine.graphics.component.Model({
-                       mesh: resources.mesh,
-                       material: resources.material
-                   }),
-                   
-                   new PlatformComponent(),
-                   
-                   new collision2Service.component.BoundingBox({
-                     lowerLeft: math.Vector3( -4, -0.5,  0),
-                      upperRight: math.Vector3( 4,  0.5,  0 )
-                    }),
-                    
-                   new engine.physics.component.Body({
-                       bodyDefinition: bodyDef,
-                       fixtureDefinition: fixtureDef
-                   }),
-                   ]
-            });
-          }*/
-
-        
-      
-    
-      
-      
       {
         type: engine.core.resource.Collada,
-        url: "model/cube.dae",
+        url: 'crate/crate.dae',
         load: colladaLoader,
         onsuccess: function (instance) {
 
