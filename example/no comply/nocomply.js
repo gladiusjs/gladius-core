@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           document.getElementById(div).innerHTML = '';
       };
 
-      var space;// = new engine.core.Space();
+      var space = new engine.core.Space();
       var math = engine.math;
 
 
@@ -479,18 +479,19 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
         // XXX move this out
         CubicVR.setGlobalAmbient([1,1,1]);
+        
+        // CubicVR wants the directory where the dae file resides.
+        var dir = url.match(/.*\//i);/**/
 
         try {
           var context = engine.graphics.target.context;
-          var scene = context.loadCollada(url, "city");
+          var scene = context.loadCollada(url, dir);
           onsuccess(scene);
         }
         catch (e) {
           onfailure(e);
         }
       }
-
-      
 
       // Thanks to the NoComply demo's CubicVR-bitmap_cube_array.js' for the
       // BitwallModel code
@@ -1779,11 +1780,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                    }),
                    ]
             });
-          }
-          
-       
-          
-             
+          }             
                 
           // Add some platforms
           for(var i = 0; i < 3; i++){
@@ -1822,41 +1819,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                    ]
             });
           }
-          
-
-   
-          // Add crates
-          for(var i = 0; i < 10; i++){
-            var bodyDef = engine.physics.resource.BodyDefinition(
-                    engine.physics.resource.BodyDefinition.bodyType.DYNAMIC, 1, 1, false);
-
-            var collisionShape = engine.physics.resource.Box( 1.5, 1.5 );
-            var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 0.5 );
-            
-            new space.Entity({
-                name: 'crate' + i,
-                components: [
-                   new engine.core.component.Transform({
-                    position: math.Vector3( -20 + (i*5), 50 + FLOOR_POS, -50 ),
-                    scale: math.Vector3( 3, 3, 3)
-                    }),
-
-                   new engine.graphics.component.Model({
-                       mesh: resources.mesh,
-                       material: resources.material
-                   }),
-                   
-                   new CrateComponent(),
-                   
-                   new engine.physics.component.Body({
-                       bodyDefinition: bodyDef,
-                       fixtureDefinition: fixtureDef
-                   }),
-                   ]
-            });
-          }
-
-          
           
           /*
             new space.Entity({
@@ -2006,12 +1968,67 @@ document.addEventListener("DOMContentLoaded", function (e) {
         url: "city/intro_city-anim.dae",
         load: colladaLoader,
         onsuccess: function (instance) {
-          space = instance.space;
+
+          for(var i = 0; i < instance.meshes.length; i++){
+
+            new space.Entity({
+              name: instance.names[i],
+              components: [
+                new engine.core.component.Transform({
+                  position: instance.positions[i],
+                  rotation: instance.rotations[i],
+                  scale:    instance.scales[i]
+                }),
+                
+                new engine.graphics.component.Model(
+                   instance.meshes[i]),
+              ]
+            });
+          }
         },
         onfailure: function (error) {
           console.log("error loading collada resource: " + error);
         }
-      }, {
+      },
+      {
+        type: engine.core.resource.Collada,
+        url: "model/cube.dae",
+        load: colladaLoader,
+        onsuccess: function (instance) {
+
+          // Add crates
+          for(var i = 0; i < 10; i++){
+            var bodyDef = engine.physics.resource.BodyDefinition(
+                    engine.physics.resource.BodyDefinition.bodyType.DYNAMIC, 1, 1, false);
+
+            var collisionShape = engine.physics.resource.Box( 1.5, 1.5 );
+            var fixtureDef = engine.physics.resource.FixtureDefinition( collisionShape, 0.5 );
+            
+            new space.Entity({
+                name: 'crate' + i,
+                components: [
+                  new engine.core.component.Transform({
+                    position: math.Vector3( -20 + (i*5), 40 + FLOOR_POS + (instance.positions[0][1]), -50 ),
+                    scale: math.Vector3( 3, 3, 3)
+                  }),  
+                   
+                  new engine.graphics.component.Model(
+                    instance.meshes[0]
+                  ),
+                  new CrateComponent(),
+                  new engine.physics.component.Body({
+                    bodyDefinition: bodyDef,
+                    fixtureDefinition: fixtureDef
+                  }),
+                ]
+            });
+          }
+        },
+        onfailure: function (error) {
+          console.log(error);
+        }
+      },
+      {
         type: engine.graphics.resource.Mesh,
         url: 'procedural-mesh.js',
         load: engine.core.resource.proceduralLoad,
@@ -2019,7 +2036,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
           resources['mesh'] = mesh;
         },
         onfailure: function (error) {}
-      }, {
+      },
+      
+      {
         type: engine.graphics.resource.Material,
         url: 'procedural-material.js',
         load: engine.core.resource.proceduralLoad,
