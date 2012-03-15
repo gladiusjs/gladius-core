@@ -39,8 +39,7 @@
                 '  "common": "./common",' +
                 '  "external": "../external",' +
                 '  "math": "../external/gladius.math/src",' +
-                '  "CubicVR.js": "../external/CubicVR.js",' +
-                '  "Box2D.js": "../external/box2d.js"' +
+                '  "CubicVR.js": "../external/CubicVR.js"' +
                 '}' +
                 '} );' +
                 'requirejs(["gladius-src"])</' + 'script>');

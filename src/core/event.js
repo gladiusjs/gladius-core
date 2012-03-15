@@ -42,6 +42,7 @@ define( function ( require ) {
         });
         
         // Send this event to each entity in targets
+        // TD: needs semantics to exclude originator {component,entity} from delivery
         this.dispatch = function( targets ) {
             if( Array.isArray( targets ) ) {
                 for( var i = 0, l = targets.length; i < l; ++ i ) {

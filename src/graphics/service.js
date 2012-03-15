@@ -49,7 +49,7 @@ define( function ( require ) {
 
             var _renderedFrames = 0,
             _canRender = false,
-            _this = this;
+            _this = this;          
 
             this.render = function( options ) {
 
