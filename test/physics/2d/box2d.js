@@ -34,7 +34,7 @@
     });
     
     test( 'body definition, default parameters', function() {
-        expect( 6 );
+        expect( 7 );
         
         var bodyDefinition = engine.physics.resource.BodyDefinition();
         equal( bodyDefinition.get_type(), 
@@ -44,6 +44,8 @@
                 'correct default linear damping' );
         equal( bodyDefinition.get_angularDamping(), 0, 
                 'correct default angular damping' );
+        equal( bodyDefinition.get_fixedRotation(), 0,
+                'correct default fixed rotation' );
         
         var position = bodyDefinition.get_position();
         deepEqual( [position.get_x(), position.get_y()], [0, 0], 
@@ -56,12 +58,13 @@
     });
     
     test( 'body definition, all parameters passed', function() {
-        expect( 3 );
+        expect( 4 );
         
         var bodyDefinition = engine.physics.resource.BodyDefinition({
             type: engine.physics.resource.BodyDefinition.bodyType.STATIC,
             linearDamping: 10,
-            angularDamping: 20
+            angularDamping: 20,
+            fixedRotation: true
         });
         equal( bodyDefinition.get_type(), 
                 engine.physics.resource.BodyDefinition.bodyType.STATIC,
@@ -69,7 +72,9 @@
         equal( bodyDefinition.get_linearDamping(), 10, 
                 'correct linear damping' );
         equal( bodyDefinition.get_angularDamping(), 20, 
-                'correct angular damping' );       
+                'correct angular damping' );
+        equal( bodyDefinition.get_fixedRotation(), 1, 
+                'correct fixed rotation' );
     });
     
     test( 'construct a body', function() {
@@ -138,7 +143,7 @@
     });
     
     test( 'body definition, defaults for unspecified parameters', function() {
-        expect( 3 );
+        expect( 4 );
                      
         var bodyDefinition = engine.physics.resource.BodyDefinition({
             type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC
@@ -147,6 +152,7 @@
                 'default type is correct');
         equal( bodyDefinition.get_linearDamping(), 0, 'defualt linear damping is correct' );
         equal( bodyDefinition.get_angularDamping(), 0, 'default angular damping is correct' );
+        equal( bodyDefinition.get_fixedRotation(), 0, 'default fixed rotation is correct' );
     });
     
     /*
