@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
       const RIGHT_BORDER = -30;
       const MOVE_SPEED = 15;
       
-      const FLOOR_POS = 7;
+      const FLOOR_POS = 0;
       const GRAVITY = 0.98;
       const JUMP_HEIGHT = 45;
       
@@ -594,7 +594,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
               this.update = function (event) {
                 timer += service.time.delta / 1000;
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [25, 0]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [35, 0]}}).dispatch( pl.owner );
                 if(timer >= WALK_ANI_SPEED){
                   timer = 0;
                   pl.owner.find('Model').updateAction('walk');
@@ -631,7 +631,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
               this.update = function (event) {
                 timer += service.time.delta / 1000;
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [-25, 0]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [-35, 0]}}).dispatch( pl.owner );
                 if(timer >= WALK_ANI_SPEED){
                   timer = 0;
                   pl.owner.find('Model').updateAction('walk');
@@ -718,7 +718,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 timeElapsed = 0;
                 pl.owner.find('Model').updateAction('jump');
                 console.log('f');
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, 2000]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, 3000]}}).dispatch( pl.owner );
               }
               this.toString = function(){
                 return 'jump';
@@ -798,12 +798,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 timeElapsed = 0;
                 pl.owner.find('Model').updateAction('jump');                
                 
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, 2000]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, 3000]}}).dispatch( pl.owner );
               };
               
               this.update = function () {
                 var delta = service.time.delta / 1000;
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [25, 0]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [35, 0]}}).dispatch( pl.owner );
                 timeElapsed += delta;
                 var yPos = pl.getTransform().position[1];
                 
@@ -831,11 +831,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
               this.activate = function(){              
                 timeElapsed = 0;
                 pl.owner.find('Model').updateAction('jump');
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, 2000]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, 3000]}}).dispatch( pl.owner );
               };
               
               this.update = function () {
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [-25, 0]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [-35, 0]}}).dispatch( pl.owner );
                 var delta = service.time.delta / 1000;
                 timeElapsed += delta;
                 var yPos = pl.getTransform().position[1];
@@ -1458,7 +1458,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             // Model
             new engine.core.component.Transform({
               /// XXX use initial pos
-              position: math.Vector3(-28, FLOOR_POS + 35, -50),
+              position: math.Vector3(-28, FLOOR_POS + 35, -25),
               scale: math.Vector3(7, 7, 7)
             }),
             
@@ -1509,7 +1509,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           var floorCollisionShape = engine.physics.resource.Box( 150, .1 );
           var floorFixtureDef = engine.physics.resource.FixtureDefinition({
             shape: floorCollisionShape,
-            density: 5
+            density: 0
           });
 
           var floor = new space.Entity({
@@ -1622,7 +1622,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               newPos[0] = p1Pos[0];
               newPos[1] = p1Pos[1];
               
-              camera.find('Transform').position = [newPos[0],  4 +newPos[1], 2];
+              camera.find('Transform').position = [newPos[0],  4 +newPos[1] + 10, 25];
               camera.find('Camera').target = [newPos[0], 4 + p1Pos[1], -1];
 
               var playerState = player1.find('State');
@@ -1717,11 +1717,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
         load: colladaLoader,
         onsuccess: function (instance) {
         
-          var platH = 4,
-              platW = 8;
+          // Change these to change the width and height of the platforms.
+          var platW = 8,
+              platH = 4;
+          
+          // Use these to change the dimensions of the parts of the floor
+          var rightFloorW = 50,
+              rightFloorH = 15;
+              
+          // Used for the right and left wall to prevent the user from
+          // going off the scene.
+          var wallW = 2,
+              wallH = 150;
 
-
-            // platform
+            // platform Box2d !!!stuff
             var bodyDef = engine.physics.resource.BodyDefinition({
               type: engine.physics.resource.BodyDefinition.bodyType.STATIC,
               linearDamping:  1,
@@ -1729,22 +1738,131 @@ document.addEventListener("DOMContentLoaded", function (e) {
               fixedRotation:  true
             });
 
-            var collisionShape = engine.physics.resource.Box( platW/2, platH/2 );
-            var fixtureDef = engine.physics.resource.FixtureDefinition({
-              shape: collisionShape,
+
+            var platformShape = engine.physics.resource.Box( platW/2, platH/2 );
+            var platDef = engine.physics.resource.FixtureDefinition({
+              shape:   platformShape,
               density: 0
             });
 
-
-          // Add some platforms
-          for(var i = 0; i < 3; i++){
+            var floorShape = engine.physics.resource.Box( rightFloorW/2, rightFloorH/2 );
+            var floorDef = engine.physics.resource.FixtureDefinition({
+              shape:   floorShape,
+              density: 0
+            });
             
+            var wallShape = engine.physics.resource.Box( wallW/2, wallH/2 );
+            var wallDef = engine.physics.resource.FixtureDefinition({
+              shape:   wallShape,
+              density: 0
+            });
+            
+
+          // Left Floor, where the user starts
+          new space.Entity({
+              name: 'platform',
+              components: [
+                new engine.core.component.Transform({
+                  position: math.Vector3( -36.2, FLOOR_POS -1.5, -25 ),
+                  scale: math.Vector3( rightFloorW, rightFloorH, 5)
+                }),
+                new engine.graphics.component.Model(
+                  instance.meshes[0]
+                ),                   
+                new PlatformComponent(),
+                new collision2Service.component.BoundingBox({
+                  lowerLeft: math.Vector3( -rightFloorW/2, -rightFloorH/2,  0),
+                  upperRight: math.Vector3( rightFloorW/2,  rightFloorH/2,  0 )
+                }),
+                new engine.physics.component.Body({
+                  bodyDefinition: bodyDef,
+                  fixtureDefinition: floorDef
+                }),
+              ]
+            });
+          
+          
+            // Right Floor, where the boos starts
             new space.Entity({
               name: 'platform',
               components: [
                 new engine.core.component.Transform({
-                  position: math.Vector3( -25 + i*15, 50 + FLOOR_POS - (i*7), -50 ),
-                  scale: math.Vector3( platW, platH, 5)
+                  position: math.Vector3( 33.2, FLOOR_POS -1.5, -25 ),
+                  scale: math.Vector3( rightFloorW, rightFloorH, 5)
+                }),
+                new engine.graphics.component.Model(
+                  instance.meshes[0]
+                ),                   
+                new PlatformComponent(),
+                new collision2Service.component.BoundingBox({
+                  lowerLeft: math.Vector3( -rightFloorW/2, -rightFloorH/2,  0),
+                  upperRight: math.Vector3( rightFloorW/2,  rightFloorH/2,  0 )
+                }),
+                new engine.physics.component.Body({
+                  bodyDefinition: bodyDef,
+                  fixtureDefinition: floorDef
+                }),
+              ]
+            });
+            
+            
+            
+            // Left wall
+            new space.Entity({
+              name: 'wall',
+              components: [
+                new engine.core.component.Transform({
+                  position: math.Vector3( -58.5, FLOOR_POS -15, -25 ),
+                  scale: math.Vector3( wallW, wallH, 5)
+                }),
+                // !! remove before release
+                new engine.graphics.component.Model(
+                  instance.meshes[0]
+                ),
+                new collision2Service.component.BoundingBox({
+                  lowerLeft: math.Vector3( -wallW/2, -wallH/2,  0),
+                  upperRight: math.Vector3( wallW/2,  wallH/2,  0 )
+                }),
+                new engine.physics.component.Body({
+                  bodyDefinition: bodyDef,
+                  fixtureDefinition: wallDef
+                }),
+              ]
+            });
+
+
+            // Right wall
+            new space.Entity({
+              name: 'wall',
+              components: [
+                new engine.core.component.Transform({
+                  position: math.Vector3( 58.5, FLOOR_POS -15, -25 ),
+                  scale: math.Vector3( wallW, wallH, 5)
+                }),
+                // !! remove before release
+                new engine.graphics.component.Model(
+                  instance.meshes[0]
+                ),
+                new collision2Service.component.BoundingBox({
+                  lowerLeft: math.Vector3( -wallW/2, -wallH/2,  0),
+                  upperRight: math.Vector3( wallW/2,  wallH/2,  0 )
+                }),
+                new engine.physics.component.Body({
+                  bodyDefinition: bodyDef,
+                  fixtureDefinition: wallDef
+                }),
+              ]
+            });
+            
+          
+          // There are the platforms user can jump on
+          for(var i = 0; i < 3; i++){
+            new space.Entity({
+              name: 'platform',
+              components: [
+                new engine.core.component.Transform({
+                  position: math.Vector3( i*15, 20 + FLOOR_POS + (i*5), -25 ),
+                  scale: math.Vector3( platW, platH, 5 )
                 }),
                 new engine.graphics.component.Model(
                   instance.meshes[0]
@@ -1756,38 +1874,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 }),
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
-                  fixtureDefinition: fixtureDef
+                  fixtureDefinition: platDef
                 }),
               ]
             });
           }
           
-
-          // Add some platforms
-          for(var i = 0; i < 3; i++){
-            
-            new space.Entity({
-              name: 'platform',
-              components: [
-                new engine.core.component.Transform({
-                  position: math.Vector3( 30 +  -25 + i*15, 10 + FLOOR_POS + (i*7), -50 ),
-                  scale: math.Vector3( platW, platH, 5)
-                }),
-                new engine.graphics.component.Model(
-                  instance.meshes[0]
-                ),                   
-                new PlatformComponent(),
-                new collision2Service.component.BoundingBox({
-                  lowerLeft: math.Vector3( -platW/2, -platH/2,  0),
-                  upperRight: math.Vector3( platW/2,  platH/2,  0 )
-                }),
-                new engine.physics.component.Body({
-                  bodyDefinition: bodyDef,
-                  fixtureDefinition: fixtureDef
-                }),
-              ]
-            });
-          }
+          
           
         }
       },
@@ -1799,7 +1892,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         onsuccess: function (instance) {
 
           // Add crates
-          for(var i = 0; i < 10; i++){
+          for(var i = 0; i < 1; i++){
           
             var bodyDef = engine.physics.resource.BodyDefinition({
               type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
@@ -1818,7 +1911,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 name: 'crate' + i,
                 components: [
                   new engine.core.component.Transform({
-                    position: math.Vector3( -20 + (i*5), 40 + FLOOR_POS + (instance.positions[0][1]), -50 ),
+                    position: math.Vector3( -20 + (i*5), 40 + FLOOR_POS + (instance.positions[0][1]), -25 ),
                     scale: math.Vector3( 3, 3, 3)
                   }),
                   new engine.graphics.component.Model(
