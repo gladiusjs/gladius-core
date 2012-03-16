@@ -213,7 +213,26 @@
       });
     
     test( 'onAngularImpulse', function() {
+        expect(2);
         
+        var bodyDef = engine.physics.resource.BodyDefinition();
+        var body = new engine.physics.component.Body({
+          bodyDefinition: bodyDef
+        });
+
+        var transform = new engine.core.component.Transform({
+          position: [1, 2, 3],
+          rotation: [4, 5, 6]
+        });
+                
+        // put in a mock
+        var mock = this.mock(body._b2Body);
+        debugger;
+        body._b2Body = mock;
+        mock.expects("ApplyAngularImpulse").once();
+
+        
+    
     });
     
     /** TD: event handler tests to write
