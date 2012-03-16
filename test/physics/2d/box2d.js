@@ -275,8 +275,6 @@
     });
     
     /** TD: event handler tests to write
-     * - body.onLinearImpulse, update changes transform correctly
-     * - body.onAngularImpulse, update changes transform correctly 
      * - body.onCompOwnerChgd does appropriate stuff
      * - body.onEntityMgrChgd does appropriate stuff
      * - service.update dispatches event to components (same one ok?); steps simulation
