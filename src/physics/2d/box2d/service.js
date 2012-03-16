@@ -141,6 +141,9 @@ define( function ( require ) {
                   }
                 });
                 
+                // exposed for testing purposes so that we can wrap it in a mock
+                this._b2Body = body;
+                
                 var linearImpulse = new Box2D.b2Vec2( 0, 0 );
                 this.onLinearImpulse = function( e ) {
                     var impulse = e.data.impulse;
