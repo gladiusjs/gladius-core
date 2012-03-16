@@ -17,12 +17,12 @@ define( function ( require ) {
             time: engine.scheduler.simulationTime
         },
         function( options ) {
-
             var that = this;
             var service = this;
             var gravity = new Box2D.b2Vec2( options.gravity[0], options.gravity[1] ) || new Box2D.b2Vec2( 0, 0 );
             var world = new Box2D.b2World( gravity );
-            
+            this._b2World = world;
+                         
             // TD: define getter/setter for gravity
             
             var contactListener = new Box2D.b2ContactListener();
@@ -89,7 +89,7 @@ define( function ( require ) {
             
             this.update = function() {                
                 var component;
-                
+
                 var updateEvent = new engine.core.Event({
                     type: 'Update',
                     queue: false,
