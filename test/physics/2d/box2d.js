@@ -263,10 +263,10 @@
     /* TD: integration tests to write; these belong as part of an integration
      * test suite.
      * 
-     * * contact events are generated for begin and end
-     * * transform is updated when physics moves the body
-     * ** verify new position and rotation
-     * * test different gravity
+     * - contact events are generated for begin and end
+     * - transform is updated when physics moves the body
+     *     - verify new position and rotation
+     * - test different gravity
      */
 
 }());
