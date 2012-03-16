@@ -1439,9 +1439,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
           ////////////
           var cubeBodyDefinition = engine.physics.resource.BodyDefinition({
             type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
-            linearDamping: 2,
+            linearDamping:  2,
             angularDamping: 1,
-            //true
+            fixedRotation:  true
           });
 
           // Make an obstacle that will collide with the player
@@ -1501,9 +1501,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
           // floor
           var floorBodyDef = engine.physics.resource.BodyDefinition({
             type: engine.physics.resource.BodyDefinition.bodyType.STATIC,
-            linearDamping: 1,
-            angularDamping: 1
-            //true
+            linearDamping:  1,
+            angularDamping: 1,
+            fixedRotation:  true
           });
 
           var floorCollisionShape = engine.physics.resource.Box( 150, .1 );
@@ -1724,9 +1724,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
             // platform
             var bodyDef = engine.physics.resource.BodyDefinition({
               type: engine.physics.resource.BodyDefinition.bodyType.STATIC,
-              linearDamping: 1,
+              linearDamping:  1,
               angularDamping: 1,
-              //false
+              fixedRotation:  true
             });
 
             var collisionShape = engine.physics.resource.Box( platW/2, platH/2 );
@@ -1803,9 +1803,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
           
             var bodyDef = engine.physics.resource.BodyDefinition({
               type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
-              linearDamping: 1,
+              linearDamping:  1,
               angularDamping: 1,
-              //false
+              fixedRotation:  false
             });
 
             var collisionShape = engine.physics.resource.Box( 1.5, 1.5 );
