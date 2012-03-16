@@ -212,8 +212,8 @@
           "body component active setter works");
       });
     
-    test( 'onAngularImpulse', function() {
-        expect(2);
+    test( 'onAngularImpulse updates Box2D body', function() {
+        expect(1);
         
         var bodyDef = engine.physics.resource.BodyDefinition();
         var body = new engine.physics.component.Body({
@@ -227,12 +227,51 @@
                 
         // put in a mock
         var mock = this.mock(body._b2Body);
-        debugger;
         body._b2Body = mock;
-        mock.expects("ApplyAngularImpulse").once();
-
+        mock.expects( 'ApplyAngularImpulse' ).once();
         
+        new engine.core.Event({
+            type: 'AngularImpulse',
+            queue: false,
+            data: {
+                impulse: 1
+            }
+        }).dispatch( body );
+        
+        try {
+            ok( mock.verify(), 'ApplyAngularImpulse invoked' );
+        } catch( e ) {}
+    });
     
+    test( 'onLinearImpulse updates Box2D body', function() {
+        expect(1);
+        
+        var bodyDef = engine.physics.resource.BodyDefinition();
+        var body = new engine.physics.component.Body({
+          bodyDefinition: bodyDef
+        });
+
+        var transform = new engine.core.component.Transform({
+          position: [1, 2, 3],
+          rotation: [4, 5, 6]
+        });
+                
+        // put in a mock
+        var mock = this.mock(body._b2Body);
+        body._b2Body = mock;
+        mock.expects( 'ApplyLinearImpulse' ).once();       
+        
+        new engine.core.Event({
+            type: 'LinearImpulse',
+            queue: false,
+            data:{
+                impulse: [1, 1]
+            }
+        }).dispatch( body );
+        
+        try{
+            ok( mock.verify(), 'ApplyLinearImpulse invoked' );
+        } catch( e ) {}
     });
     
     /** TD: event handler tests to write
