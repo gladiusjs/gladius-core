@@ -144,22 +144,16 @@ define( function ( require ) {
                 var linearImpulse = new Box2D.b2Vec2( 0, 0 );
                 this.onLinearImpulse = function( e ) {
                     var impulse = e.data.impulse;
-                    linearImpulse.Set( linearImpulse.get_x() + impulse[0],
-                            linearImpulse.get_y() + impulse[1] );
+                    linearImpulse.Set( impulse[0], impulse[1] );
+                    body.ApplyLinearImpulse( linearImpulse, body.GetPosition() );
+                    linearImpulse.Set( 0, 0 );
                 };
                 
-                var angularImpulse = 0;
                 this.onAngularImpulse = function( e ) {
-                    angularImpulse += e.data.impulse;
+                    body.ApplyAngularImpulse( e.data.impulse );
                 };               
                                
                 this.onUpdate = function( e ) {
-                    body.ApplyLinearImpulse( linearImpulse, body.GetPosition() );
-                    body.ApplyAngularImpulse( angularImpulse );
-                    
-                    linearImpulse.Set( 0, 0 );
-                    angularImpulse = 0;
-                    
                     var position2 = body.GetPosition();
                     var angle2 = body.GetAngle();
                     

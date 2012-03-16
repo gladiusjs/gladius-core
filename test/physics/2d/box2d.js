@@ -211,47 +211,11 @@
         ok(bodyComponent.active === false, 
           "body component active setter works");
       });
-
-/*    
-    test( 'contact start and end events are generated', function() {
-        expect( 0 );
+    
+    test( 'onAngularImpulse', function() {
         
-        var bodyDefinition = engine.physics.resource.BodyDefinition({
-            type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC
-        });    
-    
-        var box = engine.physics.resource.Box( 0.5, 0.5 );        
-    
-        var fixtureDefinition = engine.physics.resource.FixtureDefinition({ 
-            shape: box
-        });
-    
-        var space = new engine.core.Space();        
-        var entity1 = new space.Entity({
-            components: [
-                         new engine.core.component.Transform({
-                             position: [-3, 0, 0]
-                         }),
-                         new engine.physics.component.Body({
-                             bodyDefinition: bodyDefinition,
-                             fixtureDefinition: fixtureDefinition
-                         })
-                         ]
-        });
-        var entity2 = new space.Entity({
-            components: [
-                         new engine.core.component.Transform({
-                             position: [3, 0, 0]
-                         }),
-                         new engine.physics.component.Body({
-                             bodyDefinition: bodyDefinition,
-                             fixtureDefinition: fixtureDefinition
-                         })
-                         ]
-        });        
     });
-   */
-   
+    
     /** TD: event handler tests to write
      * - body.onLinearImpulse, update changes transform correctly
      * - body.onAngularImpulse, update changes transform correctly 
