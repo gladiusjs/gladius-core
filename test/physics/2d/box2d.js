@@ -339,7 +339,38 @@
         ok( serviceMock.verify(), 'expected service methods invoked' );
         ok( bodyMock.verify(), 'expected body methods invoked' );              
     });
-    
+
+    test( 'service.update', function() {
+        expect(2);
+        
+        var space = new engine.core.Space();
+        var entity = new engine.core.Entity({
+            components: [
+                         new engine.core.component.Transform()
+                         ]        
+        });
+        
+        var bodyDef = engine.physics.resource.BodyDefinition();
+        var body = new engine.physics.component.Body({
+          bodyDefinition: bodyDef
+        });
+        
+        entity.add( body );
+
+        // put in a mock
+        var worldMock = this.mock( engine.physics._b2World );
+        var bodyMock = this.mock( body._b2Body );
+        
+        worldMock.expects( 'Step' ).once();
+        bodyMock.expects( 'onUpdate' ).once();
+      
+        debugger;
+        engine.physics.update();
+        
+        ok( worldMock.verify(), 'world expectations met');
+        ok( bodyMock.verify(), 'body expectations met' );
+    });    
+
     /** TD: event handler tests to write
      * - service.update dispatches event to components (same one ok?); steps simulation
      */
@@ -347,6 +378,7 @@
     /* TD: integration tests to write; these belong as part of an integration
      * test suite.
      * 
+     * - test body.onUpdate performs as expected
      * - contact events are generated for begin and end
      * - transform is updated when physics moves the body
      *     - verify new position and rotation
