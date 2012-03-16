@@ -2,7 +2,7 @@
  nomen: false */
 /*global gladius: false, document: false, window: false, module: false, start,
  test: false, expect: false, ok: false, notEqual: false, stop, QUnit: false,
- asyncTest: false, equal: false */
+ asyncTest: false, equal: false, deepEqual: false */
 
 ( function() {
 
@@ -51,9 +51,12 @@
         deepEqual( [position.get_x(), position.get_y()], [0, 0], 
                 'correct default position' );
         
-        ok( bodyDefinition.get_active() == false, 
+        // use === 0 here since we're groping inside the cross-compilation
+        // implementation details and comparing against an integer concept
+        // of "false"
+        ok( bodyDefinition.get_active() === 0, 
                 'correct default active state' );
-        ok( bodyDefinition.get_awake() == false,
+        ok( bodyDefinition.get_awake() === 0,
                 'correct default awake state' );
     });
     
