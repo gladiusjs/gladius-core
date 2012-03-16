@@ -143,6 +143,7 @@ define( function ( require ) {
                 
                 // exposed for testing purposes so that we can wrap it in a mock
                 this._b2Body = body;
+                this._service = service;
                 
                 var linearImpulse = new Box2D.b2Vec2( 0, 0 );
                 this.onLinearImpulse = function( e ) {
@@ -190,8 +191,6 @@ define( function ( require ) {
                         service.registerComponent( this.owner.id, this );
                         body.SetActive( true );
                         body.SetAwake( true );
-                        var transform = this.owner.find( 'Transform' );
-                        body.SetTransform( new Box2D.b2Vec2( transform.position[0], transform.position[1] ), transform.rotation[2] );
                     }
                     
                     if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {

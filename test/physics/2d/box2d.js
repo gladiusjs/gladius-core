@@ -172,20 +172,6 @@
         }
     });
     
-    test( 'body has default event handlers', function() {
-        expect( 3 );
-        
-        var bodyDefinition = engine.physics.resource.BodyDefinition();        
-                  
-        var body = new engine.physics.component.Body({
-            bodyDefinition: bodyDefinition
-        });
-        
-        ok( body.onAngularImpulse, 'onAngularImpulse handler is defined' );
-        ok( body.onLinearImpulse, 'onLinearImpulse handler is defined' );
-        ok( body.onUpdate, 'onUpdate handler is defined' );
-    });
-    
     test( 'body definition, defaults for unspecified parameters', function() {
         expect( 5 );
                      
@@ -241,7 +227,6 @@
                 
         // put in a mock
         var mock = this.mock(body._b2Body);
-        body._b2Body = mock;
         mock.expects( 'ApplyAngularImpulse' ).once();
         
         new engine.core.Event({
@@ -252,9 +237,7 @@
             }
         }).dispatch( body );
         
-        try {
-            ok( mock.verify(), 'ApplyAngularImpulse invoked' );
-        } catch( e ) {}
+        ok( mock.verify(), 'ApplyAngularImpulse invoked' );
     });
     
     test( 'onLinearImpulse updates Box2D body', function() {
@@ -272,7 +255,6 @@
                 
         // put in a mock
         var mock = this.mock(body._b2Body);
-        body._b2Body = mock;
         mock.expects( 'ApplyLinearImpulse' ).once();       
         
         new engine.core.Event({
@@ -283,14 +265,82 @@
             }
         }).dispatch( body );
         
-        try{
-            ok( mock.verify(), 'ApplyLinearImpulse invoked' );
-        } catch( e ) {}
+        ok( mock.verify(), 'ApplyLinearImpulse invoked' );
+    });
+
+    test( 'onComponentOwnerChanged updates Box2D body and registers/unregisters component', function() {
+        expect(2);
+        
+        var entity1 = new engine.core.Entity({
+            components: [
+                         new engine.core.component.Transform()
+                         ]        
+        });
+        var entity2 = new engine.core.Entity({
+            components: [
+                         new engine.core.component.Transform()
+                         ]
+        });
+        
+        var bodyDef = engine.physics.resource.BodyDefinition();
+        var body = new engine.physics.component.Body({
+          bodyDefinition: bodyDef
+        });
+
+        // put in a mock
+        var serviceMock = this.mock( body._service ); 
+        var bodyMock = this.mock( body._b2Body );
+        
+        serviceMock.expects( 'registerComponent' ).once();
+        serviceMock.expects( 'unregisterComponent' ).once();
+        bodyMock.expects( 'SetAwake' ).twice();
+        bodyMock.expects( 'SetActive' ).twice();
+        bodyMock.expects( 'SetTransform' ).twice();
+        
+        entity1.add( body );
+        entity2.add( body );
+        entity2.remove( 'Body' );
+
+        ok( serviceMock.verify(), 'expected service methods invoked' );
+        ok( bodyMock.verify(), 'expected body methods invoked' );              
+    });
+    
+    test( 'onEntityManagerChanged updates Box2D body and registers/unregisters component', function() {
+        expect(2);
+        
+        var space1 = new engine.core.Space();
+        var space2 = new engine.core.Space();
+        var entity = new engine.core.Entity({
+            components: [
+                         new engine.core.component.Transform()
+                         ]        
+        });
+        
+        var bodyDef = engine.physics.resource.BodyDefinition();
+        var body = new engine.physics.component.Body({
+          bodyDefinition: bodyDef
+        });
+        
+        entity.add( body );
+
+        // put in a mock
+        var serviceMock = this.mock( body._service ); 
+        var bodyMock = this.mock( body._b2Body );
+        
+        serviceMock.expects( 'registerComponent' ).once();
+        serviceMock.expects( 'unregisterComponent' ).once();
+        bodyMock.expects( 'SetAwake' ).twice();
+        bodyMock.expects( 'SetActive' ).twice();
+        
+        space1.add( entity );        
+        space2.add( entity );
+        space2.remove( entity );
+
+        ok( serviceMock.verify(), 'expected service methods invoked' );
+        ok( bodyMock.verify(), 'expected body methods invoked' );              
     });
     
     /** TD: event handler tests to write
-     * - body.onCompOwnerChgd does appropriate stuff
-     * - body.onEntityMgrChgd does appropriate stuff
      * - service.update dispatches event to components (same one ok?); steps simulation
      */
     
