@@ -172,6 +172,20 @@
         }
     });
     
+    test( 'body has default event handlers', function() {
+        expect( 3 );
+        
+        var bodyDefinition = engine.physics.resource.BodyDefinition();        
+                  
+        var body = new engine.physics.component.Body({
+            bodyDefinition: bodyDefinition
+        });
+        
+        ok( body.onAngularImpulse, 'onAngularImpulse handler is defined' );
+        ok( body.onLinearImpulse, 'onLinearImpulse handler is defined' );
+        ok( body.onUpdate, 'onUpdate handler is defined' );
+    });
+    
     test( 'body definition, defaults for unspecified parameters', function() {
         expect( 5 );
                      
