@@ -227,6 +227,8 @@ define( function ( require ) {
                         options.angularDamping : 0 );
                 bd.set_fixedRotation( options.hasOwnProperty( 'fixedRotation' ) ?
                         options.fixedRotation : false );
+                bd.set_angularVelocity( options.hasOwnProperty( 'angularVelocity' ) ?
+                        options.angularVelocity : 0 );
                 bd.set_position( new Box2D.b2Vec2( 0, 0 ) );
                 bd.set_active( false );
                 bd.set_awake( false );

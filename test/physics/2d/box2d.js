@@ -34,7 +34,7 @@
     });
     
     test( 'body definition, default parameters', function() {
-        expect( 7 );
+        expect( 8 );
         
         var bodyDefinition = engine.physics.resource.BodyDefinition();
         equal( bodyDefinition.get_type(), 
@@ -46,7 +46,9 @@
                 'correct default angular damping' );
         equal( bodyDefinition.get_fixedRotation(), 0,
                 'correct default fixed rotation' );
-        
+        equal( bodyDefinition.get_angularVelocity(), 0,
+                'correct default angular velocity' );
+
         var position = bodyDefinition.get_position();
         deepEqual( [position.get_x(), position.get_y()], [0, 0], 
                 'correct default position' );
@@ -61,13 +63,14 @@
     });
     
     test( 'body definition, all parameters passed', function() {
-        expect( 4 );
+        expect( 5 );
         
         var bodyDefinition = engine.physics.resource.BodyDefinition({
             type: engine.physics.resource.BodyDefinition.bodyType.STATIC,
             linearDamping: 10,
             angularDamping: 20,
-            fixedRotation: true
+            fixedRotation: true,
+            angularVelocity: 10
         });
         equal( bodyDefinition.get_type(), 
                 engine.physics.resource.BodyDefinition.bodyType.STATIC,
@@ -78,6 +81,8 @@
                 'correct angular damping' );
         equal( bodyDefinition.get_fixedRotation(), 1, 
                 'correct fixed rotation' );
+        equal( bodyDefinition.get_angularVelocity(), 10, 
+                'correct angular velocity' );
     });
     
     test( 'default & all params to fixture construction', function() {
@@ -168,7 +173,7 @@
     });
     
     test( 'body definition, defaults for unspecified parameters', function() {
-        expect( 4 );
+        expect( 5 );
                      
         var bodyDefinition = engine.physics.resource.BodyDefinition({
             type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC
@@ -178,6 +183,8 @@
         equal( bodyDefinition.get_linearDamping(), 0, 'defualt linear damping is correct' );
         equal( bodyDefinition.get_angularDamping(), 0, 'default angular damping is correct' );
         equal( bodyDefinition.get_fixedRotation(), 0, 'default fixed rotation is correct' );
+        equal( bodyDefinition.get_angularVelocity(), 0, 
+               'default angular velocity' );
     });
     
     test( 'body active property', 
@@ -204,7 +211,8 @@
         ok(bodyComponent.active === false, 
           "body component active setter works");
       });
-    
+
+/*    
     test( 'contact start and end events are generated', function() {
         expect( 0 );
         
@@ -242,8 +250,19 @@
                          ]
         });        
     });
+   */
+   
+    /** TD: event handler tests to write
+     * - body.onLinearImpulse, update changes transform correctly
+     * - body.onAngularImpulse, update changes transform correctly 
+     * - body.onCompOwnerChgd does appropriate stuff
+     * - body.onEntityMgrChgd does appropriate stuff
+     * - service.update dispatches event to components (same one ok?); steps simulation
+     */
     
-    /* TD: tests to write
+    /* TD: integration tests to write; these belong as part of an integration
+     * test suite.
+     * 
      * * contact events are generated for begin and end
      * * transform is updated when physics moves the body
      * ** verify new position and rotation
