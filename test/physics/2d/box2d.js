@@ -359,12 +359,11 @@
 
         // put in a mock
         var worldMock = this.mock( engine.physics._b2World );
-        var bodyMock = this.mock( body._b2Body );
+        var bodyMock = this.mock( body );
         
         worldMock.expects( 'Step' ).once();
         bodyMock.expects( 'onUpdate' ).once();
       
-        debugger;
         engine.physics.update();
         
         ok( worldMock.verify(), 'world expectations met');
