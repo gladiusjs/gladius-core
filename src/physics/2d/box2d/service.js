@@ -90,7 +90,6 @@ define( function ( require ) {
             this.update = function() {                
                 var component;
 
-                debugger;                
                 var updateEvent = new engine.core.Event({
                     type: 'Update',
                     queue: false,
