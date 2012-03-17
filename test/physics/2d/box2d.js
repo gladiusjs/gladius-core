@@ -358,17 +358,22 @@
         entity.add( body );
 
         // put in a mock
-        var worldMock = this.mock( engine.physics._b2World );        
-        var bodyMock = this.mock( body );
+        var worldMock = this.mock( engine.physics._b2World );
+        var bodyMock = this.mock( body._b2Body );
         
         worldMock.expects( 'Step' ).once();
         bodyMock.expects( 'onUpdate' ).once();
-        
+      
+        debugger;
         engine.physics.update();
         
         ok( worldMock.verify(), 'world expectations met');
         ok( bodyMock.verify(), 'body expectations met' );
-    });
+    });    
+
+    /** TD: event handler tests to write
+     * - service.update dispatches event to components (same one ok?); steps simulation
+     */
     
     /* TD: integration tests to write; these belong as part of an integration
      * test suite.
