@@ -44,6 +44,12 @@ define( function ( require ) {
                     if( !math.vector3.equal( value, _position ) ) {
                         _position = value;  // TD: math.vector3.copy( _position, value )
                         _cached = false;
+                        if( that.owner ) {
+                            new engine.core.Event({
+                                type: 'TransformPositionChanged',
+                                queue: true
+                            }).dispatch( that.owner );
+                        }
                     }
                 }
             });
@@ -56,6 +62,12 @@ define( function ( require ) {
                     if( !math.vector3.equal( value, _rotation ) ) {
                         _rotation = value;  // TD: math.vector3.copy( _rotation, value )
                         _cached = false;
+                        if( that.owner ) {
+                            new engine.core.Event({
+                                type: 'TransformRotationChanged',
+                                queue: true
+                            }).dispatch( that.owner );
+                        }
                     }
                 }
             });
@@ -68,6 +80,12 @@ define( function ( require ) {
                     if( !math.vector3.equal( value, _scale ) ) {
                         _scale = value;     // TD: math.vector3.copy( _scale, value )
                         _cached = false;
+                        if( that.owner ) {
+                            new engine.core.Event({
+                                type: 'TransformScaleChanged',
+                                queue: true
+                            }).dispatch( that.owner );
+                        }
                     }
                 }
             });

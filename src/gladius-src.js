@@ -35,6 +35,8 @@ define( function ( require ) {
     // for when gladius is built for deployment.
     global = window.gladius || ( window.gladius = {} );
     
+    require( 'external/box2d.js/box2d' );
+    
     /***
      * Gladius
      *
@@ -109,6 +111,7 @@ define( function ( require ) {
             // Expose engine objects, partially
             // applying items needed for their constructors.
             lang.extend( this, {
+                lang: lang,
                 common: {
                     Queue: Queue,
                     Delegate: Delegate
@@ -145,7 +148,7 @@ define( function ( require ) {
             var subs = this.service = {},
               i;
             for (i = 0; i < arguments.length; i++) {
-                var s = arguments[ i ]( this ); 
+                var s = arguments[ i ]( this );
                 subs[ sNames[ i ] ] = new s( sOptions[ i ] );
             }
             lang.extend( this, subs );
@@ -154,7 +157,7 @@ define( function ( require ) {
             if ( this.options.setup ) {
                 this.options.setup( this );
             }
-
+            
             // Let caller know the engine instance is ready.
             if (callback) {
                 callback(this);
@@ -169,7 +172,7 @@ define( function ( require ) {
             run: function () {
                 if ( this.options.run ) {
                     this.options.run( this );
-                }                
+                }            
                 this.scheduler.resume();                
             },
     
