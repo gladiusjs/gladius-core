@@ -22,11 +22,11 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             // queue processed
             var service = engine.logic;
            
-            this.onContact2Begin = function( event ) {
+            this.onContactBegin = function( event ) {
                 console.log( 'START', this.owner.id, event.data.entities[0], '<->', event.data.entities[1] );
             };
             
-            this.onContact2End = function( event ) {
+            this.onContactEnd = function( event ) {
                 console.log( 'END', this.owner.id, event.data.entities[0], '<->', event.data.entities[1] );
             };
 
@@ -86,7 +86,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                              new engine.physics.component.Body({
                                  bodyDefinition: cubeBodyDefinition,
                                  fixtureDefinition: cubeFixtureDefinition
-                             }),
+                             })
                              ]
             });
 
@@ -112,7 +112,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                             new engine.core.Event({
                                 type: 'LinearImpulse',
                                         data: {
-                                            impulse: [-1, 0]
+                                            impulse: [-10, 0]
                                         }
                             }).dispatch( this.owner );
                         }
@@ -122,7 +122,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                             new engine.core.Event({
                                 type: 'LinearImpulse',
                                         data: {
-                                            impulse: [0, -1]
+                                            impulse: [0, -10]
                                         }
                             }).dispatch( this.owner );
                         }
@@ -132,7 +132,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                             new engine.core.Event({
                                 type: 'LinearImpulse',
                                         data: {
-                                            impulse: [1, 0]
+                                            impulse: [10, 0]
                                         }
                             }).dispatch( this.owner );
                         }
@@ -142,7 +142,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
                             new engine.core.Event({
                                 type: 'AngularImpulse',
                                         data: {
-                                            impulse: -1 // clockwise
+                                            impulse: -10 // clockwise
                                         }
                             }).dispatch( this.owner );
                         }

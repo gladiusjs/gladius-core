@@ -1,6 +1,6 @@
 /*jshint white: false, strict: false, plusplus: false, onevar: false,
   nomen: false */
-/*global define: false, console: false, window: false, setTimeout: false */
+/*global Box2D: false, define: false, console: false, window: false, setTimeout: false */
 
 define( function ( require ) {
     
@@ -17,12 +17,12 @@ define( function ( require ) {
             time: engine.scheduler.simulationTime
         },
         function( options ) {
-
             var that = this;
             var service = this;
             var gravity = new Box2D.b2Vec2( options.gravity[0], options.gravity[1] ) || new Box2D.b2Vec2( 0, 0 );
             var world = new Box2D.b2World( gravity );
-            
+            this._b2World = world;
+                         
             // TD: define getter/setter for gravity
             
             var contactListener = new Box2D.b2ContactListener();
@@ -37,7 +37,7 @@ define( function ( require ) {
                         var bodyB = fixtureB.GetBody();
 
                         new engine.core.Event({
-                            type: 'Contact2Begin',
+                            type: 'ContactBegin',
                             data: {
                                 entities: [bodyA.component.owner, bodyB.component.owner]
                             }
@@ -54,7 +54,7 @@ define( function ( require ) {
                         var bodyB = fixtureB.GetBody();
 
                         new engine.core.Event({
-                            type: 'Contact2End',
+                            type: 'ContactEnd',
                             data: {
                                 entities: [bodyA.component.owner, bodyB.component.owner]
                             }
@@ -89,7 +89,7 @@ define( function ( require ) {
             
             this.update = function() {                
                 var component;
-                
+
                 var updateEvent = new engine.core.Event({
                     type: 'Update',
                     queue: false,
@@ -120,8 +120,9 @@ define( function ( require ) {
                 var i;
                
                 // Create the body as a box2d object
+                var body;
                 if( options.bodyDefinition ) {
-                    var body = world.CreateBody( options.bodyDefinition );
+                    body = world.CreateBody( options.bodyDefinition );
                 } else {
                     throw 'missing body definition';
                 }
@@ -131,25 +132,32 @@ define( function ( require ) {
                 body.component = this;  // TD: this might be a bad idea
                 body.SetLinearVelocity( new Box2D.b2Vec2( 0, 0 ) );
                 
+                Object.defineProperty(this, 'active', {
+                  get: function getActive() {
+                    return body.IsActive() ? true : false;
+                  },
+                  set: function setActive( val ) {
+                    return body.SetActive( val ) ? true : false;
+                  }
+                });
+                
+                // exposed for testing purposes so that we can wrap it in a mock
+                this._b2Body = body;
+                this._service = service;
+                
                 var linearImpulse = new Box2D.b2Vec2( 0, 0 );
                 this.onLinearImpulse = function( e ) {
                     var impulse = e.data.impulse;
-                    linearImpulse.Set( linearImpulse.get_x() + impulse[0],
-                            linearImpulse.get_y() + impulse[1] );
+                    linearImpulse.Set( impulse[0], impulse[1] );
+                    body.ApplyLinearImpulse( linearImpulse, body.GetPosition() );
+                    linearImpulse.Set( 0, 0 );
                 };
                 
-                var angularImpulse = 0;
                 this.onAngularImpulse = function( e ) {
-                    angularImpulse += e.data.impulse;
+                    body.ApplyAngularImpulse( e.data.impulse );
                 };               
                                
                 this.onUpdate = function( e ) {
-                    body.ApplyLinearImpulse( linearImpulse, body.GetPosition() );
-                    body.ApplyAngularImpulse( angularImpulse );
-                    
-                    linearImpulse.Set( 0, 0 );
-                    angularImpulse = 0;
-                    
                     var position2 = body.GetPosition();
                     var angle2 = body.GetAngle();
                     
@@ -183,8 +191,6 @@ define( function ( require ) {
                         service.registerComponent( this.owner.id, this );
                         body.SetActive( true );
                         body.SetAwake( true );
-                        var transform = this.owner.find( 'Transform' );
-                        body.SetTransform( new Box2D.b2Vec2( transform.position[0], transform.position[1] ), transform.rotation[2] );
                     }
                     
                     if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
@@ -217,6 +223,8 @@ define( function ( require ) {
                         options.angularDamping : 0 );
                 bd.set_fixedRotation( options.hasOwnProperty( 'fixedRotation' ) ?
                         options.fixedRotation : false );
+                bd.set_angularVelocity( options.hasOwnProperty( 'angularVelocity' ) ?
+                        options.angularVelocity : 0 );
                 bd.set_position( new Box2D.b2Vec2( 0, 0 ) );
                 bd.set_active( false );
                 bd.set_awake( false );
