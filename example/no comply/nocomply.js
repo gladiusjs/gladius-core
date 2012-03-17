@@ -1,25 +1,6 @@
-/**
+/*
   Simple game based on the "No Comply" WebGL music video.
-
-  TODO (high priority)
-  - Fix moving sprite in Firefox
-  - Translate kraddy sprite up so it corresponds to the collision box
-  - Finish work on 'air walk' branch and merge in.
-  - Add in collision events
-  - Fix landing on boxes
-    
-  (medium priority)
-  - Fix collision issues when kraddy hits side of a platform
-  - Prevent double jump (user goes into an idle state after he moves after a jump)
-  - Add thug sprites back in
-  - Start using health component
-  - Expand scene to give user more walking space
-  
-  Other things TODO (low priority):
-  - fix fireball logic
-  - Add sounds
-  - fix infinite "fall" (user collides with two platforms at the same time)
-  - Bug: user needs to hold down 'down' to make sure char crouches as soon as they hit the floor.  
+  TODOs: https://gladius.etherpad.mozilla.org/8
 */
 document.addEventListener("DOMContentLoaded", function (e) {
 
@@ -27,18 +8,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
     return document.getElementById(id);
   }
 
-  var canvas = document.getElementById("test-canvas");
+  var canvas = getById("test-canvas");
   
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  // Do something awesome with this.
-  // function mozOrientationHandler(e){}
-	// window.addEventListener('devicemotion', mozOrientationHandler, false);
-
   var resources = {};
 
-  // FIX ME
+  // TODO: FIX ME
   var thugAction = 'idle';
 
   //
@@ -47,25 +24,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
       const FACING_RIGHT =   1;
       const FACING_LEFT   = -1;
 
-      const LEFT_BORDER = 70;
-      const RIGHT_BORDER = -30;
-      const MOVE_SPEED = 15;
+      const MOVE_SPEED = 45;
+      const JUMP_IMPULSE = 50;
       
       const FLOOR_POS = 0;
-      const GRAVITY = 0.98;
-      const JUMP_HEIGHT = 45;
+      
+      // Gameplay is 2D
+      const GAME_DEPTH = -25;
       
       const PLAYER_BB_HEIGHT = 3.5;
       
       //
       const WALK_ANI_SPEED = 0.085;
       const PUNCH_DURATION   = 0.12;
-      const THROW_FIREBALL_DURATION = 0.5;
-      
-      // Time needed to walk backwards before throwing fireball
-      const FIREBALL_WAIT = 1.0;
-      const FIREBALL_SPEED = 0.8;
-      
+            
       var MAX_HEALTH = 500;
             
       //////////////////
@@ -79,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         JUMP_KEY:   'UP',
         DOWN_KEY:   'DOWN',
         PUNCH_KEY:  'A',
-        name:       'player1',
+        name:       'player',
         dir:        FACING_RIGHT,
         initialPos: [-20, FLOOR_POS, 0]
       };
@@ -100,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
       var space = new engine.core.Space();
       var math = engine.math;
         
-        // FIX ME
+        // TODO: FIX ME
         /////////
         // Collision Service
         /////////
@@ -413,28 +385,49 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
 
       /*
-      * Health Component
-      * FIX ME need to actually use this
+      *
+      * Health Component is visualized as bars at the top of the screen.
+      *
       */
       var HealthComponent = engine.base.Component({
         type: 'Health'
         }, function( options ){
           
           options = options || {};
+
+          var service = engine.logic,
+              health = MAX_HEALTH,
+              domId = options.domId,
+              color = options.color;
+
+          // Only need to do this once on init.
+          getById(domId).style.backgroundColor = color;
           
-          var service = engine.logic;          
-          var val = MAX_HEALTH;
-          var domId = options.domId;
+          this.onHurt = function(amtToReduce){
+            health -= amtToReduce;
             
-          this.onHealth = function(h){
-            // XXX add check here
+            if(health <= 0){
+              health = 0;
+              getById(domId).style.visibility = "hidden";
+            }
             
-            // XXX use h variable
-            val -= 15;
-            document.getElementById(domId).style.width = val + "px";
+            getById(domId).style.width = health + "px";
           }
           
           this.onUpdate = function(){
+            // If health is zero, we only see the ugly border around the
+            // health bar, so just hide it in that case.
+
+            var show = health > 0 ? "visible" : "hidden";
+            getById(domId).style.visibility = show;
+            
+            // Allow some buffer between health bars
+            var halfClientAreaWidth = (window.innerWidth-150)/2;
+            var normalizedHealth = health/MAX_HEALTH;
+
+            var final = normalizedHealth * halfClientAreaWidth;            
+
+            getById(domId).style.width = final +  "px";
           }
           
           // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -459,62 +452,99 @@ document.addEventListener("DOMContentLoaded", function (e) {
           };
         });
         
-      
+      // Boss with launch a bunch of objects user needs to avoid.
+      var launchStuff = function(){
 
-
-      /////////////
-      // Fireball
-      /////////////
-      var FireBallComponent = engine.base.Component({
-        type: 'Fireball',
-        depends: ['Transform', 'Model']
-        },
-        function( options ){
-          var that = this;
-          var service = engine.logic;
-         // var pos = options.position.position;
-           var dir = options.direction;
-
-          this.onUpdate = function ( event ){
-
-            // XXX this is terrible
-            var pos = this.owner.find('Transform').position;
-            var rot = this.owner.find('Transform').rotation;
-            
-            rot[0] += 0.05;
-            rot[2] += 0.05;
-            
-            pos[2] += FIREBALL_SPEED * dir;
-            
-            this.owner.find('Transform').position = pos;
-            this.owner.find('Transform').rotation = rot;
-          };
-
-          // Boilerplate component registration; Lets our service know that we exist and want to do things
-          this.onComponentOwnerChanged = function (e) {
-            if (e.data.previous === null && this.owner !== null) {
-              service.registerComponent(this.owner.id, this);
-            }
-
-            if (this.owner === null && e.data.previous !== null) {
-              service.unregisterComponent(e.data.previous.id, this);
-            }
-          };
-
-          this.onEntityManagerChanged = function (e) {
-            if (e.data.previous === null && e.data.current !== null && this.owner !== null) {
-              service.registerComponent(this.owner.id, this);
-            }
-
-            if (e.data.previous !== null && e.data.current === null && this.owner !== null) {
-              service.unregisterComponent(this.owner.id, this);
-            }
-          };
-
+        var boxW = boxH = 3;
+        
+        // buffer
+        var b = 1.4;
+        
+        
+        
+        var pos = [30, 60, GAME_DEPTH];
+        
+        var bodyDef = engine.physics.resource.BodyDefinition({
+          type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
+          linearDamping:  1,
+          angularDamping: 1,
+          fixedRotation:  false
         });
 
+        var collisionShape = engine.physics.resource.Box( boxW/2, boxH/2 );
+        var fixtureDef = engine.physics.resource.FixtureDefinition({
+          shape:   collisionShape,
+          density: 0.5
+        });
+        
+       var crate = new space.Entity({
+            name: 'crate',
+            components: [
+              new engine.core.component.Transform({
+                position: math.Vector3(pos[0], pos[1], pos[2] ),
+                scale: math.Vector3( boxW, boxH, boxW )
+              }),
+              new engine.graphics.component.Model(
+                resources.crate.mesh
+              ),
+              new CrateComponent(),
+              new engine.physics.component.Body({
+                bodyDefinition: bodyDef,
+                fixtureDefinition: fixtureDef
+              }),
+              new collision2Service.component.BoundingBox({
+                lowerLeft: math.Vector3( -boxW/2 -b , -boxH/2 -b,  0 ),
+                upperRight: math.Vector3( boxW/2 +b,  boxH/2 + b,  0 )
+              })
+            ]
+        });
+      };
+      
+      //
+      var makeCrate = function(options){
+        
+        var boxW = boxH = 3;
+        
+        // buffer
+        var b = 1.4;
+        
+        var pos = options.position;
+        
+        var bodyDef = engine.physics.resource.BodyDefinition({
+          type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
+          linearDamping:  1,
+          angularDamping: 1,
+          fixedRotation:  false
+        });
 
-
+        var collisionShape = engine.physics.resource.Box( boxW/2, boxH/2 );
+        var fixtureDef = engine.physics.resource.FixtureDefinition({
+          shape:   collisionShape,
+          density: 0.5
+        });
+        
+        new space.Entity({
+            name: 'crate',
+            components: [
+              new engine.core.component.Transform({
+                position: math.Vector3(pos[0], pos[1], pos[2] ),
+                scale: math.Vector3( boxW, boxH, boxW )
+              }),
+              new engine.graphics.component.Model(
+                resources.crate.mesh
+              ),
+              new CrateComponent(),
+              new engine.physics.component.Body({
+                bodyDefinition: bodyDef,
+                fixtureDefinition: fixtureDef
+              }),
+              new collision2Service.component.BoundingBox({
+                lowerLeft: math.Vector3( -boxW/2 -b , -boxH/2 -b,  0 ),
+                upperRight: math.Vector3( boxW/2 +b,  boxH/2 + b,  0 )
+              })
+            ]
+        });     
+      };
 
       /*
       *
@@ -594,7 +624,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
               this.update = function (event) {
                 timer += service.time.delta / 1000;
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [35, 0]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [MOVE_SPEED, 0]}}).dispatch( pl.owner );
                 if(timer >= WALK_ANI_SPEED){
                   timer = 0;
                   pl.owner.find('Model').updateAction('walk');
@@ -631,7 +661,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
               this.update = function (event) {
                 timer += service.time.delta / 1000;
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [-35, 0]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [-MOVE_SPEED, 0]}}).dispatch( pl.owner );
                 if(timer >= WALK_ANI_SPEED){
                   timer = 0;
                   pl.owner.find('Model').updateAction('walk');
@@ -705,19 +735,18 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 timeElapsed += delta;
                 //var yPos = pl.owner.find('Transform').position[1];
                 
-                // FIX ME
+                // TODO: FIX ME
                 if(timeElapsed > 0.15 /* && if not colliding with something */){
                   pl.setState(pl.getFallState());                  
                 }
               };
                             
-              // FIX ME
+              // TODO: FIX ME
               this.land = function(){ pl.setState(pl.getIdleState());};
               
               this.activate = function(){
                 timeElapsed = 0;
                 pl.owner.find('Model').updateAction('jump');
-                console.log('f');
                 new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, 3000]}}).dispatch( pl.owner );
               }
               this.toString = function(){
@@ -798,12 +827,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 timeElapsed = 0;
                 pl.owner.find('Model').updateAction('jump');                
                 
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, 3000]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, JUMP_IMPULSE]}}).dispatch( pl.owner );
               };
               
               this.update = function () {
                 var delta = service.time.delta / 1000;
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [35, 0]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [MOVE_SPEED, 0]}}).dispatch( pl.owner );
                 timeElapsed += delta;
                 var yPos = pl.getTransform().position[1];
                 
@@ -831,11 +860,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
               this.activate = function(){              
                 timeElapsed = 0;
                 pl.owner.find('Model').updateAction('jump');
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, 3000]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, JUMP_IMPULSE]}}).dispatch( pl.owner );
               };
               
               this.update = function () {
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [-35, 0]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [-MOVE_SPEED, 0]}}).dispatch( pl.owner );
                 var delta = service.time.delta / 1000;
                 timeElapsed += delta;
                 var yPos = pl.getTransform().position[1];
@@ -869,7 +898,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           var state = idleState;
 
-          // FIX ME          
+          // TODO: FIX ME          
           this.getPlayer = function(){
             var ret = this.owner.find('Player') || this.owner.find('Enemy');
             return ret;
@@ -895,7 +924,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           this.onIdle = function(){         state.idle && state.idle();}
           
           this.onMoveRight = function(){    state.moveRight && state.moveRight();}
-          this.onMoveLeft = function(){ state.moveLeft && state.moveLeft();};
+          this.onMoveLeft = function(){     state.moveLeft && state.moveLeft();};
           
           this.onCrouch = function(){       state.crouch && state.crouch();}
           this.onPunch = function(){        state.punch && state.punch();}
@@ -1014,7 +1043,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         this.acceleration = [0, 0, 0];
 
         this.onCollision = function(e){
-          console.log('collide');
+          //console.log('collide');
         
           if(e.data.entity.find('State')){
             var playerState = e.data.entity.find('State').getCurrState();
@@ -1073,28 +1102,32 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
 
       ////////////////////
-      // EnemyComponent
+      // Boss Component
       ////////////////////
-      var EnemyComponent = engine.base.Component({
+      var BossComponent = engine.base.Component({
         type: 'Enemy',
         depends: ['Transform', 'Model']
       },
       function (options) {
-      
+        
         options = options || {};
         var that = this;
         
         // This is a hack so that this component will have its message queue processed
-
-        var service = engine.logic; 
-
+        var service = engine.logic;
+        
         this.velocity = [0, 0, 0];
         this.acceleration = [0, 0, 0];
         
         this.facing = FACING_LEFT;
 
         this.onCollision = function(e){
-        
+
+          if(e.data.entity.name === 'crate'){
+            space.remove( e.data.entity );
+            this.owner.find('Health').onHurt(1);
+          }
+          
           if(e.data.entity.find('State')){
             var playerState = e.data.entity.find('State').getCurrState();
             var playerTrans = e.data.entity.find('Transform');
@@ -1102,7 +1135,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             // XXX move this out
             if(playerState === "spin"){
               this.owner.find('State').onKnockOut();
-              console.log('hit');
+              //console.log('hit');
 
               // FIX ME: Prevent the object from colliding with anything else.
               // this.onCollision = function(){};
@@ -1213,7 +1246,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
         var thisTime;
         var timer = 0;
         
-        
         var collideID = 0;
         var platformEntity = null;
         
@@ -1222,10 +1254,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         
         this.initialPos = options.initialPos || [0,0,0];
         
-        //this.health = MAX_HEALTH;
-        //this.speed = [0, 0];
         var playerName = options.name || "NoName";
-        this.name = playerName;
         var facing = FACING_RIGHT;
 
         this.onCollision = function(e){
@@ -1237,7 +1266,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
            //this.owner.find('State').getCurrState() === 'forward jump'
             this.owner.find('State').land();
           }
-
 
           // If this is the first instance of us colliding with a platform,
           // we must have just landed, which means we should go into an idle state.
@@ -1259,7 +1287,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               collideID = e.data.entity.id;
               
               console.log('just landed');
-              this.owner.find('State').land();
+             // this.owner.find('State').land();
             }
           }          
         };
@@ -1320,7 +1348,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               platformEntity = null;
               collideID = 0;
               
-              this.owner.find('State').onFall();
+              //this.owner.find('State').onFall();
             }
           }
           
@@ -1355,18 +1383,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
       ////////////////
       var run = function () {
 
-        // Create game floor
-        var gravity = new Box2D.b2Vec2(0.0, -19.8);
-        world = new Box2D.b2World(gravity);
-
-        // FIX ME
-        /* var bd_ground = new Box2D.b2BodyDef();
-        var ground = world.CreateBody(bd_ground);
-
-        var shape0 = new Box2D.b2EdgeShape();
-        shape0.Set(new Box2D.b2Vec2(-400, 9), new Box2D.b2Vec2(400.0, 9));
-        ground.CreateFixture(shape0, 0);*/
-
         // Add some tunes
         var audioElement = document.createElement('audio');
         audioElement.setAttribute('src', 'music/no-comply.ogg');
@@ -1385,59 +1401,64 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           canvas = engine.graphics.target.element;
 
-
           ////////////  
-          // Thug test
+          // Boss
           ////////////
-/*          var thugBodyDef = engine.physics.resource.BodyDefinition(
-                  engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,  6, 1, false);
+          var bossW = 10,
+              bossH = 10;
+
+          var bossBody = engine.physics.resource.BodyDefinition({
+                  type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
+                  linearDamping: 6,
+                  angularDamping: 1,
+                  fixedRotation: true
+          });
 
           // Make an obstacle that will collide with the player
-          var thugShape = engine.physics.resource.Box( 1, 2 );//0.4, 2
-          var thugFixDef = engine.physics.resource.FixtureDefinition( thugShape, 5.0 );
+          var bossShape = engine.physics.resource.Box( bossW/3, bossH/3 );
+          var bossFixture = engine.physics.resource.FixtureDefinition({
+            shape:   bossShape,
+            density: 15
+          });
 
+          var boss = new space.Entity({
+              name: 'boss',
+              components: [
+                new engine.core.component.Transform({
+                  /// !!! XXX use initial pos
+                  position: math.Vector3(38, FLOOR_POS + 10, GAME_DEPTH),
+                  scale: math.Vector3(bossW, bossH, 1),
+                  rotation: math.Vector3(0, math.PI, 0)
+                }),
+                new BitwallModel({
+                  sprite: viking.sprites.thug1
+                }),
+                
+                new BossComponent({}),
+                
+                new HealthComponent({domId: 'boss', color: 'orange'}),
+                
+                //new StateComponent(), 
+                
+                new engine.physics.component.Body({
+                  bodyDefinition: bossBody,
+                  fixtureDefinition: bossFixture
+                }),
 
-          for(var i = 0; i < 0; i++){
-            var thug1 = new space.Entity({
-                name: 'thug' + i,
-                components: [
-                  
-                  // Model
-                  new engine.core.component.Transform({
-                    /// XXX use initial pos
-                    position: math.Vector3((i+1)*20, FLOOR_POS + 5, 0),
-                    scale: math.Vector3(7, 7, 7),
-                    rotation: math.Vector3(0, math.PI, 0)
-                  }),
-                  
-                  // Graphic Representation
-                  new BitwallModel({
-                    sprite: viking.sprites.thug1
-                  }),
-                  
-                  new EnemyComponent({}),
-                  
-                  //new StateComponent(), 
-                  
-                  new engine.physics.component.Body({
-                    bodyDefinition: thugBodyDef,
-                    fixtureDefinition: thugFixDef
-                  }),
-
-                  new collision2Service.component.BoundingBox({
-                    lowerLeft: math.Vector3( -2, -3,  0),
-                    upperRight: math.Vector3( 0.5,  2,  0 )
-                  })
-                ]
-              });
-          }          
+                new collision2Service.component.BoundingBox({
+                  lowerLeft: math.Vector3( -bossW/3, -bossH/3, 0),
+                  upperRight: math.Vector3( bossW/3,  bossH/3, 0 )
+                })
+              ]
+            });
           //thug1.find('Enemy').setFacing(1);
           //thug1.find('Enemy').walk();*/
-                    
+          
+          
           ////////////                      
-          // Player1 Entity
+          // Player
           ////////////
-          var cubeBodyDefinition = engine.physics.resource.BodyDefinition({
+          var playerBody = engine.physics.resource.BodyDefinition({
             type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
             linearDamping:  2,
             angularDamping: 1,
@@ -1445,20 +1466,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
           });
 
           // Make an obstacle that will collide with the player
-          var cubeCollisionShape = engine.physics.resource.Box( 0.75, 2 );
-          var cubeFixtureDefinition = engine.physics.resource.FixtureDefinition({
-            shape:   cubeCollisionShape,
+          var playerShape = engine.physics.resource.Box( 0.75, 2 );
+          var playerFixture = engine.physics.resource.FixtureDefinition({
+            shape:   playerShape,
             density: 5
           });
 
-          var player1 = new space.Entity({
-            name: 'player1',
+          var player = new space.Entity({
+            name: 'player',
             components: [
             
             // Model
             new engine.core.component.Transform({
               /// XXX use initial pos
-              position: math.Vector3(-28, FLOOR_POS + 35, -25),
+              position: math.Vector3(-28, FLOOR_POS + 35, GAME_DEPTH),
               scale: math.Vector3(7, 7, 7)
             }),
             
@@ -1467,7 +1488,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               sprite: viking.sprites.kraddy
             }),
             
-            new HealthComponent({domId: 'player1'}),
+            new HealthComponent({domId: 'player', color: 'green'}),
             
             new engine.input.component.Controller({
             
@@ -1475,6 +1496,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 // keep state of the keys
                 var keyName = e.data.code;
                 keyStates[keyName] = (e.data.state === 'down') ? true : false;
+                
+                switch(keyName){
+                  case '1':makeCrate({position: [35, 40, GAME_DEPTH]});break;
+                  case '2':launchStuff();break;
+                }
+                
               } // onKey
             }), //controller
             
@@ -1484,8 +1511,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
             new StateComponent(), 
             
             new engine.physics.component.Body({
-              bodyDefinition: cubeBodyDefinition,
-              fixtureDefinition: cubeFixtureDefinition
+              bodyDefinition: playerBody,
+              fixtureDefinition: playerFixture
             }),
 
              new collision2Service.component.BoundingBox({
@@ -1540,34 +1567,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
           });
 
           
-          /*
-            new space.Entity({
-                name: 'enemy' + i,
-                components: [
-                   new engine.core.component.Transform({
-                    position: math.Vector3( -3, 11, 0 ),
-                    scale: math.Vector3( 1, 1, 1)
-                    }),
-
-                   new engine.graphics.component.Model({
-                       mesh: resources.mesh,
-                       material: resources.material
-                   }),
-                   
-                   new EnemyComponent(),
-                   
-                   new collision2Service.component.BoundingBox({
-                     lowerLeft: math.Vector3( -2, -3,  0),
-                      upperRight: math.Vector3( 0.5,  2,  0 )
-                    })
-              
-                   new engine.physics.component.Body({
-                       bodyDefinition: bodyDef,
-                       fixtureDefinition: fixtureDef
-                   }),
-                   ]
-            });*/
-
           var camera = new space.Entity({
             name: 'camera',
             components: [
@@ -1579,7 +1578,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               height: canvas.height,
               fov: 60
             }),
-            // !!!We need this light so white borders around sprites aren't drawn.
+             // We need this light so white borders around sprites aren't drawn.
              new engine.graphics.component.Light({
                 type: "point",
                 method: "dynamic",
@@ -1608,15 +1607,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
             callback: function () {
               var delta = engine.scheduler.simulationTime.delta / 1000;
               
-              world.Step(delta, 2, 2);
-                         
               // Player components
-              var p1Com = player1.find('Player');
-              var p1Pos = player1.find('Transform').position;
+              var p1Com = player.find('Player');
+              var p1Pos = player.find('Transform').position;
               var p1Xpos = p1Pos[0];
-              var p1Div = getById('player1');
+              var p1Div = getById('player');
               // XXX fix me
-              p1Div = getById('player1'); 
+              p1Div = getById('player'); 
               
               var newPos = camera.find('Transform').position;
               newPos[0] = p1Pos[0];
@@ -1625,7 +1622,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               camera.find('Transform').position = [newPos[0],  4 +newPos[1] + 10, 25];
               camera.find('Camera').target = [newPos[0], 4 + p1Pos[1], -1];
 
-              var playerState = player1.find('State');
+              var playerState = player.find('State');
               //var thugState = thug1.find('State');
               //var thugPos = thug1.find('Transform').position;
               
@@ -1638,31 +1635,30 @@ document.addEventListener("DOMContentLoaded", function (e) {
                  thug1.find('Enemy').setFacing(-1);
                }*/
 
-
               if(keyStates[keyConfig.RIGHT_KEY] && keyStates[keyConfig.JUMP_KEY]){
-                player1.find('Player').jump();
+                player.find('Player').jump();
               }
               else if (keyStates[keyConfig.LEFT_KEY] && keyStates[keyConfig.JUMP_KEY]){
-                player1.find('Player').jump();
+                player.find('Player').jump();
               }
               // Don't move the user if they're trying to move in both directions.
               else if (keyStates[keyConfig.RIGHT_KEY] && keyStates[keyConfig.LEFT_KEY]) {
-                player1.find('Player').idle();
+                player.find('Player').idle();
               }
               // Move them right if released the right key.
               else if (keyStates[keyConfig.RIGHT_KEY]) {
-                player1.find('Player').moveRight();
+                player.find('Player').moveRight();
               }
               // Move them left if they released the left key.
               else if (keyStates[keyConfig.LEFT_KEY]) {
-                player1.find('Player').moveLeft();
+                player.find('Player').moveLeft();
               }
               // 
               else if (keyStates[keyConfig.JUMP_KEY]) {
-                player1.find('Player').jump();
+                player.find('Player').jump();
               }
               else{
-                player1.find('Player').idle();
+                player.find('Player').idle();
               }
             }
           });
@@ -1675,12 +1671,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
       ////////////////
       // Load some sprites
       ////////////////
-      viking.loadSprite('./sprites/thug1.sprite', {});
-      viking.loadSprite('./sprites/kraddy.sprite',{});
-      viking.loadSprite('./sprites/thug2.sprite', {});
-      viking.loadSprite('./sprites/thug3.sprite', {});
-      viking.loadSprite('./sprites/thug4.sprite', {});
-      viking.loadSprite('./sprites/thug5.sprite', {});
+      viking.loadSprite('./sprites/thug1.sprite');
+      viking.loadSprite('./sprites/kraddy.sprite');
 
       engine.core.resource.get([
       {
@@ -1763,7 +1755,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               name: 'platform',
               components: [
                 new engine.core.component.Transform({
-                  position: math.Vector3( -36.2, FLOOR_POS -1.5, -25 ),
+                  position: math.Vector3( -36.2, FLOOR_POS -1.5, GAME_DEPTH ),
                   scale: math.Vector3( rightFloorW, rightFloorH, 5)
                 }),
                 new engine.graphics.component.Model(
@@ -1787,7 +1779,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               name: 'platform',
               components: [
                 new engine.core.component.Transform({
-                  position: math.Vector3( 33.2, FLOOR_POS -1.5, -25 ),
+                  position: math.Vector3( 33.2, FLOOR_POS -1.5, GAME_DEPTH ),
                   scale: math.Vector3( rightFloorW, rightFloorH, 5)
                 }),
                 new engine.graphics.component.Model(
@@ -1812,10 +1804,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
               name: 'wall',
               components: [
                 new engine.core.component.Transform({
-                  position: math.Vector3( -58.5, FLOOR_POS -15, -25 ),
+                  position: math.Vector3( -58.5, FLOOR_POS -15, GAME_DEPTH ),
                   scale: math.Vector3( wallW, wallH, 5)
                 }),
-                // !! remove before release
+                // !!! Remove before release
                 new engine.graphics.component.Model(
                   instance.meshes[0]
                 ),
@@ -1836,10 +1828,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
               name: 'wall',
               components: [
                 new engine.core.component.Transform({
-                  position: math.Vector3( 58.5, FLOOR_POS -15, -25 ),
+                  position: math.Vector3( 58.5, FLOOR_POS -15, GAME_DEPTH ),
                   scale: math.Vector3( wallW, wallH, 5)
                 }),
-                // !! remove before release
+                // TODO: Remove before release
                 new engine.graphics.component.Model(
                   instance.meshes[0]
                 ),
@@ -1855,13 +1847,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
             });
             
           
-          // There are the platforms user can jump on
+          // These are the platforms user can jump on
           for(var i = 0; i < 3; i++){
             new space.Entity({
               name: 'platform',
               components: [
                 new engine.core.component.Transform({
-                  position: math.Vector3( i*15, 20 + FLOOR_POS + (i*5), -25 ),
+                  position: math.Vector3( i*15, 20 + FLOOR_POS + (i*5), GAME_DEPTH ),
                   scale: math.Vector3( platW, platH, 5 )
                 }),
                 new engine.graphics.component.Model(
@@ -1879,9 +1871,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
               ]
             });
           }
-          
-          
-          
         }
       },
 
@@ -1890,46 +1879,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
         url: 'crate/crate.dae',
         load: colladaLoader,
         onsuccess: function (instance) {
-
-          // Add crates
-          for(var i = 0; i < 1; i++){
-          
-            var bodyDef = engine.physics.resource.BodyDefinition({
-              type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
-              linearDamping:  1,
-              angularDamping: 1,
-              fixedRotation:  false
-            });
-
-            var collisionShape = engine.physics.resource.Box( 1.5, 1.5 );
-            var fixtureDef = engine.physics.resource.FixtureDefinition({
-              shape: collisionShape,
-              density: 0.5
-            });
-            
-            new space.Entity({
-                name: 'crate' + i,
-                components: [
-                  new engine.core.component.Transform({
-                    position: math.Vector3( -20 + (i*5), 40 + FLOOR_POS + (instance.positions[0][1]), -25 ),
-                    scale: math.Vector3( 3, 3, 3)
-                  }),
-                  new engine.graphics.component.Model(
-                    instance.meshes[0]
-                  ),
-                  new CrateComponent(),
-                  new engine.physics.component.Body({
-                    bodyDefinition: bodyDef,
-                    fixtureDefinition: fixtureDef
-                  }),
-                ]
-            });
-          }
+          // We'll be making crates dynamically so we need to make an accessible reference. 
+          resources.crate = {
+            mesh: instance.meshes[0]
+          };
         },
         onfailure: function (error) {
           console.log(error);
         }
       },
+      
       {
         type: engine.graphics.resource.Mesh,
         url: 'procedural-mesh.js',
