@@ -87,17 +87,17 @@ define( function ( require ) {
                     return _manager;
                 },
                 set: function( value ) {
-                    if( value !== this && value !== _manager ) {
+                    if( value !== _manager ) {
                         var previous = _manager;
                         _manager = value;
-                        _handleEvent( new engine.core.Event({
+                        new engine.core.Event({
                             type: 'EntityManagerChanged',
                             queue: false,
                             data: {
                                 previous: previous,
                                 current: value
                             }
-                        }));
+                        }).dispatch( that );
                     }
                 }
             });

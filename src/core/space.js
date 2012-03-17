@@ -61,6 +61,9 @@ define( function ( require ) {
                     var entity = _entitiesById[id];
                     delete _entitiesById[id];
                     -- _size;
+                    
+                    entity.manager = null;
+                    
                     return entity;
                 } else {
                     return null;
