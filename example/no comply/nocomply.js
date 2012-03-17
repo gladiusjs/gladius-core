@@ -478,7 +478,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         var collisionShape = engine.physics.resource.Box( size/2, size/2 );
         var fixtureDef = engine.physics.resource.FixtureDefinition({
           shape:   collisionShape,
-          density: 5
+          density: 1
         });
         
        var stoneCrate = new space.Entity({
@@ -1874,7 +1874,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               
               if(totalTime > 1){
                 canMove = true;
-                var movieTop = getById('movieTop').style.height;
+                //var movieTop = getById('movieTop').style.height;
               }
               
               // Player components
