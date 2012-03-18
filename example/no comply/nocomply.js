@@ -1515,43 +1515,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             ]
           });
 
-          // Center floor
-          var floorBodyDef = engine.physics.resource.BodyDefinition({
-            type: engine.physics.resource.BodyDefinition.bodyType.STATIC,
-            linearDamping:  1,
-            angularDamping: 1,
-            fixedRotation:  true
-          });
-
-          var floorCollisionShape = engine.physics.resource.Box( 150, .1 );
-          var floorFixtureDef = engine.physics.resource.FixtureDefinition({
-            shape: floorCollisionShape,
-            density: 0
-          });
-
-          // The center ditch between the left and the right floors
-          var floor = new space.Entity({
-              name: 'platform',
-              components: [
-                 new engine.core.component.Transform({
-                  position: math.Vector3( 0, FLOOR_POS, 0 ),
-                  scale: math.Vector3( 300, .1, 1)
-                  }),
-
-                 new engine.graphics.component.Model({
-                     mesh: resources.mesh,
-                     material: resources.material
-                 }),
-
-                 new PlatformComponent(),
-                 
-                 new engine.physics.component.Body({
-                     bodyDefinition: floorBodyDef,
-                     fixtureDefinition: floorFixtureDef
-                 }),
-                 ]
-          });
-
+       
           
           var camera = new space.Entity({
             name: 'camera',
@@ -1726,6 +1690,34 @@ document.addEventListener("DOMContentLoaded", function (e) {
               density: 0
             });
             
+          var floorCollisionShape = engine.physics.resource.Box( 150, .1 );
+          var floorFixtureDef = engine.physics.resource.FixtureDefinition({
+            shape: floorCollisionShape,
+            density: 0
+          });
+
+          // The center ditch between the left and the right floors
+          var floor = new space.Entity({
+              name: 'platform',
+              components: [
+                new engine.core.component.Transform({
+                  position: math.Vector3( 0, FLOOR_POS, GAME_DEPTH ),
+                  scale: math.Vector3( 300, .1, 1)
+                }),
+
+                new engine.graphics.component.Model(
+                  instance.meshes[0]
+                ),
+
+                new PlatformComponent(),
+                 
+                new engine.physics.component.Body({
+                  bodyDefinition: bodyDef,
+                  fixtureDefinition: floorFixtureDef
+                }),
+              ]
+          });
+
 
           // Left floor, where the user starts
           new space.Entity({
@@ -1767,8 +1759,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 }),
               ]
             });
-            
-            
             
             // Left wall
             new space.Entity({
@@ -1865,29 +1855,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
         }
       },
       
-      {
-        type: engine.graphics.resource.Mesh,
-        url: 'procedural-mesh.js',
-        load: engine.core.resource.proceduralLoad,
-        onsuccess: function (mesh) {
-          resources['mesh'] = mesh;
-        },
-        onfailure: function (error) {}
-      },
-      
-      {
-        type: engine.graphics.resource.Material,
-        url: 'procedural-material.js',
-        load: engine.core.resource.proceduralLoad,
-        onsuccess: function (material) {
-          resources['material'] = material;
-        },
-        onfailure: function (error) {}
-      },
       ], {
-        oncomplete: run
-      });
-    };
+      oncomplete: run
+    });
+  };
 
   gladius.create({
     debug: true,
