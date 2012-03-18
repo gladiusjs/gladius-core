@@ -1,6 +1,3 @@
-var totalTime = 0;
-var canMove = false;
-var shake = 0;
 /*
   Simple game based on the "No Comply" WebGL music video.
   TODOs: https://gladius.etherpad.mozilla.org/8
@@ -24,8 +21,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
       const FACING_RIGHT =   1;
       const FACING_LEFT   = -1;
 
-      const MOVE_SPEED = 45;
-      const JUMP_IMPULSE = 50;
+      const MOVE_SPEED = 50;
+      const JUMP_IMPULSE = 5000;
       
       const FLOOR_POS = 0;
       
@@ -41,6 +38,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
       const BOSS_WALK_ANI_SPEED = 0.25;
       
       const MAX_HEALTH = 100;
+      
+      // TODO: move this to the camera entity
+      var cameraShake = 0;
             
       //////////////////
       // Player config
@@ -73,152 +73,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
       var space = new engine.core.Space();
       var math = engine.math;
-        
-        // TODO: FIX ME
-        /////////
-        // Collision Service
-        /////////
-        var Collision2Service = engine.base.Service({
-            type: 'Physics',
-            schedule: {
-                update: {
-                    phase: engine.scheduler.phases.UPDATE
-                }
-            },
-            time: engine.scheduler.simulationTime
-        },
-        function( options ) {
-
-            var that = this;
-            var service = this;
-
-            var BoundingBox = engine.base.Component({
-                type: 'Collision',
-                depends: ['Transform']
-            },
-            function( options ) {
-                this.lowerLeft = options.lowerLeft;
-                this.upperRight = options.upperRight;
-                
-                // Boilerplate component registration; Lets our service know that we exist and want to do things
-                this.onComponentOwnerChanged = function( e ){
-                    if( e.data.previous === null && this.owner !== null ) {
-                        service.registerComponent( this.owner.id, this );
-                    }
-
-                    if( this.owner === null && e.data.previous !== null ) {
-                        service.unregisterComponent( e.data.previous.id, this );
-                    }
-                };
-
-                this.onEntityManagerChanged = function( e ) {
-                    if( e.data.previous === null && e.data.current !== null && this.owner !== null ) {
-                        service.registerComponent( this.owner.id, this );
-                    }
-
-                    if( e.data.previous !== null && e.data.current === null && this.owner !== null ) {
-                        service.unregisterComponent( this.owner.id, this );
-                    }
-                };
-            });
-
-            this.update = function() {
-
-                for( var componentType in that.components ) {
-                    for( var entityId in that.components[componentType] ) {
-                        while( that.components[componentType][entityId].handleQueuedEvent() ) {}
-                    }
-                }
-
-                function checkCollision( box1, box2 ) {
-                    var top1, top2,
-                        bottom1, bottom2,
-                        left1, left2,
-                        right1, right2;
-                    
-                    top1 = box1.upperRight[1];
-                    top2 = box2.upperRight[1];
-                    bottom1 = box1.lowerLeft[1];
-                    bottom2 = box2.lowerLeft[1];
-                    
-                    left1 = box1.lowerLeft[0];
-                    left2 = box2.lowerLeft[0];
-                    right1 = box1.upperRight[0];
-                    right2 = box2.upperRight[0];
-                    
-                    var outsideBottom = bottom1 > top2,
-                        outsideTop = top1 < bottom2,
-                        outsideLeft = left1 > right2,
-                        outsideRight = right1 < left2;
-                        
-                    return !( outsideBottom || outsideTop || outsideLeft || outsideRight );
-                }
-
-                for( var collisionEntity1 in that.components.Collision ) {
-                    var component1 = that.components.Collision[collisionEntity1];
-                    var box1 = null;
-                    var box2 = null;
-
-                    for( var collisionEntity2 in that.components.Collision ) {
-                        if( collisionEntity1 !== collisionEntity2 ) {
-                            var component2 = that.components.Collision[collisionEntity2];
-                            
-                            if( !box1 ) {
-                                var transform1 = component1.owner.find( 'Transform' );
-                                box1 = {
-                                        lowerLeft: math.vector3.add(
-                                                    transform1.position,
-                                                    component1.lowerLeft
-                                                ),
-                                        upperRight: math.vector3.add(
-                                                    transform1.position,
-                                                    component1.upperRight
-                                                )
-                                };
-                            }
-                            
-                            var transform2 = component2.owner.find( 'Transform' );
-                            box2 = {
-                                    lowerLeft: math.vector3.add(
-                                                transform2.position,
-                                                component2.lowerLeft
-                                            ),
-                                    upperRight: math.vector3.add(
-                                                transform2.position,
-                                                component2.upperRight
-                                            )
-                            };
-
-                            if ( checkCollision( box1, box2 ) ) {
-                                new engine.core.Event({
-                                    type: 'Collision',
-                                    data: {
-                                        entity: component2.owner,
-                                    }
-                                }).dispatch( [component1.owner] );
-                            }
-
-                        }
-                    }
-                }
-            };
-
-            var _components = {
-                    BoundingBox: BoundingBox
-            };
-
-            Object.defineProperty( this, 'component', {
-                get: function() {
-                    return _components;
-                }
-            });
-        });
-
-        var collision2Service = new Collision2Service();
-        
-      
-
-
       
       // Global state of the keyboard.
       var keyStates = [];
@@ -460,7 +314,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
       var dropStoneCrate = function(options){
 
         var size = 3;
-        shake = 100;
+        cameraShake = 500;
         
         // buffer
         var b = 0;
@@ -497,10 +351,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
               new engine.physics.component.Body({
                 bodyDefinition: bodyDef,
                 fixtureDefinition: fixtureDef
-              }),
-              new collision2Service.component.BoundingBox({
-                lowerLeft: math.Vector3( -size/2 -b , -size/2 -b,  0 ),
-                upperRight: math.Vector3( size/2 +b,  size/2 + b,  0 )
               })
             ]
         });
@@ -510,9 +360,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
       var makeCrate = function(options){
         
         var boxW = boxH = 3;
-        
-        // buffer
-        var b = 1.4;
         
         var pos = options.position;
         
@@ -543,10 +390,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
               new engine.physics.component.Body({
                 bodyDefinition: bodyDef,
                 fixtureDefinition: fixtureDef
-              }),
-              new collision2Service.component.BoundingBox({
-                lowerLeft: math.Vector3( -boxW/2 -b , -boxH/2 -b,  0 ),
-                upperRight: math.Vector3( boxW/2 +b,  boxH/2 + b,  0 )
               })
             ]
         });     
@@ -637,15 +480,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 timeElapsed += delta;
                 
                 // TODO: FIX ME
-                if(timeElapsed > 0.25 && pl.owner.find('Transform').position[1] <= 13){
+                if(timeElapsed > 0.25 && pl.owner.find('Transform').position[1] <= 15){
                 
                   // make crates when boss lands
-                  // comment
                   var time = 10;
-                  for(var x = -38, y = 0; x < 35; x += 10, y += 15){
+                  for(var x = -38, y = 0; x < 30; x += 10, y += 15){
                     time += 0.5;
                     dropStoneCrate({position: [x, y + 150, GAME_DEPTH], time: time});
                   }
+                  
+                  makeCrate({position:[-40, 20, GAME_DEPTH]});
                   
                   pl.setState(pl.getWalkState());
                 }
@@ -791,7 +635,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
               this.fall = function(){     pl.setState(pl.getFallState());};
 
               this.activate = function(){
-
                 timer = 0;
               };
 
@@ -921,7 +764,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 timeElapsed = 0;
                 pl.owner.find('Model').updateAction('jump');
                 
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, 3000]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, JUMP_IMPULSE]}}).dispatch( pl.owner );
               }
               this.toString = function(){
                 return 'jump';
@@ -1167,9 +1010,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
         // This is a hack so that this component will have its message queue processed
         var service = engine.logic; 
 
-        this.onCollision = function(e){
-        };
-        
         this.onUpdate = function (event) {
           var delta = service.time.delta / 1000;          
         }; // onUpdate
@@ -1213,43 +1053,29 @@ document.addEventListener("DOMContentLoaded", function (e) {
         // This is a hack so that this component will have its message queue processed
         var service = engine.logic; 
 
-        this.velocity = [0, 0, 0];
-        this.acceleration = [0, 0, 0];
-
-        this.onCollision = function(e){
-          //console.log('collide');
-        
-          if(e.data.entity.find('State')){
-            var playerState = e.data.entity.find('State').getCurrState();
-            var playerTrans = e.data.entity.find('Transform');
-
-            // XXX move this out
-            if(playerState === "spin"){
-              //this.velocity = [0, 100, -10];
-              //this.acceleration[1] = 9.8 * 80;
+        this.onContactBegin = function( e ) {
+          var crateXpos = this.owner.find('Transform').position;
+          var bossXpos = e.data.entities[0].find('Transform').position;
+          var userXpos = e.data.entities[0].find('Transform').position;      
+          
+          // Only hurt the player if the crate landed on his head
+          if(crateXpos[1] > userXpos[1]){
+            if(e.data.entities[0].name === 'boss'){
+              space.remove(this.owner);
+              e.data.entities[0].find('Health').onHurt(25);
             }
+          }
+
+          // TO DO: fix this
+          if(e.data.entities[0].name === 'player' || e.data.entities[1].name === 'player'){
+            // place the crate on the last platform for now.
+            this.owner.find('Body').onSetTransform({position: [30, 100]});
           }
         };
         
         this.onUpdate = function (event) {
-          var delta = service.time.delta / 1000;
-          
-          // var trans = this.owner.find('Transform').position;
-          // trans[0] += this.velocity[0] * delta;
-          // trans[1] += this.velocity[1] * delta;
-          // trans[2] -= this.velocity[2] * delta;
-          //this.owner.find('Transform').position;
-          //var data = { x: 0, y: 0, angle: 0 };
-          //readObject(1, data);
-          //this.owner.find('Transform').position = [data.x, data.y, 0];
-          /* var renderObject = boxes[i];
-            renderObject.position[0] = data.x;
-            renderObject.position[1] = data.y;
-            renderObject.position[2] = 0;
-            renderObject.rotation = [0, 0, data.angle*180/Math.PI];*/
-            // this.velocity[1] -= this.acceleration[1] * delta;
-            //this.owner.find('Transform').position = trans;
-        }; // onUpdate
+          var delta = service.time.delta / 1000;          
+        };
         
         // Boilerplate component registration; Lets our service know that we exist and want to do things
         this.onComponentOwnerChanged = function (e) {
@@ -1297,19 +1123,39 @@ document.addEventListener("DOMContentLoaded", function (e) {
         var timeToDie = options.time;
         
         // This is a hack so that this component will have its message queue processed
-        var service = engine.logic; 
+        var service = engine.logic;
 
-        this.onCollision = function(e){
-          // TODO: check if it collided with player
-          //if(e.data.entity.find('Player')){
-          //}
-          
-          if(e.data.entity.name === 'boss'){
-            space.remove(this.owner);
-            
-            e.data.entity.find('Health').onHurt(25);
+        this.onContactBegin = function( e ) {
+          var crateXpos = this.owner.find('Transform').position;
+          var bossXpos = e.data.entities[0].find('Transform').position;
+          var userXpos = e.data.entities[0].find('Transform').position;      
+           
+          // Only hurt the player if the crate landed on his head
+          if(crateXpos[1] > userXpos[1]){
+            if(e.data.entities[0].name === 'player'){
+              space.remove(this.owner);
+              e.data.entities[0].find('Health').onHurt(25);
+            }
           }
+        };
+            
+        this.onContactEnd = function( event ) {
+        };
+
+
+        // TODO: remove
+        this.onContactBegin = function(e){
+          var crateXpos = this.owner.find('Transform').position;
+          var bossXpos = e.data.entities[0].find('Transform').position;
+          var userXpos = e.data.entities[0].find('Transform').position;
           
+          // Only hurt the boss if the crate landed on his head
+          if(crateXpos[1] > bossXpos[1]){
+            if(e.data.entities[0].name === 'boss'){
+              space.remove(this.owner);
+              e.data.entities[0].find('Health').onHurt(25);
+            }
+          }
         };
         
         this.onUpdate = function (event) {
@@ -1317,11 +1163,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
           timer += delta;
  
-           if(timer >= timeToDie){
-              space.remove(this.owner);
-
-            }
-          
+          if(timer >= timeToDie){
+            space.remove(this.owner);
+          }
         }; // onUpdate
         
         // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -1363,38 +1207,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         // This is a hack so that this component will have its message queue processed
         var service = engine.logic;
         
-        this.velocity = [0, 0, 0];
-        this.acceleration = [0, 0, 0];
-        
-        
-        var someTimer = 0;
-        
         this.facing = FACING_LEFT;
-
-        this.onCollision = function(e){
-
-          if(e.data.entity.name === 'crate'){
-            space.remove( e.data.entity );
-            this.owner.find('Health').onHurt(25);
-          }
-          
-          if(e.data.entity.find('State')){
-            var playerState = e.data.entity.find('State').getCurrState();
-            var playerTrans = e.data.entity.find('Transform');
-
-            // XXX move this out
-            if(playerState === "spin"){
-              this.owner.find('State').onKnockOut();
-              //console.log('hit');
-
-              // FIX ME: Prevent the object from colliding with anything else.
-              // this.onCollision = function(){};
-              // this.velocity = [5, 50, 5];
-              // this.acceleration[1] = -9.8 * 20;
-            }
-            //else {set Linear Vel of object}
-          }
-        };
         
         this.setFacing = function(f){
           if(f === FACING_LEFT || f === FACING_RIGHT){
@@ -1403,65 +1216,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
           }
         }
         
-        // FIX ME
-        this.getBody = function(){
-          return this.owner.find('Body');
-        };
-        
-        // tell the sprite to walk forward
-        this.walk = function(){
-        /*
-          var dir = this.facing === 1 ? 'right' : 'left';
-        
-          new engine.core.Event({
-              type: 'MoveStart' ,
-              data: {
-                direction: dir
-              }
-          }).dispatch( this.owner );
-        };
-        
-        this.stopWalk = function(){
-        var dir = this.facing === 1 ? 'right' : 'left';
-          new engine.core.Event({
-              type: 'MoveStop',
-              data: {
-                direction: dir
-              }
-          }).dispatch( this.owner );*/
-        }
-        
         this.onUpdate = function (event) {
-
           var delta = service.time.delta / 1000;
-          /*
-          someTimer += delta;
-          
-          // Drop stone crates
-          if(someTimer > 25){
-            someTimer = 0;
-            
-//            new engine.core.Event({type: 'LinearImpulse', data: {impulse: [-40, 0]}}).dispatch( player.owner );
-            
-            // TODO: comment
-            var time = 10;
-            for(var x = -38, y = 0; x < 35; x += 10, y += 15){
-              time += 0.5;
-              dropStoneCrate({position: [x, y + 150, GAME_DEPTH], time: time});
-            }
-          }*/
-          
-         // this.owner.find('Model').updateAction('walk');
-                    
-          //var trans = this.owner.find('Transform').position;
-          //trans[0] += this.velocity[0] * delta;
-          //trans[1] += this.velocity[1] * delta;
-          //trans[2] += this.velocity[2] * delta;
-          
-          //this.velocity[1] += this.acceleration[1] * delta;
-          //this.getBody().setLinearVel([-10,0]);
-          //this.owner.find('Transform').position = trans;
-        }; // onUpdate
+        };
         
         // Boilerplate component registration; Lets our service know that we exist and want to do things
         this.onComponentOwnerChanged = function (e) {
@@ -1506,8 +1263,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
         
         var fallingState = true;
         var landed = false;
-        var lastTime;
-        var thisTime;
         var timer = 0;
         
         var collideID = 0;
@@ -1521,7 +1276,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         var playerName = options.name || "NoName";
         var facing = FACING_RIGHT;
 
-        this.onCollision = function(e){
+        this.onContactBegin = function(e){
           var userPos,
               platPos;
               
@@ -1534,10 +1289,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
           // If this is the first instance of us colliding with a platform,
           // we must have just landed, which means we should go into an idle state.
           // new collision
-          if(collideID !== e.data.entity.id && e.data.entity.name === 'platform'){
+          if(collideID !== e.data.entities[0].id && e.data.entities[0].name === 'platform'){
           
             userPos = this.owner.find('Transform').position[1];          
-            platPos =  e.data.entity.find('Transform').position[1];
+            platPos =  e.data.entities[0].find('Transform').position[1];
 
             // FIX ME
             // We could have collided with the platform by hitting our head on it,
@@ -1547,8 +1302,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
             if( Math.abs(userPos - platPos) > 0.0001){
             //if(userPos <= platPos)
               // grab a reference to the platform
-              platformEntity = e.data.entity;
-              collideID = e.data.entity.id;
+              platformEntity = e.data.entities[0];
+              collideID = e.data.entities[0].id;
               
               console.log('just landed');
              // this.owner.find('State').land();
@@ -1616,6 +1371,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             }
           }
           
+          // TODO: remove before release
           document.getElementById('debug').innerHTML = this.owner.find('State').getCurrState();
         }; // onUpdate
         
@@ -1707,17 +1463,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.physics.component.Body({
                   bodyDefinition: bossBody,
                   fixtureDefinition: bossFixture
-                }),
-
-                new collision2Service.component.BoundingBox({
-                  lowerLeft: math.Vector3( -bossW/3, -bossH/3, 0),
-                  upperRight: math.Vector3( bossW/3,  bossH/3, 0 )
                 })
               ]
             });
-          //thug1.find('Enemy').setFacing(1);
-          //thug1.find('Enemy').walk();*/
-          
           
           ////////////                      
           // Player
@@ -1761,8 +1509,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 var keyName = e.data.code;
                 keyStates[keyName] = (e.data.state === 'down') ? true : false;
                 
+                // TODO: remove before release
                 switch(keyName){
-                  case '1':makeCrate({position: [40, 40, GAME_DEPTH]});break;
+                  case '1':makeCrate({position: [-30, 40, GAME_DEPTH]});break;
                 }
                 
               } // onKey
@@ -1776,17 +1525,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
             new engine.physics.component.Body({
               bodyDefinition: playerBody,
               fixtureDefinition: playerFixture
-            }),
-
-             new collision2Service.component.BoundingBox({
-               lowerLeft: math.Vector3( -2, -3,  0),
-               upperRight: math.Vector3( 0.5,  2,  0 )
-              })
+            })
             ]
           });
-
-
-
 
           // floor
           var floorBodyDef = engine.physics.resource.BodyDefinition({
@@ -1814,12 +1555,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                      mesh: resources.mesh,
                      material: resources.material
                  }),
-                 
-                 new collision2Service.component.BoundingBox({
-                     lowerLeft: math.Vector3( -150,  -0.1,  0),
-                      upperRight: math.Vector3( 150,  0.1,  0 )
-                  }),
-                    
+
                  new PlatformComponent(),
                  
                  new engine.physics.component.Body({
@@ -1835,7 +1571,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
             components: [
             new engine.core.component.Transform({
               position: math.Vector3(0, 15, 30)
-            }), new engine.graphics.component.Camera({
+            }),
+            new engine.graphics.component.Camera({
               active: true,
               width: canvas.width,
               height: canvas.height,
@@ -1853,12 +1590,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
             ]
           });
           camera.find('Camera').target = math.Vector3(0, 15, -1);
-
-          // XXX Make the camera move slowly back to the starting point instead of this.
-          var restartGame = function(){
-            camera.find('Transform').position = math.Vector3(0, 10, -1);
-            camera.find('Camera').target = math.Vector3(0, 10, 30);
-          }
           
           ////////////////
           // Task
@@ -1870,44 +1601,24 @@ document.addEventListener("DOMContentLoaded", function (e) {
             callback: function () {
               var delta = engine.scheduler.simulationTime.delta / 1000;
               
-              totalTime += delta;
-              
-              if(totalTime > 1){
-                canMove = true;
-                //var movieTop = getById('movieTop').style.height;
-              }
-              
               // Player components
-              var p1Com = player.find('Player');
               var p1Pos = player.find('Transform').position;
               var p1Xpos = p1Pos[0];
-              var p1Div = getById('player');
-              // XXX fix me
-              p1Div = getById('player'); 
               
               var newPos = camera.find('Transform').position;
               newPos[0] = p1Pos[0];
               newPos[1] = p1Pos[1];
-              
-              var shaking = Math.sin(shake) * 2;
-              shake /= 1.1;
-              
-              camera.find('Transform').position = [newPos[0] + shaking,newPos[1] + 15 + shaking, 25 + shaking/2];
-              camera.find('Camera').target = [newPos[0], 4 + p1Pos[1] + shaking/2, -1];
+
+              cameraShake /= 1.1;
+              var shake = Math.sin(cameraShake * delta) * 2;
+                        
+              camera.find('Transform').position = [newPos[0] + shake, newPos[1] + 10 + shake, 25 + shake];
+              camera.find('Camera').target = [newPos[0], 4 + p1Pos[1] + shake, -1];
               
               var playerState = player.find('State');
-              //var thugState = thug1.find('State');
-              //var thugPos = thug1.find('Transform').position;
               
-              //var currFacing = thug1.find('Enemy').facing;
-              
-              /*if(thugPos[0] < -10 && currFacing === -1){
-                  thug1.find('Enemy').setFacing(1);
-               }
-               else if( thugPos[0] > 10 && currFacing === 1){
-                 thug1.find('Enemy').setFacing(-1);
-               }*/
-            if(canMove){
+            // canMove
+            if(true){
                 if(keyStates[keyConfig.RIGHT_KEY] && keyStates[keyConfig.JUMP_KEY]){
                   player.find('Player').jump();
                 }
@@ -1932,7 +1643,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 }
                 else{
                   player.find('Player').idle();
-                  player.find('Health').onHeal(.1);
                 }
               }
             }
@@ -2037,10 +1747,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   instance.meshes[0]
                 ),                   
                 new PlatformComponent(),
-                new collision2Service.component.BoundingBox({
-                  lowerLeft: math.Vector3( -rightFloorW/2, -rightFloorH/2,  0),
-                  upperRight: math.Vector3( rightFloorW/2,  rightFloorH/2,  0 )
-                }),
+
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: floorDef
@@ -2061,10 +1768,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   instance.meshes[0]
                 ),                   
                 new PlatformComponent(),
-                new collision2Service.component.BoundingBox({
-                  lowerLeft: math.Vector3( -rightFloorW/2, -rightFloorH/2,  0),
-                  upperRight: math.Vector3( rightFloorW/2,  rightFloorH/2,  0 )
-                }),
+
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: floorDef
@@ -2086,10 +1790,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.graphics.component.Model(
                   instance.meshes[0]
                 ),
-                new collision2Service.component.BoundingBox({
-                  lowerLeft: math.Vector3( -wallW/2, -wallH/2,  0),
-                  upperRight: math.Vector3( wallW/2,  wallH/2,  0 )
-                }),
+
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: wallDef
@@ -2110,10 +1811,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.graphics.component.Model(
                   instance.meshes[0]
                 ),
-                new collision2Service.component.BoundingBox({
-                  lowerLeft: math.Vector3( -wallW/2, -wallH/2,  0),
-                  upperRight: math.Vector3( wallW/2,  wallH/2,  0 )
-                }),
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: wallDef
@@ -2135,10 +1832,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   instance.meshes[0]
                 ),                   
                 new PlatformComponent(),
-                new collision2Service.component.BoundingBox({
-                  lowerLeft: math.Vector3( -platW/2, -platH/2,  0),
-                  upperRight: math.Vector3( platW/2,  platH/2,  0 )
-                }),
+
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: platDef
