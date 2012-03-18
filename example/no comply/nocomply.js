@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
       const MOVE_SPEED = 50;
       const JUMP_IMPULSE = 5000;
+      const BOSS_WALK_IMPULSE = 1000;
       
       const FLOOR_POS = 0;
       
@@ -34,6 +35,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
       //
       const WALK_ANI_SPEED = 0.085;
       const PUNCH_DURATION   = 0.12;
+
 
       const BOSS_WALK_ANI_SPEED = 0.25;
       
@@ -456,7 +458,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   direction *= -1;
                 }
                 
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [direction * 2500, 0]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [direction * BOSS_WALK_IMPULSE, 0]}}).dispatch( pl.owner );
               };
               
               this.toString = function(){
@@ -1128,11 +1130,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
         this.onContactBegin = function( e ) {
           var crateXpos = this.owner.find('Transform').position;
           var bossXpos = e.data.entities[0].find('Transform').position;
-          var userXpos = e.data.entities[0].find('Transform').position;      
-           
+          var userXpos = e.data.entities[0].find('Transform').position;
+          
+          if(e.data.entities[0].name === 'player'){
           // Only hurt the player if the crate landed on his head
           if(crateXpos[1] > userXpos[1]){
-            if(e.data.entities[0].name === 'player'){
               space.remove(this.owner);
               e.data.entities[0].find('Health').onHurt(25);
             }
@@ -1140,22 +1142,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
         };
             
         this.onContactEnd = function( event ) {
-        };
-
-
-        // TODO: remove
-        this.onContactBegin = function(e){
-          var crateXpos = this.owner.find('Transform').position;
-          var bossXpos = e.data.entities[0].find('Transform').position;
-          var userXpos = e.data.entities[0].find('Transform').position;
-          
-          // Only hurt the boss if the crate landed on his head
-          if(crateXpos[1] > bossXpos[1]){
-            if(e.data.entities[0].name === 'boss'){
-              space.remove(this.owner);
-              e.data.entities[0].find('Health').onHurt(25);
-            }
-          }
         };
         
         this.onUpdate = function (event) {
@@ -1435,7 +1421,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           });
 
           // Make an obstacle that will collide with the player
-          var bossShape = engine.physics.resource.Box( bossW/3, bossH/3 );
+          var bossShape = engine.physics.resource.Box( bossW/5, bossH/4 );
           var bossFixture = engine.physics.resource.FixtureDefinition({
             shape:   bossShape,
             density: 8
@@ -1529,7 +1515,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             ]
           });
 
-          // floor
+          // Center floor
           var floorBodyDef = engine.physics.resource.BodyDefinition({
             type: engine.physics.resource.BodyDefinition.bodyType.STATIC,
             linearDamping:  1,
@@ -1543,11 +1529,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
             density: 0
           });
 
+          // The center ditch between the left and the right floors
           var floor = new space.Entity({
               name: 'platform',
               components: [
                  new engine.core.component.Transform({
-                  position: math.Vector3( 0, FLOOR_POS - 1, 0 ),
+                  position: math.Vector3( 0, FLOOR_POS, 0 ),
                   scale: math.Vector3( 300, .1, 1)
                   }),
 
@@ -1617,6 +1604,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               
               var playerState = player.find('State');
               
+            
             // canMove
             if(true){
                 if(keyStates[keyConfig.RIGHT_KEY] && keyStates[keyConfig.JUMP_KEY]){
@@ -1631,11 +1619,15 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 }
                 // Move them right if released the right key.
                 else if (keyStates[keyConfig.RIGHT_KEY]) {
-                  player.find('Player').moveRight();
+                  //player.find('Player').moveRight();
+                  player.find('Player').setFacing(FACING_RIGHT);
+                  player.find('Body').onLinearImpulse({ data: {impulse: [MOVE_SPEED, 0]}});
                 }
                 // Move them left if they released the left key.
                 else if (keyStates[keyConfig.LEFT_KEY]) {
-                  player.find('Player').moveLeft();
+                  //player.find('Player').moveLeft();
+                  player.find('Player').setFacing(FACING_LEFT);
+                  player.find('Body').onLinearImpulse({ data: {impulse: [-MOVE_SPEED, 0]}});
                 }
                 // 
                 else if (keyStates[keyConfig.JUMP_KEY]) {
@@ -1735,7 +1727,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             });
             
 
-          // Left Floor, where the user starts
+          // Left floor, where the user starts
           new space.Entity({
               name: 'platform',
               components: [
@@ -1756,7 +1748,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             });
           
           
-            // Right Floor, where the boos starts
+            // Right floor, where the boss starts
             new space.Entity({
               name: 'platform',
               components: [
