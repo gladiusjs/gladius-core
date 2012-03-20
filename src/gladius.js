@@ -38,7 +38,6 @@
                 '  "base": "./base",' +
                 '  "common": "./common",' +
                 '  "external": "../external",' +
-                '  "math": "../external/gladius.math/src",' +
                 '  "CubicVR.js": "../external/CubicVR.js"' +
                 '}' +
                 '} );' +
