@@ -603,7 +603,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               this.moveLeft = function(){   pl.setState(pl.getMoveLeftState());};
               
               this.jump = function () {       pl.setState(pl.getJumpState());};
-              this.crouch = function(){       pl.setState(pl.getCrouchState());};
+
               this.spinKick = function(){     pl.setState(pl.getSpinKickState());};
               this.knockOut = function(){     pl.setState(pl.getKnockedOutState());};
               this.fall = function(){         pl.setState(pl.getFallState());};
@@ -897,7 +897,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
           
           var rightJumpState = new RightJumpState(this);
           var leftJumpState = new LeftJumpState(this);
-          var crouchState = new CrouchState(this);
           var spinKickState = new SpinKickState(this);
           var fallState = new FallState(this);
           var knockedOutState = new KnockedOutState(this);
@@ -950,7 +949,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
           this.getRightJumpState = function(){return rightJumpState;};
           this.getLeftJumpState = function(){return leftJumpState;};
           
-          this.getCrouchState = function(){     return crouchState;};
           this.getSpinKickState = function(){     return spinKickState;}; 
           this.getFallState = function(){ return fallState;};
           this.getKnockedOutState = function(){ return knockedOutState;};
