@@ -204,7 +204,7 @@
         canvas.width = this.parent.height;
         var context = canvas.getContext('2d');
         context.putImageData(getFrame(bounds), bounds[4], bounds[5]);
-        this.blits[i] = context.getImageData(0, 0, this.parent.width, this.parent.height);
+        this.blits[i] = context.getImageData(0, 0, this.parent.width, this.parent.height + 20);
                 
 //        if( this.parent.debug ){
 //          this.parent.blit_ctx.clearRect(0, 0, this.width, this.height);

@@ -23,7 +23,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
       const MOVE_SPEED = 50;
       const JUMP_IMPULSE = 5000;
-      const BOSS_WALK_IMPULSE = 1000;
+
+      const BOSS_JUMP_IMPULSE = 30000;
+      const BOSS_WALK_IMPULSE = 500;
+      
+      // Number of seconds between the boss jumping which makes crates 
+      // fall from the sky
+      const BOSS_JUMP_INTERVAL = 4;
       
       const FLOOR_POS = 0;
       
@@ -35,7 +41,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
       //
       const WALK_ANI_SPEED = 0.085;
       const PUNCH_DURATION   = 0.12;
-
 
       const BOSS_WALK_ANI_SPEED = 0.25;
       
@@ -449,7 +454,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   pl.owner.find('Model').updateAction('walk');
                 }
                                 
-                if(totalTimer >= 10){
+                if(totalTimer >= BOSS_JUMP_INTERVAL){
                   this.jump();
                 }
                 
@@ -505,7 +510,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 
                 pl.owner.find('Model').updateAction('jump');
                 
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, 100000]}}).dispatch( pl.owner );
+                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, BOSS_JUMP_IMPULSE]}}).dispatch( pl.owner );
               }
               this.toString = function(){
                 return 'jump';
@@ -693,24 +698,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
             return MoveLeftState;
           }());
-
-          
-          //
-          // CrouchState - Player is crouching
-          //
-          var CrouchState = (function () {
-            function CrouchState(player) {
-              var pl = player;
-              // State transitions
-              this.idle = function () {   pl.setState(pl.getIdleState());};
-              this.activate = function(){
-                pl.owner.find('Model').updateAction('crouch');
-              };
-              this.update = function (event) {};
-            }
-            return CrouchState;
-          }());
-
 
 
           //
@@ -1410,18 +1397,18 @@ document.addEventListener("DOMContentLoaded", function (e) {
           ////////////  
           // Boss
           ////////////
-          var bossW = 20,
-              bossH = 20;
+          var bossW = 10,
+              bossH = 10;
 
           var bossBody = engine.physics.resource.BodyDefinition({
                   type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
-                  linearDamping: 6,
-                  angularDamping: 1,
+                  linearDamping: 0,
+                  angularDamping: 0,
                   fixedRotation: true
           });
 
           // Make an obstacle that will collide with the player
-          var bossShape = engine.physics.resource.Box( bossW/5, bossH/4 );
+          var bossShape = engine.physics.resource.Box( 0.75 * 4, 2 * 4);//bossW/2, bossH/2 );
           var bossFixture = engine.physics.resource.FixtureDefinition({
             shape:   bossShape,
             density: 8
@@ -1433,7 +1420,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.core.component.Transform({
                   /// !!! XXX use initial pos
                   position: math.Vector3(38, FLOOR_POS + 10, GAME_DEPTH),
-                  scale: math.Vector3(bossW, bossH, 1),
+                  scale: math.Vector3(7 * 4, 7 * 4, 1),
                   rotation: math.Vector3(0, math.PI, 0)
                 }),
                 new BitwallModel({
