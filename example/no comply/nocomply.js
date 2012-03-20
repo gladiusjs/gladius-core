@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
       
       // Number of seconds between the boss jumping which makes crates 
       // fall from the sky
-      const BOSS_JUMP_INTERVAL = 4;
+      const BOSS_JUMP_INTERVAL = 15;
       
       const FLOOR_POS = 0;
       
