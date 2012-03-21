@@ -34,7 +34,7 @@ complete = cat $(GLADIUS_MIN) > $(1)
 
 .PHONY: check-lint
 
-all: check-lint $(DIST_DIR) $(GLADIUS_DIST) $(GLADIUS_MIN) $(CUBICVR_LIB)
+all: $(DIST_DIR) $(GLADIUS_DIST) $(GLADIUS_MIN) $(CUBICVR_LIB)
 	@@echo "Finished, see $(DIST_DIR)"
 
 $(DIST_DIR):
@@ -62,7 +62,6 @@ test: $(DIST_DIR) $(GLADIUS_MIN)
 	@@cp -R $(TOOLS_DIR)/qunit/qunit $(DIST_TOOLS_DIR)/qunit
 	@@echo "Starting web server in $(DIST_DIR), browse to http://localhost:9914/ (ctrl+c to stop)..."
 	@@cd $(DIST_DIR) && python ../$(TOOLS_DIR)/test_server.py
-
 
 lint: check-lint 
 
