@@ -8,7 +8,7 @@ Gladius follows the Semantic Versioning Specification. See http://semver.org for
 
 ## Reporting Issues
 
-Please report issues through the github project. Questions and discussions happen in #paladin on irc.mozilla.org, and on the paladin-dev mailing list at https://groups.google.com/group/paladin-dev.
+Please report issues through the github project. Questions and discussions happen in #games on irc.mozilla.org, and on the paladin-dev mailing list at https://groups.google.com/group/paladin-dev.
 
 ## Getting Started
 
