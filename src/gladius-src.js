@@ -3,6 +3,7 @@
 
 define( function ( require ) {
     var lang = require( 'lang' ),
+        _Math = require( 'external/math/src/math-require' ),
         ThreadPool = require( 'core/threading/pool' ),
         Scheduler = require( 'core/scheduler' ),
         Delegate = require( 'common/delegate' ),
@@ -34,7 +35,6 @@ define( function ( require ) {
     // for when gladius is built for deployment.
     global = window.gladius || ( window.gladius = {} );
 
-    require( 'external/math' );
     require( 'external/box2d' );
     
     /***
