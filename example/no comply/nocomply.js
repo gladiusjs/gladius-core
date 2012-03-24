@@ -21,10 +21,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
       const FACING_RIGHT =   1;
       const FACING_LEFT   = -1;
 
-      const MOVE_SPEED = 50;
+      const MOVE_SPEED = 100;
       const JUMP_IMPULSE = 5000;
 
       const BOSS_JUMP_IMPULSE = 30000;
+//      const BOSS_WALK_IMPULSE = 350;
       const BOSS_WALK_IMPULSE = 500;
       
       // Number of seconds between the boss jumping which makes crates 
@@ -123,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         var _cvrmesh = _mesh._cvr.mesh;
         var _material;
         var tex = new CubicVR.Texture();
-
+        
         function _updateTexture(action) {
           gl.bindTexture(gl.TEXTURE_2D, CubicVR.Textures[tex.tex_id]);
           gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -145,8 +146,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-          // XXX
-          _updateTexture('idle');
+          // TODO: fix this
+          _updateTexture('jump');
           _material = new engine.graphics.resource.Material({
             color: [1, 1, 1],
             textures: {
@@ -426,16 +427,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
               var pl = player;
               
               var aniTimer = 0;
-              var walkTimer = 0;
               var totalTimer = 0;
               var direction = 1;
               
-              //this.idle = function () {pl.setState(pl.getIdleState());};
               this.jump = function () {   pl.setState(pl.getJumpState());};
 
               this.activate = function(){
                 timer = 0;
-                walkTimer = 0;
                 totalTimer = 0;
                 direction = 1;
               };
@@ -444,7 +442,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 var delta = service.time.delta / 1000;
                 
                 aniTimer += delta;
-                walkTimer += delta;
                 totalTimer += delta;
                 
                 var xPos = pl.owner.find('Transform').position[0];
@@ -493,7 +490,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   var time = 10;
                   for(var x = -38, y = 0; x < 30; x += 10, y += 15){
                     time += 0.5;
-                    dropStoneCrate({position: [x, y + 150, GAME_DEPTH], time: time});
+                    dropStoneCrate({position: [x, y + 100, GAME_DEPTH], time: time});
                   }
                   
                   makeCrate({position:[-40, 20, GAME_DEPTH]});
@@ -506,10 +503,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
               this.land = function(){ pl.setState(pl.getIdleState());};
               
               this.activate = function(){
-                timeElapsed = 0;
-                
+                timeElapsed = 0;                
                 pl.owner.find('Model').updateAction('jump');
-                
                 new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, BOSS_JUMP_IMPULSE]}}).dispatch( pl.owner );
               }
               this.toString = function(){
@@ -572,7 +567,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
       /*
       *
-      *  StateComponent
+      *  Player State Component
       *
       */
       var StateComponent = engine.base.Component({
@@ -585,36 +580,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
           
           var service = engine.logic;
 
-          //
           // Idle State - Player is just standing there.
-          //
           var IdleState = (function () {
             function IdleState(player) {
               var pl = player;
 
-              this.activate = function(){                
-                new engine.core.Event({type: 'MoveStop', data: {direction: 'left'}}).dispatch( [pl.owner] );
-                new engine.core.Event({type: 'MoveStop', data: {direction: 'right'}}).dispatch( [pl.owner] );
-                new engine.core.Event({type: 'MoveStop', data: {direction: 'up'}}).dispatch( [pl.owner] );
-                new engine.core.Event({type: 'MoveStop', data: {direction: 'down'}}).dispatch( [pl.owner] );                
-              }
-
-              this.moveRight = function (){ pl.setState(pl.getMoveRightState());};
-              this.moveLeft = function(){   pl.setState(pl.getMoveLeftState());};
+              this.activate = function(){};
+              this.walk = function(){      pl.setState(pl.getWalkState());};
+              this.jump = function () {    pl.setState(pl.getJumpState());};
+              this.knockOut = function(){  pl.setState(pl.getKnockedOutState());};
+              this.fall = function(){      pl.setState(pl.getFallState());};
               
-              this.jump = function () {       pl.setState(pl.getJumpState());};
-
-              this.spinKick = function(){     pl.setState(pl.getSpinKickState());};
-              this.knockOut = function(){     pl.setState(pl.getKnockedOutState());};
-              this.fall = function(){         pl.setState(pl.getFallState());};
+              // !!! remove TODO
+              this.hit = function(d){}
               
-              this.hit = function(d){
-                //pl.health -= d;
-                //if(pl.health <= 0){
-                //this.knockOut();
-                //}
-              }
-
               this.update = function (event) {
                 pl.owner.find('Model').updateAction('idle');                
               };
@@ -625,29 +604,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
             return IdleState;
           }());
 
-
-
-          var MoveRightState = (function () {
-            function MoveRightState(player) {
+        var WalkState = (function () {
+            function WalkState(player) {
               var pl = player;
               var timer = 0;
               
               // State transitions
-              this.idle = function () {
-                pl.setState(pl.getIdleState());
-              };
-               
-              this.jump = function () {   pl.setState(pl.getRightJumpState());};
-              this.spinKick = function(){ pl.setState(pl.getSpinKickState());};
-              this.fall = function(){     pl.setState(pl.getFallState());};
-
-              this.activate = function(){
-                timer = 0;
-              };
+              this.activate = function(){timer = 0;};
+              this.idle = function () {pl.setState(pl.getIdleState());};
+              this.jump = function () {pl.setState(pl.getJumpState());};
+              // TODO: add knockout
+              this.fall = function () {pl.setState(pl.getFallState());};
 
               this.update = function (event) {
                 timer += service.time.delta / 1000;
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [MOVE_SPEED, 0]}}).dispatch( pl.owner );
                 if(timer >= WALK_ANI_SPEED){
                   timer = 0;
                   pl.owner.find('Model').updateAction('walk');
@@ -659,44 +629,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               }
             }
 
-            return MoveRightState;
-          }());
-          
-          
-          
-          
-          
-          
-          var MoveLeftState = (function () {
-            function MoveLeftState(player) {
-              var pl = player;
-              var timer = 0;
-              
-              // State transitions
-              this.idle = function () {   pl.setState(pl.getIdleState());};
-              this.jump = function () {   pl.setState(pl.getLeftJumpState());};
-              this.spinKick = function(){ pl.setState(pl.getSpinKickState());};
-              this.fall = function(){     pl.setState(pl.getFallState());};
-
-              this.activate = function(){
-                timer = 0;
-              };
-
-              this.update = function (event) {
-                timer += service.time.delta / 1000;
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [-MOVE_SPEED, 0]}}).dispatch( pl.owner );
-                if(timer >= WALK_ANI_SPEED){
-                  timer = 0;
-                  pl.owner.find('Model').updateAction('walk');
-                }                
-              };
-              
-              this.toString = function(){
-                return "move left";
-              }
-            }
-
-            return MoveLeftState;
+            return WalkState;
           }());
 
 
@@ -709,14 +642,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
               var pl = player;
               var timeElapsed = 0;
 
-              this.update = function (event) {};
-              this.land = function () {   pl.setState(pl.getIdleState());};
-              
               this.activate = function(){
                 timeElapsed = 0;
                 pl.owner.find('Model').updateAction('jump');
-                new engine.core.Event({type: 'MoveStop', data: {direction: 'up'}}).dispatch( [pl.owner] );
               };
+              this.update = function (event) {};
+              this.land = function () {   pl.setState(pl.getIdleState());};
               
               this.toString = function(){
                 return 'falling';
@@ -751,8 +682,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               
               this.activate = function(){
                 timeElapsed = 0;
-                pl.owner.find('Model').updateAction('jump');
-                
+                pl.owner.find('Model').updateAction('jump');                
                 new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, JUMP_IMPULSE]}}).dispatch( pl.owner );
               }
               this.toString = function(){
@@ -783,135 +713,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
             return KnockedOutState;
           }());
 
-          // SpinKickState - 
-          var SpinKickState = (function () {
-            function SpinKickState(player) {
-              var pl = player;
-              var timeElapsed = 0;
-
-              this.knockOut = function(){pl.setState(pl.getKnockedOutState());};
-
-              this.update = function (event) {
-                var delta = service.time.delta / 1000;
-
-                timeElapsed += delta * 2.5;
-                
-                /// XXXX fix
-                var rot3 = pl.owner.find('Transform').rotation;
-                rot3[1] =  timeElapsed * math.TAU;
-                pl.owner.find('Transform').rotation = rot3;
-                                
-                if(timeElapsed > 1){
-                  pl.owner.find('Transform').rotation = [0, 0, 0];
-                  
-                  pl.setState(pl.getIdleState());
-                }
-              };
-              
-              this.activate = function(){
-                timeElapsed = 0;
-                
-                pl.owner.find('Model').updateAction('twirl-kick');
-              }
-              this.toString = function(){
-                return 'spin';
-              }
-            }
-            return SpinKickState;
-          }());
-
-
-          // Right Jump State
-          var RightJumpState = (function () {
-            function RightJumpState(player) {
-              var pl = player;
-              var timeElapsed = 0;
-              
-              this.land = function () {   pl.setState(pl.getIdleState());};
-              
-              this.activate = function(){              
-                timeElapsed = 0;
-                pl.owner.find('Model').updateAction('jump');                
-                
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, JUMP_IMPULSE]}}).dispatch( pl.owner );
-              };
-              
-              this.update = function () {
-                var delta = service.time.delta / 1000;
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [MOVE_SPEED, 0]}}).dispatch( pl.owner );
-                timeElapsed += delta;
-                var yPos = pl.getTransform().position[1];
-                
-                if(timeElapsed > 0.1){  //if(yPos <= FLOOR_POS + PLAYER_BB_HEIGHT*2 && 
-                  pl.setState(pl.getFallState());
-                }                
-              };
-              
-              this.toString = function(){
-                return 'forward jump';
-              }
-            }
-            return RightJumpState;
-          }());
-
-
-          // Right Jump State
-          var LeftJumpState = (function () {
-            function LeftJumpState(player) {
-              var pl = player;
-              var timeElapsed = 0;
-              
-              this.land = function () {   pl.setState(pl.getIdleState());};
-              
-              this.activate = function(){              
-                timeElapsed = 0;
-                pl.owner.find('Model').updateAction('jump');
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, JUMP_IMPULSE]}}).dispatch( pl.owner );
-              };
-              
-              this.update = function () {
-                new engine.core.Event({type: 'LinearImpulse', data: {impulse: [-MOVE_SPEED, 0]}}).dispatch( pl.owner );
-                var delta = service.time.delta / 1000;
-                timeElapsed += delta;
-                var yPos = pl.getTransform().position[1];
-                
-                if(timeElapsed > 0.1){  //if(yPos <= FLOOR_POS + PLAYER_BB_HEIGHT*2 && 
-                  pl.setState(pl.getFallState());
-                }                
-              };
-              
-              this.toString = function(){
-                return 'left jump';
-              }
-            }
-            return LeftJumpState;
-          }());
-
-
-          // instances of all the state
+          // instances of all the states
           var idleState = new IdleState(this);
           var jumpState = new JumpState(this);
-          
-          var moveRightState = new MoveRightState(this);
-          var moveLeftState = new MoveLeftState(this);
-          
-          var rightJumpState = new RightJumpState(this);
-          var leftJumpState = new LeftJumpState(this);
-          var spinKickState = new SpinKickState(this);
+          var walkState = new WalkState(this);
           var fallState = new FallState(this);
           var knockedOutState = new KnockedOutState(this);
-
           var state = idleState;
 
-          // TODO: FIX ME          
-          this.getPlayer = function(){
-            var ret = this.owner.find('Player') || this.owner.find('Enemy');
-            return ret;
-          }
-          
-          this.getTransform = function(){
-            return this.owner.find('Transform');
-          }
+
+          this.onIdle = function(){         state.idle && state.idle();};
+          this.onJump = function(){         state.jump && state.jump();};
+          this.onWalk = function(){         state.walk && state.walk();};
+          this.onFall = function(){         state.fall && state.fall();};
+          this.onKnockOut = function(){     state.knockOut && state.knockOut();};          
           
           this.setState = function(s){
             if(state !== s){
@@ -924,33 +739,15 @@ document.addEventListener("DOMContentLoaded", function (e) {
             state && state.update(t);
           }
           
-          this.onJump = function(){         state.jump && state.jump();};
-          this.onFall = function(){         state.fall && state.fall();};
-          this.onIdle = function(){         state.idle && state.idle();}
-          
-          this.onMoveRight = function(){    state.moveRight && state.moveRight();}
-          this.onMoveLeft = function(){     state.moveLeft && state.moveLeft();};
-          
-          this.onCrouch = function(){       state.crouch && state.crouch();}
-          this.onPunch = function(){        state.punch && state.punch();}
-          this.onSpinKick = function(){     state.spinKick && state.spinKick();};
-          this.onKnockOut = function(){     state.knockOut && state.knockOut();};          
         
           // FIX ME
           this.land = function(){   state.land && state.land();};
 
           // 
-          this.getJumpState = function(){return jumpState;}
-          this.getIdleState = function(){return idleState;}
-          
-          this.getMoveRightState = function (){return moveRightState;};
-          this.getMoveLeftState = function(){return moveLeftState;};
-          
-          this.getRightJumpState = function(){return rightJumpState;};
-          this.getLeftJumpState = function(){return leftJumpState;};
-          
-          this.getSpinKickState = function(){     return spinKickState;}; 
-          this.getFallState = function(){ return fallState;};
+          this.getIdleState = function(){return idleState;};
+          this.getJumpState = function(){return jumpState;};
+          this.getWalkState = function(){return walkState;};
+          this.getFallState = function(){return fallState;};
           this.getKnockedOutState = function(){ return knockedOutState;};
           
           this.getCurrState = function(){
@@ -998,7 +795,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         var service = engine.logic; 
 
         this.onUpdate = function (event) {
-          var delta = service.time.delta / 1000;          
+          var delta = service.time.delta / 1000;
         }; // onUpdate
         
         // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -1218,8 +1015,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
 
 
-
-
       ////////////////////
       // PlayerComponent
       ////////////////////
@@ -1257,6 +1052,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.owner.find('State').land();
           }
 
+          if(e.data.entities[0].name === 'platform' /* &&*/){
+            this.owner.find('Model').updateAction('walk');
+          }
+
           // If this is the first instance of us colliding with a platform,
           // we must have just landed, which means we should go into an idle state.
           // new collision
@@ -1275,9 +1074,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
               // grab a reference to the platform
               platformEntity = e.data.entities[0];
               collideID = e.data.entities[0].id;
-              
-              console.log('just landed');
-             // this.owner.find('State').land();
+
+              this.owner.find('Model').updateAction('idle');
             }
           }          
         };
@@ -1288,12 +1086,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 
         this.moveRight = this.onStartMoveRight = function(event){
           this.setFacing(FACING_RIGHT);
-          this.owner.find('State').onMoveRight();
+          this.owner.find('State').onWalk();
+          this.owner.find('Body').onLinearImpulse({ data: {impulse: [MOVE_SPEED, 0]}});
         };
         
         this.moveLeft = this.onStartMoveLeft = function(event){
           this.setFacing(FACING_LEFT);
-          this.owner.find('State').onMoveLeft();
+          this.owner.find('State').onWalk();
+          this.owner.find('Body').onLinearImpulse({ data: {impulse: [-MOVE_SPEED, 0]}});
         };
         
         this.idle = this.onIdle = function(event){
@@ -1337,6 +1137,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               // We no longer have an associated platform
               platformEntity = null;
               collideID = 0;
+              this.owner.find('Model').setAnimation('jump');
               
               //this.owner.find('State').onFall();
             }
@@ -1444,7 +1245,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           var playerBody = engine.physics.resource.BodyDefinition({
             type: engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
             linearDamping:  2,
-            angularDamping: 1,
+            angularDamping: 0,
             fixedRotation:  true
           });
 
@@ -1452,7 +1253,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           var playerShape = engine.physics.resource.Box( 0.75, 2 );
           var playerFixture = engine.physics.resource.FixtureDefinition({
             shape:   playerShape,
-            density: 5
+            density: 8
           });
 
           var player = new space.Entity({
@@ -1468,7 +1269,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             
             // Graphic Representation
             new BitwallModel({
-              sprite: viking.sprites.kraddy
+              sprite: viking.sprites.kraddy,
             }),
             
             new HealthComponent({domId: 'player', color: 'green'}),
@@ -1539,15 +1340,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
               
               // Player components
               var p1Pos = player.find('Transform').position;
-              var p1Xpos = p1Pos[0];
-              
               var newPos = camera.find('Transform').position;
               newPos[0] = p1Pos[0];
               newPos[1] = p1Pos[1];
 
-              cameraShake /= 1.1;
+              cameraShake /= 1.4;
               var shake = Math.sin(cameraShake * delta) * 2;
-                        
+
               camera.find('Transform').position = [newPos[0] + shake, newPos[1] + 10 + shake, 25 + shake];
               camera.find('Camera').target = [newPos[0], 4 + p1Pos[1] + shake, -1];
               
@@ -1556,6 +1355,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             
             // canMove
             if(true){
+                // TODO: fix me
                 if(keyStates[keyConfig.RIGHT_KEY] && keyStates[keyConfig.JUMP_KEY]){
                   player.find('Player').jump();
                 }
@@ -1567,22 +1367,18 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   player.find('Player').idle();
                 }
                 // Move them right if released the right key.
-                else if (keyStates[keyConfig.RIGHT_KEY]) {
-                  //player.find('Player').moveRight();
-                  player.find('Player').setFacing(FACING_RIGHT);
-                  player.find('Body').onLinearImpulse({ data: {impulse: [MOVE_SPEED, 0]}});
+                if (keyStates[keyConfig.RIGHT_KEY]) {
+                  player.find('Player').moveRight();
                 }
                 // Move them left if they released the left key.
                 else if (keyStates[keyConfig.LEFT_KEY]) {
-                  //player.find('Player').moveLeft();
-                  player.find('Player').setFacing(FACING_LEFT);
-                  player.find('Body').onLinearImpulse({ data: {impulse: [-MOVE_SPEED, 0]}});
+                  player.find('Player').moveLeft();
                 }
                 // 
                 else if (keyStates[keyConfig.JUMP_KEY]) {
                   player.find('Player').jump();
                 }
-                else{
+                else {
                   player.find('Player').idle();
                 }
               }
@@ -1651,8 +1447,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
             // platform Box2d
             var bodyDef = engine.physics.resource.BodyDefinition({
               type: engine.physics.resource.BodyDefinition.bodyType.STATIC,
-              linearDamping:  1,
-              angularDamping: 1,
+              linearDamping:  0,
+              angularDamping: 0,
               fixedRotation:  true
             });
 
