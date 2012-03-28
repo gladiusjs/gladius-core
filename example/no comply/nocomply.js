@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
       const JUMP_IMPULSE = 5000;
 
       const BOSS_JUMP_IMPULSE = 30000;
-//      const BOSS_WALK_IMPULSE = 350;
+      //const BOSS_WALK_IMPULSE = 350;
       const BOSS_WALK_IMPULSE = 500;
       
       // Number of seconds between the boss jumping which makes crates 
