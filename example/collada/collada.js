@@ -11,13 +11,15 @@ document.addEventListener("DOMContentLoaded", function (e) {
         // XXX figure out why this is necessary
         window.CubicVR = engine.graphics.target.context;
 
+        // CubicVR wants the directory where the dae file resides.
+        var dir = url.match(/.*\//i);/**/
+
         try {
           var context = engine.graphics.target.context;
-          
-          // This needs wrapping.
-          var scene = context.loadCollada(url, "model");
+          var scene = context.loadCollada(url, dir);
           onsuccess(scene);
-        } catch (e) {
+        }
+        catch (e) {
           onfailure(e);
         }
       }
