@@ -12,7 +12,8 @@
   // so this build file assumes make has already run in CubicVR.js
   paths: {
     'CubicVR.js/CubicVR': '../external/CubicVR.js/dist/CubicVR',
-    'math': '../external/gladius.math/src'
+    'external/math': '../external/math',
+    'external/box2d': '../external/box2d'
   },
 
   // Use has branch trimming in the build to remove the document.write
