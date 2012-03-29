@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
   var resources = {};
 
   var game = function (engine) {
-      var space;
+      var space = new engine.core.Space();
       var math = engine.math;
 
       function colladaLoader(url, onsuccess, onfailure) {
@@ -13,6 +13,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
         try {
           var context = engine.graphics.target.context;
+          
+          // This needs wrapping.
           var scene = context.loadCollada(url, "model");
           onsuccess(scene);
         } catch (e) {
@@ -59,16 +61,28 @@ document.addEventListener("DOMContentLoaded", function (e) {
         url: "model/cube.dae",
         load: colladaLoader,
         onsuccess: function (instance) {
-          space = instance.space;
+          new space.Entity({
+            name: instance.names[0],
+            components: [
+              new engine.core.component.Transform({
+                position: instance.positions[0],
+                rotation: instance.rotations[0],
+                scale:    instance.scales[0]
+              }),
+                
+              new engine.graphics.component.Model(
+                instance.meshes[0]),
+            ]
+          })// entity
         },
         onfailure: function (error) {
           console.log("error loading collada resource: " + error);
         }
-      }], {
+      }],{
         oncomplete: run
       });
     };
-
+        
   gladius.create({
     debug: true,
     services: {
