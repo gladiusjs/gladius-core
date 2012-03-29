@@ -126,10 +126,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
         var tex = new CubicVR.Texture();
         
         function _updateTexture(action) {
-          gl.bindTexture(gl.TEXTURE_2D, CubicVR.Textures[tex.tex_id]);
-          gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, _sprite[action].frame());
-          gl.bindTexture(gl.TEXTURE_2D, null);
+                gl.bindTexture(gl.TEXTURE_2D, CubicVR.Textures[tex.tex_id]);
+                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, _sprite[action].frame());
+                gl.bindTexture(gl.TEXTURE_2D, null);
         }
 
         var _action = options.action || null;
@@ -493,7 +493,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                     dropStoneCrate({position: [x, y + 100, GAME_DEPTH], time: time});
                   }
                   
-                  makeCrate({position:[-40, 20, GAME_DEPTH]});
+                  // makeCrate({position:[-40, 20, GAME_DEPTH]});
                   
                   pl.setState(pl.getWalkState());
                 }
@@ -851,10 +851,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
           }
 
           // TO DO: fix this
+          /*
           if(e.data.entities[0].name === 'player' || e.data.entities[1].name === 'player'){
             // place the crate on the last platform for now.
             this.owner.find('Body').onSetTransform({position: [30, 100]});
           }
+          */
         };
         
         this.onUpdate = function (event) {
@@ -1041,10 +1043,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
         
         var playerName = options.name || "NoName";
         var facing = FACING_RIGHT;
+        
+        var crateContactEntity = null;
 
         this.onContactBegin = function(e){
           var userPos,
               platPos;
+          
+          var other = (e.data.entities[0].id === this.owner.id) ?
+                  e.data.entities[1] : e.data.entities[0];
+          
+          if( other.name === 'crate' ) {
+            crateContactEntity = other;
+            // debugger;
+          }
               
           // Make the sprite land
           if( this.owner.find('State').getCurrState() === 'falling' ){
@@ -1055,7 +1067,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           if(e.data.entities[0].name === 'platform' /* &&*/){
             this.owner.find('Model').updateAction('walk');
           }
-
+          
           // If this is the first instance of us colliding with a platform,
           // we must have just landed, which means we should go into an idle state.
           // new collision
@@ -1076,8 +1088,18 @@ document.addEventListener("DOMContentLoaded", function (e) {
               collideID = e.data.entities[0].id;
 
               this.owner.find('Model').updateAction('idle');
-            }
-          }          
+            };
+          };          
+        };
+        
+        this.onContactEnd = function( e ) {
+            var other = (e.data.entities[0].id === this.owner.id) ?
+                    e.data.entities[1] : e.data.entities[0];
+            
+            if( other.name === 'crate' ) {
+              crateContactEntity = null;
+              // debugger;
+            };
         };
         
         this.jump = function (event) {
@@ -1282,9 +1304,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 keyStates[keyName] = (e.data.state === 'down') ? true : false;
                 
                 // TODO: remove before release
+                /*
                 switch(keyName){
                   case '1':makeCrate({position: [-30, 40, GAME_DEPTH]});break;
                 }
+                */
                 
               } // onKey
             }), //controller
@@ -1384,6 +1408,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
               }
             }
           });
+          
+          makeCrate({position: [-30, 40, GAME_DEPTH]});
 
           // Start the engine!
           engine.run();
