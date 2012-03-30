@@ -922,7 +922,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
           
           if( other.name === 'crate' ) {
             crateContactEntity = other;
-            // debugger;
           }
               
           // Make the sprite land
@@ -965,7 +964,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
             
             if( other.name === 'crate' ) {
               crateContactEntity = null;
-              // debugger;
             };
         };
         
