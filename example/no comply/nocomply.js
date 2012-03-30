@@ -1,3 +1,17 @@
+/*global CubicVR:false, window:false, viking: false, gladius: false   
+ */
+
+/*jshint expr:true */
+/* 
+ * Right now there are a lot things of the form
+ * 
+ * object.functionName && object.functionName();
+ * 
+ * This is hard to read, and it may be the symptom of something in need
+ * of a different code idiom.  For now we'll silence these warnings to keep
+ * jshint quiet, but this should really be analyzed and dealt with.
+ */
+
 // for use by bitwallModel; we need to do some surgery before this becomes
 // avoidable
 var engine;
@@ -10,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
   var getById = function(id){
     return document.getElementById(id);
-  }
+  };
 
   var canvas = getById("test-canvas");
   
@@ -25,34 +39,34 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
       engine = engineInstance;
 
-      const FACING_RIGHT =   1;
-      const FACING_LEFT   = -1;
+      var FACING_RIGHT =   1;
+      var FACING_LEFT   = -1;
 
-      const MOVE_SPEED = 100;
-      const JUMP_IMPULSE = 5000;
+      var MOVE_SPEED = 100;
+      var JUMP_IMPULSE = 5000;
 
-      const BOSS_JUMP_IMPULSE = 30000;
-      //const BOSS_WALK_IMPULSE = 350;
-      const BOSS_WALK_IMPULSE = 500;
+      var BOSS_JUMP_IMPULSE = 30000;
+      //var BOSS_WALK_IMPULSE = 350;
+      var BOSS_WALK_IMPULSE = 500;
       
       // Number of seconds between the boss jumping which makes crates 
       // fall from the sky
-      const BOSS_JUMP_INTERVAL = 15;
+      var BOSS_JUMP_INTERVAL = 15;
       
-      const FLOOR_POS = 0;
+      var FLOOR_POS = 0;
       
       // Gameplay is 2D, so most objects in the scene have the same z coordinate.
-      const GAME_DEPTH = -25;
+      var GAME_DEPTH = -25;
       
-      const PLAYER_BB_HEIGHT = 3.5;
+      var PLAYER_BB_HEIGHT = 3.5;
       
       //
-      const WALK_ANI_SPEED = 0.085;
-      const PUNCH_DURATION   = 0.12;
+      var WALK_ANI_SPEED = 0.085;
+      var PUNCH_DURATION   = 0.12;
 
-      const BOSS_WALK_ANI_SPEED = 0.25;
+      var BOSS_WALK_ANI_SPEED = 0.25;
       
-      const MAX_HEALTH = 100;
+      var MAX_HEALTH = 100;
       
       // TODO: move this to the camera entity
       var cameraShake = 0;
@@ -139,13 +153,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
             health -= amtToReduce;
             // clamp the health to the minimum possible.
             health = health < 0 ? 0 : health;
-          }
+          };
           
           this.onHeal = function(amtToAdd){
             health += amtToAdd;
             // clamp the health to the maximum possible.
             health = health > MAX_HEALTH ? MAX_HEALTH : health;
-          }
+          };
           
           this.onUpdate = function(){
             // If health is zero, we only see the ugly border around the
@@ -161,7 +175,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var finalHealth = normalizedHealth * halfClientAreaWidth;            
 
             getById(domId).style.width = finalHealth +  "px";
-          }
+          };
           
           // Boilerplate component registration; Lets our service know that we exist and want to do things
           this.onComponentOwnerChanged = function (e) {
@@ -234,7 +248,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
       //
       var makeCrate = function(options){
         
-        var boxW = boxH = 3;
+        var boxH = 3;
+        var boxW = 3;
         
         var pos = options.position;
         
@@ -267,7 +282,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 fixtureDefinition: fixtureDef
               })
             ]
-        });     
+        });
       };
 
 
@@ -300,7 +315,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
               this.jump = function () {   pl.setState(pl.getJumpState());};
 
               this.activate = function(){
-                timer = 0;
                 totalTimer = 0;
                 direction = 1;
               };
@@ -332,7 +346,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               
               this.toString = function(){
                 return "walk";
-              }
+              };
             }
 
             return WalkState;
@@ -373,10 +387,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 timeElapsed = 0;                
                 pl.owner.find('Model').updateAction('jump');
                 new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, BOSS_JUMP_IMPULSE]}}).dispatch( pl.owner );
-              }
+              };
               this.toString = function(){
                 return 'jump';
-              }
+              };
             }
             return JumpState;
           }());
@@ -398,7 +412,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           
           this.onUpdate = function(t){
             state && state.update(t);
-          }
+          };
           
           // fix this
           this.getCurrState = function(){
@@ -459,7 +473,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               this.fall = function(){      pl.setState(pl.getFallState());};
               
               // !!! remove TODO
-              this.hit = function(d){}
+              this.hit = function(d){};
               
               this.update = function (event) {
                 pl.owner.find('Model').updateAction('idle');                
@@ -493,7 +507,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               
               this.toString = function(){
                 return "move right";
-              }
+              };
             }
 
             return WalkState;
@@ -551,10 +565,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 timeElapsed = 0;
                 pl.owner.find('Model').updateAction('jump');                
                 new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, JUMP_IMPULSE]}}).dispatch( pl.owner );
-              }
+              };
               this.toString = function(){
                 return 'jump';
-              }
+              };
 
             }
             return JumpState;
@@ -572,10 +586,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
               
               this.activate = function(){
                 pl.owner.find('Model').updateAction('knocked-out');
-              }
+              };
               this.toString = function(){
                 return 'ko';
-              }
+              };
             }
             return KnockedOutState;
           }());
@@ -604,7 +618,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           
           this.onUpdate = function(t){
             state && state.update(t);
-          }
+          };
           
         
           // FIX ME
@@ -851,7 +865,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.facing = f;
             this.walk();
           }
-        }
+        };
         
         this.onUpdate = function (event) {
           var delta = service.time.delta / 1000;
@@ -955,8 +969,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
               collideID = e.data.entities[0].id;
 
               this.owner.find('Model').updateAction('idle');
-            };
-          };          
+            }
+          }          
         };
         
         this.onContactEnd = function( e ) {
@@ -966,7 +980,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             if( other.name === 'crate' ) {
               crateContactEntity = null;
               // debugger;
-            };
+            }
         };
         
         this.jump = function (event) {
@@ -987,7 +1001,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         
         this.idle = this.onIdle = function(event){
           this.owner.find('State').onIdle();
-        }
+        };
                 
         this.setFacing = function(f){
           if(f === FACING_LEFT || f === FACING_RIGHT){
@@ -1076,7 +1090,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         // "M" to toggle music mute
         window.addEventListener("keyup", function(e){
           if(e.keyCode == 77){
-            audioElement.volume = !audioElement.volume
+            audioElement.volume = !audioElement.volume;
           }          
         }, true);
 
@@ -1297,7 +1311,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 }),
                 
                 new engine.graphics.component.Model(
-                   instance.meshes[i]),
+                   instance.meshes[i])
               ]
             });
           }
@@ -1353,7 +1367,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               density: 0
             });
             
-          var floorCollisionShape = engine.physics.resource.Box( 150, .1 );
+          var floorCollisionShape = engine.physics.resource.Box( 150, 0.1 );
           var floorFixtureDef = engine.physics.resource.FixtureDefinition({
             shape: floorCollisionShape,
             density: 0
@@ -1365,7 +1379,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               components: [
                 new engine.core.component.Transform({
                   position: math.Vector3( 0, FLOOR_POS, GAME_DEPTH ),
-                  scale: math.Vector3( 300, .1, 1)
+                  scale: math.Vector3( 300, 0.1, 1)
                 }),
 
                 new engine.graphics.component.Model(
@@ -1377,7 +1391,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: floorFixtureDef
-                }),
+                })
               ]
           });
 
@@ -1398,7 +1412,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: floorDef
-                }),
+                })
               ]
             });
           
@@ -1419,7 +1433,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: floorDef
-                }),
+                })
               ]
             });
             
@@ -1439,7 +1453,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: wallDef
-                }),
+                })
               ]
             });
 
@@ -1459,7 +1473,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: wallDef
-                }),
+                })
               ]
             });
             
@@ -1481,7 +1495,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: platDef
-                }),
+                })
               ]
             });
           }
@@ -1516,7 +1530,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         onfailure: function (error) {
           console.log(error);
         }
-      },
+      }
       
       ], {
 
