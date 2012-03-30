@@ -1542,6 +1542,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
               action : 'jump'
             });
 
+            // viking.height (a global var for all the sprites defaults to 64),
+            // which means that it doesn't match the way box2d thinks about
+            // things, causing sprites to be stuck in the ground.  This fudge
+            // factor aligns things.  
+            viking.height = 84;
+            
             playerBitwall.init(function() {
               bossBitwall.init(function() {
                 run();
