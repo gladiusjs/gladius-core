@@ -1026,7 +1026,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               // We no longer have an associated platform
               platformEntity = null;
               collideID = 0;
-              this.owner.find('Model').setAnimation('jump');
+              this.owner.find('Model').updateAction('jump');              
               
               //this.owner.find('State').onFall();
             }
