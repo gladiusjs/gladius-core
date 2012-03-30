@@ -1,3 +1,7 @@
+// for use by bitwallModel; we need to do some surgery before this becomes
+// avoidable
+var engine;
+
 /*
   Simple game based on the "No Comply" WebGL music video.
   TODOs: https://gladius.etherpad.mozilla.org/8
@@ -16,8 +20,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
   var resources = {};
 
   //
-  var game = function (engine) {
-    
+  var game = function (engineInstance) {
+      var playerBitwall, bossBitwall;
+
+      engine = engineInstance;
+
       const FACING_RIGHT =   1;
       const FACING_LEFT   = -1;
 
@@ -108,146 +115,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
         }
       }
 
-      // Thanks to the NoComply demo's CubicVR-bitmap_cube_array.js' for the
-      // BitwallModel code
-      var BitwallModel = engine.base.Component({
-        type: 'Model',
-        depends: ['Transform']
-      }, function (options) {
-        options = options || {};
-        var _this = this;
-        var service = engine.graphics;
-        var gl = CubicVR.GLCore.gl;
-
-        var _sprite = options.sprite;
-        var _mesh = new engine.graphics.resource.Mesh();
-        var _cvrmesh = _mesh._cvr.mesh;
-        var _material;
-        var tex = new CubicVR.Texture();
-        
-        function _updateTexture(action) {
-                gl.bindTexture(gl.TEXTURE_2D, CubicVR.Textures[tex.tex_id]);
-                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, _sprite[action].frame());
-                gl.bindTexture(gl.TEXTURE_2D, null);
-        }
-
-        var _action = options.action || null;
-        this.updateAction = function (action) {
-          _action = action;
-          _updateTexture(action);
-        };
-
-        function buildMaterial() {
-
-          // create an empty texture
-          tex.setFilter(CubicVR.enums.texture.filter.NEAREST);
-          tex.use();
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-          // TODO: fix this
-          _updateTexture('jump');
-          _material = new engine.graphics.resource.Material({
-            color: [1, 1, 1],
-            textures: {
-              color: tex
-            }
-          });
-        }
-
-        function buildMesh() {
-          var _cvrmat = _material._cvr.material;
-
-          var tmpMesh = new CubicVR.Mesh();
-
-          var trans = new CubicVR.Transform();
-
-          trans.clearStack();
-          trans.scale([1, 1, 1]);
-
-          CubicVR.genPlaneObject(tmpMesh, 1.0, _cvrmat);
-
-          tmpMesh.faces[0].uvs = [
-            [1, 0],
-            [1, 1],
-            [0, 1],
-            [0, 0]
-          ];
-          tmpMesh.faces[1].uvs = [
-            [0, 0],
-            [0, 1],
-            [1, 1],
-            [1, 0]
-          ];
-
-          var is = 0.1 / 8.0;
-
-          // create outside faces first to help with Early-Z
-          trans.clearStack();
-          trans.translate([0, 0, -0.05]);
-          _cvrmesh.booleanAdd(tmpMesh, trans);
-          trans.clearStack();
-          trans.translate([0, 0, 0.05]);
-          _cvrmesh.booleanAdd(tmpMesh, trans);
-
-          var p;
-
-          for (var i = -0.05 + is; i < 0.05 - is; i += is) {
-            trans.clearStack();
-            trans.translate([0, 0, i]);
-            _cvrmesh.booleanAdd(tmpMesh, trans);
-            p++;
-          }
-
-          _cvrmesh.calcNormals();
-          _cvrmesh.triangulateQuads();
-          _cvrmesh.compile();
-        }
-
-        buildMaterial();
-        buildMesh();
-
-        Object.defineProperty(this, "mesh", {
-          enumerable: true,
-          get: function () {
-            return _mesh;
-          }
-        });
-
-        this.onComponentOwnerChanged = function (e) {
-          if (e.data.previous === null && this.owner !== null) {
-            service.registerComponent(this.owner.id, this);
-          }
-
-          if (this.owner === null && e.data.previous !== null) {
-            service.unregisterComponent(e.data.previous.id, this);
-          }
-        };
-
-        this.onEntityManagerChanged = function (e) {
-          if (e.data.previous === null && e.data.current !== null && this.owner !== null) {
-            service.registerComponent(this.owner.id, this);
-          }
-
-          if (e.data.previous !== null && e.data.current === null && this.owner !== null) {
-            service.unregisterComponent(this.owner.id, this);
-          }
-        };
-
-        this.prepare = function () {
-          if (_mesh && _material && _mesh._cvr && _material._cvr) {
-            _mesh.prepare({
-              material: _material
-            });
-          } //if
-        };
-        //prepare
-        _this.prepare();
-
-      });
-
-
       /*
       *
       * Health Component is visualized as bars at the top of the screen.
@@ -291,9 +158,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var halfClientAreaWidth = (window.innerWidth-150)/2;
             var normalizedHealth = health/MAX_HEALTH;
 
-            var final = normalizedHealth * halfClientAreaWidth;            
+            var finalHealth = normalizedHealth * halfClientAreaWidth;            
 
-            getById(domId).style.width = final +  "px";
+            getById(domId).style.width = finalHealth +  "px";
           }
           
           // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -1244,9 +1111,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   scale: math.Vector3(7 * 4, 7 * 4, 1),
                   rotation: math.Vector3(0, math.PI, 0)
                 }),
-                new BitwallModel({
-                  sprite: viking.sprites.thug1
-                }),
+                bossBitwall,
                 
                 new BossComponent({}),
                 
@@ -1288,12 +1153,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
               position: math.Vector3(30, FLOOR_POS + 105, GAME_DEPTH),
               scale: math.Vector3(7, 7, 7)
             }),
-            
-            // Graphic Representation
-            new BitwallModel({
-              sprite: viking.sprites.kraddy,
-            }),
-            
+     
+            playerBitwall,       
+
             new HealthComponent({domId: 'player', color: 'green'}),
             
             new engine.input.component.Controller({
@@ -1415,12 +1277,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
           engine.run();
         };
 
-
-      ////////////////
-      // Load some sprites
-      ////////////////
-      viking.loadSprite('./sprites/thug1.sprite');
-      viking.loadSprite('./sprites/kraddy.sprite');
 
       engine.core.resource.get([
       {
@@ -1663,7 +1519,36 @@ document.addEventListener("DOMContentLoaded", function (e) {
       },
       
       ], {
-      oncomplete: run
+
+        oncomplete: function () {
+
+          // We may be sharing a copy of require.js with Gladius if we're developing
+          // If so, this next line guarantees that we have a configuration of
+          // require.js that loads things relative to this directory
+          var localRequire = require.config({
+            context : "local",
+            baseUrl : "../sprites"
+          });
+
+          // pull in the bitwall-model code, and once we've got it, load our sprite,
+          // and run the game!
+          localRequire(['bitwall-model'], function(BitwallModel) {
+            bossBitwall = new BitwallModel({
+              spriteURL : 'sprites/thug1.sprite',
+              action : 'walk-front'
+            });
+            playerBitwall = new BitwallModel({
+              spriteURL : 'sprites/kraddy.sprite',
+              action : 'jump'
+            });
+
+            playerBitwall.init(function() {
+              bossBitwall.init(function() {
+                run();
+              });
+            });
+          });
+        }
     });
   };
 
