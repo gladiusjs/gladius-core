@@ -785,6 +785,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
         options = options || {};
         var that = this;
         
+        // We need to somehow get rid of the boxes once they hit the floor
+        // or the users head. We can do this by just bouncing them off the floor and the user.        
+        var vel = [0,0,0];
+        var acc = [0,0,0];
+
         var timer = 0;
         
         var timeToDie = options.time;
@@ -804,6 +809,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
               e.data.entities[0].find('Health').onHurt(25);
             }
           }
+
+          // Since the crate is moving towards the user it no longer should
+          // interact with the game XY-plance, so remove the Body component.
+          this.owner.remove("Body");
+          
+          var x = (Math.random() -0.5) * 20;
+                    
+          // Set the crate in motion.
+          vel = [x, 45, 25];
+          acc = [0, -100, 0];
         };
             
         this.onContactEnd = function( event ) {
@@ -813,6 +828,19 @@ document.addEventListener("DOMContentLoaded", function (e) {
           var delta = service.time.delta / 1000;
 
           timer += delta;
+          
+          // Update the position
+          var pos = this.owner.find('Transform').position;
+          pos[0] += vel[0] * delta;
+          pos[1] += vel[1] * delta;
+          pos[2] += vel[2] * delta;
+          this.owner.find('Transform').position = pos;
+          
+          // TODO: update the rotation to make things look spiffy.
+
+          vel[0] += acc[0] * delta;
+          vel[1] += acc[1] * delta;
+          vel[2] += acc[2] * delta;
  
           if(timer >= timeToDie){
             space.remove(this.owner);
