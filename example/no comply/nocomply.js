@@ -805,7 +805,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           if(e.data.entities[0].name === 'player'){
           // Only hurt the player if the crate landed on his head
           if(crateXpos[1] > userXpos[1]){
-              space.remove(this.owner);
+
               e.data.entities[0].find('Health').onHurt(25);
             }
           }
@@ -843,6 +843,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
           vel[2] += acc[2] * delta;
  
           if(timer >= timeToDie){
+            space.remove(this.owner);
+          }
+          
+          // Remove the crate if it goes past the floor.
+          if(pos[1] < 0){
             space.remove(this.owner);
           }
         }; // onUpdate
