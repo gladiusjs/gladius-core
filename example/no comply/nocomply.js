@@ -1,3 +1,21 @@
+/*global CubicVR:false, window:false, viking: false, gladius: false   
+ */
+
+/*jshint expr:true */
+/* 
+ * Right now there are a lot things of the form
+ * 
+ * object.functionName && object.functionName();
+ * 
+ * This is hard to read, and it may be the symptom of something in need
+ * of a different code idiom.  For now we'll silence these warnings to keep
+ * jshint quiet, but this should really be analyzed and dealt with.
+ */
+
+// for use by bitwallModel; we need to do some surgery before this becomes
+// avoidable
+var engine;
+
 /*
   Simple game based on the "No Comply" WebGL music video.
   TODOs: https://gladius.etherpad.mozilla.org/8
@@ -6,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
 
   var getById = function(id){
     return document.getElementById(id);
-  }
+  };
 
   var canvas = getById("test-canvas");
   
@@ -16,36 +34,39 @@ document.addEventListener("DOMContentLoaded", function (e) {
   var resources = {};
 
   //
-  var game = function (engine) {
-    
-      const FACING_RIGHT =   1;
-      const FACING_LEFT   = -1;
+  var game = function (engineInstance) {
+      var playerBitwall, bossBitwall;
 
-      const MOVE_SPEED = 100;
-      const JUMP_IMPULSE = 5000;
+      engine = engineInstance;
 
-      const BOSS_JUMP_IMPULSE = 30000;
-      //const BOSS_WALK_IMPULSE = 350;
-      const BOSS_WALK_IMPULSE = 500;
+      var FACING_RIGHT =   1;
+      var FACING_LEFT   = -1;
+
+      var MOVE_SPEED = 100;
+      var JUMP_IMPULSE = 5000;
+
+      var BOSS_JUMP_IMPULSE = 30000;
+      //var BOSS_WALK_IMPULSE = 350;
+      var BOSS_WALK_IMPULSE = 500;
       
       // Number of seconds between the boss jumping which makes crates 
       // fall from the sky
-      const BOSS_JUMP_INTERVAL = 15;
+      var BOSS_JUMP_INTERVAL = 15;
       
-      const FLOOR_POS = 0;
+      var FLOOR_POS = 0;
       
       // Gameplay is 2D, so most objects in the scene have the same z coordinate.
-      const GAME_DEPTH = -25;
+      var GAME_DEPTH = -25;
       
-      const PLAYER_BB_HEIGHT = 3.5;
+      var PLAYER_BB_HEIGHT = 3.5;
       
       //
-      const WALK_ANI_SPEED = 0.085;
-      const PUNCH_DURATION   = 0.12;
+      var WALK_ANI_SPEED = 0.085;
+      var PUNCH_DURATION   = 0.12;
 
-      const BOSS_WALK_ANI_SPEED = 0.25;
+      var BOSS_WALK_ANI_SPEED = 0.25;
       
-      const MAX_HEALTH = 100;
+      var MAX_HEALTH = 100;
       
       // TODO: move this to the camera entity
       var cameraShake = 0;
@@ -108,146 +129,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
         }
       }
 
-      // Thanks to the NoComply demo's CubicVR-bitmap_cube_array.js' for the
-      // BitwallModel code
-      var BitwallModel = engine.base.Component({
-        type: 'Model',
-        depends: ['Transform']
-      }, function (options) {
-        options = options || {};
-        var _this = this;
-        var service = engine.graphics;
-        var gl = CubicVR.GLCore.gl;
-
-        var _sprite = options.sprite;
-        var _mesh = new engine.graphics.resource.Mesh();
-        var _cvrmesh = _mesh._cvr.mesh;
-        var _material;
-        var tex = new CubicVR.Texture();
-        
-        function _updateTexture(action) {
-          gl.bindTexture(gl.TEXTURE_2D, CubicVR.Textures[tex.tex_id]);
-          gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, _sprite[action].frame());
-          gl.bindTexture(gl.TEXTURE_2D, null);
-        }
-
-        var _action = options.action || null;
-        this.updateAction = function (action) {
-          _action = action;
-          _updateTexture(action);
-        };
-
-        function buildMaterial() {
-
-          // create an empty texture
-          tex.setFilter(CubicVR.enums.texture.filter.NEAREST);
-          tex.use();
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-          // TODO: fix this
-          _updateTexture('jump');
-          _material = new engine.graphics.resource.Material({
-            color: [1, 1, 1],
-            textures: {
-              color: tex
-            }
-          });
-        }
-
-        function buildMesh() {
-          var _cvrmat = _material._cvr.material;
-
-          var tmpMesh = new CubicVR.Mesh();
-
-          var trans = new CubicVR.Transform();
-
-          trans.clearStack();
-          trans.scale([1, 1, 1]);
-
-          CubicVR.genPlaneObject(tmpMesh, 1.0, _cvrmat);
-
-          tmpMesh.faces[0].uvs = [
-            [1, 0],
-            [1, 1],
-            [0, 1],
-            [0, 0]
-          ];
-          tmpMesh.faces[1].uvs = [
-            [0, 0],
-            [0, 1],
-            [1, 1],
-            [1, 0]
-          ];
-
-          var is = 0.1 / 8.0;
-
-          // create outside faces first to help with Early-Z
-          trans.clearStack();
-          trans.translate([0, 0, -0.05]);
-          _cvrmesh.booleanAdd(tmpMesh, trans);
-          trans.clearStack();
-          trans.translate([0, 0, 0.05]);
-          _cvrmesh.booleanAdd(tmpMesh, trans);
-
-          var p;
-
-          for (var i = -0.05 + is; i < 0.05 - is; i += is) {
-            trans.clearStack();
-            trans.translate([0, 0, i]);
-            _cvrmesh.booleanAdd(tmpMesh, trans);
-            p++;
-          }
-
-          _cvrmesh.calcNormals();
-          _cvrmesh.triangulateQuads();
-          _cvrmesh.compile();
-        }
-
-        buildMaterial();
-        buildMesh();
-
-        Object.defineProperty(this, "mesh", {
-          enumerable: true,
-          get: function () {
-            return _mesh;
-          }
-        });
-
-        this.onComponentOwnerChanged = function (e) {
-          if (e.data.previous === null && this.owner !== null) {
-            service.registerComponent(this.owner.id, this);
-          }
-
-          if (this.owner === null && e.data.previous !== null) {
-            service.unregisterComponent(e.data.previous.id, this);
-          }
-        };
-
-        this.onEntityManagerChanged = function (e) {
-          if (e.data.previous === null && e.data.current !== null && this.owner !== null) {
-            service.registerComponent(this.owner.id, this);
-          }
-
-          if (e.data.previous !== null && e.data.current === null && this.owner !== null) {
-            service.unregisterComponent(this.owner.id, this);
-          }
-        };
-
-        this.prepare = function () {
-          if (_mesh && _material && _mesh._cvr && _material._cvr) {
-            _mesh.prepare({
-              material: _material
-            });
-          } //if
-        };
-        //prepare
-        _this.prepare();
-
-      });
-
-
       /*
       *
       * Health Component is visualized as bars at the top of the screen.
@@ -272,13 +153,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
             health -= amtToReduce;
             // clamp the health to the minimum possible.
             health = health < 0 ? 0 : health;
-          }
+          };
           
           this.onHeal = function(amtToAdd){
             health += amtToAdd;
             // clamp the health to the maximum possible.
             health = health > MAX_HEALTH ? MAX_HEALTH : health;
-          }
+          };
           
           this.onUpdate = function(){
             // If health is zero, we only see the ugly border around the
@@ -291,10 +172,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
             var halfClientAreaWidth = (window.innerWidth-150)/2;
             var normalizedHealth = health/MAX_HEALTH;
 
-            var final = normalizedHealth * halfClientAreaWidth;            
+            var finalHealth = normalizedHealth * halfClientAreaWidth;            
 
-            getById(domId).style.width = final +  "px";
-          }
+            getById(domId).style.width = finalHealth +  "px";
+          };
           
           // Boilerplate component registration; Lets our service know that we exist and want to do things
           this.onComponentOwnerChanged = function (e) {
@@ -367,7 +248,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
       //
       var makeCrate = function(options){
         
-        var boxW = boxH = 3;
+        var boxH = 3;
+        var boxW = 3;
         
         var pos = options.position;
         
@@ -400,7 +282,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 fixtureDefinition: fixtureDef
               })
             ]
-        });     
+        });
       };
 
 
@@ -433,7 +315,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
               this.jump = function () {   pl.setState(pl.getJumpState());};
 
               this.activate = function(){
-                timer = 0;
                 totalTimer = 0;
                 direction = 1;
               };
@@ -465,7 +346,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               
               this.toString = function(){
                 return "walk";
-              }
+              };
             }
 
             return WalkState;
@@ -493,7 +374,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                     dropStoneCrate({position: [x, y + 100, GAME_DEPTH], time: time});
                   }
                   
-                  makeCrate({position:[-40, 20, GAME_DEPTH]});
+                  // makeCrate({position:[-40, 20, GAME_DEPTH]});
                   
                   pl.setState(pl.getWalkState());
                 }
@@ -506,10 +387,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 timeElapsed = 0;                
                 pl.owner.find('Model').updateAction('jump');
                 new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, BOSS_JUMP_IMPULSE]}}).dispatch( pl.owner );
-              }
+              };
               this.toString = function(){
                 return 'jump';
-              }
+              };
             }
             return JumpState;
           }());
@@ -531,7 +412,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           
           this.onUpdate = function(t){
             state && state.update(t);
-          }
+          };
           
           // fix this
           this.getCurrState = function(){
@@ -592,7 +473,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               this.fall = function(){      pl.setState(pl.getFallState());};
               
               // !!! remove TODO
-              this.hit = function(d){}
+              this.hit = function(d){};
               
               this.update = function (event) {
                 pl.owner.find('Model').updateAction('idle');                
@@ -626,7 +507,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               
               this.toString = function(){
                 return "move right";
-              }
+              };
             }
 
             return WalkState;
@@ -684,10 +565,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 timeElapsed = 0;
                 pl.owner.find('Model').updateAction('jump');                
                 new engine.core.Event({type: 'LinearImpulse', data: {impulse: [0, JUMP_IMPULSE]}}).dispatch( pl.owner );
-              }
+              };
               this.toString = function(){
                 return 'jump';
-              }
+              };
 
             }
             return JumpState;
@@ -705,10 +586,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
               
               this.activate = function(){
                 pl.owner.find('Model').updateAction('knocked-out');
-              }
+              };
               this.toString = function(){
                 return 'ko';
-              }
+              };
             }
             return KnockedOutState;
           }());
@@ -737,7 +618,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           
           this.onUpdate = function(t){
             state && state.update(t);
-          }
+          };
           
         
           // FIX ME
@@ -851,10 +732,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
           }
 
           // TO DO: fix this
+          /*
           if(e.data.entities[0].name === 'player' || e.data.entities[1].name === 'player'){
             // place the crate on the last platform for now.
             this.owner.find('Body').onSetTransform({position: [30, 100]});
           }
+          */
         };
         
         this.onUpdate = function (event) {
@@ -982,7 +865,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             this.facing = f;
             this.walk();
           }
-        }
+        };
         
         this.onUpdate = function (event) {
           var delta = service.time.delta / 1000;
@@ -1041,10 +924,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
         
         var playerName = options.name || "NoName";
         var facing = FACING_RIGHT;
+        
+        var crateContactEntity = null;
 
         this.onContactBegin = function(e){
           var userPos,
               platPos;
+          
+          var other = (e.data.entities[0].id === this.owner.id) ?
+                  e.data.entities[1] : e.data.entities[0];
+          
+          if( other.name === 'crate' ) {
+            crateContactEntity = other;
+            // debugger;
+          }
               
           // Make the sprite land
           if( this.owner.find('State').getCurrState() === 'falling' ){
@@ -1055,7 +948,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           if(e.data.entities[0].name === 'platform' /* &&*/){
             this.owner.find('Model').updateAction('walk');
           }
-
+          
           // If this is the first instance of us colliding with a platform,
           // we must have just landed, which means we should go into an idle state.
           // new collision
@@ -1080,6 +973,16 @@ document.addEventListener("DOMContentLoaded", function (e) {
           }          
         };
         
+        this.onContactEnd = function( e ) {
+            var other = (e.data.entities[0].id === this.owner.id) ?
+                    e.data.entities[1] : e.data.entities[0];
+            
+            if( other.name === 'crate' ) {
+              crateContactEntity = null;
+              // debugger;
+            }
+        };
+        
         this.jump = function (event) {
           this.owner.find('State').onJump();
         };
@@ -1098,7 +1001,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         
         this.idle = this.onIdle = function(event){
           this.owner.find('State').onIdle();
-        }
+        };
                 
         this.setFacing = function(f){
           if(f === FACING_LEFT || f === FACING_RIGHT){
@@ -1137,7 +1040,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               // We no longer have an associated platform
               platformEntity = null;
               collideID = 0;
-              this.owner.find('Model').setAnimation('jump');
+              this.owner.find('Model').updateAction('jump');              
               
               //this.owner.find('State').onFall();
             }
@@ -1187,7 +1090,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         // "M" to toggle music mute
         window.addEventListener("keyup", function(e){
           if(e.keyCode == 77){
-            audioElement.volume = !audioElement.volume
+            audioElement.volume = !audioElement.volume;
           }          
         }, true);
 
@@ -1222,9 +1125,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   scale: math.Vector3(7 * 4, 7 * 4, 1),
                   rotation: math.Vector3(0, math.PI, 0)
                 }),
-                new BitwallModel({
-                  sprite: viking.sprites.thug1
-                }),
+                bossBitwall,
                 
                 new BossComponent({}),
                 
@@ -1266,12 +1167,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
               position: math.Vector3(30, FLOOR_POS + 105, GAME_DEPTH),
               scale: math.Vector3(7, 7, 7)
             }),
-            
-            // Graphic Representation
-            new BitwallModel({
-              sprite: viking.sprites.kraddy,
-            }),
-            
+     
+            playerBitwall,       
+
             new HealthComponent({domId: 'player', color: 'green'}),
             
             new engine.input.component.Controller({
@@ -1282,9 +1180,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 keyStates[keyName] = (e.data.state === 'down') ? true : false;
                 
                 // TODO: remove before release
+                /*
                 switch(keyName){
                   case '1':makeCrate({position: [-30, 40, GAME_DEPTH]});break;
                 }
+                */
                 
               } // onKey
             }), //controller
@@ -1384,17 +1284,13 @@ document.addEventListener("DOMContentLoaded", function (e) {
               }
             }
           });
+          
+          makeCrate({position: [-30, 40, GAME_DEPTH]});
 
           // Start the engine!
           engine.run();
         };
 
-
-      ////////////////
-      // Load some sprites
-      ////////////////
-      viking.loadSprite('./sprites/thug1.sprite');
-      viking.loadSprite('./sprites/kraddy.sprite');
 
       engine.core.resource.get([
       {
@@ -1415,7 +1311,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 }),
                 
                 new engine.graphics.component.Model(
-                   instance.meshes[i]),
+                   instance.meshes[i])
               ]
             });
           }
@@ -1471,7 +1367,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               density: 0
             });
             
-          var floorCollisionShape = engine.physics.resource.Box( 150, .1 );
+          var floorCollisionShape = engine.physics.resource.Box( 150, 0.1 );
           var floorFixtureDef = engine.physics.resource.FixtureDefinition({
             shape: floorCollisionShape,
             density: 0
@@ -1483,7 +1379,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
               components: [
                 new engine.core.component.Transform({
                   position: math.Vector3( 0, FLOOR_POS, GAME_DEPTH ),
-                  scale: math.Vector3( 300, .1, 1)
+                  scale: math.Vector3( 300, 0.1, 1)
                 }),
 
                 new engine.graphics.component.Model(
@@ -1495,7 +1391,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: floorFixtureDef
-                }),
+                })
               ]
           });
 
@@ -1516,7 +1412,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: floorDef
-                }),
+                })
               ]
             });
           
@@ -1537,7 +1433,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: floorDef
-                }),
+                })
               ]
             });
             
@@ -1557,7 +1453,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: wallDef
-                }),
+                })
               ]
             });
 
@@ -1577,7 +1473,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: wallDef
-                }),
+                })
               ]
             });
             
@@ -1599,7 +1495,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: platDef
-                }),
+                })
               ]
             });
           }
@@ -1634,10 +1530,45 @@ document.addEventListener("DOMContentLoaded", function (e) {
         onfailure: function (error) {
           console.log(error);
         }
-      },
+      }
       
       ], {
-      oncomplete: run
+
+        oncomplete: function () {
+
+          // We may be sharing a copy of require.js with Gladius if we're developing
+          // If so, this next line guarantees that we have a configuration of
+          // require.js that loads things relative to this directory
+          var localRequire = require.config({
+            context : "local",
+            baseUrl : "../sprites"
+          });
+
+          // pull in the bitwall-model code, and once we've got it, load our sprite,
+          // and run the game!
+          localRequire(['bitwall-model'], function(BitwallModel) {
+            bossBitwall = new BitwallModel({
+              spriteURL : 'sprites/thug1.sprite',
+              action : 'walk-front'
+            });
+            playerBitwall = new BitwallModel({
+              spriteURL : 'sprites/kraddy.sprite',
+              action : 'jump'
+            });
+
+            // viking.height (a global var for all the sprites defaults to 64),
+            // which means that it doesn't match the way box2d thinks about
+            // things, causing sprites to be stuck in the ground.  This fudge
+            // factor aligns things.  
+            viking.height = 84;
+            
+            playerBitwall.init(function() {
+              bossBitwall.init(function() {
+                run();
+              });
+            });
+          });
+        }
     });
   };
 
