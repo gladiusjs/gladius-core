@@ -143,16 +143,20 @@ document.addEventListener("DOMContentLoaded", function (e) {
           var service = engine.logic,
               health = MAX_HEALTH,
               domId = options.domId,
-              color = options.color;
-
+              color = options.color,
+              healthToRemove = 0;
+              
           // Only need to do this once on init.
           getById(domId).style.backgroundColor = color;
           
           this.onHurt = function(amtToReduce){
-
-            health -= amtToReduce;
-            // clamp the health to the minimum possible.
-            health = health < 0 ? 0 : health;
+            healthToRemove += amtToReduce;
+            
+            // Refresh the page if the user dies.
+            // TODO: make this cooler
+            if(health <= 0 && domId === 'player'){
+              location.reload();
+            }
           };
           
           this.onHeal = function(amtToAdd){
@@ -162,9 +166,25 @@ document.addEventListener("DOMContentLoaded", function (e) {
           };
           
           this.onUpdate = function(){
+            var delta = service.time.delta / 1000;
+                
+            if(healthToRemove <= 0){
+              healthToRemove = 0;
+              getById(domId).style.backgroundColor = color;
+            }
+            else{
+              var bitToRemove = delta * 20;
+              
+              health -= bitToRemove;
+              // clamp the health to the minimum possible.
+              health = health < 0 ? 0 : health;
+              
+              healthToRemove -= bitToRemove;
+              getById(domId).style.backgroundColor = 'red';
+            }
+
             // If health is zero, we only see the ugly border around the
             // health bar, so just hide it in that case.
-
             var show = health > 0 ? "visible" : "hidden";
             getById(domId).style.visibility = show;
             
