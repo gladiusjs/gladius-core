@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
       
       // Number of seconds between the boss jumping which makes crates 
       // fall from the sky
-      var BOSS_JUMP_INTERVAL = 15;
+      var BOSS_JUMP_INTERVAL = 10;
       
       var FLOOR_POS = 0;
       
@@ -150,13 +150,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           getById(domId).style.backgroundColor = color;
           
           this.onHurt = function(amtToReduce){
-            healthToRemove += amtToReduce;
-            
-            // Refresh the page if the user dies.
-            // TODO: make this cooler
-            if(health <= 0 && domId === 'player'){
-              location.reload();
-            }
+            healthToRemove += amtToReduce;            
           };
           
           this.onHeal = function(amtToAdd){
@@ -182,6 +176,19 @@ document.addEventListener("DOMContentLoaded", function (e) {
               healthToRemove -= bitToRemove;
               getById(domId).style.backgroundColor = 'red';
             }
+
+            // Refresh the page if the user dies.
+            // TODO: make this cooler
+            if(health <= 0 && domId === 'player'){
+              location.reload();
+            }
+
+            // Refresh the page if the user dies.
+            // TODO: make this cooler
+            if(health <= 0 && domId === 'player'){
+              location.reload();
+            }
+
 
             // If health is zero, we only see the ugly border around the
             // health bar, so just hide it in that case.
@@ -809,6 +816,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
         // or the users head. We can do this by just bouncing them off the floor and the user.        
         var vel = [0,0,0];
         var acc = [0,0,0];
+        var angularVelocity = [0,0,0];
 
         var timer = 0;
         
@@ -839,6 +847,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
           // Set the crate in motion.
           vel = [x, 45, 25];
           acc = [0, -100, 0];
+          angularVelocity = [(Math.random()-0.5) * 5, (Math.random()-0.5) * 5, (Math.random()-0.5) * 5];
         };
             
         this.onContactEnd = function( event ) {
@@ -856,7 +865,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
           pos[2] += vel[2] * delta;
           this.owner.find('Transform').position = pos;
           
-          // TODO: update the rotation to make things look spiffy.
+          var rot = this.owner.find('Transform').rotation;
+          rot[0] += angularVelocity[0] * delta;
+          rot[1] += angularVelocity[1] * delta;
+          rot[2] += angularVelocity[2] * delta;
+          this.owner.find('Transform').rotation = rot;
 
           vel[0] += acc[0] * delta;
           vel[1] += acc[1] * delta;
