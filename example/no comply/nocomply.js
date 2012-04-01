@@ -1434,9 +1434,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   scale: math.Vector3( 300, 0.1, 1)
                 }),
 
-                new engine.graphics.component.Model(
-                  instance.meshes[0]
-                ),
+                // TODO: remove before release
+                //new engine.graphics.component.Model(
+                //  instance.meshes[0]
+                //),
 
                 new PlatformComponent(),
                  
@@ -1498,9 +1499,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   scale: math.Vector3( wallW, wallH, 5)
                 }),
                 // TODO: Remove before release
-                new engine.graphics.component.Model(
-                  instance.meshes[0]
-                ),
+                //new engine.graphics.component.Model(
+                //  instance.meshes[0]
+                //),
 
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
@@ -1519,9 +1520,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   scale: math.Vector3( wallW, wallH, 5)
                 }),
                 // TODO: Remove before release
-                new engine.graphics.component.Model(
-                  instance.meshes[0]
-                ),
+                //new engine.graphics.component.Model(
+                //  instance.meshes[0]
+                //),
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: wallDef
