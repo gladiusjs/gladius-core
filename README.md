@@ -23,11 +23,13 @@ Gladius consists of a core that provides low-level engine functionality like the
 
 # Getting Started
 
-Make sure to clone all submodules. This can be done using 'make submodule'.
+Make sure to clone using `--recursive` or run `make submodule` in the project directory after cloning.
 
 ## Build and Test
 
-No building is needed for development workflows. To build the engine for distribution, run make in the top-level
+No building is needed for development workflows.
+
+To build the engine for distribution, run make in the top-level
 project directory. The build process produces a javascript file containing the entire engine and its dependencies
 and also a minified version of that file.
 
@@ -35,8 +37,8 @@ Run unit tests by opening test/ directory in a web browser. Tests run automatica
 
 ## Examples and tutorial
 
-A short tutorial is provided [Tutorial](https://github.com/gladiusjs/core/wiki/Tutorial).
+A short tutorial is provided [Tutorial](https://github.com/gladiusjs/core/wiki/Tutorial). Examples are available from the top-level project directory.
 
 # License
 
-See LICENSE for more information.
+See [LICENSE](https://github.com/alankligman/gladius-core/blob/develop/LICENSE) for more information.
