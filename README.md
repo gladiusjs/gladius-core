@@ -19,7 +19,7 @@ Gladius relies on functionality provided by other libraries. Some libraries are 
 
 ## Core + extensions
 
-Gldaius consists of a core that provides low-level engine functionality like the game loop, messaging, tasks and timers. Common components like the spatial transform are also provided by the core. Services and components for specialized simulation elements, like graphics or physics, are provided by extensions. A common set of extensions is maintain as part of this project, but it's easy to write your own or import an extension from somewhere else.
+Gladius consists of a core that provides low-level engine functionality like the game loop, messaging, tasks and timers. Common components like the spatial transform are also provided by the core. Services and components for specialized simulation elements, like graphics or physics, are provided by extensions. A common set of extensions is maintain as part of this project, but it's easy to write your own or import an extension from somewhere else.
 
 # Getting Started
 
