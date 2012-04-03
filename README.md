@@ -11,8 +11,6 @@ Gladius
 
 Gladius is a game engine, written entirely in JavaScript, and designed to run in the browser. We leverage existing web technologies whenever possible and where gaps exist in support for games, we develop new solutions.
 
-* [Roadmap](https://github.com/gladiusjs/core/wiki/Roadmap)
-
 ## Libraries
 
 Gladius relies on functionality provided by other libraries. Some libraries are external (CubicVR for example), and other libraries exist as part of this project. The math and worker pool libraries exist as separate modules that can be used easily in other projects.
@@ -20,6 +18,8 @@ Gladius relies on functionality provided by other libraries. Some libraries are 
 ## Core + extensions
 
 Gladius consists of a core that provides low-level engine functionality like the game loop, messaging, tasks and timers. Common components like the spatial transform are also provided by the core. Services and components for specialized simulation elements, like graphics or physics, are provided by extensions. A common set of extensions is maintain as part of this project, but it's easy to write your own or import an extension from somewhere else.
+
+Check out our [roadmap](https://github.com/gladiusjs/core/wiki/Roadmap)!
 
 # Getting Started
 
@@ -37,7 +37,7 @@ Run unit tests by opening test/ directory in a web browser. Tests run automatica
 
 ## Examples and tutorial
 
-A short tutorial is provided [Tutorial](https://github.com/gladiusjs/core/wiki/Tutorial). Examples are available from the top-level project directory.
+A short tutorial is provided [here](https://github.com/gladiusjs/core/wiki/Tutorial). Examples are available from the top-level project directory.
 
 # License
 
