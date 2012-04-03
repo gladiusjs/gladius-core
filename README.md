@@ -7,17 +7,17 @@ Gladius
 
 # What is Gladius?
 
-## Framework for building 3D games on the web
+## Game engine
 
-Gladius is a game engine, written entirely in JavaScript, and designed to run in the browser. We leverage existing web technologies whenever possible and where gaps exist in support for games, we develop new solutions.
+Gladius is a 3D game engine, written entirely in JavaScript, and designed to run in the browser. We leverage existing web technologies whenever possible and where gaps exist in support for games, we develop new solutions.
+
+The engine consists of a core set of functionality that is common to all games and simulations like the game loop, messaging, tasks and timers. Common components like the spatial transform are also provided by the core. More specialized funcionality, like graphics or physics, is encapsulated into engine extensions that are designed to run on top of the core. A common set of extensions is maintained as part of this project, and support for third-party extensions is a strong design objective.
+
+An engine instance is comprised of the engine core plus a set of extensions.
 
 ## Libraries
 
-Gladius relies on functionality provided by other libraries. Some libraries are external (CubicVR for example), and other libraries exist as part of this project. The math and worker pool libraries exist as separate modules that can be used easily in other projects.
-
-## Core + extensions
-
-Gladius consists of a core that provides low-level engine functionality like the game loop, messaging, tasks and timers. Common components like the spatial transform are also provided by the core. Services and components for specialized simulation elements, like graphics or physics, are provided by extensions. A common set of extensions is maintain as part of this project, but it's easy to write your own or import an extension from somewhere else.
+Gladius uses several libraries that we built to support the game engine. Although they are part of this project, they are designed to be reusable in other projects as well.
 
 Check out our [roadmap](https://github.com/gladiusjs/core/wiki/Roadmap)!
 
