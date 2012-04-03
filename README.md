@@ -1,7 +1,7 @@
 Gladius
 =======
 
-* [[FAQ]] 
+* [FAQ](https://github.com/gladiusjs/core/wiki/Faq)
 * [IRC](irc://irc.mozilla.org/#games)
 * [Mailing List](https://lists.mozilla.org/listinfo/community-games)
 
@@ -10,6 +10,8 @@ Gladius
 ## Framework for building 3D games on the web
 
 Gladius is a game engine, written entirely in JavaScript, and designed to run in the browser. We leverage existing web technologies whenever possible and where gaps exist in support for games, we develop new solutions.
+
+* [Roadmap](https://github.com/gladiusjs/core/wiki/Roadmap)
 
 ## Libraries
 
@@ -33,7 +35,7 @@ Run unit tests by opening test/ directory in a web browser. Tests run automatica
 
 ## Examples and tutorial
 
-A short tutorial is provided [Tutorial].
+A short tutorial is provided [Tutorial](https://github.com/gladiusjs/core/wiki/Tutorial).
 
 # License
 
