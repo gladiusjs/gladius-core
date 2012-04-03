@@ -1,7 +1,7 @@
 Gladius
 =======
 
-* [[FAQ]]
+* [FAQ]
 * [IRC](irc://irc.mozilla.org/#games)
 * [Mailing List](https://lists.mozilla.org/listinfo/community-games)
 
