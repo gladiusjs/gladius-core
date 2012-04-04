@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
       
       // Number of seconds between the boss jumping which makes crates 
       // fall from the sky
-      var BOSS_JUMP_INTERVAL = 15;
+      var BOSS_JUMP_INTERVAL = 10;
       
       var FLOOR_POS = 0;
       
@@ -143,16 +143,14 @@ document.addEventListener("DOMContentLoaded", function (e) {
           var service = engine.logic,
               health = MAX_HEALTH,
               domId = options.domId,
-              color = options.color;
-
+              color = options.color,
+              healthToRemove = 0;
+              
           // Only need to do this once on init.
           getById(domId).style.backgroundColor = color;
           
           this.onHurt = function(amtToReduce){
-
-            health -= amtToReduce;
-            // clamp the health to the minimum possible.
-            health = health < 0 ? 0 : health;
+            healthToRemove += amtToReduce;            
           };
           
           this.onHeal = function(amtToAdd){
@@ -162,9 +160,38 @@ document.addEventListener("DOMContentLoaded", function (e) {
           };
           
           this.onUpdate = function(){
+            var delta = service.time.delta / 1000;
+                
+            if(healthToRemove <= 0){
+              healthToRemove = 0;
+              getById(domId).style.backgroundColor = color;
+            }
+            else{
+              var bitToRemove = delta * 20;
+              
+              health -= bitToRemove;
+              // clamp the health to the minimum possible.
+              health = health < 0 ? 0 : health;
+              
+              healthToRemove -= bitToRemove;
+              getById(domId).style.backgroundColor = 'red';
+            }
+
+            // Refresh the page if the user dies.
+            // TODO: make this cooler
+            if(health <= 0 && domId === 'player'){
+              location.reload();
+            }
+
+            // Refresh the page if the user dies.
+            // TODO: make this cooler
+            if(health <= 0 && domId === 'player'){
+              location.reload();
+            }
+
+
             // If health is zero, we only see the ugly border around the
             // health bar, so just hide it in that case.
-
             var show = health > 0 ? "visible" : "hidden";
             getById(domId).style.visibility = show;
             
@@ -785,6 +812,12 @@ document.addEventListener("DOMContentLoaded", function (e) {
         options = options || {};
         var that = this;
         
+        // We need to somehow get rid of the boxes once they hit the floor
+        // or the users head. We can do this by just bouncing them off the floor and the user.        
+        var vel = [0,0,0];
+        var acc = [0,0,0];
+        var angularVelocity = [0,0,0];
+
         var timer = 0;
         
         var timeToDie = options.time;
@@ -800,10 +833,21 @@ document.addEventListener("DOMContentLoaded", function (e) {
           if(e.data.entities[0].name === 'player'){
           // Only hurt the player if the crate landed on his head
           if(crateXpos[1] > userXpos[1]){
-              space.remove(this.owner);
+
               e.data.entities[0].find('Health').onHurt(25);
             }
           }
+
+          // Since the crate is moving towards the user it no longer should
+          // interact with the game XY-plance, so remove the Body component.
+          this.owner.remove("Body");
+          
+          var x = (Math.random() -0.5) * 20;
+                    
+          // Set the crate in motion.
+          vel = [x, 45, 25];
+          acc = [0, -100, 0];
+          angularVelocity = [(Math.random()-0.5) * 5, (Math.random()-0.5) * 5, (Math.random()-0.5) * 5];
         };
             
         this.onContactEnd = function( event ) {
@@ -813,8 +857,30 @@ document.addEventListener("DOMContentLoaded", function (e) {
           var delta = service.time.delta / 1000;
 
           timer += delta;
+          
+          // Update the position
+          var pos = this.owner.find('Transform').position;
+          pos[0] += vel[0] * delta;
+          pos[1] += vel[1] * delta;
+          pos[2] += vel[2] * delta;
+          this.owner.find('Transform').position = pos;
+          
+          var rot = this.owner.find('Transform').rotation;
+          rot[0] += angularVelocity[0] * delta;
+          rot[1] += angularVelocity[1] * delta;
+          rot[2] += angularVelocity[2] * delta;
+          this.owner.find('Transform').rotation = rot;
+
+          vel[0] += acc[0] * delta;
+          vel[1] += acc[1] * delta;
+          vel[2] += acc[2] * delta;
  
           if(timer >= timeToDie){
+            space.remove(this.owner);
+          }
+          
+          // Remove the crate if it goes past the floor.
+          if(pos[1] < 0){
             space.remove(this.owner);
           }
         }; // onUpdate
@@ -978,7 +1044,7 @@ document.addEventListener("DOMContentLoaded", function (e) {
             
             if( other.name === 'crate' ) {
               crateContactEntity = null;
-            };
+            }
         };
         
         this.jump = function (event) {
@@ -1380,9 +1446,10 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   scale: math.Vector3( 300, 0.1, 1)
                 }),
 
-                new engine.graphics.component.Model(
-                  instance.meshes[0]
-                ),
+                // TODO: remove before release
+                //new engine.graphics.component.Model(
+                //  instance.meshes[0]
+                //),
 
                 new PlatformComponent(),
                  
@@ -1444,9 +1511,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   scale: math.Vector3( wallW, wallH, 5)
                 }),
                 // TODO: Remove before release
-                new engine.graphics.component.Model(
-                  instance.meshes[0]
-                ),
+                //new engine.graphics.component.Model(
+                //  instance.meshes[0]
+                //),
 
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
@@ -1465,9 +1532,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   scale: math.Vector3( wallW, wallH, 5)
                 }),
                 // TODO: Remove before release
-                new engine.graphics.component.Model(
-                  instance.meshes[0]
-                ),
+                //new engine.graphics.component.Model(
+                //  instance.meshes[0]
+                //),
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: wallDef
