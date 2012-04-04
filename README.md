@@ -5,9 +5,7 @@ Gladius
 * [IRC](irc://irc.mozilla.org/#games)
 * [Mailing List](https://lists.mozilla.org/listinfo/community-games)
 
-# What is Gladius?
-
-## Game engine
+# Gladius is a 3D game engine
 
 Gladius is a 3D game engine, written entirely in JavaScript, and designed to run in the browser. We leverage existing web technologies whenever possible and where gaps exist in support for games, we develop new solutions.
 
@@ -15,11 +13,11 @@ The engine consists of a core set of functionality that is common to all games a
 
 An engine instance is comprised of the engine core plus a set of extensions.
 
-## Libraries
+# Related projects
 
-Gladius uses several libraries that we built to support the game engine. Although they are part of this project, they are designed to be reusable in other projects as well.
+We are also building a set of tools and libraries for building games. They are designed to be generally useful and reusable in other projects as well.
 
-Check out our [roadmap](https://github.com/gladiusjs/core/wiki/Roadmap)!
+<b>Check out our [roadmap](https://github.com/gladiusjs/core/wiki/Roadmap) for more details.<b>
 
 # Getting Started
 
