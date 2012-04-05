@@ -11,14 +11,17 @@ define(function (require) {
 
     function constructCollada(scene) {
 
-      var space = new engine.core.Space();
-      this.space = space;
-
-      // CubicVR magic
+      // Resets animations to the beginning of the animation sequence.
       scene.evaluate(0);
       var objects = scene.sceneObjects;
       var cvrMesh;
-
+      
+      this.meshes = [];
+      this.names = [];
+      this.positions = [];
+      this.rotations = [];
+      this.scales = [];
+      
       for (var i = 0; i < objects.length; i++) {
         var object = objects[i];
 
@@ -27,28 +30,25 @@ define(function (require) {
         if (object.obj) {
           cvrMesh = object.obj;
 
-          // convert degrees to radians since
-          // cubicVR uses degrees, gladius uses radians
+          // Convert degrees to radians since
+          // CubicVR uses degrees and Gladius uses radians.
           var rotation = object.rotation;
           rotation[0] *= Math.PI / 180;
           rotation[1] *= Math.PI / 180;
           rotation[2] *= Math.PI / 180;
-
-          new space.Entity({
-            name: cvrMesh.name,
-            components: [
-            new engine.core.component.Transform({
-              position: object.position,
-              rotation: rotation,
-              scale: object.scale
-            }), new engine.graphics.component.Model({
-              mesh: {
-                _cvr: {
-                  mesh: cvrMesh
-                }
+          
+          this.meshes.push({
+            mesh: {
+              _cvr: {
+                mesh: cvrMesh
               }
-            })]
+            }
           });
+
+          this.names.push( cvrMesh.name );
+          this.positions.push( object.position);
+          this.rotations.push( rotation );
+          this.scales.push( object.scale); 
         }
       }
     });
