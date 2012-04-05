@@ -70,9 +70,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 scale:    instance.scales[0]
               }),
               new engine.graphics.component.Model(
-                instance.meshes[0]),
+                instance.meshes[0])
             ]
-          })// entity
+          });
         },
         onfailure: function (error) {
           console.log("error loading collada resource: " + error);
