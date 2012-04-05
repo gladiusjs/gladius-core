@@ -1,7 +1,7 @@
 Gladius
 =======
 
-* [FAQ](https://github.com/gladiusjs/core/wiki/Faq)
+* [FAQ](https://github.com/gladiusjs/gladius-core/wiki/Faq)
 * [IRC](irc://irc.mozilla.org/#games)
 * [Mailing List](https://lists.mozilla.org/listinfo/community-games)
 
@@ -17,7 +17,7 @@ An engine instance is comprised of the engine core plus a set of extensions.
 
 We are also building a set of tools and libraries for building games. They are designed to be generally useful and reusable in other projects as well.
 
-<b>Check out our [roadmap](https://github.com/gladiusjs/core/wiki/Roadmap) for more details.<b>
+<b>Check out our [roadmap](https://github.com/gladiusjs/gladius-core/wiki/Roadmap) for more details.<b>
 
 # Getting Started
 
@@ -35,8 +35,8 @@ Run unit tests by opening test/ directory in a web browser. Tests run automatica
 
 ## Examples and tutorial
 
-A short tutorial is provided [here](https://github.com/gladiusjs/core/wiki/Tutorial). Examples are available from the top-level project directory.
+A short tutorial is provided [here](https://github.com/gladiusjs/gladius-core/wiki/Tutorial). Examples are available from the top-level project directory.
 
 # License
 
-See [LICENSE](https://github.com/alankligman/gladius-core/blob/develop/LICENSE) for more information.
+See [LICENSE](https://github.com/gladiusjs/gladius-core/blob/develop/LICENSE) for more information.
