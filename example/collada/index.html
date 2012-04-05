@@ -3,9 +3,33 @@
     <head>
         <script src="../../src/gladius.js"></script>
         <script src="collada.js"></script>
+        <title>Collada Example (experimental)</title>
     </head>
     <body>
-    	<canvas id="test-canvas" width="500" height="500"></canvas>
+    	<canvas style="float: left; margin: 10px;" 
+    	 id="test-canvas" width="500" height="500">
+    	</canvas>
+    	
+    	<h2>
+          <font color="red"><b>EXPERIMENTAL</b></font>
+    	</h2>
+    	<p>
+    	This is a partial demonstration of how to create a custom loader for a
+    	new resource type, in this case a model from a collada file. Note that
+    	the collada resource type is currently implemented in the engine core.
+    	</p>
+    	<p>
+    	A complete implementation would provide access to raw meshes and
+    	materials rather than creating new entities, and would generate entity
+    	templates, which the engine does not yet support. Finally, the loader
+    	itself is intended to be generic enough to load resources for arbitrary
+    	rendering backends.
+    	</p>
+    	<p>
+    	Once the implementation is unit tested and no longer experimental, 
+    	the collada resource and loader will be fully supported as part of the 
+    	engine core.
+    	</p>
   	</body>
   	<div id="out"></div>
 </html>

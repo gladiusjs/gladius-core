@@ -1,33 +1,42 @@
-# Gladius
+Gladius
+=======
 
-Gladius is a game engine, written entirely in JavaScript, and designed to run in the browser. We leverage existing web technologies whenever possible and where gaps exist in support for games, we develop new solutions.
+* [FAQ](https://github.com/gladiusjs/gladius-core/wiki/Faq)
+* [IRC](irc://irc.mozilla.org/#games)
+* [Mailing List](https://lists.mozilla.org/listinfo/community-games)
 
-## Version
+# Gladius is a 3D game engine
 
-Gladius follows the Semantic Versioning Specification. See http://semver.org for full details.
+Gladius is a 3D game engine, written entirely in JavaScript, and designed to run in the browser. We leverage existing web technologies whenever possible and where gaps exist in support for games, we develop new solutions.
 
-## Reporting Issues
+The engine consists of a core set of functionality that is common to all games and simulations like the game loop, messaging, tasks and timers. Common components like the spatial transform are also provided by the core. More specialized funcionality, like graphics or physics, is encapsulated into engine extensions that are designed to run on top of the core. A common set of extensions is maintained as part of this project, and support for third-party extensions is a strong design objective.
 
-Please report issues through the github project. Questions and discussions happen in #games on irc.mozilla.org, and on the paladin-dev mailing list at https://groups.google.com/group/paladin-dev.
+An engine instance is comprised of the engine core plus a set of extensions.
 
-## Getting Started
+# Related projects
 
-Make sure to clone all submodules. This can be done using 'make submodule'.
+We are also building a set of tools and libraries for building games. They are designed to be generally useful and reusable in other projects as well.
+
+<b>Check out our [roadmap](https://github.com/gladiusjs/gladius-core/wiki/Roadmap) for more details.<b>
+
+# Getting Started
+
+Make sure to clone using `--recursive` or run `make submodule` in the project directory after cloning.
 
 ## Build and Test
 
-No building is needed for development workflows. To build the engine for distribution, run make in the top-level
+No building is needed for development workflows.
+
+To build the engine for distribution, run make in the top-level
 project directory. The build process produces a javascript file containing the entire engine and its dependencies
 and also a minified version of that file.
 
 Run unit tests by opening test/ directory in a web browser. Tests run automatically and failures are marked in red.
 
-## Examples and Help
+## Examples and tutorial
 
-## Contributing
+A short tutorial is provided [here](https://github.com/gladiusjs/gladius-core/wiki/Tutorial). Examples are available from the top-level project directory.
 
-See https://wiki.mozilla.org/Paladin/Workflow for details about git workflow, testing, and code reviews.
+# License
 
-## License
-
-See LICENSE for more information.
+See [LICENSE](https://github.com/gladiusjs/gladius-core/blob/develop/LICENSE) for more information.
