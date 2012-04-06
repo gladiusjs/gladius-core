@@ -162,10 +162,6 @@ define( function ( require ) {
                     body.ApplyAngularImpulse( e.data.impulse );
                 };               
                 
-                this.onSetTransform = function( e ) {
-                    body.SetTransform( new Box2D.b2Vec2( e.position[0], e.position[1]), 0 );
-                };
-                               
                 this.onUpdate = function( e ) {
                     var position2 = body.GetPosition();
                     var angle2 = body.GetAngle();
