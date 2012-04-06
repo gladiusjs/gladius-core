@@ -37,13 +37,7 @@ define( function ( require ) {
                 }
             });
 
-            var _time = options.time || engine.scheduler.simulationTime;
-            Object.defineProperty( this, 'time', {
-                get: function() {
-                    return _time;
-                }
-            });
-
+            this.time = options.time || engine.scheduler.simulationTime;
         };
 
         var Service = function( options, c ) {
