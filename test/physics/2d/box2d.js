@@ -361,13 +361,23 @@
         var worldMock = this.mock( engine.physics._b2World );
         var bodyMock = this.mock( body );
         
-        worldMock.expects( 'Step' ).once();
+        // time is stepped in 30 millisecond increments, so we save
+        // off the real timer, and replace it with a fake object
+        // that returns a delta to 60, which should result in 
+        // the world stepping twice.
+        var realPhysicsTimer = engine.physics.time;
+        engine.physics.time = { delta: 60 };
+        
+        worldMock.expects( 'Step' ).twice();
         bodyMock.expects( 'onUpdate' ).once();
       
         engine.physics.update();
         
         ok( worldMock.verify(), 'world expectations met');
         ok( bodyMock.verify(), 'body expectations met' );
+
+        // restore the real physics timer
+        engine.physics.time = realPhysicsTimer;
     });    
 
     /** TD: event handler tests to write
