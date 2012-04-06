@@ -36,7 +36,7 @@ define(['sprite-viking-blitr'], function() {
     // named with the same prefix that is used inside the JSON file as "name"
     // property (which is what viking uses to expose the loaded sprite on
     // viking's global object).
-    var spriteName = options.spriteURL.split(".")[0];
+    var spriteName = options.spriteURL.split( '/' ).pop().split( '.' )[0];
     
     // We use a single texture, and animate the bitwall by updating the image
     // on it.

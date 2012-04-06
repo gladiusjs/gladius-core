@@ -86,7 +86,9 @@ define( function ( require ) {
                     cw: -1,
                     ccw: 1
             };
-            
+                        
+            var timeStep = 30;  // time step, in milliseconds
+            var timeRemaining = 0;    // time remaining from last frame, in milliseconds
             this.update = function() {                
                 var component;
 
@@ -106,8 +108,11 @@ define( function ( require ) {
                 }
                 
                 // Box2D steps in seconds
-                var deltaInSeconds = that.time.delta / 1000;
-                world.Step( deltaInSeconds, 2, 2 );
+                timeRemaining += that.time.delta;
+                while( timeRemaining >= timeStep ) {
+                    world.Step( timeStep/1000, 2, 2 );
+                    timeRemaining -= timeStep;
+                }                
             };
 
             var Body = engine.base.Component({
@@ -156,7 +161,7 @@ define( function ( require ) {
                 this.onAngularImpulse = function( e ) {
                     body.ApplyAngularImpulse( e.data.impulse );
                 };               
-                               
+                
                 this.onUpdate = function( e ) {
                     var position2 = body.GetPosition();
                     var angle2 = body.GetAngle();
