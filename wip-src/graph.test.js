@@ -107,7 +107,7 @@ define(
           deepEqual( sorted, ["0", "1", "2", "3"], "sorted list is correct" );
         });
         
-        test( "topoligical sort on graph with directed cycle", function() {
+        test( "topological sort on graph with directed cycle", function() {
           expect( 1 );
           
           var graph = new Graph();
