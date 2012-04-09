@@ -8,9 +8,14 @@ var testRequire = require.config({
 testRequire(
     [
      "graph.test",
+     "loop.test",
+     "request-animation-frame-loop.test"     
      ],
-     function( graphTests ) {
+     function( graphTests, loopTests, requestAnimationFrameLoopTests ) {
       QUnit.start();
+      
       graphTests();
+      loopTests();
+      requestAnimationFrameLoopTests();
     }
 );

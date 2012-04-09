@@ -9,58 +9,21 @@ define( function( require ) {
       window.setTimeout( callback, 1000/60 );
     };
   }
+  
+  var Loop = require( "loop" );
 
   var RequestAnimationFrameLoop = function( callback ) {
-    this.L_STARTED = 0;
-    this.L_PAUSED = 1;
-    this.L_CANCELLED = 2;
-    this.L_FINISHED = 3;
-
-    this.R_RUNNING = 0;
-    this.R_IDLE = 1;
-
-    this.loopState = this.L_PAUSED;
-    this.runState = this.R_IDLE;
-
+    Loop.call( this, callback );
     this.callback = callback;
   };
 
-  function _run() {
-    this.runState = this.R_RUNNING;
-    if( this.callback ) {
-      var runAgain = this.callback();
-      if( runAgain ) {
-        this._pump();
-      } else {
-        this.suspend();
-      }
-    }
-    this.runState = this.R_IDLE;
-  };
-
   function _pump() {
-    requestAnimationFrame( _run.bind( this ) );
+    requestAnimationFrame( this._run.bind( this ) );
   };
-
-  function suspend() {
-    this.loopState = this.L_PAUSED;
-  };
-
-  function resume() {
-    if( !this.callback ) {
-      throw new Error( "callback not defined" );
-    }
-    this.loopState = this.L_STARTED;
-    if( this.runState === this.R_IDLE ) {      
-      this._pump();
-    }
-  };
-
-  RequestAnimationFrameLoop.prototype = {
-      suspend: suspend,
-      resume: resume,
-      _pump: _pump
-  };
+  
+  RequestAnimationFrameLoop.prototype = new Loop();
+  RequestAnimationFrameLoop.prototype._pump = _pump;
+  RequestAnimationFrameLoop.prototype.constructor = RequestAnimationFrameLoop;
 
   return RequestAnimationFrameLoop;
 

@@ -8,18 +8,27 @@ define( function ( require ) {
     this.current = null;
   };
   
+  function next() {
+    
+  };
+  
+  function insert( task ) {
+    
+  };
+  
+  function remove( task ) {
+    
+  };
+  
+  function size() {
+    
+  };
+  
   Scheduler.prototype = {
-    next: function() {
-    
-    },
-    
-    insert: function( task ) {
-      
-    },
-    
-    remove: function( task ) {
-      
-    }    
+    next: next,
+    insert: insert,
+    remove: remove,
+    size: size
   };
   
   return Scheduler;
