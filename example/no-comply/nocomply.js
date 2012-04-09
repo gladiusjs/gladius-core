@@ -888,12 +888,8 @@ document.addEventListener("DOMContentLoaded", function (e) {
         };
         
         this.onContactBegin = function( e ) {
-          var other;
-          if( e.data.entities[0].owner.id == this.owner.id ) {
-            other = e.data.entities[1];
-          } else {
-            other = e.data.entities[0];
-          }
+          var other = (e.data.entities[0].id === this.owner.id) ?
+              e.data.entities[1] : e.data.entities[0];
           if( other.name === 'crate' ) {
             var cratePosition = other.owner.find( 'Transform' ).position;
             var bossPosition = this.owner.find( 'Transform' ).position;
