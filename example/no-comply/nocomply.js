@@ -684,52 +684,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
           };
         });
         
-
-
-
-      ////////////////////
-      // PlatformComponent
-      ////////////////////
-      var PlatformComponent = engine.base.Component({
-        type: 'Platform',
-        depends: ['Transform', 'Model']
-      },
-      function (options) {
-      
-        options = options || {};
-        var that = this;
-        
-        // This is a hack so that this component will have its message queue processed
-        var service = engine.logic; 
-
-        this.onUpdate = function (event) {
-          var delta = service.time.delta / 1000;
-        }; // onUpdate
-        
-        // Boilerplate component registration; Lets our service know that we exist and want to do things
-        this.onComponentOwnerChanged = function (e) {
-          if (e.data.previous === null && this.owner !== null) {
-            service.registerComponent(this.owner.id, this);
-          }
-
-          if (this.owner === null && e.data.previous !== null) {
-            service.unregisterComponent(e.data.previous.id, this);
-          }
-        };
-
-        this.onEntityManagerChanged = function (e) {
-          if (e.data.previous === null && e.data.current !== null && this.owner !== null) {
-            service.registerComponent(this.owner.id, this);
-          }
-
-          if (e.data.previous !== null && e.data.current === null && this.owner !== null) {
-            service.unregisterComponent(this.owner.id, this);
-          }
-        };
-      }); // PlatformComponent
-      
-
-
       ////////////////////
       // CrateComponent
       ////////////////////
@@ -1445,15 +1399,11 @@ document.addEventListener("DOMContentLoaded", function (e) {
                   position: math.Vector3( 0, FLOOR_POS, GAME_DEPTH ),
                   scale: math.Vector3( 300, 0.1, 1)
                 }),
-
                 // TODO: remove before release
                 //new engine.graphics.component.Model(
                 //  instance.meshes[0]
                 //),
-
-                new PlatformComponent(),
-                 
-                new engine.physics.component.Body({
+               new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: floorFixtureDef
                 })
@@ -1472,8 +1422,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.graphics.component.Model(
                   instance.meshes[0]
                 ),                   
-                new PlatformComponent(),
-
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: floorDef
@@ -1493,8 +1441,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.graphics.component.Model(
                   instance.meshes[0]
                 ),                   
-                new PlatformComponent(),
-
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: floorDef
@@ -1555,8 +1501,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 new engine.graphics.component.Model(
                   instance.meshes[0]
                 ),                   
-                new PlatformComponent(),
-
                 new engine.physics.component.Body({
                   bodyDefinition: bodyDef,
                   fixtureDefinition: platDef
