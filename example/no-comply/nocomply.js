@@ -887,8 +887,22 @@ document.addEventListener("DOMContentLoaded", function (e) {
           }
         };
         
-        this.onUpdate = function (event) {
-          var delta = service.time.delta / 1000;
+        this.onContactBegin = function( e ) {
+          var other;
+          if( e.data.entities[0].owner.id == this.owner.id ) {
+            other = e.data.entities[1];
+          } else {
+            other = e.data.entities[0];
+          }
+          if( other.name === 'crate' ) {
+            var cratePosition = other.owner.find( 'Transform' ).position;
+            var bossPosition = this.owner.find( 'Transform' ).position;
+
+            if( cratePosition[1] > bossPosition[1] ) {
+              space.remove( other.owner );
+              this.owner.find( 'Health' ).onHurt( 25 );
+            }
+          }          
         };
         
         // Boilerplate component registration; Lets our service know that we exist and want to do things
@@ -913,11 +927,6 @@ document.addEventListener("DOMContentLoaded", function (e) {
         };
       }); // Enemy Component
       
-
-
-
-
-
       ////////////////////
       // PlayerComponent
       ////////////////////
@@ -1198,11 +1207,9 @@ document.addEventListener("DOMContentLoaded", function (e) {
                 keyStates[keyName] = (e.data.state === 'down') ? true : false;
                 
                 // TODO: remove before release
-                /*
                 switch(keyName){
-                  case '1':makeCrate({position: [-30, 40, GAME_DEPTH]});break;
+                  case '1':makeCrate({position: [30, 40, GAME_DEPTH]});break;
                 }
-                */
                 
               } // onKey
             }), //controller
