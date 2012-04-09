@@ -1,6 +1,6 @@
 define( function( require ) {
 
-  var Loop = function() {
+  var Loop = function( callback ) {
     this.L_STARTED = 0;
     this.L_PAUSED = 1;
     this.L_CANCELLED = 2;
@@ -10,9 +10,9 @@ define( function( require ) {
     this.R_IDLE = 1;
 
     this.loopState = this.L_PAUSED;
-    this.runState = this.R_IDLE;
+    this.runState = this.R_IDLE;    
 
-    this.callback = undefined;
+    this.callback = callback;
   };
 
   function _run() {

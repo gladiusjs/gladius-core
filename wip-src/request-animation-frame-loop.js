@@ -14,7 +14,6 @@ define( function( require ) {
 
   var RequestAnimationFrameLoop = function( callback ) {
     Loop.call( this, callback );
-    this.callback = callback;
   };
 
   function _pump() {
