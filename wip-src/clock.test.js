@@ -13,9 +13,9 @@ define(
           
           var clock = new Clock();
           
-          equal( clock.idealFrameInterval, 1.0/30.0, 
+          equal( clock._idealFrameInterval, 1.0/30.0, 
               "default ideal frame interval is correct" );
-          equal( clock.timeScale, 1.0, "default time scale is correct" );
+          equal( clock._timeScale, 1.0, "default time scale is correct" );
           equal( clock.time, 0.0, "initial time is correct" );
           equal( clock.delta, 0.0, "initial delta is correct" );
           ok( !clock.isPaused(), "clock is not paused" );
@@ -59,8 +59,8 @@ define(
           equal( clock.delta, 0.0, "delta is unchanged after step" );
           clock.suspend();
           clock.step( 2 );
-          equal( clock.time, 2 * clock.idealFrameInterval, "time is correct" );
-          equal( clock.delta, 2 * clock.idealFrameInterval, "delta is correct" );
+          equal( clock.time, 2 * clock._idealFrameInterval, "time is correct" );
+          equal( clock.delta, 2 * clock._idealFrameInterval, "delta is correct" );
         });
         
         test( "default step", function() {
@@ -70,8 +70,8 @@ define(
           
           clock.suspend();
           clock.step();
-          equal( clock.time, clock.idealFrameInterval, "time is correct" );
-          equal( clock.delta, clock.idealFrameInterval, "delta is correct" );
+          equal( clock.time, clock._idealFrameInterval, "time is correct" );
+          equal( clock.delta, clock._idealFrameInterval, "delta is correct" );
         });
         
         test( "time scale update", function() {
@@ -79,7 +79,7 @@ define(
           
           var clock = new Clock();
           
-          clock.timeScale = 10;
+          clock.setTimeScale( 10 );
           clock.update( 1 );
           equal( clock.time, 10.0, "time is correct" );
           equal( clock.delta, 10.0, "delta is correct" );
@@ -90,12 +90,12 @@ define(
           
           var clock = new Clock();
           
-          clock.timeScale = 10;
+          clock.setTimeScale( 10 );
           clock.suspend();
           clock.step();
-          equal( clock.time, 10.0 * clock.idealFrameInterval, 
+          equal( clock.time, 10.0 * clock._idealFrameInterval, 
               "time is correct" );
-          equal( clock.delta, 10.0 * clock.idealFrameInterval, 
+          equal( clock.delta, 10.0 * clock._idealFrameInterval, 
               "delta is correct" );
         });
         
@@ -104,7 +104,7 @@ define(
           
           var clock = new Clock();
           
-          clock.idealFrameInterval = 1/60;
+          clock.setIdealFrameInterval( 1/60 );
           
           clock.suspend();
           clock.step();
