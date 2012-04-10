@@ -35,13 +35,15 @@ define( function ( require ) {
                         var fixtureB = contact.GetFixtureB();
                         var bodyA = fixtureA.GetBody();
                         var bodyB = fixtureB.GetBody();
-
+                        var entityA = bodyA.component.owner;
+                        var entityB = bodyB.component.owner;
+                        
                         new engine.core.Event({
                             type: 'ContactBegin',
                             data: {
-                                entities: [bodyA.component.owner, bodyB.component.owner]
+                                entities: [entityA, entityB]
                             }
-                        }).dispatch( [bodyA.component.owner, bodyB.component.owner] );                        
+                        }).dispatch( [entityA, entityB] );                        
                     }
                 },
                 {
@@ -52,13 +54,19 @@ define( function ( require ) {
                         var fixtureB = contact.GetFixtureB();
                         var bodyA = fixtureA.GetBody();
                         var bodyB = fixtureB.GetBody();
+                        var entityA = bodyA.component.owner;
+                        var entityB = bodyB.component.owner;
+                        
+                        if( !bodyA.component.owner || !bodyB.component.owner ) {
+                          return;
+                        }
 
                         new engine.core.Event({
                             type: 'ContactEnd',
                             data: {
-                                entities: [bodyA.component.owner, bodyB.component.owner]
-                            }
-                        }).dispatch( [bodyA.component.owner, bodyB.component.owner] );
+                              entities: [entityA, entityB]
+                          }
+                      }).dispatch( [entityA, entityB] );
                     }
                 },
                 {
