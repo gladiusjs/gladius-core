@@ -55,11 +55,13 @@ $(GLADIUS_MIN): $(DIST_DIR) $(GLADIUS_SRC)
 
 test: $(DIST_DIR) $(GLADIUS_MIN)
 	@@echo "Creating tests in $(DIST_TEST_DIR)"
-	@@mv $(GLADIUS_MIN) $(GLADIUS_DIST)
+	# @@mv $(GLADIUS_MIN) $(GLADIUS_DIST)
 	@@cp -R $(TEST_DIR) $(DIST_DIR)
 	@@mv $(DIST_TEST_DIR)/index.html.dist $(DIST_TEST_DIR)/index.html
 	@@mkdir -p $(DIST_TOOLS_DIR)/qunit
 	@@cp -R $(TOOLS_DIR)/qunit/qunit $(DIST_TOOLS_DIR)/qunit
+	@@cp -R $(TOOLS_DIR)/sinon.js $(DIST_TOOLS_DIR)/sinon.js
+	@@cp -R $(TOOLS_DIR)/sinon-qunit.js $(DIST_TOOLS_DIR)/sinon-qunit.js
 	@@echo "Starting web server in $(DIST_DIR), browse to http://localhost:9914/ (ctrl+c to stop)..."
 	@@cd $(DIST_DIR) && python ../$(TOOLS_DIR)/test_server.py
 
