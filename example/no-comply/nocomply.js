@@ -811,9 +811,7 @@ document
                 }
 
                 // Since the crate is moving towards the user it no longer
-                // should
-                // interact with the game XY-plance, so remove the Body
-                // component.
+                // should interact with the game XY-plance, so remove the Body component.
                 this.owner.remove( "Body" );
 
                 var x = (Math.random() - 0.5) * 20;
@@ -1170,7 +1168,7 @@ document
               // //////////
               // Boss
               // //////////
-              var bossW = 10, bossH = 10;
+              var bossW = 6, bossH = 16;
 
               var bossBody = engine.physics.resource.BodyDefinition( {
                 type : engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
@@ -1179,10 +1177,7 @@ document
                 fixedRotation : true
               } );
 
-              // Make an obstacle that will collide with the player
-              var bossShape = engine.physics.resource.Box( 0.75 * 4, 2 * 4 );// bossW/2,
-                                                                              // bossH/2
-                                                                              // );
+              var bossShape = engine.physics.resource.Box( bossW/2, bossH/2 );
               var bossFixture = engine.physics.resource.FixtureDefinition( {
                 shape : bossShape,
                 density : 8
@@ -1366,6 +1361,177 @@ document
                 position : [ -30, 40, GAME_DEPTH ]
               } );
 
+              // Change these to change the width and height of
+              // the platforms.
+              var platW = 8, platH = 4;
+
+              // Use these to change the dimensions of the parts
+              // of the floor
+              var rightFloorW = 50, rightFloorH = 15;
+
+              // Used for the right and left wall to prevent the
+              // user from
+              // going off the scene.
+              var wallW = 2, wallH = 150;
+
+              // platform Box2d
+              var bodyDef = engine.physics.resource
+                  .BodyDefinition( {
+                    type : engine.physics.resource.BodyDefinition.bodyType.STATIC,
+                    linearDamping : 0,
+                    angularDamping : 0,
+                    fixedRotation : true
+                  } );
+
+              var platformShape = engine.physics.resource.Box(
+                  platW / 2, platH / 2 );
+              var platDef = engine.physics.resource
+                  .FixtureDefinition( {
+                    shape : platformShape,
+                    density : 0
+                  } );
+
+              var floorShape = engine.physics.resource.Box(
+                  rightFloorW / 2, rightFloorH / 2 );
+              var floorDef = engine.physics.resource
+                  .FixtureDefinition( {
+                    shape : floorShape,
+                    density : 0
+                  } );
+
+              var wallShape = engine.physics.resource.Box(
+                  wallW / 2, wallH / 2 );
+              var wallDef = engine.physics.resource
+                  .FixtureDefinition( {
+                    shape : wallShape,
+                    density : 0
+                  } );
+
+              var floorCollisionShape = engine.physics.resource
+                  .Box( 150, 0.1 );
+              var floorFixtureDef = engine.physics.resource
+                  .FixtureDefinition( {
+                    shape : floorCollisionShape,
+                    density : 0
+                  } );
+
+              // The center ditch between the left and the right
+              // floors
+              var floor = new space.Entity( {
+                name : 'platform',
+                components : [
+                    new engine.core.component.Transform( {
+                      position : math.Vector3( 0, FLOOR_POS,
+                          GAME_DEPTH ),
+                      scale : math.Vector3( 300, 0.1, 1 )
+                    } ),
+                    // TODO: remove before release
+                    // new engine.graphics.component.Model(
+                    // instance.meshes[0]
+                    // ),
+                    new engine.physics.component.Body( {
+                      bodyDefinition : bodyDef,
+                      fixtureDefinition : floorFixtureDef
+                    } ) ]
+              } );
+
+              // Left floor, where the user starts
+              new space.Entity( {
+                name : 'platform',
+                components : [
+                    new engine.core.component.Transform( {
+                      position : math.Vector3( -36.2,
+                          FLOOR_POS - 1.5, GAME_DEPTH ),
+                      scale : math.Vector3( rightFloorW,
+                          rightFloorH, 5 )
+                    } ),
+                    new engine.graphics.component.Model(
+                        //instance.meshes[0] 
+                        resources.platform),
+                    new engine.physics.component.Body( {
+                      bodyDefinition : bodyDef,
+                      fixtureDefinition : floorDef
+                    } ) ]
+              } );
+
+              // Right floor, where the boss starts
+              new space.Entity( {
+                name : 'platform',
+                components : [
+                    new engine.core.component.Transform( {
+                      position : math.Vector3( 33.2,
+                          FLOOR_POS - 1.5, GAME_DEPTH ),
+                      scale : math.Vector3( rightFloorW,
+                          rightFloorH, 5 )
+                    } ),
+                    new engine.graphics.component.Model(
+                        //instance.meshes[0] 
+                        resources.platform),
+                    new engine.physics.component.Body( {
+                      bodyDefinition : bodyDef,
+                      fixtureDefinition : floorDef
+                    } ) ]
+              } );
+
+              // Left wall
+              new space.Entity( {
+                name : 'wall',
+                components : [
+                    new engine.core.component.Transform( {
+                      position : math.Vector3( -58.5,
+                          FLOOR_POS - 15, GAME_DEPTH ),
+                      scale : math.Vector3( wallW, wallH, 5 )
+                    } ),
+                    // TODO: Remove before release
+                    // new engine.graphics.component.Model(
+                    // instance.meshes[0]
+                    // ),
+
+                    new engine.physics.component.Body( {
+                      bodyDefinition : bodyDef,
+                      fixtureDefinition : wallDef
+                    } ) ]
+              } );
+
+              // Right wall
+              new space.Entity( {
+                name : 'wall',
+                components : [
+                    new engine.core.component.Transform( {
+                      position : math.Vector3( 58.5,
+                          FLOOR_POS - 15, GAME_DEPTH ),
+                      scale : math.Vector3( wallW, wallH, 5 )
+                    } ),
+                    // TODO: Remove before release
+                    // new engine.graphics.component.Model(
+                    // instance.meshes[0]
+                    // ),
+                    new engine.physics.component.Body( {
+                      bodyDefinition : bodyDef,
+                      fixtureDefinition : wallDef
+                    } ) ]
+              } );
+
+              // These are the platforms user can jump on
+              for ( var i = 0; i < 3; i++) {
+                new space.Entity( {
+                  name : 'platform',
+                  components : [
+                      new engine.core.component.Transform( {
+                        position : math.Vector3( i * 15, 20
+                            + FLOOR_POS + (i * 5), GAME_DEPTH ),
+                        scale : math.Vector3( platW, platH, 5 )
+                      } ),
+                      new engine.graphics.component.Model(
+                          //instance.meshes[0] 
+                          resources.platform),
+                      new engine.physics.component.Body( {
+                        bodyDefinition : bodyDef,
+                        fixtureDefinition : platDef
+                      } ) ]
+                } );
+              }
+
               // Start the engine!
               engine.run();
             };
@@ -1406,174 +1572,7 @@ document
                           url : 'platform/platform.dae',
                           load : colladaLoader,
                           onsuccess : function(instance) {
-
-                            // Change these to change the width and height of
-                            // the platforms.
-                            var platW = 8, platH = 4;
-
-                            // Use these to change the dimensions of the parts
-                            // of the floor
-                            var rightFloorW = 50, rightFloorH = 15;
-
-                            // Used for the right and left wall to prevent the
-                            // user from
-                            // going off the scene.
-                            var wallW = 2, wallH = 150;
-
-                            // platform Box2d
-                            var bodyDef = engine.physics.resource
-                                .BodyDefinition( {
-                                  type : engine.physics.resource.BodyDefinition.bodyType.STATIC,
-                                  linearDamping : 0,
-                                  angularDamping : 0,
-                                  fixedRotation : true
-                                } );
-
-                            var platformShape = engine.physics.resource.Box(
-                                platW / 2, platH / 2 );
-                            var platDef = engine.physics.resource
-                                .FixtureDefinition( {
-                                  shape : platformShape,
-                                  density : 0
-                                } );
-
-                            var floorShape = engine.physics.resource.Box(
-                                rightFloorW / 2, rightFloorH / 2 );
-                            var floorDef = engine.physics.resource
-                                .FixtureDefinition( {
-                                  shape : floorShape,
-                                  density : 0
-                                } );
-
-                            var wallShape = engine.physics.resource.Box(
-                                wallW / 2, wallH / 2 );
-                            var wallDef = engine.physics.resource
-                                .FixtureDefinition( {
-                                  shape : wallShape,
-                                  density : 0
-                                } );
-
-                            var floorCollisionShape = engine.physics.resource
-                                .Box( 150, 0.1 );
-                            var floorFixtureDef = engine.physics.resource
-                                .FixtureDefinition( {
-                                  shape : floorCollisionShape,
-                                  density : 0
-                                } );
-
-                            // The center ditch between the left and the right
-                            // floors
-                            var floor = new space.Entity( {
-                              name : 'platform',
-                              components : [
-                                  new engine.core.component.Transform( {
-                                    position : math.Vector3( 0, FLOOR_POS,
-                                        GAME_DEPTH ),
-                                    scale : math.Vector3( 300, 0.1, 1 )
-                                  } ),
-                                  // TODO: remove before release
-                                  // new engine.graphics.component.Model(
-                                  // instance.meshes[0]
-                                  // ),
-                                  new engine.physics.component.Body( {
-                                    bodyDefinition : bodyDef,
-                                    fixtureDefinition : floorFixtureDef
-                                  } ) ]
-                            } );
-
-                            // Left floor, where the user starts
-                            new space.Entity( {
-                              name : 'platform',
-                              components : [
-                                  new engine.core.component.Transform( {
-                                    position : math.Vector3( -36.2,
-                                        FLOOR_POS - 1.5, GAME_DEPTH ),
-                                    scale : math.Vector3( rightFloorW,
-                                        rightFloorH, 5 )
-                                  } ),
-                                  new engine.graphics.component.Model(
-                                      instance.meshes[0] ),
-                                  new engine.physics.component.Body( {
-                                    bodyDefinition : bodyDef,
-                                    fixtureDefinition : floorDef
-                                  } ) ]
-                            } );
-
-                            // Right floor, where the boss starts
-                            new space.Entity( {
-                              name : 'platform',
-                              components : [
-                                  new engine.core.component.Transform( {
-                                    position : math.Vector3( 33.2,
-                                        FLOOR_POS - 1.5, GAME_DEPTH ),
-                                    scale : math.Vector3( rightFloorW,
-                                        rightFloorH, 5 )
-                                  } ),
-                                  new engine.graphics.component.Model(
-                                      instance.meshes[0] ),
-                                  new engine.physics.component.Body( {
-                                    bodyDefinition : bodyDef,
-                                    fixtureDefinition : floorDef
-                                  } ) ]
-                            } );
-
-                            // Left wall
-                            new space.Entity( {
-                              name : 'wall',
-                              components : [
-                                  new engine.core.component.Transform( {
-                                    position : math.Vector3( -58.5,
-                                        FLOOR_POS - 15, GAME_DEPTH ),
-                                    scale : math.Vector3( wallW, wallH, 5 )
-                                  } ),
-                                  // TODO: Remove before release
-                                  // new engine.graphics.component.Model(
-                                  // instance.meshes[0]
-                                  // ),
-
-                                  new engine.physics.component.Body( {
-                                    bodyDefinition : bodyDef,
-                                    fixtureDefinition : wallDef
-                                  } ) ]
-                            } );
-
-                            // Right wall
-                            new space.Entity( {
-                              name : 'wall',
-                              components : [
-                                  new engine.core.component.Transform( {
-                                    position : math.Vector3( 58.5,
-                                        FLOOR_POS - 15, GAME_DEPTH ),
-                                    scale : math.Vector3( wallW, wallH, 5 )
-                                  } ),
-                                  // TODO: Remove before release
-                                  // new engine.graphics.component.Model(
-                                  // instance.meshes[0]
-                                  // ),
-                                  new engine.physics.component.Body( {
-                                    bodyDefinition : bodyDef,
-                                    fixtureDefinition : wallDef
-                                  } ) ]
-                            } );
-
-                            // These are the platforms user can jump on
-                            for ( var i = 0; i < 3; i++) {
-                              new space.Entity( {
-                                name : 'platform',
-                                components : [
-                                    new engine.core.component.Transform( {
-                                      position : math.Vector3( i * 15, 20
-                                          + FLOOR_POS + (i * 5), GAME_DEPTH ),
-                                      scale : math.Vector3( platW, platH, 5 )
-                                    } ),
-                                    new engine.graphics.component.Model(
-                                        instance.meshes[0] ),
-                                    new engine.physics.component.Body( {
-                                      bodyDefinition : bodyDef,
-                                      fixtureDefinition : platDef
-                                    } ) ]
-                              } );
-                            }
+                            resources.platform = instance.meshes[0];
                           }
                         },
 
