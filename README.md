@@ -4,6 +4,7 @@ Gladius
 * [FAQ](https://github.com/gladiusjs/gladius-core/wiki/Faq)
 * [IRC](irc://irc.mozilla.org/#games)
 * [Mailing List](https://lists.mozilla.org/listinfo/community-games)
+* [Contributors](https://github.com/gladiusjs/gladius-core/contributors)
 
 # Gladius is a 3D game engine
 

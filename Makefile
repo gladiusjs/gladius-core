@@ -28,13 +28,13 @@ GLADIUS_JSHINT_DIRS := $(SRC_DIR) $(TEST_DIR) ./example/collada \
 	example/sprites example/cube example/collision-cubes example/no-comply
 
 
-compile = node $(TOOLS_DIR)/node_modules/uglify-js/bin/uglifyjs -o $(1) $(GLADIUS_DIST)
+compile = node $(TOOLS_DIR)/node_modules/uglify-js/bin/uglifyjs --output $(1) $(GLADIUS_DIST)
 
 complete = cat $(GLADIUS_MIN) > $(1)
 
 .PHONY: check-lint
 
-all: $(DIST_DIR) $(GLADIUS_DIST) $(GLADIUS_MIN) $(CUBICVR_LIB)
+all: $(DIST_DIR) $(GLADIUS_DIST) $(CUBICVR_LIB)
 	@@echo "Finished, see $(DIST_DIR)"
 
 $(DIST_DIR):
@@ -53,13 +53,16 @@ $(GLADIUS_MIN): $(DIST_DIR) $(GLADIUS_SRC)
 	@@echo "Building $(GLADIUS_MIN)"
 	@@$(call compile,$(GLADIUS_MIN))
 
-test: $(DIST_DIR) $(GLADIUS_MIN)
+minify: $(GLADIUS_MIN)
+
+test: $(DIST_DIR)
 	@@echo "Creating tests in $(DIST_TEST_DIR)"
-	@@mv $(GLADIUS_MIN) $(GLADIUS_DIST)
 	@@cp -R $(TEST_DIR) $(DIST_DIR)
 	@@mv $(DIST_TEST_DIR)/index.html.dist $(DIST_TEST_DIR)/index.html
 	@@mkdir -p $(DIST_TOOLS_DIR)/qunit
 	@@cp -R $(TOOLS_DIR)/qunit/qunit $(DIST_TOOLS_DIR)/qunit
+	@@cp -R $(TOOLS_DIR)/sinon.js $(DIST_TOOLS_DIR)/sinon.js
+	@@cp -R $(TOOLS_DIR)/sinon-qunit.js $(DIST_TOOLS_DIR)/sinon-qunit.js
 	@@echo "Starting web server in $(DIST_DIR), browse to http://localhost:9914/ (ctrl+c to stop)..."
 	@@cd $(DIST_DIR) && python ../$(TOOLS_DIR)/test_server.py
 

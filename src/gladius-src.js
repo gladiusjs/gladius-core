@@ -11,11 +11,13 @@ define( function ( require ) {
         Event = require( 'core/event' ),
         Queue = require( 'common/queue' ),
 
-    // Services
+        // Services
         Service = require( 'base/service' ),
         Graphics = require( './graphics/service' ),
+        Physics = require( './physics/2d/box2d/service' ),
+        Input = require( './input/service' ),
         // ActionLists = require( './behavior/action-list/service' ),
-
+        Logic = require('./logic/game/service'),
         Resource = require( 'base/resource' ),
         Space = require( 'core/space' ),
         Component = require( 'base/component' ),
