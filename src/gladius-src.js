@@ -15,6 +15,7 @@ define( function ( require ) {
         Service = require( 'base/service' ),
         Graphics = require( './graphics/service' ),
         Physics = require( './physics/2d/box2d/service' ),
+        Input = require( './input/service' ),
         // ActionLists = require( './behavior/action-list/service' ),
 
         Resource = require( 'base/resource' ),
