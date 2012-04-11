@@ -1,11 +1,15 @@
 define(
     [ "preemptive-task" ],
-    function( RequestAnimationFrameLoop ) {
+    function( PreemptiveTask ) {
       return function() {
 
         module( "PreemptiveTask", {
           setup: function() {},
           teardown: function() {}
+        });
+        
+        test( "", function() {
+          expect( 0 );
         });
         
       };

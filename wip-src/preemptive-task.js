@@ -1,4 +1,6 @@
 define( function ( require ) {
+  
+  var guid = require( "common/guid" );
 
   var Task = function( thunk ) {
     this.T_STARTED = 0;
@@ -12,6 +14,9 @@ define( function ( require ) {
     this.R_REJECTED = 3;
     
     this._thunk = thunk;
+    
+    this.id = guid();
+    this.result = null;
   };
   
 } );
