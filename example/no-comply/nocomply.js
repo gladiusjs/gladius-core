@@ -1,4 +1,5 @@
-/*global CubicVR:false, window:false, viking: false, gladius: false   
+/*global CubicVR:false, window:false, viking: false, gladius: false,
+  console: false
  */
 
 /*jshint expr:true */
@@ -200,8 +201,8 @@ document
                         var halfClientAreaWidth = (window.innerWidth - 150) / 2;
                         var normalizedHealth = health / MAX_HEALTH;
 
-                        var finalHealth = normalizedHealth
-                            * halfClientAreaWidth;
+                        var finalHealth = normalizedHealth *
+                          halfClientAreaWidth;
 
                         getById( domId ).style.width = finalHealth + "px";
                       };
@@ -220,13 +221,15 @@ document
                       };
 
                       this.onEntityManagerChanged = function(e) {
-                        if (e.data.previous === null && e.data.current !== null
-                            && this.owner !== null) {
+                        if (e.data.previous === null && 
+                            e.data.current !== null &&
+                            this.owner !== null) {
                           service.registerComponent( this.owner.id, this );
                         }
 
-                        if (e.data.previous !== null && e.data.current === null
-                            && this.owner !== null) {
+                        if (e.data.previous !== null &&
+                            e.data.current === null &&
+                            this.owner !== null) {
                           service.unregisterComponent( this.owner.id, this );
                         }
                       };
@@ -370,8 +373,8 @@ document
                     }
 
                     // if going right and we reached border, walk forwards.
-                    if ((direction === 1 && xPos > 50)
-                        || (direction === -1 && xPos < 37)) {
+                    if ((direction === 1 && xPos > 50) ||
+                        (direction === -1 && xPos < 37)) {
                       direction *= -1;
                     }
 
@@ -403,8 +406,8 @@ document
                     timeElapsed += delta;
 
                     // TODO: FIX ME
-                    if (timeElapsed > 0.25
-                        && pl.owner.find( 'Transform' ).position[1] <= 15) {
+                    if (timeElapsed > 0.25 &&
+                        pl.owner.find( 'Transform' ).position[1] <= 15) {
 
                       // make crates when boss lands
                       var time = 10;
@@ -485,13 +488,13 @@ document
               };
 
               this.onEntityManagerChanged = function(e) {
-                if (e.data.previous === null && e.data.current !== null
-                    && this.owner !== null) {
+                if (e.data.previous === null && e.data.current !== null &&
+                    this.owner !== null) {
                   service.registerComponent( this.owner.id, this );
                 }
 
-                if (e.data.previous !== null && e.data.current === null
-                    && this.owner !== null) {
+                if (e.data.previous !== null && e.data.current === null &&
+                    this.owner !== null) {
                   service.unregisterComponent( this.owner.id, this );
                 }
               };
@@ -755,13 +758,15 @@ document
                       };
 
                       this.onEntityManagerChanged = function(e) {
-                        if (e.data.previous === null && e.data.current !== null
-                            && this.owner !== null) {
+                        if (e.data.previous === null &&
+                            e.data.current !== null &&
+                            this.owner !== null) {
                           service.registerComponent( this.owner.id, this );
                         }
 
-                        if (e.data.previous !== null && e.data.current === null
-                            && this.owner !== null) {
+                        if (e.data.previous !== null && 
+                            e.data.current === null &&
+                            this.owner !== null) {
                           service.unregisterComponent( this.owner.id, this );
                         }
                       };
@@ -871,13 +876,13 @@ document
               };
 
               this.onEntityManagerChanged = function(e) {
-                if (e.data.previous === null && e.data.current !== null
-                    && this.owner !== null) {
+                if (e.data.previous === null && e.data.current !== null &&
+                    this.owner !== null) {
                   service.registerComponent( this.owner.id, this );
                 }
 
-                if (e.data.previous !== null && e.data.current === null
-                    && this.owner !== null) {
+                if (e.data.previous !== null && e.data.current === null &&
+                    this.owner !== null) {
                   service.unregisterComponent( this.owner.id, this );
                 }
               };
@@ -937,13 +942,14 @@ document
                       };
 
                       this.onEntityManagerChanged = function(e) {
-                        if (e.data.previous === null && e.data.current !== null
-                            && this.owner !== null) {
+                        if (e.data.previous === null &&
+                            e.data.current !== null &&
+                            this.owner !== null) {
                           service.registerComponent( this.owner.id, this );
                         }
 
-                        if (e.data.previous !== null && e.data.current === null
-                            && this.owner !== null) {
+                        if (e.data.previous !== null &&
+                            e.data.current === null && this.owner !== null) {
                           service.unregisterComponent( this.owner.id, this );
                         }
                       };
@@ -1007,8 +1013,8 @@ document
                         // we must have just landed, which means we should go
                         // into an idle state.
                         // new collision
-                        if (collideID !== e.data.entities[0].id
-                            && e.data.entities[0].name === 'platform') {
+                        if (collideID !== e.data.entities[0].id &&
+                            e.data.entities[0].name === 'platform') {
 
                           userPos = this.owner.find( 'Transform' ).position[1];
                           platPos = e.data.entities[0].find( 'Transform' ).position[1];
@@ -1130,13 +1136,13 @@ document
                       };
 
                       this.onEntityManagerChanged = function(e) {
-                        if (e.data.previous === null && e.data.current !== null
-                            && this.owner !== null) {
+                        if (e.data.previous === null &&
+                            e.data.current !== null && this.owner !== null) {
                           service.registerComponent( this.owner.id, this );
                         }
 
-                        if (e.data.previous !== null && e.data.current === null
-                            && this.owner !== null) {
+                        if (e.data.previous !== null &&
+                            e.data.current === null && this.owner !== null) {
                           service.unregisterComponent( this.owner.id, this );
                         }
                       };
@@ -1253,12 +1259,10 @@ document
                             : false;
 
                         // TODO: remove before release
-                        switch (keyName) {
-                        case '1':
+                        if (keyName == '1') {
                           makeCrate( {
                             position : [ 30, 40, GAME_DEPTH ]
                           } );
-                          break;
                         }
 
                       } // onKey
@@ -1326,17 +1330,17 @@ document
                   // canMove
                   if (true) {
                     // TODO: fix me
-                    if (keyStates[keyConfig.RIGHT_KEY]
-                        && keyStates[keyConfig.JUMP_KEY]) {
+                    if (keyStates[keyConfig.RIGHT_KEY] &&
+                        keyStates[keyConfig.JUMP_KEY]) {
                       player.find( 'Player' ).jump();
-                    } else if (keyStates[keyConfig.LEFT_KEY]
-                        && keyStates[keyConfig.JUMP_KEY]) {
+                    } else if (keyStates[keyConfig.LEFT_KEY] &&
+                        keyStates[keyConfig.JUMP_KEY]) {
                       player.find( 'Player' ).jump();
                     }
                     // Don't move the user if they're trying to move in both
                     // directions.
-                    else if (keyStates[keyConfig.RIGHT_KEY]
-                        && keyStates[keyConfig.LEFT_KEY]) {
+                    else if (keyStates[keyConfig.RIGHT_KEY] &&
+                             keyStates[keyConfig.LEFT_KEY]) {
                       player.find( 'Player' ).idle();
                     }
                     // Move them right if released the right key.
@@ -1518,8 +1522,8 @@ document
                   name : 'platform',
                   components : [
                       new engine.core.component.Transform( {
-                        position : math.Vector3( i * 15, 20
-                            + FLOOR_POS + (i * 5), GAME_DEPTH ),
+                        position : math.Vector3( i * 15, 20 + FLOOR_POS +
+                                                 (i * 5), GAME_DEPTH ),
                         scale : math.Vector3( platW, platH, 5 )
                       } ),
                       new engine.graphics.component.Model(
@@ -1562,8 +1566,8 @@ document
                             }
                           },
                           onfailure : function(error) {
-                            console.log( "error loading collada resource: "
-                                + error );
+                            console.log( "error loading collada resource: " +
+                                         error );
                           }
                         },
 
