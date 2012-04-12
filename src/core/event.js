@@ -50,7 +50,6 @@ define( function ( require ) {
                         targets[i].handleEvent( that );
                     } catch( e ) {
                         console.log( e );
-                        debugger;
                     }
                 }
             } else {
@@ -58,7 +57,6 @@ define( function ( require ) {
                     targets.handleEvent( that );
                 } catch( e ) {
                     console.log( e );
-                    debugger;
                 }
             }
         };
