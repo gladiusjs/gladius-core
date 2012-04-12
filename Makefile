@@ -68,6 +68,8 @@ test: $(DIST_DIR)
 
 lint: check-lint 
 
+hint: check-lint
+
 check-lint:
 	$(JSHINT) $(GLADIUS_JSHINT_DIRS) \
 		--config tools/jshintrc.json
