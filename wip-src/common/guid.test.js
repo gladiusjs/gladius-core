@@ -9,12 +9,13 @@ define(
         });
         
         test( "generate new guids", function() {
-          expect( 2 );
+          expect( 3 );
           
           var guid1 = guid();
           var guid2 = guid();
           
-          equal( guid1.length, 36, "guid is correct length" );
+          equal( typeof guid1, "string", "guid is correct type" );
+          equal( guid1.length, 36, "guid is correct length" );          
           notEqual( guid1, guid2, "guids are not the same" );
         });
         

@@ -29,7 +29,7 @@ define( function( require ) {
   };
 
   function _pump() {
-    throw new Error( "no implemented for base prototype" );
+    throw new Error( "not implemented for base prototype" );
   };
 
   function suspend() {
