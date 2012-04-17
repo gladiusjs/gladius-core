@@ -222,7 +222,7 @@ define( function ( require ) {
 
             var that = this;
 
-            var _element = options.element || window.document;
+            var _element = options.element || window;
             var _queue = [];
 
             function keyHandler(e, isPressed) {
@@ -273,7 +273,7 @@ define( function ( require ) {
                 get: function() {
                     return _components;
                 }
-            });
+            });            
 
         });
 
