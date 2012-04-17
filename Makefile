@@ -64,13 +64,19 @@ test: $(DIST_DIR)
 
 lint: check-lint 
 
-hint: check-lint
+jshint: check-lint
 
 check-lint:
 	$(JSHINT) .
 
 clean:
 	@@rm -fr $(DIST_DIR)
+
+setup: submodule install-precommit
+
+install-precommit:
+	rm -f .git/hooks/pre-commit
+	ln -s tools/pre-commit.sh .git/hooks/pre-commit
 
 submodule:
 	@@git submodule update --init --recursive
