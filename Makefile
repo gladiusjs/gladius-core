@@ -76,7 +76,7 @@ setup: submodule install-precommit
 
 install-precommit:
 	rm -f .git/hooks/pre-commit
-	ln -s tools/pre-commit.sh .git/hooks/pre-commit
+	ln -s "../../tools/pre-commit.sh" .git/hooks/pre-commit
 
 submodule:
 	@@git submodule update --init --recursive

@@ -28,7 +28,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             
             this.onContactEnd = function( event ) {
                 console.log( 'END', this.owner.id, event.data.entities[0], '<->', event.data.entities[1] );
-            };xx
+            };
 
             this.onUpdate = function( event ) {
             };
