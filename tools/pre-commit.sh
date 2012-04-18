@@ -9,9 +9,11 @@
 
 git stash -q --keep-index
 
+echo "Running jshint; the commit will be allowed even if there are errors."
+echo "Please commit appropriate fixes before making a pull request."
+
 make jshint
-RESULT=$?
 
 git stash pop -q
-[ $RESULT -ne 0 ] && exit 1
+
 exit 0

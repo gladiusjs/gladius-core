@@ -92,6 +92,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
 
             // Make a user-controllable object that can collide with the obstacle
             var playerKeyHandler = function(e) {
+              console.log("playerKeyHandler entered");
                 if( this.owner ) {                                         
                     // If we have an owner, dispatch a game event for it to enjoy
                     var keyCode = e.data.code;
