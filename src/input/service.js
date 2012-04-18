@@ -250,10 +250,10 @@ define( function ( require ) {
 
             _element.addEventListener( 'keydown', function( e ) {
                 keyHandler( e, true );
-            }, true);
+            }, false);
             _element.addEventListener( 'keyup', function( e ) {
                 keyHandler( e, false );
-            }, true);
+            }, false);
 
             this.update = function() {
                 for( var componentType in that.components ) {
@@ -273,7 +273,7 @@ define( function ( require ) {
                 get: function() {
                     return _components;
                 }
-            });
+            });            
 
         });
 
