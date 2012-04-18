@@ -74,6 +74,7 @@ clean:
 
 setup: submodule install-precommit
 
+# TD: this will fail in a Windows environment, since symlinks don't work there.
 install-precommit:
 	rm -f .git/hooks/pre-commit
 	ln -s "../../tools/pre-commit.sh" .git/hooks/pre-commit
