@@ -38,6 +38,8 @@ Run unit tests by opening test/ directory in a web browser. Tests run automatica
 
 A short tutorial is provided [here](https://github.com/gladiusjs/gladius-core/wiki/Tutorial). Examples are available from the top-level project directory.
 
-# License
+# License and Notes
 
 See [LICENSE](https://github.com/gladiusjs/gladius-core/blob/develop/LICENSE) for more information.
+
+All our logos are handmade by [Sean Martell](https://twitter.com/#!/mart3ll).
