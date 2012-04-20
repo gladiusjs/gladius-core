@@ -10,20 +10,6 @@ define( function ( require ) {
     this.value = value;
   };
   
-  var Continue = function( value ) {
-    if( !(this instanceof Continue ) ) {
-      return new Continue( value );
-    }
-    this.value = value;
-  };
-  
-  var Wait = function( value ) {
-    if( !(this instanceof Wait ) ) {
-      return new Wait( value );
-    }
-    this.value = value;
-  };
-  
   // Task states
   var T_STARTED = 0,
       T_PAUSED = 1,
@@ -100,6 +86,12 @@ define( function ( require ) {
       } else if( this._taskState === T_STARTED ) {
         result = this._thunk.call( this );
         this._runState = R_BLOCKED;
+        
+        if( when.isPromise( result ) ) {
+          
+        } else if( result instanceof Complete ) {
+          
+        }
         
         if( result instanceof Continue ) {
           this._runState = R_RESOLVED;
