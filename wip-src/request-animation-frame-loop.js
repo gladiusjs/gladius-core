@@ -18,7 +18,7 @@ define( function( require ) {
 
   function _pump() {
     requestAnimationFrame( this._run.bind( this ) );
-  };
+  }
   
   RequestAnimationFrameLoop.prototype = new Loop();
   RequestAnimationFrameLoop.prototype._pump = _pump;

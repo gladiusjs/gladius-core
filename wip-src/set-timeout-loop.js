@@ -8,7 +8,7 @@ define( function( require ) {
 
   function _pump() {
     setTimeout( this._run.bind( this ), 0 );
-  };
+  }
   
   SetTimeoutLoop.prototype = new Loop();
   SetTimeoutLoop.prototype._pump = _pump;

@@ -26,15 +26,15 @@ define( function( require ) {
       }
     }
     this.runState = this.R_IDLE;
-  };
+  }
 
   function _pump() {
     throw new Error( "not implemented for base prototype" );
-  };
+  }
 
   function suspend() {
     this.loopState = this.L_PAUSED;
-  };
+  }
 
   function resume() {
     if( !this.callback ) {
@@ -44,7 +44,7 @@ define( function( require ) {
     if( this.runState === this.R_IDLE ) {      
       this._pump();
     }
-  };
+  }
 
   Loop.prototype = {
       suspend: suspend,

@@ -49,7 +49,7 @@ define( function ( require ) {
       this._scheduler.insert( this, this._schedule );
     }
     return this;
-  };
+  }
 
   function pause() {
     if( this._runState === R_RUNNING ) {
@@ -58,7 +58,7 @@ define( function ( require ) {
     this._taskState = T_PAUSED;
     this._scheduler.remove( this );      
     return this;
-  };
+  }
 
   function cancel( schedule ) {
     this._schedule = schedule || this._schedule;
@@ -68,15 +68,15 @@ define( function ( require ) {
     this._taskState = T_CANCELLED;
     this._scheduler.insert( this, this._schedule );
     return this;
-  };
+  }
 
   function isStarted() {
     return this._taskState === T_STARTED;
-  };
+  }
 
   function isRunning() {
     return this._runState === R_RUNNING;
-  };
+  }
 
   // TD: this will need to change for cooperative tasks
   // TD: most of this prototype can be factored into a Task base
@@ -125,11 +125,11 @@ define( function ( require ) {
       task._runState = R_REJECTED;
       task._deferred.reject( exception );
     }
-  };
+  }
 
   function toString() {
     return "[object PreemptiveTask " + this.id + " ]";
-  };
+  }
 
   PreemptiveTask.prototype = {
       pause: pause,

@@ -10,19 +10,19 @@ define( function ( require ) {
   
   function next() {
     
-  };
+  }
   
   function insert( task ) {
     
-  };
+  }
   
   function remove( task ) {
     
-  };
+  }
   
   function size() {
     
-  };
+  }
   
   Scheduler.prototype = {
     next: next,

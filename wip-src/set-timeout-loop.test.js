@@ -23,7 +23,7 @@ define(
               start();
             }
             return counter > 0;
-          };
+          }
           
           ok( loop, "a new object is returned" );
           ok( loop instanceof SetTimeoutLoop,
@@ -52,7 +52,7 @@ define(
               loop.suspend();
               start();
             }
-          };
+          }
           
           var loop = new SetTimeoutLoop( testCallback );
           loop.resume();          
@@ -76,7 +76,7 @@ define(
               loop.suspend();
               start();
             }
-          };
+          }
           
           var loop = new SetTimeoutLoop( testCallback );
           loop.resume();

@@ -31,7 +31,7 @@ define(
           var schedulerMock = this.schedulerMock;
           schedulerMock.expects( "insert" ).once();
 
-          function taskFunction() {};          
+          function taskFunction() {}          
           var task = new PreemptiveTask( schedulerApi, taskFunction );
 
           task.start();
@@ -45,7 +45,7 @@ define(
           var invalidSchedulerApi = this.invalidSchedulerApi;
           var invalidSchedulerMock = this.invalidSchedulerMock;
 
-          function taskFunction() {};
+          function taskFunction() {}
 
           raises( function() {
             var task = new PreemptiveTask( invalidSchedulerApi, taskFunction );  
@@ -57,7 +57,7 @@ define(
 
           var schedulerApi = this.schedulerApi;
           var schedulerMock = this.schedulerMock;
-          function taskFunction() {};
+          function taskFunction() {}
           var task = new PreemptiveTask( schedulerApi, taskFunction );
 
           task.start();
@@ -74,7 +74,7 @@ define(
           function taskFunction() {
             equal( this, task, "this value is correct" );
             ok( this.isRunning, "task is running" );
-          };
+          }
           var task = new PreemptiveTask( schedulerApi, taskFunction );
           
           ok( !task.isRunning(), "task is not running" );
@@ -93,7 +93,7 @@ define(
           var schedulerMock = this.schedulerMock;
           function taskFunction() { 
             this.pause(); 
-          };
+          }
           var task = new PreemptiveTask( schedulerApi, taskFunction );
 
           task.start();
@@ -110,7 +110,7 @@ define(
           var schedulerMock = this.schedulerMock;
           function taskFunction() {
             task.cancel();
-          };
+          }
           var task = new PreemptiveTask( schedulerApi, taskFunction );
 
           

@@ -43,9 +43,9 @@ define( function( require ) {
     }
 
     this._cachedSort = null;
-    
+
     return this;
-  };
+  }
 
   function unlink( source, sink ) {
     if( this._adjacencies[sink] && this._adjacencies[sink][source] ) {
@@ -62,9 +62,9 @@ define( function( require ) {
     }
 
     this._cachedSort = null;
-    
+
     return this;
-  };
+  }
 
   function insert( node ) {
     if( !this._nodes[node] ) {
@@ -75,9 +75,9 @@ define( function( require ) {
       ++ this._cachedSize;
       this._cachedSort = null;
     }
-    
+
     return this;
-  };
+  }
 
   function remove( node ) {
     var edges = this._adjacencies[node] || {};    
@@ -95,13 +95,13 @@ define( function( require ) {
     } else {
       throw new Error( "no such node: ", node );
     }
-    
+
     return this;
-  };
+  }
 
   function size() {
     return this._cachedSize;
-  };
+  }
 
   function clear() {    
     this._nodes = {};
@@ -110,38 +110,38 @@ define( function( require ) {
     this._roots = {};    
     this._cachedSort = null;
     this._cachedSize = 0;
-    
+
     return this;
-  };
+  }
 
   function sort() {
     var graph = this;
-    if( null === this._cachedSort ) {
-      var sorted = [],
-        roots = Object.keys( this._roots ),
-        visited = [];
+    var sorted = [],
+    roots = Object.keys( this._roots ),
+    visited = [];
 
-      function visit( sink, visitedStack ) {
-        if( -1 !== visitedStack.indexOf( sink ) ) {
-          throw new Error( "directed cycle detected" );
-        }
-        visitedStack.push( sink );
-        
-        if( -1 === visited.indexOf( sink ) ) {
-          visited.push( sink );
-          var edges = graph._adjacencies[sink];
-          for( var source in edges ) {
-            if( !graph._nodes[source] ) {  // This might be a dangling edge
-              delete edges[source];
-            } else {
-              visit( source, visitedStack );              
-            }
+    function visit( sink, visitedStack ) {
+      if( -1 !== visitedStack.indexOf( sink ) ) {
+        throw new Error( "directed cycle detected" );
+      }
+      visitedStack.push( sink );
+
+      if( -1 === visited.indexOf( sink ) ) {
+        visited.push( sink );
+        var edges = graph._adjacencies[sink];
+        for( var source in edges ) {
+          if( !graph._nodes[source] ) {  // This might be a dangling edge
+            delete edges[source];
+          } else {
+            visit( source, visitedStack );              
           }
-          sorted.push( sink );
         }
-        visitedStack.pop();
-      };
+        sorted.push( sink );
+      }
+      visitedStack.pop();
+    }
 
+    if( null === this._cachedSort ) {
       for( var i = 0, l = roots.length; i < l; ++ i ) {
         visit( roots[i], [] );
       }             
@@ -152,23 +152,23 @@ define( function( require ) {
 
       this._cachedSort = sorted;
     }
-    
+
     return this._cachedSort.slice();
-    
-  };
-  
+
+  }
+
   function hasNode( node ) {
     return this._nodes.hasOwnProperty( node );
-  };
-  
+  }
+
   function hasLink( source, sink ) {
     if( !this.hasNode( source ) ) { // This might be a dangling edge
       this.unlink( source, sink );
       return false;
     }
     return this._adjacencies.hasOwnProperty( sink ) &&
-           this._adjacencies[sink].hasOwnProperty( source );
-  };
+    this._adjacencies[sink].hasOwnProperty( source );
+  }
 
   Graph.prototype = {
       link: link,    

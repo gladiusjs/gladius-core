@@ -14,18 +14,18 @@ define( function( require ) {
   
   function suspend() {
     this._clockState = this.C_PAUSED;
-  };
+  }
   
   function resume() {
     this._clockState = this.C_STARTED;
-  };
+  }
   
   function update( delta ) {
     if( this.C_PAUSED !== this._clockState ) {
       this.delta = delta * this._timeScale;
       this.time += this.delta;
     }
-  };
+  }
   
   function step( count ) {
     count = undefined === count ? 1 : count;
@@ -33,20 +33,20 @@ define( function( require ) {
       this.delta = count * this._idealFrameInterval * this._timeScale;
       this.time += this.delta;
     }
-  };
+  }
   
   function isPaused() {
     return this._clockState === this.C_PAUSED;
-  };
+  }
   
   function reset() {
     this.time = 0;
     this.delta = 0;
-  };
+  }
   
   function setTimeScale( scale ) {
     this._timeScale = scale;
-  };
+  }
   
   function setIdealFrameInterval( interval ) {
     this._idealFrameInterval = interval;
