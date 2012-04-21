@@ -2,27 +2,27 @@ define( function ( require ) {
 
   var guid = require( "common/guid" );
   var when = require( "../external/when" );
-  
+
   var Complete = function( value ) {
     if( !(this instanceof Complete ) ) {
       return new Complete( value );
     }
     this.value = value;
   };
-  
+
   // Task states
   var T_STARTED = 0,
-      T_PAUSED = 1,
-      T_CANCELLED = 2,
-      T_CLOSED = 3;
-  
+  T_PAUSED = 1,
+  T_CANCELLED = 2,
+  T_CLOSED = 3;
+
   // Run states
   var R_RUNNING = 0,
-      R_BLOCKED = 1,
-      R_RESOLVED = 2,
-      R_REJECTED = 3;
+  R_BLOCKED = 1,
+  R_RESOLVED = 2,
+  R_REJECTED = 3;
 
-  var Task = function( scheduler, schedule, thunk ) {
+  var PreemptiveTask = function( scheduler, schedule, thunk ) {
     this.id = guid();
     this._thunk = thunk;
     this._taskState = T_PAUSED;
@@ -34,11 +34,14 @@ define( function ( require ) {
     this.then = this._deferred.promise;
     this.when = when;
   };
-  
+
   function start( schedule ) {
     this._schedule = schedule || this._schedule;
     if( this._taskState !== T_PAUSED ) {
       throw new Error( "task is already started or completed" );
+    }
+    if( !this._scheduler || !this._scheduler.hasOwnProperty( "insert" ) ) {
+      throw new Error( "invalid scheduler" );
     }
     this._taskState = T_STARTED;
     if( this._runState !== R_BLOCKED ) {
@@ -55,9 +58,9 @@ define( function ( require ) {
     this._scheduler.remove( this );      
     return this;
   };
-  
+
   function cancel( schedule ) {
-    this._schedule = schedule || undefined;
+    this._schedule = schedule || this._schedule;
     if( this._taskState !== R_BLOCKED ) {
       throw new Error( "tasks can only be cancelled while blocked" );
     }
@@ -75,41 +78,51 @@ define( function ( require ) {
   };
 
   // TD: this will need to change for cooperative tasks
+  // TD: most of this prototype can be factored into a Task base
   function _run() {
-    var result = this._result;
-    this.result = undefined;
+    var task = this;
+    var result = task._result;
+    task.result = undefined;
     try{
-      this._runState = R_RUNNING;
-      if( this._taskState === T_CANCELLED ) {
-        this._runState = R_RESOLVED;
-        this._taskState = T_CLOSED;
-      } else if( this._taskState === T_STARTED ) {
-        result = this._thunk.call( this );
-        this._runState = R_BLOCKED;
-        
-        if( when.isPromise( result ) ) {
-          
-        } else if( result instanceof Complete ) {
-          
-        }
-        
-        if( result instanceof Continue ) {
-          this._runState = R_RESOLVED;
-          this.result = Continue.value;
-          if( this._threadState === T_STARTED ) {
-            this._scheduler.insert( this, this._schedule );
-          }
-        } else if( result instanceof Wait ) {
-          this._runState = R_BLOCKED;          
-        } else if( result instanceof Complete ) {
-          this._runState = R_RESOLVED;
-          this._taskState = R_CLOSED;
+      task._runState = R_RUNNING;
+      if( task._taskState === T_CANCELLED ) {
+        task._runState = R_RESOLVED;
+        task._taskState = T_CLOSED;
+      } else if( task._taskState === T_STARTED ) {
+        // Run the task
+        result = task._thunk.call( task );
+        task._runState = R_BLOCKED;
+
+        // Process the result
+        if( result instanceof Complete ) {
+          task.result = Complete.value;
+          task._runState = R_RESOLVED;
+          task._deferred.resolve( task.result );
         } else {
-          
+          task.result = when( result,
+          // callback
+          function( value ) {
+            task.result = value;
+            task._runState = R_RESOLVED;
+            if( task._threadState === T_STARTED ) {
+              task.scheduler.insert( task, task._schedule );
+            }
+          },
+          // errback
+          function( error ) {
+            task.result = error;
+            task._runState = R_REJECTED;
+            if( task._threadState === T_STARTED ) {
+              task._scheduler.insert( task, task._schedule );
+            }
+          }
+          );
         }
       }
     } catch( exception ) {
-      
+      task.result = exception;
+      task._runState = R_REJECTED;
+      task._deferred.reject( exception );
     }
   };
 
@@ -117,13 +130,15 @@ define( function ( require ) {
     return "[object PreemptiveTask " + this.id + " ]";
   };
 
-  Task.prototype = {
-    pause: pause,
-    start: start,
-    cancel: cancel,
-    isStarted: isStarted,
-    isRunning: isRunning,
-    _run: _run
+  PreemptiveTask.prototype = {
+      pause: pause,
+      start: start,
+      cancel: cancel,
+      isStarted: isStarted,
+      isRunning: isRunning,
+      _run: _run
   };
+  
+  return PreemptiveTask;
 
 } );

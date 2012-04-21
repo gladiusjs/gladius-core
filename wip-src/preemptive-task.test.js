@@ -8,8 +8,10 @@ define(
           teardown: function() {}
         });
         
-        test( "", function() {
+        test( "construct a new task", function() {
           expect( 0 );
+          
+          var task = new PreemptiveTask();
         });
         
       };
