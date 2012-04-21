@@ -22,7 +22,9 @@ We are also building a set of tools and libraries for building games. They are d
 
 # Getting Started
 
-Make sure to clone using `--recursive` or run `make submodule` in the project directory after cloning.
+After cloning, be sure to execute `make setup` in the project directory to 
+ensure that all the submodules are checked out, and the pre-commit hook is
+installed.
 
 ## Build and Test
 
