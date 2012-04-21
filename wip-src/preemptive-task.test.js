@@ -4,24 +4,31 @@ define(
       return function() {
 
         module( "PreemptiveTask", {
-          setup: function() {},
-          teardown: function() {}
+          setup: function() {
+            this.schedulerApi = {
+                insert: function() {},
+                remove: function() {}
+            };
+
+            this.invalidSchedulerApi = {
+                foo: function() {},
+                bar: function() {}
+            };
+            
+            this.schedulerMock = sinon.mock( this.schedulerApi );
+            this.invalidSchedulerMock = sinon.mock( this.invalidSchedulerApi );
+          },
+          teardown: function() {
+            this.schedulerApi = undefined;
+            this.schedulerMock = undefined;
+          }
         });
-
-        var schedulerApi = {
-            insert: function() {},
-            remove: function() {}
-        };
-
-        var invalidSchedulerApi = {
-            foo: function() {},
-            bar: function() {}
-        };
 
         test( "start a task", function() {
           expect( 1 );
 
-          var schedulerMock = sinon.mock( schedulerApi );
+          var schedulerApi = this.schedulerApi;
+          var schedulerMock = this.schedulerMock;
           schedulerMock.expects( "insert" ).once();
 
           function taskFunction() {};          
@@ -35,7 +42,8 @@ define(
         test( "create a task with invalid scheduler", function() {
           expect( 1 );
 
-          var invalidSchedulerMock = sinon.mock( invalidSchedulerApi );
+          var invalidSchedulerApi = this.invalidSchedulerApi;
+          var invalidSchedulerMock = this.invalidSchedulerMock;
 
           function taskFunction() {};
 
@@ -47,7 +55,8 @@ define(
         test( "start a task that's already started", function() {
           expect( 1 );
 
-          var schedulerMock = sinon.mock( schedulerApi );
+          var schedulerApi = this.schedulerApi;
+          var schedulerMock = this.schedulerMock;
           function taskFunction() {};
           var task = new PreemptiveTask( schedulerApi, taskFunction );
 
@@ -60,7 +69,8 @@ define(
         test( "task run context is correct", function() {
           expect( 7 );
 
-          var schedulerMock = sinon.mock( schedulerApi );
+          var schedulerApi = this.schedulerApi;
+          var schedulerMock = this.schedulerMock;
           function taskFunction() {
             equal( this, task, "this value is correct" );
             ok( this.isRunning, "task is running" );
@@ -79,7 +89,8 @@ define(
         test( "pause a running task", function() {
           expect( 1 );
 
-          var schedulerMock = sinon.mock( schedulerApi );
+          var schedulerApi = this.schedulerApi;
+          var schedulerMock = this.schedulerMock;
           function taskFunction() { 
             this.pause(); 
           };
@@ -95,7 +106,8 @@ define(
         test( "cancel a running task", function() {
           expect( 1 );
 
-          var schedulerMock = sinon.mock( schedulerApi );
+          var schedulerApi = this.schedulerApi;
+          var schedulerMock = this.schedulerMock;
           function taskFunction() {
             task.cancel();
           };
