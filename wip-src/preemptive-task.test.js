@@ -58,7 +58,7 @@ define(
         });
 
         test( "task run context is correct", function() {
-          expect( 4 );
+          expect( 7 );
 
           var schedulerMock = sinon.mock( schedulerApi );
           function taskFunction() {
@@ -67,10 +67,13 @@ define(
           };
           var task = new PreemptiveTask( schedulerApi, taskFunction );
           
+          ok( !task.isRunning(), "task is not running" );
           ok( !task.isStarted(), "task is not started" );
           task.start();
           ok( task.isStarted(), "task is started" );
           task.run(); // Bypass the scheduler
+          ok( !task.isRunning(), "task is not running" );
+          ok( task.isStarted(), "task is started" );
         });
 
         test( "pause a running task", function() {
