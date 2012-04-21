@@ -52,7 +52,7 @@ define( function ( require ) {
   };
 
   function pause() {
-    if( this._runState !== R_BLOCKED ) {
+    if( this._runState === R_RUNNING ) {
       throw new Error( "task can only be paused while blocked" );
     }
     this._taskState = T_PAUSED;
@@ -62,7 +62,7 @@ define( function ( require ) {
 
   function cancel( schedule ) {
     this._schedule = schedule || this._schedule;
-    if( this._taskState !== R_BLOCKED ) {
+    if( this._runState === R_RUNNING ) {
       throw new Error( "tasks can only be cancelled while blocked" );
     }
     this._taskState = T_CANCELLED;
@@ -80,7 +80,7 @@ define( function ( require ) {
 
   // TD: this will need to change for cooperative tasks
   // TD: most of this prototype can be factored into a Task base
-  function _run() {
+  function run() {
     var task = this;
     var result = task._result;
     task.result = undefined;
@@ -137,7 +137,7 @@ define( function ( require ) {
       cancel: cancel,
       isStarted: isStarted,
       isRunning: isRunning,
-      _run: _run
+      run: run
   };
   
   return PreemptiveTask;
