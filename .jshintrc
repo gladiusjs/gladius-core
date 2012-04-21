@@ -6,8 +6,12 @@
     // require.js
     "require",
     "define",
+
+    // sinon
+    "sinon",
     
     // qunit
+    "QUnit",
     "equal",
     "asyncTest",
     "test",
@@ -15,6 +19,11 @@
     "stop",
     "raises",
     "same",
+    "module",
+    "expect",
+    "notEqual",
+    "ok",
+    "deepEqual",
     
     // HTML5 browser APIs that jshint will learn about someday
     "requestAnimationFrame",
