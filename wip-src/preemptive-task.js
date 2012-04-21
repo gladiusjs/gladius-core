@@ -22,12 +22,16 @@ define( function ( require ) {
   R_RESOLVED = 2,
   R_REJECTED = 3;
 
-  var PreemptiveTask = function( scheduler, schedule, thunk ) {
+  var PreemptiveTask = function( scheduler, thunk, schedule ) {
     this.id = guid();
     this._thunk = thunk;
     this._taskState = T_PAUSED;
     this._runState = R_RESOLVED;
     this._scheduler = scheduler;
+    if( !this._scheduler || !this._scheduler.hasOwnProperty( "insert" ) ||
+        !this._scheduler.hasOwnProperty( "remove" ) ) {
+      throw new Error( "invalid scheduler" );
+    }
     this._schedule = schedule || undefined;
     this.result = undefined;
     this._deferred = when.defer();
@@ -39,9 +43,6 @@ define( function ( require ) {
     this._schedule = schedule || this._schedule;
     if( this._taskState !== T_PAUSED ) {
       throw new Error( "task is already started or completed" );
-    }
-    if( !this._scheduler || !this._scheduler.hasOwnProperty( "insert" ) ) {
-      throw new Error( "invalid scheduler" );
     }
     this._taskState = T_STARTED;
     if( this._runState !== R_BLOCKED ) {
