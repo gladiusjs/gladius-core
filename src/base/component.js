@@ -75,7 +75,6 @@ define( function ( require ) {
                             handler.call( that, event );            // Invoke the handler with the event
                         } catch( e ) {
                             console.log( e );
-                            debugger;
                         }
                     }
                 }
@@ -95,7 +94,6 @@ define( function ( require ) {
                         handler.call( that, event );            // Invoke the handler with the event
                     } catch( e ) {
                         console.log( e );
-                        debugger;
                     }
                 }
                 return _queuedEvents.lenght;

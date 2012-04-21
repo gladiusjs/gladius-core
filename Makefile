@@ -24,10 +24,6 @@ JSHINT := $(TOOLS_DIR)/node_modules/.bin/jshint
 
 CUBICVR_LIB := $(EXTERNAL_DIR)/CubicVR.js/dist/CubicVR.js
 
-GLADIUS_JSHINT_DIRS := $(SRC_DIR) $(TEST_DIR) ./example/collada \
-	example/sprites example/cube example/collision-cubes example/no-comply
-
-
 compile = node $(TOOLS_DIR)/node_modules/uglify-js/bin/uglifyjs --output $(1) $(GLADIUS_DIST)
 
 complete = cat $(GLADIUS_MIN) > $(1)
@@ -68,12 +64,20 @@ test: $(DIST_DIR)
 
 lint: check-lint 
 
+jshint: check-lint
+
 check-lint:
-	$(JSHINT) $(GLADIUS_JSHINT_DIRS) \
-		--config tools/jshintrc.json
+	$(JSHINT) .
 
 clean:
 	@@rm -fr $(DIST_DIR)
+
+setup: submodule install-precommit
+
+# TD: this will fail in a Windows environment, since symlinks don't work there.
+install-precommit:
+	rm -f .git/hooks/pre-commit
+	ln -s "../../tools/pre-commit.sh" .git/hooks/pre-commit
 
 submodule:
 	@@git submodule update --init --recursive

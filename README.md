@@ -22,7 +22,9 @@ We are also building a set of tools and libraries for building games. They are d
 
 # Getting Started
 
-Make sure to clone using `--recursive` or run `make submodule` in the project directory after cloning.
+After cloning, be sure to execute `make setup` in the project directory to 
+ensure that all the submodules are checked out, and the pre-commit hook is
+installed.
 
 ## Build and Test
 
@@ -38,6 +40,8 @@ Run unit tests by opening test/ directory in a web browser. Tests run automatica
 
 A short tutorial is provided [here](https://github.com/gladiusjs/gladius-core/wiki/Tutorial). Examples are available from the top-level project directory.
 
-# License
+# License and Notes
 
 See [LICENSE](https://github.com/gladiusjs/gladius-core/blob/develop/LICENSE) for more information.
+
+All our logos are handmade by [Sean Martell](https://twitter.com/#!/mart3ll).
