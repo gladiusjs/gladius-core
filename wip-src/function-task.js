@@ -15,9 +15,9 @@ define( function ( require ) {
     this.value = value;
   };
   
-  var DefaultScheduler = function() {
-    if( !( this instanceof DefaultScheduler) ) {
-      return new DefaultScheduler();
+  var DefaultSchedule = function() {
+    if( !( this instanceof DefaultSchedule ) ) {
+      return new DefaultSchedule();
     }
     this.tags = [];
     this.depends = [];
