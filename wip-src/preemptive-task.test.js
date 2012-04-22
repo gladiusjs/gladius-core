@@ -70,7 +70,6 @@ define(
           expect( 7 );
 
           var schedulerApi = this.schedulerApi;
-          var schedulerMock = this.schedulerMock;
           function taskFunction() {
             equal( this, task, "this value is correct" );
             ok( this.isRunning, "task is running" );
@@ -107,18 +106,46 @@ define(
           expect( 1 );
 
           var schedulerApi = this.schedulerApi;
-          var schedulerMock = this.schedulerMock;
           function taskFunction() {
             task.cancel();
           }
           var task = new PreemptiveTask( schedulerApi, taskFunction );
-
           
           task.start();
           task.run(); // Bypass the scheduler
           
           ok( task.result instanceof Error, 
           "exception thrown for task not in blocked state" );
+        });
+
+        test( "complete a task", function() {
+          expect( 2 );
+          stop( 10000 );
+          
+          var scheduler = {
+              insert: function( task ) {
+                task.run();
+              },
+              remove: function() {}
+          };
+          
+          function taskFunction( counter ) {
+            counter = counter || 0;
+            counter += 1;
+            if( counter === 2 ) {
+              return this.Complete( counter );
+            } else {
+              ok( true, "function invoked" );
+              return counter;
+            }
+          }
+          var task = new PreemptiveTask( scheduler, taskFunction );
+
+          task.then( function( result ) {
+            equal( result, 2, "result is correct" );
+            start();
+          });
+          task.start();
         });
 
       };

@@ -3,6 +3,7 @@ if ( typeof define !== "function" ) {
 }
 
 define( function ( require ) {
+  "use strict";
 
   var guid = require( "common/guid" );
   var when = require( "../external/when" );
@@ -39,8 +40,7 @@ define( function ( require ) {
     this._schedule = schedule || undefined;
     this.result = undefined;
     this._deferred = when.defer();
-    this.then = this._deferred.promise;
-    this.when = when;
+    this.then = this._deferred.promise.then;
   };
 
   function start( schedule ) {
@@ -81,12 +81,16 @@ define( function ( require ) {
   function isRunning() {
     return this._runState === R_RUNNING;
   }
+  
+  function isComplete() {
+    return this._taskState === T_CLOSED;
+  }
 
   // TD: this will need to change for cooperative tasks
   // TD: most of this prototype can be factored into a Task base
   function run() {
     var task = this;
-    var result = task._result;
+    var result = task.result;
     task.result = undefined;
     try{
       task._runState = R_RUNNING;
@@ -95,12 +99,13 @@ define( function ( require ) {
         task._taskState = T_CLOSED;
       } else if( task._taskState === T_STARTED ) {
         // Run the task
-        result = task._thunk.call( task );
+        result = task._thunk.call( task, result );
         task._runState = R_BLOCKED;
 
         // Process the result
         if( result instanceof Complete ) {
-          task.result = Complete.value;
+          task.result = result.value;
+          task._taskState = T_CLOSED;
           task._runState = R_RESOLVED;
           task._deferred.resolve( task.result );
         } else {
@@ -109,8 +114,8 @@ define( function ( require ) {
           function( value ) {
             task.result = value;
             task._runState = R_RESOLVED;
-            if( task._threadState === T_STARTED ) {
-              task.scheduler.insert( task, task._schedule );
+            if( task._taskState === T_STARTED ) {
+              task._scheduler.insert( task, task._schedule );
             }
           },
           // errback
@@ -123,12 +128,16 @@ define( function ( require ) {
           }
           );
         }
+      } else {
+        throw Error( "task is not runnable" );
       }
     } catch( exception ) {
       task.result = exception;
       task._runState = R_REJECTED;
       task._deferred.reject( exception );
     }
+    
+    return this;
   }
 
   function toString() {
@@ -141,7 +150,10 @@ define( function ( require ) {
       cancel: cancel,
       isStarted: isStarted,
       isRunning: isRunning,
-      run: run
+      isComplete: isComplete,
+      run: run,
+      when: when,
+      Complete: Complete
   };
   
   return PreemptiveTask;
