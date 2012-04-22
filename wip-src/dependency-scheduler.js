@@ -13,18 +13,14 @@ define( function ( require ) {
   };
 
   function next() {
-
+    
   }
   
   function hasNext() {
     
   }
-  
-  function insert( task, schedule ) {
-    
-  }
 
-  function deferredInsert( task, schedule ) {
+  function insert( task, schedule ) {
     var i, l;
     this._graph.insert( task );
 
@@ -61,7 +57,7 @@ define( function ( require ) {
 
   DependencyScheduler.prototype = {
       next: next,
-      insert: deferredInsert,
+      insert: insert,
       remove: remove,
       size: size,
       hasNext: hasNext
