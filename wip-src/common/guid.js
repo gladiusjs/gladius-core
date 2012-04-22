@@ -3,6 +3,7 @@ if ( typeof define !== "function" ) {
 }
 
 define( function ( require ) {
+  "use strict";
 
   function guid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
