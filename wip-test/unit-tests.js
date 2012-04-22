@@ -13,7 +13,8 @@ testRequire(
      "request-animation-frame-loop.test",
      "set-timeout-loop.test",
      "clock.test",
-     "preemptive-task.test"
+     "function-task.test",
+     "dependency-scheduler.test"
      ],
      function( 
          guidTests,
@@ -22,7 +23,8 @@ testRequire(
          requestAnimationFrameLoopTests,
          setTimeoutLoopTests,
          clockTests,
-         preemptiveTaskTests
+         functionTaskTests,
+         dependencySchedulerTests
      ) {
       QUnit.start();
 
@@ -32,6 +34,7 @@ testRequire(
       requestAnimationFrameLoopTests();
       setTimeoutLoopTests();
       clockTests();
-      preemptiveTaskTests();
+      functionTaskTests();
+      dependencySchedulerTests();
     }
 );

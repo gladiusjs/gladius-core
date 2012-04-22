@@ -9,10 +9,18 @@ define( function ( require ) {
   var when = require( "../external/when" );
 
   var Complete = function( value ) {
-    if( !(this instanceof Complete ) ) {
+    if( !( this instanceof Complete ) ) {
       return new Complete( value );
     }
     this.value = value;
+  };
+  
+  var DefaultScheduler = function() {
+    if( !( this instanceof DefaultScheduler) ) {
+      return new DefaultScheduler();
+    }
+    this.tags = [];
+    this.depends = [];
   };
 
   // Task states
@@ -27,17 +35,13 @@ define( function ( require ) {
   R_RESOLVED = 2,
   R_REJECTED = 3;
 
-  var PreemptiveTask = function( scheduler, thunk, schedule ) {
+  var FunctionTask = function( scheduler, thunk, schedule ) {
     this.id = guid();
     this._thunk = thunk;
     this._taskState = T_PAUSED;
     this._runState = R_RESOLVED;
     this._scheduler = scheduler;
-    if( !this._scheduler || !this._scheduler.hasOwnProperty( "insert" ) ||
-        !this._scheduler.hasOwnProperty( "remove" ) ) {
-      throw new Error( "invalid scheduler" );
-    }
-    this._schedule = schedule || undefined;
+    this._schedule = schedule || DefaultSchedule();
     this.result = undefined;
     this._deferred = when.defer();
     this.then = this._deferred.promise.then;
@@ -64,13 +68,12 @@ define( function ( require ) {
     return this;
   }
 
-  function cancel( schedule ) {
-    this._schedule = schedule || this._schedule;
+  function cancel() {
     if( this._runState === R_RUNNING ) {
       throw new Error( "tasks can only be cancelled while blocked" );
     }
     this._taskState = T_CANCELLED;
-    this._scheduler.insert( this, this._schedule );
+    this._scheduler.insert( this );
     return this;
   }
 
@@ -92,6 +95,8 @@ define( function ( require ) {
     var task = this;
     var result = task.result;
     task.result = undefined;
+    task._scheduler.current = task;
+    
     try{
       task._runState = R_RUNNING;
       if( task._taskState === T_CANCELLED ) {
@@ -137,25 +142,27 @@ define( function ( require ) {
       task._deferred.reject( exception );
     }
     
+    task._scheduler.current = null;
     return this;
   }
 
   function toString() {
-    return "[object PreemptiveTask " + this.id + " ]";
+    return "[object FunctionTask " + this.id + "]";
   }
 
-  PreemptiveTask.prototype = {
+  FunctionTask.prototype = {
       pause: pause,
       start: start,
       cancel: cancel,
       isStarted: isStarted,
       isRunning: isRunning,
       isComplete: isComplete,
+      toString: toString,
       run: run,
       when: when,
       Complete: Complete
   };
   
-  return PreemptiveTask;
+  return FunctionTask;
 
 } );

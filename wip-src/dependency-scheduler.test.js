@@ -1,9 +1,9 @@
 define(
-    [ "scheduler" ],
-    function( Graph ) {
+    [ "dependency-scheduler" ],
+    function( DependencyScheduler ) {
       return function() {
 
-        module( "Scheduler", {
+        module( "DependencyScheduler", {
           setup: function() {},
           teardown: function() {}
         });

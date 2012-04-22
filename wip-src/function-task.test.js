@@ -1,9 +1,9 @@
 define(
-    [ "preemptive-task" ],
-    function( PreemptiveTask ) {
+    [ "function-task" ],
+    function( FunctionTask ) {
       return function() {
 
-        module( "PreemptiveTask", {
+        module( "FunctionTask", {
           setup: function() {
             this.schedulerApi = {
                 insert: function() {},
@@ -32,24 +32,11 @@ define(
           schedulerMock.expects( "insert" ).once();
 
           function taskFunction() {}          
-          var task = new PreemptiveTask( schedulerApi, taskFunction );
+          var task = new FunctionTask( schedulerApi, taskFunction );
 
           task.start();
 
           ok( schedulerMock.verify(), "scheduler invocations verified" );
-        });
-
-        test( "create a task with invalid scheduler", function() {
-          expect( 1 );
-
-          var invalidSchedulerApi = this.invalidSchedulerApi;
-          var invalidSchedulerMock = this.invalidSchedulerMock;
-
-          function taskFunction() {}
-
-          raises( function() {
-            var task = new PreemptiveTask( invalidSchedulerApi, taskFunction );  
-          }, Error, "exception thrown for invalid scheduler" );
         });
 
         test( "start a task that's already started", function() {
@@ -58,7 +45,7 @@ define(
           var schedulerApi = this.schedulerApi;
           var schedulerMock = this.schedulerMock;
           function taskFunction() {}
-          var task = new PreemptiveTask( schedulerApi, taskFunction );
+          var task = new FunctionTask( schedulerApi, taskFunction );
 
           task.start();
           raises( function() {
@@ -74,7 +61,7 @@ define(
             equal( this, task, "this value is correct" );
             ok( this.isRunning, "task is running" );
           }
-          var task = new PreemptiveTask( schedulerApi, taskFunction );
+          var task = new FunctionTask( schedulerApi, taskFunction );
           
           ok( !task.isRunning(), "task is not running" );
           ok( !task.isStarted(), "task is not started" );
@@ -93,7 +80,7 @@ define(
           function taskFunction() { 
             this.pause(); 
           }
-          var task = new PreemptiveTask( schedulerApi, taskFunction );
+          var task = new FunctionTask( schedulerApi, taskFunction );
 
           task.start();
           task.run(); // Bypass the scheduler
@@ -109,7 +96,7 @@ define(
           function taskFunction() {
             task.cancel();
           }
-          var task = new PreemptiveTask( schedulerApi, taskFunction );
+          var task = new FunctionTask( schedulerApi, taskFunction );
           
           task.start();
           task.run(); // Bypass the scheduler
@@ -122,6 +109,7 @@ define(
           expect( 2 );
           stop( 10000 );
           
+          // Simple scheduler
           var scheduler = {
               insert: function( task ) {
                 task.run();
@@ -139,13 +127,21 @@ define(
               return counter;
             }
           }
-          var task = new PreemptiveTask( scheduler, taskFunction );
+          var task = new FunctionTask( scheduler, taskFunction );
 
           task.then( function( result ) {
             equal( result, 2, "result is correct" );
             start();
           });
           task.start();
+        });
+        
+        test( "task to string", function() {
+          expect( 1 );
+          
+          var task = new FunctionTask( null, null );
+          equal( task.toString(), "[object FunctionTask " + task.id + "]",
+              "string is correct" );
         });
 
       };
