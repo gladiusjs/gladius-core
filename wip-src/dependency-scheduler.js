@@ -5,22 +5,31 @@ if ( typeof define !== "function" ) {
 define( function ( require ) {
   "use strict";
 
-  var Graph = require( "graph" );
+  var Graph = require( "common/graph" );
 
   var DependencyScheduler = function() {
     this.current = null;
     this._graph = new Graph();
+    this._schedule = null;
   };
-
+  
+  function update() {
+    this._schedule = this._graph.sort();
+    return this;
+  }
+  
   function next() {
-    
+    if( !this._schedule ) {
+      return undefined;
+    }
+    return this._schedule.shift();
   }
   
   function hasNext() {
-    
+    return this._schedule && this._schedule.length > 0;
   }
 
-  function insert( task, schedule ) {
+  function insert( task, taskId, schedule ) {
     var i, l;
     this._graph.insert( task );
 
@@ -39,9 +48,11 @@ define( function ( require ) {
         }
       }
     }
+    
+    return this;
   }
 
-  function remove( task ) {
+  function remove( taskId ) {
     if( !task.isStarted() || !this._graph.hasNode( task.id ) ) {
       throw new Error( "task is not scheduled to run" );
     } else if( this !== task._scheduler ) {
@@ -49,10 +60,16 @@ define( function ( require ) {
     };
     
     this._graph.remove( task.id );
+    return this;
   }
 
   function size() {
     return this._graph.size();
+  }
+  
+  function clear() {
+    this._schedule = null;
+    this._graph.clear();
   }
 
   DependencyScheduler.prototype = {
@@ -60,7 +77,9 @@ define( function ( require ) {
       insert: insert,
       remove: remove,
       size: size,
-      hasNext: hasNext
+      hasNext: hasNext,
+      update: update,
+      clear: clear
   };
 
   return DependencyScheduler;

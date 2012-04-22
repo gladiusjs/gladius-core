@@ -54,7 +54,7 @@ define( function ( require ) {
     }
     this._taskState = T_STARTED;
     if( this._runState !== R_BLOCKED ) {
-      this._scheduler.insert( this, this._schedule );
+      this._scheduler.insert( this, this.id, this._schedule );
     }
     return this;
   }
@@ -64,7 +64,7 @@ define( function ( require ) {
       throw new Error( "task can only be paused while blocked" );
     }
     this._taskState = T_PAUSED;
-    this._scheduler.remove( this );      
+    this._scheduler.remove( this.id );      
     return this;
   }
 
@@ -73,7 +73,7 @@ define( function ( require ) {
       throw new Error( "tasks can only be cancelled while blocked" );
     }
     this._taskState = T_CANCELLED;
-    this._scheduler.insert( this );
+    this._scheduler.insert( this, this.id );
     return this;
   }
 
@@ -120,7 +120,7 @@ define( function ( require ) {
             task.result = value;
             task._runState = R_RESOLVED;
             if( task._taskState === T_STARTED ) {
-              task._scheduler.insert( task, task._schedule );
+              task._scheduler.insert( task, task.id, task._schedule );
             }
           },
           // errback
@@ -128,7 +128,7 @@ define( function ( require ) {
             task.result = error;
             task._runState = R_REJECTED;
             if( task._threadState === T_STARTED ) {
-              task._scheduler.insert( task, task._schedule );
+              task._scheduler.insert( task, task.id, task._schedule );
             }
           }
           );

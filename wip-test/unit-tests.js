@@ -8,7 +8,7 @@ var testRequire = require.config({
 testRequire(
     [
      "common/guid.test",
-     "graph.test",
+     "common/graph.test",
      "loop.test",
      "request-animation-frame-loop.test",
      "set-timeout-loop.test",

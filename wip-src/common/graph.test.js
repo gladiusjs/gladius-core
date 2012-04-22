@@ -1,5 +1,5 @@
 define(
-    [ "graph" ],
+    [ "common/graph" ],
     function( Graph ) {
       return function() {
 
