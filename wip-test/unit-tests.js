@@ -9,6 +9,7 @@ testRequire(
     [
      "common/guid.test",
      "common/graph.test",
+     "common/multicast-delegate.test",
      "loop.test",
      "request-animation-frame-loop.test",
      "set-timeout-loop.test",
@@ -18,7 +19,8 @@ testRequire(
      ],
      function( 
          guidTests,
-         graphTests, 
+         graphTests,
+         multicastDelegateTests,
          loopTests, 
          requestAnimationFrameLoopTests,
          setTimeoutLoopTests,
@@ -30,6 +32,7 @@ testRequire(
 
       guidTests();
       graphTests();
+      multicastDelegateTests();
       loopTests();
       requestAnimationFrameLoopTests();
       setTimeoutLoopTests();

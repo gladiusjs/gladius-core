@@ -3,6 +3,7 @@ define( function ( require ) {
   var Loop = require( "request-animation-frame-loop" );
   var Clock = require( "clock" );
   var Scheduler = require( "dependency-scheduler" );
+  var FunctionTask = require( "function-task" );
   
   function simulationLoop() {
     var timestamp = Date.now();
@@ -23,6 +24,9 @@ define( function ( require ) {
     this._realtimeClock = new Clock();
     this._simulationClock = new Clock();
     this._scheduler = new Scheduler();
+    
+    // Bind the scheduler to the task constructor
+    this.FunctionTask = FunctionTask.bind( this, this._scheduler );
   };
   
   Engine.prototype = {

@@ -4,11 +4,12 @@ if ( typeof define !== "function" ) {
 
 define( function( require ) {
   
-  var Timer = function( clock, expires, callback, data, context ) {
+  var Timer = function( clock, delay, callback, data ) {
     this._clock = clock;
     this._callback = callback;
     this._data = data;
-    this._context = context;
+    this._delay = delay;
+    this.elapsed = 0;
   };
   
 });
