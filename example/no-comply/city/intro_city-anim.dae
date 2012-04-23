@@ -10108,44 +10108,7 @@
           </bind_material>
         </instance_geometry>
       </node>
-      <node id="Cube_030" type="NODE">
-        <translate sid="location">-37.7444 23.69361 6.74591</translate>
-        <rotate sid="rotationZ">0 0 1 0</rotate>
-        <rotate sid="rotationY">0 1 0 0</rotate>
-        <rotate sid="rotationX">1 0 0 0</rotate>
-        <scale sid="scale">1 1 1</scale>
-        <instance_geometry url="#Cube_008-V000-mesh-me-mesh">
-          <bind_material>
-            <technique_common>
-              <instance_material symbol="Material_0681" target="#Material_068-material">
-                <bind_vertex_input semantic="Cube_008-V000-UV" input_semantic="TEXCOORD" input_set="0"/>
-              </instance_material>
-              <instance_material symbol="Material_0692" target="#Material_069-material">
-                <bind_vertex_input semantic="Cube_008-V000-UV" input_semantic="TEXCOORD" input_set="0"/>
-              </instance_material>
-            </technique_common>
-          </bind_material>
-        </instance_geometry>
-      </node>
-      <node id="Cube_031" type="NODE">
-        <translate sid="location">25.77521 23.85986 6.74591</translate>
-        <rotate sid="rotationZ">0 0 1 -90.00001</rotate>
-        <rotate sid="rotationY">0 1 0 0</rotate>
-        <rotate sid="rotationX">1 0 0 0</rotate>
-        <scale sid="scale">1 1 0.9999998</scale>
-        <instance_geometry url="#Cube_008-V000-mesh-me-mesh">
-          <bind_material>
-            <technique_common>
-              <instance_material symbol="Material_0681" target="#Material_068-material">
-                <bind_vertex_input semantic="Cube_008-V000-UV" input_semantic="TEXCOORD" input_set="0"/>
-              </instance_material>
-              <instance_material symbol="Material_0692" target="#Material_069-material">
-                <bind_vertex_input semantic="Cube_008-V000-UV" input_semantic="TEXCOORD" input_set="0"/>
-              </instance_material>
-            </technique_common>
-          </bind_material>
-        </instance_geometry>
-      </node>
+  
       <node id="Cube_032" type="NODE">
         <translate sid="location">-38.18662 -40.09419 6.74591</translate>
         <rotate sid="rotationZ">0 0 1 90.00001</rotate>
