@@ -16,8 +16,8 @@ define( function( require ) {
   
   var Loop = require( "loop" );
 
-  var RequestAnimationFrameLoop = function( callback ) {
-    Loop.call( this, callback );
+  var RequestAnimationFrameLoop = function( callback, context ) {
+    Loop.call( this, callback, context );
   };
 
   function _pump() {

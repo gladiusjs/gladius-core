@@ -47,6 +47,9 @@ define(
               "next is undefined for empty scheduler" );
         });
         
+        // TD: add tests to verify correct ordering of task dependencies
+        // TD: add tests to verify correct handling of tags
+        
       };
     }
 );        

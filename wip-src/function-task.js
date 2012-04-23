@@ -3,7 +3,6 @@ if ( typeof define !== "function" ) {
 }
 
 define( function ( require ) {
-  "use strict";
 
   var guid = require( "common/guid" );
   var when = require( "../external/when" );

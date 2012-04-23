@@ -3,12 +3,12 @@ if ( typeof define !== "function" ) {
 }
 
 define( function ( require ) {
-  "use strict";
 
   var Graph = require( "common/graph" );
 
   var DependencyScheduler = function() {
     this.current = null;
+    this._tasks = {};
     this._graph = new Graph();
     this._schedule = null;
   };
@@ -22,7 +22,8 @@ define( function ( require ) {
     if( !this._schedule ) {
       return undefined;
     }
-    return this._schedule.shift();
+    var taskId = this._schedule.shift();
+    return this._tasks[taskId];
   }
   
   function hasNext() {
@@ -31,7 +32,8 @@ define( function ( require ) {
 
   function insert( task, taskId, schedule ) {
     var i, l;
-    this._graph.insert( task );
+    this._tasks[taskId] = task;
+    this._graph.insert( taskId );
 
     if( schedule ) {
       if( schedule.tags ) {
@@ -53,13 +55,12 @@ define( function ( require ) {
   }
 
   function remove( taskId ) {
-    if( !task.isStarted() || !this._graph.hasNode( task.id ) ) {
+    if( !this._graph.hasNode( taskId ) ) {
       throw new Error( "task is not scheduled to run" );
-    } else if( this !== task._scheduler ) {
-      throw new Error( "task is not associated with this scheduler" );
-    };
+    }
     
-    this._graph.remove( task.id );
+    this._graph.remove( taskId );
+    delete this._tasks[taskId];
     return this;
   }
 

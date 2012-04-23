@@ -4,7 +4,7 @@ if ( typeof define !== "function" ) {
 
 define( function( require ) {
 
-  var Loop = function( callback ) {
+  var Loop = function( callback, context ) {
     this.L_STARTED = 0;
     this.L_PAUSED = 1;
     this.L_CANCELLED = 2;
@@ -17,12 +17,13 @@ define( function( require ) {
     this.runState = this.R_IDLE;    
 
     this.callback = callback;
+    this.context = context || this;
   };
 
   function _run() {
     this.runState = this.R_RUNNING;
     if( this.callback ) {
-      this.callback();
+      this.callback.call( this.context );
       if( this.L_STARTED === this.loopState ) {
         this._pump();
       } else {
