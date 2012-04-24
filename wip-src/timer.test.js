@@ -16,7 +16,7 @@ define(
         });
         
         test( "create a new timer", function() {
-          expect( 8 );
+          expect( 9 );
           
           var dataString = "Hello world!";
           
@@ -41,6 +41,9 @@ define(
           equal( timer.elapsed, 16, "elapsed is correct" );
           ok( !timer.isStarted(), "timer is paused" );
           ok( delegateMock.verify(), "delegate invocations verified" );
+          
+          timer.reset();
+          ok( timer.isStarted(), "timer is started" );
         });
         
       };
