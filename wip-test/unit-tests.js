@@ -15,7 +15,8 @@ testRequire(
      "set-timeout-loop.test",
      "clock.test",
      "function-task.test",
-     "dependency-scheduler.test"
+     "dependency-scheduler.test",
+     "timer.test"
      ],
      function( 
          guidTests,
@@ -26,7 +27,8 @@ testRequire(
          setTimeoutLoopTests,
          clockTests,
          functionTaskTests,
-         dependencySchedulerTests
+         dependencySchedulerTests,
+         timerTests
      ) {
       QUnit.start();
 
@@ -39,5 +41,6 @@ testRequire(
       clockTests();
       functionTaskTests();
       dependencySchedulerTests();
+      timerTests();
     }
 );

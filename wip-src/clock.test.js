@@ -18,7 +18,7 @@ define(
           equal( clock._timeScale, 1.0, "default time scale is correct" );
           equal( clock.time, 0.0, "initial time is correct" );
           equal( clock.delta, 0.0, "initial delta is correct" );
-          ok( !clock.isPaused(), "clock is not paused" );
+          ok( clock.isStarted(), "clock is not paused" );
         });
         
         test( "update", function() {
@@ -34,16 +34,16 @@ define(
           equal( clock.delta, 5.0, "delta is correct" );
         });
         
-        test( "pause and resume", function() {
+        test( "pause and start", function() {
           expect( 4 );
           
           var clock = new Clock();
           
-          clock.suspend();
+          clock.pause();
           clock.update( 10 );
           equal( clock.time, 0.0, "time is unchanged after update" );
           equal( clock.delta, 0.0, "delta is unchanged after update" );
-          clock.resume();
+          clock.start();
           clock.update( 5 );
           equal( clock.time, 5.0, "time is correct" );
           equal( clock.delta, 5.0, "delta is correct" );
@@ -57,7 +57,7 @@ define(
           clock.step( 1 );
           equal( clock.time, 0.0, "time is unchanged after step" );
           equal( clock.delta, 0.0, "delta is unchanged after step" );
-          clock.suspend();
+          clock.pause();
           clock.step( 2 );
           equal( clock.time, 2 * clock._idealFrameInterval, "time is correct" );
           equal( clock.delta, 2 * clock._idealFrameInterval, "delta is correct" );
@@ -68,7 +68,7 @@ define(
           
           var clock = new Clock();
           
-          clock.suspend();
+          clock.pause();
           clock.step();
           equal( clock.time, clock._idealFrameInterval, "time is correct" );
           equal( clock.delta, clock._idealFrameInterval, "delta is correct" );
@@ -91,7 +91,7 @@ define(
           var clock = new Clock();
           
           clock.setTimeScale( 10 );
-          clock.suspend();
+          clock.pause();
           clock.step();
           equal( clock.time, 10.0 * clock._idealFrameInterval, 
               "time is correct" );
@@ -106,7 +106,7 @@ define(
           
           clock.setIdealFrameInterval( 1/60 );
           
-          clock.suspend();
+          clock.pause();
           clock.step();
           equal( clock.time, 1/60, "time is correct" );
           equal( clock.delta, 1/60, "delta is correct" );

@@ -10,7 +10,7 @@ define( function ( require ) {
     var delta = timestamp - this.cachedTimestamp;
     this.cachedTimestamp = timestamp;
     
-    this._realtimeClock.update( delta );
+    this._realClock.update( delta );
     this._simulationClock.update( delta );
     
     this._scheduler.update();
@@ -21,7 +21,7 @@ define( function ( require ) {
 
   var Engine = function() {
     this._loop = new Loop( simulationLoop );
-    this._realtimeClock = new Clock();
+    this._realClock = new Clock();
     this._simulationClock = new Clock();
     this._scheduler = new Scheduler();
     

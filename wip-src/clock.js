@@ -4,28 +4,33 @@ if ( typeof define !== "function" ) {
 
 define( function( require ) {
   
+  var MulticastDelegate = require( "common/multicast-delegate" );
+  
+  var C_STARTED = 0,
+  C_PAUSED = 1;
+  
   var Clock = function() {
     this.time = 0;
     this.delta = 0;
     this._timeScale = 1.0;
     this._idealFrameInterval = 1.0/30.0;
     
-    this.C_STARTED = 0;
-    this.C_PAUSED = 1;
-   
-    this._clockState = this.C_STARTED;
+    this._clockState;
+    this.tick = new MulticastDelegate();
+    
+    this.start();
   };
   
-  function suspend() {
-    this._clockState = this.C_PAUSED;
+  function pause() {
+    this._clockState = C_PAUSED;
   }
   
-  function resume() {
-    this._clockState = this.C_STARTED;
+  function start() {
+    this._clockState = C_STARTED;
   }
   
   function update( delta ) {
-    if( this.C_PAUSED !== this._clockState ) {
+    if( C_PAUSED !== this._clockState ) {
       this.delta = delta * this._timeScale;
       this.time += this.delta;
     }
@@ -33,14 +38,14 @@ define( function( require ) {
   
   function step( count ) {
     count = undefined === count ? 1 : count;
-    if( this.C_PAUSED === this._clockState ) {
+    if( C_PAUSED === this._clockState ) {
       this.delta = count * this._idealFrameInterval * this._timeScale;
       this.time += this.delta;
     }
   }
   
-  function isPaused() {
-    return this._clockState === this.C_PAUSED;
+  function isStarted() {
+    return this._clockState === C_STARTED;
   }
   
   function reset() {
@@ -57,10 +62,10 @@ define( function( require ) {
   }
   
   Clock.prototype = {
-     suspend: suspend,
-     resume: resume,
+     pause: pause,
+     start: start,
      update: update,
-     isPaused: isPaused,
+     isStarted: isStarted,
      step: step,
      reset: reset,
      setTimeScale: setTimeScale,
