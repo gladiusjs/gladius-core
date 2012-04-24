@@ -122,6 +122,23 @@ define(
           equal( clock.time, 0, "time is correct" );
           equal( clock.delta, 0, "delta is correct" );
         });
+        
+        test( "signal", function() {
+          expect( 0 );
+          
+          var clock = new Clock();
+          var delta = 0;
+          
+          function callback( data ) {
+            ok( true, "callback invoked" );
+            equal( data, delta, "delta is correct" );
+          };
+          
+          ok( clock.hasOwnProperty( "signal" ), "clock has a signal property" );
+          clock.signal.subscribe( callback );
+          clock.update( delta );
+          clock.update( ++ delta );
+        });
 
       };
     }

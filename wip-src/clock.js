@@ -16,7 +16,7 @@ define( function( require ) {
     this._idealFrameInterval = 1.0/30.0;
     
     this._clockState;
-    this.tick = new MulticastDelegate();
+    this.signal = new MulticastDelegate();
     
     this.start();
   };
@@ -33,6 +33,7 @@ define( function( require ) {
     if( C_PAUSED !== this._clockState ) {
       this.delta = delta * this._timeScale;
       this.time += this.delta;
+      this.signal( this.delta ); // Dispatch time signal
     }
   }
   
@@ -41,6 +42,7 @@ define( function( require ) {
     if( C_PAUSED === this._clockState ) {
       this.delta = count * this._idealFrameInterval * this._timeScale;
       this.time += this.delta;
+      this.signal( this.delta );  // Dispatch time signal
     }
   }
   

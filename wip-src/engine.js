@@ -4,6 +4,7 @@ define( function ( require ) {
   var Clock = require( "clock" );
   var Scheduler = require( "dependency-scheduler" );
   var FunctionTask = require( "function-task" );
+  var Timer = require( "timer" );
   
   function simulationLoop() {
     var timestamp = Date.now();
@@ -27,6 +28,12 @@ define( function ( require ) {
     
     // Bind the scheduler to the task constructor
     this.FunctionTask = FunctionTask.bind( this, this._scheduler );
+ 
+    this.Timer = Timer;
+
+    // Convenient constructors bound to each of the engine timers by default
+    this.RealTimer = Timer.bind( this, this._realClock.signal );
+    this.SimulationTimer = Timer.bind( this, this._simulationClock.signal );
   };
   
   Engine.prototype = {
