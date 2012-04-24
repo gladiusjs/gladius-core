@@ -16,7 +16,8 @@ testRequire(
      "clock.test",
      "function-task.test",
      "dependency-scheduler.test",
-     "timer.test"
+     "timer.test",
+     "engine.test"
      ],
      function( 
          guidTests,
@@ -28,7 +29,8 @@ testRequire(
          clockTests,
          functionTaskTests,
          dependencySchedulerTests,
-         timerTests
+         timerTests,
+         engineTests
      ) {
       QUnit.start();
 
@@ -42,5 +44,6 @@ testRequire(
       functionTaskTests();
       dependencySchedulerTests();
       timerTests();
+      engineTests();
     }
 );
