@@ -1,6 +1,7 @@
 define( function() {
 
   var tests = [
+
                "common/guid.test",
                "common/graph.test",
                "common/multicast-delegate.test",
@@ -12,7 +13,7 @@ define( function() {
                "function-task.test",
                "dependency-scheduler.test",
                "timer.test",
-               
+
                "engine.test"
                ];
 

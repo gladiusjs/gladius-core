@@ -17,8 +17,8 @@ define( function ( require ) {
     this.cachedTimestamp = timestamp;
     
     // Update system clocks
-    this._realClock.update( delta );
-    this._simulationClock.update( delta );
+    this.realClock.update( delta );
+    this.simulationClock.update( delta );
     
     // Update scheduler and run all tasks
     this._scheduler.update();
@@ -33,13 +33,11 @@ define( function ( require ) {
   }
   
   function suspend() {
-    this._simulationClock.pause();
-    this._realClock.pause();
+    this._loop.suspend();
   };
   
   function resume() {
-    this._realClock.start();
-    this._simulationClock.start();
+    this._loop.resume();
   }
   
   function attach( callback ) {
@@ -49,15 +47,19 @@ define( function ( require ) {
   function detach( callback ) {
     this._monitor.unsubscribe( callback );
   }
+  
+  function isRunning() {
+    return this._loop.isStarted();
+  }
 
   var Engine = function() {
-    this._loop = new Loop( simulationLoop );
+    this._loop = new Loop( simulationLoop, this );
     this.frame = 0;
     this._monitor = new MulticastDelegate();
 
     // System clocks
-    this._realClock = new Clock();
-    this._simulationClock = new Clock();
+    this.realClock = new Clock();
+    this.simulationClock = new Clock();
     
     this._scheduler = new Scheduler();
     
@@ -67,15 +69,16 @@ define( function ( require ) {
     this.Timer = Timer;
 
     // Convenient constructors bound to each of the engine timers by default
-    this.RealTimer = Timer.bind( this, this._realClock.signal );
-    this.SimulationTimer = Timer.bind( this, this._simulationClock.signal );
+    this.RealTimer = Timer.bind( this, this.realClock.signal );
+    this.SimulationTimer = Timer.bind( this, this.simulationClock.signal );
   };
   
   Engine.prototype = {
       suspend: suspend,
       resume: resume,
       attach: attach,
-      detach: detach
+      detach: detach,
+      isRunning: isRunning
   };
   
   return Engine;

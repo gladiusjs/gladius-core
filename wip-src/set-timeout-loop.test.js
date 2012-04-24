@@ -16,8 +16,8 @@ define(
           function testCallback() {
             counter -= 1;
             ok( true, "callback invoked (" + counter + ")" );
-            ok( loop.R_RUNNING === loop.runState, "runState is correct" );
-            ok( loop.L_STARTED === loop.loopState, "loopState is correct" );
+            ok( loop.R_RUNNING === loop._runState, "_runState is correct" );
+            ok( loop.L_STARTED === loop._loopState, "_loopState is correct" );
             if( 0 === counter ) {
               loop.suspend();
               start();
@@ -28,9 +28,9 @@ define(
           ok( loop, "a new object is returned" );
           ok( loop instanceof SetTimeoutLoop,
               "loop has corrct type" );
-          equal( loop.runState, loop.R_IDLE, "initial runState is correct" );
-          equal( loop.loopState, loop.L_PAUSED,
-              "initial loopState is correct" );
+          equal( loop._runState, loop.R_IDLE, "initial _runState is correct" );
+          equal( loop._loopState, loop.L_PAUSED,
+              "initial _loopState is correct" );
           raises( function() {
             loop.resume();
           }, Error, "exception thrown for undefined callback" );
@@ -46,8 +46,8 @@ define(
           function testCallback() {
             counter -= 1;
             ok( true, "callback invoked (" + counter + ")" );
-            equal( loop.runState, loop.R_RUNNING, "runState is correct" );
-            equal( loop.loopState, loop.L_STARTED, "loopState is correct" );            
+            equal( loop._runState, loop.R_RUNNING, "_runState is correct" );
+            equal( loop._loopState, loop.L_STARTED, "_loopState is correct" );            
             if( 0 ===  counter ) {
               loop.suspend();
               start();
@@ -67,11 +67,11 @@ define(
             ok( true, "callback invoked (" + counter + ")" );
             if( 1 === counter ) {
               loop.suspend();              
-              equal( loop.L_PAUSED, loop.loopState, 
-                  "loopState is correct after suspend" );
+              equal( loop.L_PAUSED, loop._loopState, 
+                  "_loopState is correct after suspend" );
               loop.resume();
-              equal( loop.L_STARTED, loop.loopState, 
-                  "loopState is correct after resume" );
+              equal( loop.L_STARTED, loop._loopState, 
+                  "_loopState is correct after resume" );
             } else if( 0 === counter ) {
               loop.suspend();
               start();

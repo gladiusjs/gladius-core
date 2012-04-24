@@ -13,24 +13,24 @@ define( function( require ) {
     this.R_RUNNING = 0;
     this.R_IDLE = 1;
 
-    this.loopState = this.L_PAUSED;
-    this.runState = this.R_IDLE;    
+    this._loopState = this.L_PAUSED;
+    this._runState = this.R_IDLE;    
 
     this.callback = callback;
     this.context = context || this;
   };
 
   function _run() {
-    this.runState = this.R_RUNNING;
+    this._runState = this.R_RUNNING;
     if( this.callback ) {
       this.callback.call( this.context );
-      if( this.L_STARTED === this.loopState ) {
+      if( this.L_STARTED === this._loopState ) {
         this._pump();
       } else {
         this.suspend();
       }
     }
-    this.runState = this.R_IDLE;
+    this._runState = this.R_IDLE;
   }
 
   function _pump() {
@@ -38,24 +38,29 @@ define( function( require ) {
   }
 
   function suspend() {
-    this.loopState = this.L_PAUSED;
+    this._loopState = this.L_PAUSED;
   }
 
   function resume() {
     if( !this.callback ) {
       throw new Error( "callback not defined" );
     }
-    this.loopState = this.L_STARTED;
-    if( this.runState === this.R_IDLE ) {      
+    this._loopState = this.L_STARTED;
+    if( this._runState === this.R_IDLE ) {      
       this._pump();
     }
+  }
+  
+  function isStarted() {
+    return this._loopState === this.L_STARTED;
   }
 
   Loop.prototype = {
       suspend: suspend,
       resume: resume,
       _pump: _pump,
-      _run: _run
+      _run: _run,
+      isStarted: isStarted
   };
 
   return Loop;
