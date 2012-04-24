@@ -1,5 +1,6 @@
 define( function ( require ) {
   
+  var MulticastDelegate = require( "common/multicast-delegate" );
   var Loop = require( "request-animation-frame-loop" );
   var Clock = require( "clock" );
   var Scheduler = require( "dependency-scheduler" );
@@ -24,6 +25,11 @@ define( function ( require ) {
     while( this._scheduler.hasNext() ) {
       this._scheduler.next().run();
     }
+    
+    // Run monitor callbacks
+    if( this._monitor.size > 0 ) {
+      this._monitor( this );
+    }
   }
   
   function suspend() {
@@ -35,12 +41,21 @@ define( function ( require ) {
     this._realClock.start();
     this._simulationClock.start();
   }
+  
+  function attach( callback ) {
+    this._monitor.subscribe( callback );
+  }
+  
+  function detach( callback ) {
+    this._monitor.unsubscribe( callback );
+  }
 
   var Engine = function() {
     this._loop = new Loop( simulationLoop );
     this.frame = 0;
-    
-    // 
+    this._monitor = new MulticastDelegate();
+
+    // System clocks
     this._realClock = new Clock();
     this._simulationClock = new Clock();
     
@@ -58,7 +73,9 @@ define( function ( require ) {
   
   Engine.prototype = {
       suspend: suspend,
-      resume: resume
+      resume: resume,
+      attach: attach,
+      detach: detach
   };
   
   return Engine;
