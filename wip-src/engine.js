@@ -8,15 +8,18 @@ define( function ( require ) {
   
   function simulationLoop() {
     // Increment frame counter
-    this._frame += 1;
+    this.frame += 1;
     
+    // Update internal timestamp
     var timestamp = Date.now();
     var delta = timestamp - this.cachedTimestamp;
     this.cachedTimestamp = timestamp;
     
+    // Update system clocks
     this._realClock.update( delta );
     this._simulationClock.update( delta );
     
+    // Update scheduler and run all tasks
     this._scheduler.update();
     while( this._scheduler.hasNext() ) {
       this._scheduler.next().run();
@@ -35,7 +38,7 @@ define( function ( require ) {
 
   var Engine = function() {
     this._loop = new Loop( simulationLoop );
-    this._frame = 0;
+    this.frame = 0;
     
     // 
     this._realClock = new Clock();
