@@ -7,6 +7,9 @@ define( function ( require ) {
   var Timer = require( "timer" );
   
   function simulationLoop() {
+    // Increment frame counter
+    this._frame += 1;
+    
     var timestamp = Date.now();
     var delta = timestamp - this.cachedTimestamp;
     this.cachedTimestamp = timestamp;
@@ -19,11 +22,25 @@ define( function ( require ) {
       this._scheduler.next().run();
     }
   }
+  
+  function suspend() {
+    this._simulationClock.pause();
+    this._realClock.pause();
+  };
+  
+  function resume() {
+    this._realClock.start();
+    this._simulationClock.start();
+  }
 
   var Engine = function() {
     this._loop = new Loop( simulationLoop );
+    this._frame = 0;
+    
+    // 
     this._realClock = new Clock();
     this._simulationClock = new Clock();
+    
     this._scheduler = new Scheduler();
     
     // Bind the scheduler to the task constructor
@@ -37,9 +54,8 @@ define( function ( require ) {
   };
   
   Engine.prototype = {
-      run: null,
-      suspend: null,
-      resume: null
+      suspend: suspend,
+      resume: resume
   };
   
   return Engine;
