@@ -74,11 +74,11 @@ define( function ( require ) {
   };
   
   Engine.prototype = {
+      isRunning: isRunning,
       suspend: suspend,
       resume: resume,
       attach: attach,
-      detach: detach,
-      isRunning: isRunning
+      detach: detach
   };
   
   return Engine;
