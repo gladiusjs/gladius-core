@@ -43,24 +43,24 @@ document
 
             engine = engineInstance;
 
-            const FACING_RIGHT = 1;
-            const FACING_LEFT = -1;
+            var FACING_RIGHT = 1;
+            var FACING_LEFT = -1;
 
             var MOVE_SPEED = 100;
             var JUMP_IMPULSE = 5000;
 
             var BOSS_JUMP_IMPULSE = 30000;
-            var BOSS_WALK_IMPULSE = 500;
+            var BOSS_WALK_IMPULSE = 0;//500;
 
             // Number of seconds between the boss jumping which makes crates
             // fall from the sky
-            var BOSS_JUMP_INTERVAL = 10;
+            var bossJumpInterval = 10;
 
             var FLOOR_POS = 0;
 
             // Gameplay is 2D, so most objects in the scene have the same z
             // coordinate.
-            const GAME_DEPTH = -25;
+            var GAME_DEPTH = -25;
 
             //
             var WALK_ANI_SPEED = 0.085;
@@ -68,7 +68,7 @@ document
 
             var BOSS_WALK_ANI_SPEED = 0.25;
 
-            const MAX_HEALTH = 100;
+            var MAX_HEALTH = 100;
 
             // TODO: move this to the camera entity
             var cameraShake = 0;
@@ -77,18 +77,12 @@ document
             var bossInitialPos =   [40, FLOOR_POS + 10, GAME_DEPTH];
             
             // ////////////////
-            // Player config
+            // Player key config
             // ///////////////
-
-            // Player 1 starts on the left side of the screen facing right
             var keyConfig = {
               RIGHT_KEY : 'RIGHT',
               LEFT_KEY : 'LEFT',
               JUMP_KEY : 'UP',
-              DOWN_KEY : 'DOWN',
-              PUNCH_KEY : 'A',
-              name : 'player',
-              dir : FACING_RIGHT
             };
 
             // ////////////////////
@@ -167,8 +161,11 @@ document
                         if (healthToRemove <= 0) {
                           healthToRemove = 0;
                           getById( domId ).style.backgroundColor = color;
+                          if(domId === 'boss'){
+                            bossJumpInterval = 10;
+                          }
                         } else {
-                          var bitToRemove = delta * 20;
+                          var bitToRemove = delta * 10;
 
                           health -= bitToRemove;
                           // clamp the health to the minimum possible.
@@ -176,6 +173,10 @@ document
 
                           healthToRemove -= bitToRemove;
                           getById( domId ).style.backgroundColor = 'red';
+
+                          if(domId === 'boss'){
+                            bossJumpInterval = 0;
+                          }
                         }
 
                         // Refresh the page if the user dies.
@@ -225,12 +226,12 @@ document
                     } );
 
             // Boss with launch a bunch of objects user needs to avoid.
-            var dropStoneCrate = function(options) {
+            var dropCrate = function(options) {
 
               var size = 3;
               cameraShake = 500;
 
-              var special = options.special;
+              var canBeMoved = options.canBeMoved;
               var pos = options.position;
               var time = options.time;
 
@@ -248,20 +249,20 @@ document
                 density : 1
               } );
 
-              var stoneCrate = new space.Entity(
+              var crate = new space.Entity(
                   {
-                    name : 'stoneCrate',
+                    name : 'crate',
                     components : [
                         new engine.core.component.Transform( {
                           position : math.Vector3( pos[0], pos[1], pos[2] ),
                           scale : math.Vector3( size, size, size )
                         } ),
                         new engine.graphics.component.Model(
-                            resources.stone.mesh ),
+                            resources.crate.mesh ),
 
-                        new StoneCrateComponent( {
+                        new CrateComponent( {
                           time : time,
-                          special: special
+                          canBeMoved: canBeMoved
                         } ),
 
                         new engine.physics.component.Body( {
@@ -317,7 +318,7 @@ document
                       pl.owner.find( 'Model' ).updateAction( 'walk' );
                     }
 
-                    if (totalTimer >= BOSS_JUMP_INTERVAL) {
+                    if (totalTimer >= bossJumpInterval) {
                       this.jump();
                     }
 
@@ -363,19 +364,22 @@ document
                       var time = 10;
                       for ( var x = -38, y = 0; x < 30; x += 10, y += 15) {
                         time += 0.5;
-                        dropStoneCrate( {
+                        dropCrate( {
                           position : [ x, y + 100, GAME_DEPTH ],
                           time : time,
-                          special: false
+                          canBeMoved: false
                         } );
                       }
-
-                        // drop a crate the user can drop onto the boss.
-                        dropStoneCrate( {
-                          position : [ 32,  200, GAME_DEPTH ],
-                          time : time,
-                          special: true
-                        } );
+                      
+                      
+                      // TODO: should find a more elegant method.
+                      // drop a crate the user can drop onto the boss.
+                      var canMoveLastCrate = getById( 'boss' ).style.background !== 'red';
+                      dropCrate( {
+                        position : [ 32,  200, GAME_DEPTH ],
+                        time : time,
+                        canBeMoved: canMoveLastCrate
+                      } );
 
                       pl.setState( pl.getWalkState() );
                     }
@@ -721,28 +725,25 @@ document
                       };
                     } );
 
-            // //////////////////
-            // Stone Crate Component
-            // //////////////////
-
             /*
-             * Boss creates these which fall from the sky
+             * Crate Component
+             * Boss creates these which fall from the sky.
              */
-            var StoneCrateComponent = engine.base.Component( {
-              type : 'StoneCrate',
+            var CrateComponent = engine.base.Component( {
+              type : 'Crate',
               depends : [ 'Transform', 'Model' ]
             }, function(options) {
 
               options = options || {};
               var that = this;
               
-              var userCanMove = options.special;
+              var canBeMoved = options.canBeMoved;
 
               // We need to somehow get rid of the boxes once they hit the floor
               // or the user's head. We can do this by just bouncing them off the
               // floor and the user.
-              var vel = [ 0, 0, 0 ];
-              var acc = [ 0, 0, 0 ];
+              var velocity = [ 0, 0, 0 ];
+              var acceleration = [ 0, 0, 0 ];
               var angularVelocity = [ 0, 0, 0 ];
 
               var timer = 0;
@@ -754,45 +755,36 @@ document
               var service = engine.logic;
 
               this.onContactBegin = function(e) {
-                var crateXpos = this.owner.find( 'Transform' ).position;
-                var bossXpos = e.data.entities[0].find( 'Transform' ).position;
-                var userXpos = e.data.entities[0].find( 'Transform' ).position;
-
                 var other = (e.data.entities[0].id === this.owner.id) ? e.data.entities[1]
                     : e.data.entities[0];
-                    
-                // Hurt the player or boss if the crate fell on them
-                if (other.name === 'player' || other.name === 'boss' ){
-                  // Only hurt them if the crate landed on their head
-                  if (crateXpos[1] > userXpos[1]) {
+
+                var cratePos = this.owner.find( 'Transform' ).position;
+                var otherPos = other.find( 'Transform' ).position;
+                
+                // The crate needs to bounce and be removed from the scene in three cases:
+                // Either it hit the player or boss on the head OR
+                // It hit the platform, but wasn't the last box at the far right of the scene
+                // (This box needs to stay there so the player can drop it on the boss) OR
+                // it hit the floor
+                if (((other.name === 'player' || other.name === 'boss') && cratePos[1] > otherPos[1]) ||
+                    (!canBeMoved && other.name === 'platform') || other.name === 'floor'){
+                  
+                  // If it hit the player or boss, reduce their health.
+                  if (other.find( 'Health' )) {
                     other.find( 'Health' ).onHurt( 25 );
-                    
-                    this.owner.remove( "Body" );
-
-                    var x = (Math.random() - 0.5) * 20;
-
-                    // Set the crate in motion.
-                    vel = [ x, 45, 25 ];
-                    acc = [ 0, -100, 0 ];
-                    angularVelocity = [ (Math.random() - 0.5) * 5,
-                      (Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5 ]; 
                   }
-                }
-                // If ther user can't move the crate and it hit the platform or it hit
-                // the floor, make it bounce and remove it from the scene.
-                else if((!userCanMove && other.name === 'platform') || other.name === 'floor'){
-                    this.owner.remove( 'Body' );
+                  this.owner.remove( "Body" );
 
-                    var randX = (Math.random() - 0.5) * 20;
+                  var randX = (Math.random() - 0.5) * 20;
 
-                    // Set the crate in motion.
-                    vel = [ randX, 45, 25 ];
-                    acc = [ 0, -100, 0 ];
-                    angularVelocity = [ (Math.random() - 0.5) * 5,
-                      (Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5 ];                 
+                  // Set the crate in motion.
+                  velocity = [ randX, 45, 25 ];
+                  acceleration = [ 0, -100, 0 ];
+                  angularVelocity = [ (Math.random() - 0.5) * 5,
+                    (Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5 ];
                 }
               };
-
+              
               this.onContactEnd = function(event) {
               };
 
@@ -802,28 +794,26 @@ document
                 timer += delta;
 
                 // Update the position
-                var pos = this.owner.find( 'Transform' ).position;
-                pos[0] += vel[0] * delta;
-                pos[1] += vel[1] * delta;
-                pos[2] += vel[2] * delta;
-                this.owner.find( 'Transform' ).position = pos;
+                var position = this.owner.find( 'Transform' ).position;
+                position[0] += velocity[0] * delta;
+                position[1] += velocity[1] * delta;
+                position[2] += velocity[2] * delta;
+                this.owner.find( 'Transform' ).position = position;
 
-                var rot = this.owner.find( 'Transform' ).rotation;
-                rot[0] += angularVelocity[0] * delta;
-                rot[1] += angularVelocity[1] * delta;
-                rot[2] += angularVelocity[2] * delta;
-                this.owner.find( 'Transform' ).rotation = rot;
+                var rotation = this.owner.find( 'Transform' ).rotation;
+                rotation[0] += angularVelocity[0] * delta;
+                rotation[1] += angularVelocity[1] * delta;
+                rotation[2] += angularVelocity[2] * delta;
+                this.owner.find( 'Transform' ).rotation = rotation;
 
-                vel[0] += acc[0] * delta;
-                vel[1] += acc[1] * delta;
-                vel[2] += acc[2] * delta;
-
-                if (timer >= timeToDie) {
-                  space.remove( this.owner );
-                }
-
-                // Remove the crate if it goes past the floor.
-                if (pos[1] < 0) {
+                velocity[0] += acceleration[0] * delta;
+                velocity[1] += acceleration[1] * delta;
+                velocity[2] += acceleration[2] * delta;
+                
+                // If the user still hasn't moved the 'special' crate they should have
+                // after a certain time, just get rid of it. Or remove the crate if it
+                // fell past the floor.
+                if (timer >= timeToDie || position[1] < 0) {
                   space.remove( this.owner );
                 }
               }; // onUpdate
@@ -851,7 +841,7 @@ document
                   service.unregisterComponent( this.owner.id, this );
                 }
               };
-            } ); // Stone Crate Components
+            } ); // Crate Components
 
             // //////////////////
             // Boss Component
@@ -926,21 +916,14 @@ document
                       options = options || {};
                       var that = this;
 
-                      var timer = 0;
-
-                      var collideID = 0;
-                      var platformEntity = null;
-
                       // This is a hack so that this component will have its
                       // message queue processed
                       var service = engine.logic;
 
-                      this.initialPos = options.initialPos || [ 0, 0, 0 ];
-
-                      var playerName = options.name || "NoName";
+                      var timer = 0;
+                      var collideID = 0;
+                      var platformEntity = null;
                       var facing = FACING_RIGHT;
-
-                      var crateContactEntity = null;
 
                       this.onContactBegin = function(e) {
                         var userPos, platPos;
@@ -953,11 +936,7 @@ document
                           // Simply reload the game for now.
                           location.reload();
                         }
-                        
-                        if (other.name === 'crate') {
-                          crateContactEntity = other;
-                        }
-                        
+                                                
                         // Make the sprite land
                         if (this.owner.find( 'State' ).getCurrState() === 'falling') {
                           // this.owner.find('State').getCurrState() ===
@@ -982,8 +961,7 @@ document
 
                           // FIX ME
                           // We could have collided with the platform by hitting
-                          // our head on it,
-                          // check that we didn't.
+                          // our head on it, check that we didn't.
 
                           // FIX ME: take into account sprite's height
                           if (Math.abs( userPos - platPos ) > 0.0001) {
@@ -998,12 +976,6 @@ document
                       };
 
                       this.onContactEnd = function(e) {
-                        var other = (e.data.entities[0].id === this.owner.id) ? e.data.entities[1]
-                            : e.data.entities[0];
-
-                        if (other.name === 'crate') {
-                          crateContactEntity = null;
-                        }
                       };
 
                       this.jump = function(event) {
@@ -1123,7 +1095,7 @@ document
               audioElement.play();
               audioElement.volume = 0;
               
-              // TODO: fix me
+              // TODO: Change this into a speaker icon user can toggle by clicking on it.
               // "M" to toggle music mute
               window.addEventListener( "keyup", function(e) {
                 if (e.keyCode == 77) {
@@ -1195,10 +1167,8 @@ document
                 name : 'player',
                 components : [
 
-                    // Model
                     new engine.core.component.Transform(
                         {
-                          // / TO DO: use initial pos
                           position : playerInitialPos,
                           scale : math.Vector3( 7, 7, 7 )
                         } ),
@@ -1538,28 +1508,12 @@ document
                             resources.platform = instance.meshes[0];
                           }
                         },
-
                         {
                           type : engine.core.resource.Collada,
                           url : 'crate/crate.dae',
                           load : colladaLoader,
                           onsuccess : function(instance) {
-                            // We'll be making crates dynamically so we need to
-                            // make an accessible reference.
                             resources.crate = {
-                              mesh : instance.meshes[0]
-                            };
-                          },
-                          onfailure : function(error) {
-                            console.log( error );
-                          }
-                        },
-                        {
-                          type : engine.core.resource.Collada,
-                          url : 'stone/stone.dae',
-                          load : colladaLoader,
-                          onsuccess : function(instance) {
-                            resources.stone = {
                               mesh : instance.meshes[0]
                             };
                           },
