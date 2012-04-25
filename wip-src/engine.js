@@ -34,7 +34,7 @@ define( function ( require ) {
   
   function suspend() {
     this._loop.suspend();
-  };
+  }
   
   function resume() {
     this._loop.resume();

@@ -132,7 +132,7 @@ define(
           function callback( data ) {
             ok( true, "callback invoked" );
             equal( data, delta, "delta is correct" );
-          };
+          }
           
           ok( clock.hasOwnProperty( "signal" ), "clock has a signal property" );
           clock.signal.subscribe( callback );
