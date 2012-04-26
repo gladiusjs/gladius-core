@@ -2,12 +2,11 @@ define( function( require ) {
   
   var Event = require( "event" );
 
-  var Component = function( type, provider, dependsOn, task ) {
+  var Component = function( type, provider, dependsOn ) {
     this.type = type;
+    this.provider = provider;
     this.dependsOn = dependsOn || [];
     this.owner = null;
-    this._task = task;
-    this.provider = provider;
     this._queuedEvents = [];
   };
 

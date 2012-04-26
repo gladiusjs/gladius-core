@@ -13,6 +13,7 @@ define( function() {
                "function-task.test",
                "dependency-scheduler.test",
                "timer.test",
+               "event.test",
 
                "engine.test"
                
