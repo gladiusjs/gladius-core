@@ -36,7 +36,8 @@ define( function( require ) {
 
   Component.prototype = {
       setOwner: setOwner,
-      handleEvent: handleEvent
+      handleEvent: handleEvent,
+      handleQueuedEvent: handleQueuedEvent
   };
 
   return Component;
