@@ -1,11 +1,13 @@
 [
 
+  // Common
   "common/guid.test",
   "common/extend.test",
   "common/assert.test",
   "common/graph.test",
   "common/multicast-delegate.test",  
-               
+       
+  // Core        
   "loop.test",
   "request-animation-frame-loop.test",
   "set-timeout-loop.test",
@@ -14,9 +16,11 @@
   "dependency-scheduler.test",
   "timer.test",
   "event.test",
-               
+   
+  // Base         
   "base/component.test",
 
+  // Engine
   "engine.test"
 
 ]
