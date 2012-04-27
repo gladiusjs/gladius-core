@@ -1,8 +1,10 @@
 [
 
   "common/guid.test",
+  "common/extend.test",
+  "common/assert.test",
   "common/graph.test",
-  "common/multicast-delegate.test",
+  "common/multicast-delegate.test",  
                
   "loop.test",
   "request-animation-frame-loop.test",
