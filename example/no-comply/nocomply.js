@@ -13,6 +13,7 @@
  * jshint quiet, but this should really be analyzed and dealt with.
  */
 
+// TODO: fix me
 // for use by bitwallModel; we need to do some surgery before this becomes
 // avoidable
 var engine;
@@ -50,20 +51,17 @@ document
             var JUMP_IMPULSE = 5000;
 
             var BOSS_JUMP_IMPULSE = 30000;
-            // var BOSS_WALK_IMPULSE = 350;
-            var BOSS_WALK_IMPULSE = 500;
+            var BOSS_WALK_IMPULSE = 0;//500;
 
             // Number of seconds between the boss jumping which makes crates
             // fall from the sky
-            var BOSS_JUMP_INTERVAL = 10;
+            var bossJumpInterval = 10;
 
             var FLOOR_POS = 0;
 
             // Gameplay is 2D, so most objects in the scene have the same z
             // coordinate.
             var GAME_DEPTH = -25;
-
-            var PLAYER_BB_HEIGHT = 3.5;
 
             //
             var WALK_ANI_SPEED = 0.085;
@@ -76,20 +74,16 @@ document
             // TODO: move this to the camera entity
             var cameraShake = 0;
 
+            var playerInitialPos = [ -30, FLOOR_POS + 20, GAME_DEPTH ];
+            var bossInitialPos =   [40, FLOOR_POS + 10, GAME_DEPTH];
+            
             // ////////////////
-            // Player config
+            // Player key config
             // ///////////////
-
-            // Player 1 starts on the left side of the screen facing right
             var keyConfig = {
               RIGHT_KEY : 'RIGHT',
               LEFT_KEY : 'LEFT',
               JUMP_KEY : 'UP',
-              DOWN_KEY : 'DOWN',
-              PUNCH_KEY : 'A',
-              name : 'player',
-              dir : FACING_RIGHT,
-              initialPos : [ -20, FLOOR_POS, 0 ]
             };
 
             // ////////////////////
@@ -115,10 +109,10 @@ document
             //
             // /////////////
             function colladaLoader(url, onsuccess, onfailure) {
-              // XXX figure out why this is necessary
+              // TODO: figure out why this is necessary
               window.CubicVR = engine.graphics.target.context;
-
-              // XXX move this out
+              
+              // TODO: This needs to be moved somewhere else.
               CubicVR.setGlobalAmbient( [ 1, 1, 1 ] );
 
               // CubicVR wants the directory where the dae file resides.
@@ -168,8 +162,11 @@ document
                         if (healthToRemove <= 0) {
                           healthToRemove = 0;
                           getById( domId ).style.backgroundColor = color;
+                          if(domId === 'boss'){
+                            bossJumpInterval = 10;
+                          }
                         } else {
-                          var bitToRemove = delta * 20;
+                          var bitToRemove = delta * 10;
 
                           health -= bitToRemove;
                           // clamp the health to the minimum possible.
@@ -177,23 +174,19 @@ document
 
                           healthToRemove -= bitToRemove;
                           getById( domId ).style.backgroundColor = 'red';
+
+                          if(domId === 'boss'){
+                            bossJumpInterval = 0;
+                          }
                         }
 
                         // Refresh the page if the user dies.
-                        // TODO: make this cooler
-                        if (health <= 0 && domId === 'player') {
-                          location.reload();
-                        }
-
-                        // Refresh the page if the user dies.
-                        // TODO: make this cooler
-                        if (health <= 0 && domId === 'player') {
+                        if (health <= 0 && (domId === 'player' || domId === 'boss')) {
                           location.reload();
                         }
 
                         // If health is zero, we only see the ugly border around
-                        // the
-                        // health bar, so just hide it in that case.
+                        // the health bar, so just hide it in that case.
                         var show = health > 0 ? "visible" : "hidden";
                         getById( domId ).style.visibility = show;
 
@@ -236,14 +229,12 @@ document
                     } );
 
             // Boss with launch a bunch of objects user needs to avoid.
-            var dropStoneCrate = function(options) {
+            var dropCrate = function(options) {
 
               var size = 3;
               cameraShake = 500;
 
-              // buffer
-              var b = 0;
-
+              var canBeMoved = options.canBeMoved;
               var pos = options.position;
               var time = options.time;
 
@@ -261,60 +252,22 @@ document
                 density : 1
               } );
 
-              var stoneCrate = new space.Entity(
+              var crate = new space.Entity(
                   {
-                    name : 'stoneCrate',
+                    name : 'crate',
                     components : [
                         new engine.core.component.Transform( {
                           position : math.Vector3( pos[0], pos[1], pos[2] ),
                           scale : math.Vector3( size, size, size )
                         } ),
                         new engine.graphics.component.Model(
-                            resources.stone.mesh ),
-
-                        new StoneCrateComponent( {
-                          time : time
-                        } ),
-
-                        new engine.physics.component.Body( {
-                          bodyDefinition : bodyDef,
-                          fixtureDefinition : fixtureDef
-                        } ) ]
-                  } );
-            };
-
-            //
-            var makeCrate = function(options) {
-
-              var boxH = 3;
-              var boxW = 3;
-
-              var pos = options.position;
-
-              var bodyDef = engine.physics.resource.BodyDefinition( {
-                type : engine.physics.resource.BodyDefinition.bodyType.DYNAMIC,
-                linearDamping : 1,
-                angularDamping : 1,
-                fixedRotation : false
-              } );
-
-              var collisionShape = engine.physics.resource.Box( boxW / 2,
-                  boxH / 2 );
-              var fixtureDef = engine.physics.resource.FixtureDefinition( {
-                shape : collisionShape,
-                density : 0.5
-              } );
-
-              new space.Entity(
-                  {
-                    name : 'crate',
-                    components : [
-                        new engine.core.component.Transform( {
-                          position : math.Vector3( pos[0], pos[1], pos[2] ),
-                          scale : math.Vector3( boxW, boxH, boxW )
-                        } ),
-                        new engine.graphics.component.Model(
                             resources.crate.mesh ),
+
+                        new CrateComponent( {
+                          time : time,
+                          canBeMoved: canBeMoved
+                        } ),
+
                         new engine.physics.component.Body( {
                           bodyDefinition : bodyDef,
                           fixtureDefinition : fixtureDef
@@ -368,7 +321,7 @@ document
                       pl.owner.find( 'Model' ).updateAction( 'walk' );
                     }
 
-                    if (totalTimer >= BOSS_JUMP_INTERVAL) {
+                    if (totalTimer >= bossJumpInterval) {
                       this.jump();
                     }
 
@@ -408,18 +361,26 @@ document
                     // TODO: FIX ME
                     if (timeElapsed > 0.25 &&
                         pl.owner.find( 'Transform' ).position[1] <= 15) {
-
                       // make crates when boss lands
                       var time = 10;
                       for ( var x = -38, y = 0; x < 30; x += 10, y += 15) {
                         time += 0.5;
-                        dropStoneCrate( {
+                        dropCrate( {
                           position : [ x, y + 100, GAME_DEPTH ],
-                          time : time
+                          time : time,
+                          canBeMoved: false
                         } );
                       }
-
-                      // makeCrate({position:[-40, 20, GAME_DEPTH]});
+                      
+                      
+                      // TODO: should find a more elegant method.
+                      // drop a crate the user can drop onto the boss.
+                      var canMoveLastCrate = getById( 'boss' ).style.background !== 'red';
+                      dropCrate( {
+                        position : [ 32,  200, GAME_DEPTH ],
+                        time : time,
+                        canBeMoved: canMoveLastCrate
+                      } );
 
                       pl.setState( pl.getWalkState() );
                     }
@@ -470,7 +431,7 @@ document
                 state && state.update( t );
               };
 
-              // fix this
+              // TODO: fix this
               this.getCurrState = function() {
                 return state.toString();
               };
@@ -537,10 +498,6 @@ document
                             pl.setState( pl.getFallState() );
                           };
 
-                          // !!! remove TODO
-                          this.hit = function(d) {
-                          };
-
                           this.update = function(event) {
                             pl.owner.find( 'Model' ).updateAction( 'idle' );
                           };
@@ -566,7 +523,6 @@ document
                           this.jump = function() {
                             pl.setState( pl.getJumpState() );
                           };
-                          // TODO: add knockout
                           this.fall = function() {
                             pl.setState( pl.getFallState() );
                           };
@@ -772,26 +728,25 @@ document
                       };
                     } );
 
-            // //////////////////
-            // Stone Crate Component
-            // //////////////////
-
             /*
-             * Boss creates these which fall from the sky
+             * Crate Component
+             * Boss creates these which fall from the sky.
              */
-            var StoneCrateComponent = engine.base.Component( {
-              type : 'StoneCrate',
+            var CrateComponent = engine.base.Component( {
+              type : 'Crate',
               depends : [ 'Transform', 'Model' ]
             }, function(options) {
 
               options = options || {};
               var that = this;
+              
+              var canBeMoved = options.canBeMoved;
 
               // We need to somehow get rid of the boxes once they hit the floor
-              // or the users head. We can do this by just bouncing them off the
+              // or the user's head. We can do this by just bouncing them off the
               // floor and the user.
-              var vel = [ 0, 0, 0 ];
-              var acc = [ 0, 0, 0 ];
+              var velocity = [ 0, 0, 0 ];
+              var acceleration = [ 0, 0, 0 ];
               var angularVelocity = [ 0, 0, 0 ];
 
               var timer = 0;
@@ -803,31 +758,36 @@ document
               var service = engine.logic;
 
               this.onContactBegin = function(e) {
-                var crateXpos = this.owner.find( 'Transform' ).position;
-                var bossXpos = e.data.entities[0].find( 'Transform' ).position;
-                var userXpos = e.data.entities[0].find( 'Transform' ).position;
+                var other = (e.data.entities[0].id === this.owner.id) ? e.data.entities[1]
+                    : e.data.entities[0];
 
-                if (e.data.entities[0].name === 'player') {
-                  // Only hurt the player if the crate landed on his head
-                  if (crateXpos[1] > userXpos[1]) {
-
-                    e.data.entities[0].find( 'Health' ).onHurt( 25 );
+                var cratePos = this.owner.find( 'Transform' ).position;
+                var otherPos = other.find( 'Transform' ).position;
+                
+                // The crate needs to bounce and be removed from the scene in three cases:
+                // Either it hit the player or boss on the head OR
+                // It hit the platform, but wasn't the last box at the far right of the scene
+                // (This box needs to stay there so the player can drop it on the boss) OR
+                // it hit the floor
+                if (((other.name === 'player' || other.name === 'boss') && cratePos[1] > otherPos[1]) ||
+                    (!canBeMoved && other.name === 'platform') || other.name === 'floor'){
+                  
+                  // If it hit the player or boss, reduce their health.
+                  if (other.find( 'Health' )) {
+                    other.find( 'Health' ).onHurt( 25 );
                   }
-                }
+                  this.owner.remove( "Body" );
 
-                // Since the crate is moving towards the user it no longer
-                // should interact with the game XY-plance, so remove the Body component.
-                this.owner.remove( "Body" );
+                  var randX = (Math.random() - 0.5) * 20;
 
-                var x = (Math.random() - 0.5) * 20;
-
-                // Set the crate in motion.
-                vel = [ x, 45, 25 ];
-                acc = [ 0, -100, 0 ];
-                angularVelocity = [ (Math.random() - 0.5) * 5,
+                  // Set the crate in motion.
+                  velocity = [ randX, 45, 25 ];
+                  acceleration = [ 0, -100, 0 ];
+                  angularVelocity = [ (Math.random() - 0.5) * 5,
                     (Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5 ];
+                }
               };
-
+              
               this.onContactEnd = function(event) {
               };
 
@@ -837,28 +797,26 @@ document
                 timer += delta;
 
                 // Update the position
-                var pos = this.owner.find( 'Transform' ).position;
-                pos[0] += vel[0] * delta;
-                pos[1] += vel[1] * delta;
-                pos[2] += vel[2] * delta;
-                this.owner.find( 'Transform' ).position = pos;
+                var position = this.owner.find( 'Transform' ).position;
+                position[0] += velocity[0] * delta;
+                position[1] += velocity[1] * delta;
+                position[2] += velocity[2] * delta;
+                this.owner.find( 'Transform' ).position = position;
 
-                var rot = this.owner.find( 'Transform' ).rotation;
-                rot[0] += angularVelocity[0] * delta;
-                rot[1] += angularVelocity[1] * delta;
-                rot[2] += angularVelocity[2] * delta;
-                this.owner.find( 'Transform' ).rotation = rot;
+                var rotation = this.owner.find( 'Transform' ).rotation;
+                rotation[0] += angularVelocity[0] * delta;
+                rotation[1] += angularVelocity[1] * delta;
+                rotation[2] += angularVelocity[2] * delta;
+                this.owner.find( 'Transform' ).rotation = rotation;
 
-                vel[0] += acc[0] * delta;
-                vel[1] += acc[1] * delta;
-                vel[2] += acc[2] * delta;
-
-                if (timer >= timeToDie) {
-                  space.remove( this.owner );
-                }
-
-                // Remove the crate if it goes past the floor.
-                if (pos[1] < 0) {
+                velocity[0] += acceleration[0] * delta;
+                velocity[1] += acceleration[1] * delta;
+                velocity[2] += acceleration[2] * delta;
+                
+                // If the user still hasn't moved the 'special' crate they should have
+                // after a certain time, just get rid of it. Or remove the crate if it
+                // fell past the floor.
+                if (timer >= timeToDie || position[1] < 0) {
                   space.remove( this.owner );
                 }
               }; // onUpdate
@@ -886,7 +844,7 @@ document
                   service.unregisterComponent( this.owner.id, this );
                 }
               };
-            } ); // Stone Crate Components
+            } ); // Crate Components
 
             // //////////////////
             // Boss Component
@@ -906,13 +864,6 @@ document
                       var service = engine.logic;
 
                       this.facing = FACING_LEFT;
-
-                      this.setFacing = function(f) {
-                        if (f === FACING_LEFT || f === FACING_RIGHT) {
-                          this.facing = f;
-                          this.walk();
-                        }
-                      };
 
                       this.onContactBegin = function(e) {
                         var other = (e.data.entities[0].id === this.owner.id) ? e.data.entities[1]
@@ -969,34 +920,27 @@ document
                       options = options || {};
                       var that = this;
 
-                      var fallingState = true;
-                      var landed = false;
-                      var timer = 0;
-
-                      var collideID = 0;
-                      var platformEntity = null;
-
                       // This is a hack so that this component will have its
                       // message queue processed
                       var service = engine.logic;
 
-                      this.initialPos = options.initialPos || [ 0, 0, 0 ];
-
-                      var playerName = options.name || "NoName";
+                      var timer = 0;
+                      var collideID = 0;
+                      var platformEntity = null;
                       var facing = FACING_RIGHT;
-
-                      var crateContactEntity = null;
 
                       this.onContactBegin = function(e) {
                         var userPos, platPos;
-
+                        
                         var other = (e.data.entities[0].id === this.owner.id) ? e.data.entities[1]
                             : e.data.entities[0];
 
-                        if (other.name === 'crate') {
-                          crateContactEntity = other;
+                        // If the user touches the boss, they instantly die.
+                        if(other.name === 'boss'){
+                          // Simply reload the game for now.
+                          location.reload();
                         }
-
+                                                
                         // Make the sprite land
                         if (this.owner.find( 'State' ).getCurrState() === 'falling') {
                           // this.owner.find('State').getCurrState() ===
@@ -1021,8 +965,7 @@ document
 
                           // FIX ME
                           // We could have collided with the platform by hitting
-                          // our head on it,
-                          // check that we didn't.
+                          // our head on it, check that we didn't.
 
                           // FIX ME: take into account sprite's height
                           if (Math.abs( userPos - platPos ) > 0.0001) {
@@ -1037,12 +980,6 @@ document
                       };
 
                       this.onContactEnd = function(e) {
-                        var other = (e.data.entities[0].id === this.owner.id) ? e.data.entities[1]
-                            : e.data.entities[0];
-
-                        if (other.name === 'crate') {
-                          crateContactEntity = null;
-                        }
                       };
 
                       this.jump = function(event) {
@@ -1161,7 +1098,8 @@ document
               }, true );
               audioElement.play();
               audioElement.volume = 0;
-
+              
+              // TODO: Change this into a speaker icon user can toggle by clicking on it.
               // "M" to toggle music mute
               window.addEventListener( "keyup", function(e) {
                 if (e.keyCode == 77) {
@@ -1192,9 +1130,8 @@ document
               var boss = new space.Entity( {
                 name : 'boss',
                 components : [ new engine.core.component.Transform( {
-                  // / !!! XXX use initial pos
-                  position : math.Vector3( 38, FLOOR_POS + 10, GAME_DEPTH ),
-                  scale : math.Vector3( 7 * 4, 7 * 4, 1 ),
+                  position : bossInitialPos,
+                  scale : math.Vector3( 28, 28, 1 ),
                   rotation : math.Vector3( 0, math.PI, 0 )
                 } ), bossBitwall,
 
@@ -1234,12 +1171,9 @@ document
                 name : 'player',
                 components : [
 
-                    // Model
                     new engine.core.component.Transform(
                         {
-                          // / XXX use initial pos
-                          position : math.Vector3( 30, FLOOR_POS + 105,
-                              GAME_DEPTH ),
+                          position : playerInitialPos,
                           scale : math.Vector3( 7, 7, 7 )
                         } ),
 
@@ -1259,11 +1193,14 @@ document
                             : false;
 
                         // TODO: remove before release
-                        if (keyName == '1') {
+                        /*switch (keyName) {
+                        
+                        case '1':
                           makeCrate( {
                             position : [ 30, 40, GAME_DEPTH ]
                           } );
-                        }
+                          break;
+                        }*/
 
                       } // onKey
                     } ), // controller
@@ -1281,7 +1218,7 @@ document
               var camera = new space.Entity( {
                 name : 'camera',
                 components : [ new engine.core.component.Transform( {
-                  position : math.Vector3( 0, 15, 30 )
+                  position : math.Vector3( 0, 15, 20 )
                 } ), new engine.graphics.component.Camera( {
                   active : true,
                   width : canvas.width,
@@ -1320,10 +1257,10 @@ document
                   cameraShake /= 1.4;
                   var shake = Math.sin( cameraShake * delta ) * 2;
 
-                  camera.find( 'Transform' ).position = [ newPos[0] + shake,
-                      newPos[1] + 10 + shake, 25 + shake ];
+                  // TODO: fix me
+                  camera.find( 'Transform' ).position = [ newPos[0] + shake, newPos[1] + 10 + shake, 20 + shake ];
                   camera.find( 'Camera' ).target = [ newPos[0],
-                      4 + p1Pos[1] + shake, -1 ];
+                      8 + p1Pos[1] + shake, -1 ];
 
                   var playerState = player.find( 'State' );
 
@@ -1359,10 +1296,6 @@ document
                     }
                   }
                 }
-              } );
-
-              makeCrate( {
-                position : [ -30, 40, GAME_DEPTH ]
               } );
 
               // Change these to change the width and height of
@@ -1441,7 +1374,7 @@ document
 
               // Left floor, where the user starts
               new space.Entity( {
-                name : 'platform',
+                name : 'floor',
                 components : [
                     new engine.core.component.Transform( {
                       position : math.Vector3( -36.2,
@@ -1460,7 +1393,7 @@ document
 
               // Right floor, where the boss starts
               new space.Entity( {
-                name : 'platform',
+                name: 'floor',
                 components : [
                     new engine.core.component.Transform( {
                       position : math.Vector3( 33.2,
@@ -1579,14 +1512,11 @@ document
                             resources.platform = instance.meshes[0];
                           }
                         },
-
                         {
                           type : engine.core.resource.Collada,
                           url : 'crate/crate.dae',
                           load : colladaLoader,
                           onsuccess : function(instance) {
-                            // We'll be making crates dynamically so we need to
-                            // make an accessible reference.
                             resources.crate = {
                               mesh : instance.meshes[0]
                             };
@@ -1595,23 +1525,6 @@ document
                             console.log( error );
                           }
                         },
-
-                        {
-                          type : engine.core.resource.Collada,
-                          url : 'stone/stone.dae',
-                          load : colladaLoader,
-                          onsuccess : function(instance) {
-                            // We'll be making stone crates dynamically so we
-                            // need to make an accessible reference.
-                            resources.stone = {
-                              mesh : instance.meshes[0]
-                            };
-                          },
-                          onfailure : function(error) {
-                            console.log( error );
-                          }
-                        }
-
                     ], {
 
                       oncomplete : function() {
