@@ -57,7 +57,7 @@ define( function ( require ) {
 
             assert: function( condition, message ) {
                 if( !condition )
-                    throw 'Assertion failed: ' + message;
+                    throw 'assertion failed: ' + message;
             },
 
             // Simple bind function to maintain "this" for a function.
