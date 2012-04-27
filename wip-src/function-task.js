@@ -19,7 +19,7 @@ define( function ( require ) {
       return new DefaultSchedule();
     }
     this.tags = [];
-    this.depends = [];
+    this.dependsOn = [];
   };
 
   // Task states

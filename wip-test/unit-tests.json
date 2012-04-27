@@ -19,6 +19,7 @@
    
   // Base         
   "base/component.test",
+  "base/service.test",
 
   // Engine
   "engine.test"

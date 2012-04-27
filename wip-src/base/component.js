@@ -7,11 +7,13 @@ define( function( require ) {
   var Event = require( "event" );
 
   var Component = function( type, provider, dependsOn ) {
-    this.type = type;
-    this.provider = provider;
-    this.dependsOn = dependsOn || [];
-    this.owner = null;
-    this._queuedEvents = [];
+    this.type = type; // String identifying the type of this component
+    this.provider = provider; // Reference to the object instance that provides
+                              // this component
+    this.dependsOn = dependsOn || []; // List of component types that this
+                                      // component depends on
+    this.owner = null; // Reference to the entity instance that owns this
+    this._queuedEvents = []; // List of queued events
   };
 
   function setOwner( owner ) {

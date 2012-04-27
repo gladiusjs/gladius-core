@@ -43,10 +43,10 @@ define( function ( require ) {
         }
       }
       
-      if( schedule.depends ) {
-        var depends = schedule.depends;
-        for( i = 0, l = depends.length; i < l; ++ i ) {
-          this._graph.link( depends[i], task.id );
+      if( schedule.dependsOn ) {
+        var dependsOn = schedule.dependsOn;
+        for( i = 0, l = dependsOn.length; i < l; ++ i ) {
+          this._graph.link( dependsOn[i], task.id );
         }
       }
     }
