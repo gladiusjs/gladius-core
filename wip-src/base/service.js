@@ -18,10 +18,14 @@ define( function( require ) {
       var callbackNames = Object.keys( this._schedules );
       for( i = 0, l = callbackNames.length; i < l; ++ i ) {
         var callbackName = callbackNames[i];
-        var schedule = this._schedules[taskName] || {};
+        if( !this[callbackName] ) {
+          throw new Error( "missing scheduler target: " + callbackName );
+        }
+        var schedule = this._schedules[callbackName] || {};
         // Create a new task to run this callback
         this._tasks[callbackName] = new Task( scheduler, this[callbackName],
-            schedule );
+            schedule, this );
+        this._tasks[callbackName].start();
       }
     }
   };

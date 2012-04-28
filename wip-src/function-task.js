@@ -34,7 +34,7 @@ define( function ( require ) {
   R_RESOLVED = 2,
   R_REJECTED = 3;
 
-  var FunctionTask = function( scheduler, thunk, schedule ) {
+  var FunctionTask = function( scheduler, thunk, schedule, context ) {
     this.id = guid();
     this._thunk = thunk;
     this._taskState = T_PAUSED;
@@ -44,6 +44,7 @@ define( function ( require ) {
     this.result = undefined;
     this._deferred = when.defer();
     this.then = this._deferred.promise.then;
+    this._context = context || this;
   };
 
   function start( schedule ) {
@@ -103,7 +104,7 @@ define( function ( require ) {
         task._taskState = T_CLOSED;
       } else if( task._taskState === T_STARTED ) {
         // Run the task
-        result = task._thunk.call( task, result );
+        result = task._thunk.call( this._context, result );
         task._runState = R_BLOCKED;
 
         // Process the result
