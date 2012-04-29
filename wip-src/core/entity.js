@@ -5,7 +5,7 @@ if ( typeof define !== "function" ) {
 define( function( require ) {
 
   var guid = require( "common/guid" );
-  var Event = require( "event" );
+  var Event = require( "core/event" );
 
   var Entity = function( name, components, parent ) {
     this.id = guid();
@@ -59,7 +59,24 @@ define( function( require ) {
   }
   
   function setManager( manager ) {
+    if( manager !== this.manager ) {
+      var previous = this.manager;
+      this.manager = manager;
+      
+      var event = new Event( "ManagerChanged",
+          { previous: previous, current: manager } );
+      event( this );
+    }
+  }
+  
+  function setActive( value ) {
+    if( value && this.manager ) {
+      this.active = true;
+    } else {
+      this.active = false;
+    }
     
+    return this;
   }
 
   function handleEvent( event ) {
@@ -95,6 +112,7 @@ define( function( require ) {
   Entity.prototype = {
       setParent: setParent,
       setManager: setManager,
+      setActive: setActive,
       handleEvent: handleEvent,
       onChildAdded: onChildAdded,
       onChildRemoved: onChildRemoved

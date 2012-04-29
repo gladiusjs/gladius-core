@@ -5,7 +5,8 @@ require.config({
   paths: {
     // Test path
     test: "../wip-test",
-    
+    external: "../external",
+   
     // RequireJS plugins, used to load tests
     text: "../external/requirejs-plugins/lib/text",
     json: "../external/requirejs-plugins/src/json",

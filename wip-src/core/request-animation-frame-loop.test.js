@@ -1,5 +1,5 @@
 define(
-    [ "request-animation-frame-loop" ],
+    [ "core/request-animation-frame-loop" ],
     function( RequestAnimationFrameLoop ) {
       return function() {
 

@@ -4,7 +4,7 @@ if ( typeof define !== "function" ) {
 
 define( function( require ) {
 
-  var Event = require( "event" );
+  var Event = require( "core/event" );
 
   var Component = function( type, provider, dependsOn ) {
     this.type = type; // String identifying the type of this component

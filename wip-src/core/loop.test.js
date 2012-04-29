@@ -1,5 +1,5 @@
 define(
-    [ "loop" ],
+    [ "core/loop" ],
     function( Loop ) {
       return function() {
 

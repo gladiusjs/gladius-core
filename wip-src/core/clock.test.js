@@ -1,5 +1,5 @@
 define(
-    [ "clock" ],
+    [ "core/clock" ],
     function( Clock ) {
       return function() {
 

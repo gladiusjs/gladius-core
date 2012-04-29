@@ -1,5 +1,5 @@
 define(
-    [ "function-task" ],
+    [ "core/function-task" ],
     function( FunctionTask ) {
       return function() {
 

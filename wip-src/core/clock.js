@@ -9,7 +9,7 @@ define( function( require ) {
   var C_STARTED = 0,
   C_PAUSED = 1;
   
-  var Clock = function() {
+  var Clock = function( delegate ) {
     this.time = 0;
     this.delta = 0;
     this._timeScale = 1.0;
@@ -17,16 +17,23 @@ define( function( require ) {
     
     this._clockState;
     this.signal = new MulticastDelegate();
+    this._delegate = delegate || null;
     
     this.start();
   };
   
   function pause() {
     this._clockState = C_PAUSED;
+    if( this._delegate ) {
+      this._delegate.unsubscribe( this.update );
+    }
   }
   
   function start() {
     this._clockState = C_STARTED;
+    if( this._delegate ) {
+      this._delegate.subscribe( this.update );
+    }
   }
   
   function update( delta ) {

@@ -1,11 +1,11 @@
 define( function ( require ) {
   
   var MulticastDelegate = require( "common/multicast-delegate" );
-  var Loop = require( "request-animation-frame-loop" );
-  var Clock = require( "clock" );
-  var Scheduler = require( "dependency-scheduler" );
-  var FunctionTask = require( "function-task" );
-  var Timer = require( "timer" );
+  var Loop = require( "core/request-animation-frame-loop" );
+  var Clock = require( "core/clock" );
+  var Scheduler = require( "core/dependency-scheduler" );
+  var FunctionTask = require( "core/function-task" );
+  var Timer = require( "core/timer" );
   
   function simulationLoop() {
     // Increment frame counter

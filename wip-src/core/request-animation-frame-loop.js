@@ -14,7 +14,7 @@ define( function( require ) {
     };
   }
   
-  var Loop = require( "loop" );
+  var Loop = require( "core/loop" );
 
   var RequestAnimationFrameLoop = function( callback, context ) {
     Loop.call( this, callback, context );

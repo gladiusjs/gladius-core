@@ -1,5 +1,5 @@
 define(
-    [ "set-timeout-loop" ],
+    [ "core/set-timeout-loop" ],
     function( SetTimeoutLoop ) {
       return function() {
 

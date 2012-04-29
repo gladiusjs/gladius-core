@@ -1,5 +1,5 @@
 define(
-    [ "dependency-scheduler" ],
+    [ "core/dependency-scheduler" ],
     function( DependencyScheduler ) {
       "use strict";
       return function() {

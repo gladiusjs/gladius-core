@@ -4,7 +4,7 @@ if ( typeof define !== "function" ) {
 
 define( function( require ) {
   
-  var Loop = require( "loop" );
+  var Loop = require( "core/loop" );
 
   var SetTimeoutLoop = function( callback ) {
     Loop.call( this, callback );

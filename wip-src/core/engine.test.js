@@ -1,5 +1,5 @@
 define(
-    [ "engine" ],
+    [ "core/engine" ],
     function( Engine ) {
       return function() {
 

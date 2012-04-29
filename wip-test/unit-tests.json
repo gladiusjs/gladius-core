@@ -8,20 +8,20 @@
   "common/multicast-delegate.test",  
        
   // Core        
-  "loop.test",
-  "request-animation-frame-loop.test",
-  "set-timeout-loop.test",
-  "clock.test",
-  "function-task.test",
-  "dependency-scheduler.test",
-  "timer.test",
-  "event.test",
+  "core/loop.test",
+  "core/request-animation-frame-loop.test",
+  "core/set-timeout-loop.test",
+  "core/clock.test",
+  "core/function-task.test",
+  "core/dependency-scheduler.test",
+  "core/timer.test",
+  "core/event.test",
    
   // Base         
   "base/component.test",
   "base/service.test",
 
   // Engine
-  "engine.test"
+  "core/engine.test"
 
 ]

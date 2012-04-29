@@ -4,7 +4,7 @@ if ( typeof define !== "function" ) {
 
 define( function( require ) {
 
-  var Task = require( "function-task" );
+  var Task = require( "core/function-task" );
 
   var Service = function( scheduler, name, schedules, dependsOn ) {
     this.name = name;

@@ -1,5 +1,5 @@
 define(
-    [ "event" ],
+    [ "core/event" ],
     function( Event ) {
       return function() {
 

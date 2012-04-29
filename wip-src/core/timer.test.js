@@ -1,5 +1,5 @@
 define(
-    [ "timer" ],
+    [ "core/timer" ],
     function( Timer ) {
       return function() {
 
