@@ -8,6 +8,7 @@ define( function( require ) {
   var Entity = require( "entity" );
   var Clock = require( "clock" );
 
+  // Removes value from array and returns the array
   function removeFromArray( array, value ) {
     var index = array.indexOf( value );
     if( index > 0 ) {
@@ -19,13 +20,14 @@ define( function( require ) {
   var Space = function( clock ) {
     // This will normally be the system simulation clock, but for a UI space
     // it might be the realtime clock instead.
-    this.clock = new Clock( clock.signal );
+    this.clock = new Clock( clock.signal ); // This clock controls updates for
+                                            // all entities in this space
     this.id = guid();
-    this.size = 0;
+    this.size = 0; // The number of entities in this space
 
-    this._entities = {};
-    this._nameIndex = {};
-    this._tagIndex = {};
+    this._entities = {}; // Maps entity ID to object
+    this._nameIndex = {}; // Maps name to entity ID
+    this._tagIndex = {}; // Maps tag to entity ID
   };
 
   function add( entity ) {
