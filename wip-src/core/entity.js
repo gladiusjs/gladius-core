@@ -31,28 +31,26 @@ define( function( require ) {
           this.addComponent( component );
         }
       }
-    }
-    
-    return Object.freeze( this );
+    }    
   };
 
   function setParent( parent ) {
     var event;
     if( parent !== this.parent ) {
       if( this.parent ) {
-        event = new Event( "ChildRemoved", this );
+        event = new Event( "ChildEntityRemoved", this );
         event( this.parent );
       }
       
       var previous = this.parent;
       this.parent = parent;
       
-      event = new Event( "ParentChanged",
+      event = new Event( "EntityParentChanged",
           { previous: previous, current: parent } );
       event( this );
       
       if( this.parent ) {
-        event = new Event( "ChildAdded", this );
+        event = new Event( "ChildEntityAdded", this );
         event( this.parent );
       }
     }
@@ -63,18 +61,22 @@ define( function( require ) {
       var previous = this.manager;
       this.manager = manager;
       
-      var event = new Event( "ManagerChanged",
+      var event = new Event( "EntityManagerChanged",
           { previous: previous, current: manager } );
       event( this );
     }
   }
   
   function setActive( value ) {
+    var event;
     if( value && this.manager ) {
       this.active = true;
+      event = new Event( "ActivateComponent" );
     } else {
       this.active = false;
+      event = new Event( "DeactivateComponent" );
     }
+    event( this );
     
     return this;
   }
@@ -99,12 +101,12 @@ define( function( require ) {
     }
   }
   
-  function onChildAdded( event ) {
+  function onChildEntityAdded( event ) {
     var child = event.data;
     this._children[child.id] = child;
   }
   
-  function onChildRemoved( event ) {
+  function onChildEntityRemoved( event ) {
     var child = event.data;
     delete this._children[child.id];
   }
