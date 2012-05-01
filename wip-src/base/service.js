@@ -70,12 +70,26 @@ define( function( require ) {
     
     return this;
   }
+  
+  function handleEvent( event ) {
+    var i, l;
+
+    if( "on" + event.type in this ) {
+      var handler = this["on" + event.type];
+      try {
+        handler.call( this, event );
+      } catch( error ) {
+        console.log( error );
+      }
+    }
+  }
 
   Service.prototype = {
       registerComponent: registerComponent,
       unregisterComponent: unregisterComponent,
       suspend: suspend,
-      resume: resume
+      resume: resume,
+      handleEvent: handleEvent
   };
 
   return Service;

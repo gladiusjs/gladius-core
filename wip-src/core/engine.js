@@ -42,6 +42,38 @@ define( function ( require ) {
     }
   }
   
+  var Engine = function() {
+    this._loop = new Loop( simulationLoop, this );
+    this.frame = 0;
+    this._monitor = new MulticastDelegate();
+
+    // System clocks
+    this.realClock = new Clock();
+    this.simulationClock = new Clock();
+    
+    this._scheduler = new Scheduler();
+    
+    // Bind the scheduler to the task constructor
+    this.FunctionTask = FunctionTask.bind( this, this._scheduler );
+ 
+    this.Timer = Timer;
+    this.Event = Event;
+
+    // Convenient constructors bound to each of the engine timers by default
+    this.RealTimer = Timer.bind( this, this.realClock.signal );
+    this.SimulationTimer = Timer.bind( this, this.simulationClock.signal );
+    
+    // Base prototypes, useful for extending the engine at runtime
+    this.base = {
+        Component: Component,
+        Service: Service
+    };
+    
+    // Registered extensions go in here; They are also exposed as properties
+    // on the engine instance
+    this._extensions = {};
+  };
+  
   function suspend() {
     this._loop.suspend();
     
@@ -69,41 +101,34 @@ define( function ( require ) {
   function isRunning() {
     return this._loop.isStarted();
   }
-
-  var Engine = function() {
-    this._loop = new Loop( simulationLoop, this );
-    this.frame = 0;
-    this._monitor = new MulticastDelegate();
-
-    // System clocks
-    this.realClock = new Clock();
-    this.simulationClock = new Clock();
+  
+  function registerExtension( Extension, options ) {
+    var extension = new Extension( this, options );
+    this._extensions[extension.name] = extension;
     
-    this._scheduler = new Scheduler();
+    return this;
+  }
+  
+  function unregisterExtension( extension ) {
+    throw Error( "not implemented" );
+  }
+  
+  function findExtension( name ) {
+    if( this._extensions.hasOwnProperty( name ) ) {
+      return this._extensions[name];
+    }
     
-    // Bind the scheduler to the task constructor
-    this.FunctionTask = FunctionTask.bind( this, this._scheduler );
- 
-    this.Timer = Timer;
-    this.Event = Event;
-
-    // Convenient constructors bound to each of the engine timers by default
-    this.RealTimer = Timer.bind( this, this.realClock.signal );
-    this.SimulationTimer = Timer.bind( this, this.simulationClock.signal );
-    
-    // Base prototypes, useful for extending the engine at runtime
-    this.base = {
-        Component: Component,
-        Service: Service
-    };
-  };
+    return undefined;
+  }
   
   Engine.prototype = {
       isRunning: isRunning,
       suspend: suspend,
       resume: resume,
       attach: attach,
-      detach: detach
+      detach: detach,
+      registerExtension: registerExtension,
+      unregisterExtension: unregisterExtension
   };
   
   return Engine;
