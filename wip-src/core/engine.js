@@ -44,18 +44,26 @@ define( function ( require ) {
   
   function suspend() {
     this._loop.suspend();
+    
+    return this;
   }
   
   function resume() {
     this._loop.resume();
+    
+    return this;
   }
   
   function attach( callback ) {
     this._monitor.subscribe( callback );
+    
+    return this;
   }
   
   function detach( callback ) {
     this._monitor.unsubscribe( callback );
+    
+    return this;
   }
   
   function isRunning() {

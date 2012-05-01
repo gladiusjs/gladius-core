@@ -1,7 +1,7 @@
 
-  var Gladius = require( "gladius" );
-  console.log( Gladius );
+  var Gladius = require( "core/gladius" );
 
   return Gladius;
+  
 }));
 
