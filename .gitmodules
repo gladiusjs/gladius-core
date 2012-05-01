@@ -1,9 +1,3 @@
-[submodule "external/CubicVR.js"]
-    path = external/CubicVR.js
-    url = git://github.com/cjcliffe/CubicVR.js.git
 [submodule "tools/qunit"]
     path = tools/qunit
     url = git://github.com/jquery/qunit.git
-[submodule "external/math"]
-	path = external/math
-	url = git@github.com:gladiusjs/math.git
