@@ -602,6 +602,7 @@ document
 
                           this.activate = function() {
                             timeElapsed = 0;
+                            resources.jump.play();
                             pl.owner.find( 'Model' ).updateAction( 'jump' );
                             new engine.core.Event( {
                               type : 'LinearImpulse',
@@ -1085,6 +1086,138 @@ document
                       };
                     } ); // PlayerComponent
 
+                    
+              // Firefox coin that comes out of the coin box
+              var CoinComponent = engine.base
+                .Component(
+                    {
+                      type : 'coin'
+                    },
+                    function(options) {
+
+                      options = options || {};
+
+                      var service = engine.logic;
+                      var timeAlive = 0;
+
+                      this.onUpdate = function() {
+                        var delta = service.time.delta / 1000;
+                        timeAlive += delta;
+                        
+                        var rot = this.owner.find('Transform').rotation;
+                        rot[1] += delta * 3.0;
+                        this.owner.find('Transform').rotation = rot;
+
+                        var pos = this.owner.find('Transform').position;
+                        pos[1] += delta * 8.0;
+                        this.owner.find('Transform').position = pos;
+                        
+                        if(timeAlive > 1.5){
+                           space.remove( this.owner );
+                        }
+                      };
+
+                      // Boilerplate component registration; Lets our service
+                      // know that we exist and want to do things
+                      this.onComponentOwnerChanged = function(e) {
+                        if (e.data.previous === null && this.owner !== null) {
+                          service.registerComponent( this.owner.id, this );
+                        }
+
+                        if (this.owner === null && e.data.previous !== null) {
+                          service
+                              .unregisterComponent( e.data.previous.id, this );
+                        }
+                      };
+
+                      this.onEntityManagerChanged = function(e) {
+                        if (e.data.previous === null && e.data.current !== null
+                            && this.owner !== null) {
+                          service.registerComponent( this.owner.id, this );
+                        }
+
+                        if (e.data.previous !== null && e.data.current === null
+                            && this.owner !== null) {
+                          service.unregisterComponent( this.owner.id, this );
+                        }
+                      };
+                    } );
+
+            // Fun things pop out of this
+            var CoinBoxComponent = engine.base
+                .Component(
+                    {
+                      type : 'CoinBox'
+                    },
+                    function(options) {
+
+                      options = options || {};
+
+                      var service = engine.logic;
+                      
+                      this.onContactBegin = function(e){
+                      
+                        var coinBox, other
+                        
+                        if(e.data.entities[0].id === this.owner.id){
+                          coinBox = e.data.entities[0];
+                          other = e.data.entities[1];
+                        }
+                        else{
+                          coinBox = e.data.entities[1];
+                          other = e.data.entities[0];
+                        }
+                                                
+                        var playerPos = other.find('Transform').position;
+                        var coinBoxPos = coinBox.find('Transform').position;
+                        
+                        // Only create a 'coin' if user hit the coin box with his head
+                        if(playerPos[1] < coinBoxPos[1]){
+                          resources.coinDrop.play();
+                          new space.Entity( {
+                            name : 'coin',
+                            components : [
+                                new engine.core.component.Transform(
+                                    {
+                                      position : coinBoxPos,
+                                      scale : math.Vector3( 2.5, 2.5, .01 )
+                                    } ),
+                                    
+                                    new CoinComponent(),
+                                    
+                                    new engine.graphics.component.Model(
+                                        resources.coin.mesh )
+                            ]
+                          });
+                        }
+                      }
+
+                      // Boilerplate component registration; Lets our service
+                      // know that we exist and want to do things
+                      this.onComponentOwnerChanged = function(e) {
+                        if (e.data.previous === null && this.owner !== null) {
+                          service.registerComponent( this.owner.id, this );
+                        }
+
+                        if (this.owner === null && e.data.previous !== null) {
+                          service
+                              .unregisterComponent( e.data.previous.id, this );
+                        }
+                      };
+
+                      this.onEntityManagerChanged = function(e) {
+                        if (e.data.previous === null && e.data.current !== null
+                            && this.owner !== null) {
+                          service.registerComponent( this.owner.id, this );
+                        }
+
+                        if (e.data.previous !== null && e.data.current === null
+                            && this.owner !== null) {
+                          service.unregisterComponent( this.owner.id, this );
+                        }
+                      };
+                    } );
+
             // //////////////
             // RUN
             // //////////////
@@ -1099,6 +1232,9 @@ document
               audioElement.play();
               audioElement.volume = 0;
               
+              resources.coinDrop = new Audio('audio/coindrop.wav');
+              resources.jump = new Audio('audio/jump.wav');
+
               // TODO: Change this into a speaker icon user can toggle by clicking on it.
               // "M" to toggle music mute
               window.addEventListener( "keyup", function(e) {
@@ -1352,6 +1488,14 @@ document
                     density : 0
                   } );
 
+              // Coin box
+              var coinBoxShape = engine.physics.resource.Box( 1, 1 );
+              var coinBoxDef = engine.physics.resource
+                  .FixtureDefinition( {
+                    shape : coinBoxShape,
+                    density : 0
+                  } );              
+
               // The center ditch between the left and the right
               // floors
               var floor = new space.Entity( {
@@ -1449,6 +1593,25 @@ document
                     } ) ]
               } );
 
+              new space.Entity({
+                name: 'coinbox',
+                components : [
+                    new engine.core.component.Transform( {
+                      position : math.Vector3( -44, 20, GAME_DEPTH),
+                      scale: [2, 2, 2]
+                    }),
+                    new CoinBoxComponent(),
+                    
+                    new engine.graphics.component.Model(
+                      resources.platform),
+                      
+                    new engine.physics.component.Body( {
+                      bodyDefinition : bodyDef,
+                      fixtureDefinition : coinBoxDef
+                    } ) 
+                ]
+              } );
+ 
               // These are the platforms user can jump on
               for ( var i = 0; i < 3; i++) {
                 new space.Entity( {
@@ -1503,6 +1666,20 @@ document
                                          error );
                           }
                         },
+                        {
+                          type : engine.core.resource.Collada,
+                          url : 'coin/coin.dae',
+                          load : colladaLoader,
+                          onsuccess : function(instance) {
+                            resources.coin = {
+                              mesh : instance.meshes[0]
+                            };
+                          },
+                          onfailure : function(error) {
+                            console.log( error );
+                          }
+                        },
+
 
                         {
                           type : engine.core.resource.Collada,
