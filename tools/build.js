@@ -5,21 +5,13 @@
  */
 ({
   // Where to find the module names listed below.
-  baseUrl: '../src',
+  baseUrl: '../wip-src',
 
   // Where to find modules that are outside of src.
   // This setup assumes CubicVR.js is the built output,
   // so this build file assumes make has already run in CubicVR.js
   paths: {
-    'CubicVR.js/CubicVR': '../external/CubicVR.js/dist/CubicVR',
-    'external/math': '../external/math',
-    'external/box2d': '../external/box2d'
-  },
-
-  // Use has branch trimming in the build to remove the document.write
-  // code in src/gladius.js after a minification is done.
-  has: {
-    'source-config': false
+    "lib": "../lib"
   },
 
   // Do not minify with the requirejs optimizer, to allow shipping
@@ -39,8 +31,7 @@
   // gladius.js references gladius-src in a document.write string, so it will
   // not be found by the AST analysis done in the optimizer.
   include: [
-            'gladius',
-            'gladius-src',
+            'core/gladius',
            ],
 
   // Wraps the built file in a closure and exports gladius as a global.

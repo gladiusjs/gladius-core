@@ -1,2 +1,7 @@
 
-}());
+  var Gladius = require( "gladius" );
+  console.log( Gladius );
+
+  return Gladius;
+}));
+

@@ -1,4 +1,10 @@
+if ( typeof define !== "function" ) {
+  var define = require( "amdefine" )( module );
+}
+
 define( function ( require ) {
+  
+  var _Math = require( "lib/_math" );
   
   var MulticastDelegate = require( "common/multicast-delegate" );
   var Loop = require( "core/request-animation-frame-loop" );
@@ -6,6 +12,10 @@ define( function ( require ) {
   var Scheduler = require( "core/dependency-scheduler" );
   var FunctionTask = require( "core/function-task" );
   var Timer = require( "core/timer" );
+  var Event = require( "core/event" );
+  
+  var Component = require( "base/component" );
+  var Service = require( "base/service" );
   
   function simulationLoop() {
     // Increment frame counter
@@ -67,10 +77,17 @@ define( function ( require ) {
     this.FunctionTask = FunctionTask.bind( this, this._scheduler );
  
     this.Timer = Timer;
+    this.Event = Event;
 
     // Convenient constructors bound to each of the engine timers by default
     this.RealTimer = Timer.bind( this, this.realClock.signal );
     this.SimulationTimer = Timer.bind( this, this.simulationClock.signal );
+    
+    // Base prototypes, useful for extending the engine at runtime
+    this.base = {
+        Component: Component,
+        Service: Service
+    };
   };
   
   Engine.prototype = {
