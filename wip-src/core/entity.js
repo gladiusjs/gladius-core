@@ -95,7 +95,7 @@ define( function( require ) {
     }
 
     for( i = 0, l = componentTypes.length; i < l; ++ i ) {
-      var componentType = componentsTypes[i];
+      var componentType = componentTypes[i];
       var component = this._components[componentType];
       component.handleEvent.call( component, event );
     }
@@ -116,8 +116,8 @@ define( function( require ) {
       setManager: setManager,
       setActive: setActive,
       handleEvent: handleEvent,
-      onChildAdded: onChildAdded,
-      onChildRemoved: onChildRemoved
+      onChildEntityAdded: onChildEntityAdded,
+      onChildEntityRemoved: onChildEntityRemoved
   };
 
   return Entity;
