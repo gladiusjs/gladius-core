@@ -4,5 +4,5 @@ node_modules
 external
 dist
 .git
+wip-src/extensions/cubicvr/lib
 lib
-wip-src/extensions

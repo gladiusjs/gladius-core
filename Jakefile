@@ -5,7 +5,10 @@ PATH = PATH.join( ':' );
 
 process.env["PATH"] = PATH;
 
-var j = require( "jake" );
+var jake = require( "jake" );
+
+task( "default", [], require( "./tools/jake-tasks/default" ) );
 
 desc( "lint code" );
 task( "lint", [], require( "./tools/jake-tasks/lint" ) );
+

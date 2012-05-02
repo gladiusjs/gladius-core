@@ -3,7 +3,7 @@ var jake = require( "jake" );
 module.exports = function( files ) {
   files = (files && files.length > 0) ? files : ["."];
   var cmds = [
-              "jshint " + files.join( ' ' )
+              "jake -T"
               ];
   var callback = function() {
   };
