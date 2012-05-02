@@ -121,6 +121,10 @@ define( function ( require ) {
     return undefined;
   }
   
+  function hasExtension( name ) {
+    return this._extensions.hasOwnProperty( name );
+  }
+  
   Engine.prototype = {
       isRunning: isRunning,
       suspend: suspend,
@@ -129,7 +133,8 @@ define( function ( require ) {
       detach: detach,
       registerExtension: registerExtension,
       unregisterExtension: unregisterExtension,
-      findExtension: findExtension
+      findExtension: findExtension,
+      hasExtension: hasExtension
   };
   
   return Engine;

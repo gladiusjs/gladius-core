@@ -3,21 +3,26 @@ if ( typeof define !== "function" ) {
 }
 
 define( function ( require ) {
-  
+
   var Extension = function( options ) {
-    if( options ) {
-      if( options.hasOwnProperty( "services" ) ) {
-        this.services = options.services;
-      }
-      if( options.hasOwnProperty( "components" ) ) {
-        this.components = options.components;
-      }
-      if( options.hasOwnProperty( "resources" ) ) {
-        this.resources = options.resources;
-      }
+    options = options || {};
+    if( options.hasOwnProperty( "services" ) ) {
+      this.services = options.services;
+    } else {
+      this.services = {};
+    }
+    if( options.hasOwnProperty( "components" ) ) {
+      this.components = options.components;
+    } else {
+      this.components = {};
+    }
+    if( options.hasOwnProperty( "resources" ) ) {
+      this.resources = options.resources;
+    } else {
+      this.resources = {};
     }
   };
-  
+
   return Extension;
-  
+
 });
