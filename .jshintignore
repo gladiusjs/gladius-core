@@ -1,6 +1,6 @@
-examples/sprites/sprite-viking-blitr.js
-examples\\sprites\\sprite-viking-blitr.js
+examples
 tools
+node_modules
 external
 dist
 .git

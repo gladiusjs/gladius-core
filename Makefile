@@ -18,9 +18,9 @@ GLADIUS_SRC := $(SRC_DIR)/core/$(GLADIUS).js
 GLADIUS_DIST := $(DIST_DIR)/$(GLADIUS).js
 GLADIUS_MIN := $(DIST_DIR)/$(GLADIUS).min.js
 TOOLS_DIR := ./tools
-JSHINT := $(TOOLS_DIR)/node_modules/.bin/jshint
+JSHINT := node_modules/.bin/jshint
 
-compile = node $(TOOLS_DIR)/node_modules/uglify-js/bin/uglifyjs --output $(1) $(GLADIUS_DIST)
+compile = node node_modules/uglify-js/bin/uglifyjs --output $(1) $(GLADIUS_DIST)
 
 .PHONY: check-lint
 
