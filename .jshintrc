@@ -30,7 +30,7 @@
     "BlobBuilder",
     
     // misc
-    "gladius"
+    "Gladius"
   ],
   
   // want to toggle these and eliminate the bugs they catch, one by one

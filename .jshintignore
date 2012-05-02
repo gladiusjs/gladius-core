@@ -1,6 +1,8 @@
-example/sprites/sprite-viking-blitr.js
-example\\sprites\\sprite-viking-blitr.js
+examples/sprites/sprite-viking-blitr.js
+examples\\sprites\\sprite-viking-blitr.js
 tools
 external
 dist
 .git
+lib
+wip-src/extensions
