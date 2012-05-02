@@ -128,7 +128,8 @@ define( function ( require ) {
       attach: attach,
       detach: detach,
       registerExtension: registerExtension,
-      unregisterExtension: unregisterExtension
+      unregisterExtension: unregisterExtension,
+      findExtension: findExtension
   };
   
   return Engine;
