@@ -123,7 +123,7 @@ define(
           
           raises( function(){
             graph.sort();
-          }, Error, "exception thrown for directed cycled" );
+          }, Error, "exception thrown for directed cycle" );
         });
         
       };
