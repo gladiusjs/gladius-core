@@ -2,7 +2,7 @@ var jake = require( "jake" );
 
 module.exports = function() {
   var cmds = [
-              "jake -T"
+              "rm -rf dist"
               ];
   var callback = function() {
   };

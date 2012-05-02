@@ -2,7 +2,7 @@ var jake = require( "jake" );
 
 module.exports = function() {
   var cmds = [
-              "jake -T"
+              "uglifyjs --output dist/gladius.min.js dist/gladius.js"
               ];
   var callback = function() {
   };
