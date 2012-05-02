@@ -9,7 +9,7 @@ define(
         });
         
         test( "create a new component type", function() {
-          expect( 0 );
+          expect( 6 );
           
           var type = "TestType";
           var provider = {
@@ -37,7 +37,7 @@ define(
         });
         
         test( "handler called for owner changed", function() {
-          expect( 0 );
+          expect( 4 );
           
           var newOwner = 1;
           var type = "TestType";
