@@ -103,13 +103,42 @@ define( function ( require ) {
   }
   
   function registerExtension( extension, options ) {
-    this._extensions[extension.name] = extension;
+    var i, l;
+    var extensionInstance = {};
+    
+    var services = extension.services;
+    var serviceNames = Object.keys( services );
+    for( i = 0, l = serviceNames.length; i < l; ++ i ) {
+      var serviceName = serviceNames[i];
+      var ServiceConstructor = services[serviceName];
+      extensionInstance[serviceName] = new ServiceConstructor( 
+          this._scheduler );
+    }
+    
+    var components = extension.components;
+    var componentNames = Object.keys( components );
+    for( i = 0, l = componentNames.length; i < l; ++ i ) {
+      var componentName = componentNames[i];
+      var ComponentConstructor = components[componentName];
+      extensionInstance[componentName] = ComponentConstructor;
+    }
+    
+    var resources = extension.resources;
+    var resourceNames = Object.keys( resources );
+    for( i = 0, l = resourceNames.length; i < l; ++ i ) {
+      var resourceName = resourceNames[i];
+      var ResourceConstructor = resources[resourceName];
+      extensionInstance[resourceName] = ResourceConstructor;
+    }
+    
+    this._extensions[extension.name] = extensionInstance;
     
     return this;
   }
   
   function unregisterExtension( extension ) {
     if( this._extensions.hasOwnProperty( extension.name ) ) {
+      // TD: we should shut everything down first
       delete this._extensions[extension.name];
     }
     

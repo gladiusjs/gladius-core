@@ -6,8 +6,7 @@ define( function( require ) {
 
   var Task = require( "core/function-task" );
 
-  var Service = function( scheduler, name, schedules, dependsOn ) {
-    this.name = name;
+  var Service = function( scheduler, schedules, dependsOn ) {
     this._schedules = schedules || {};
     this.dependsOn = dependsOn || [];
     this._tasks = {};

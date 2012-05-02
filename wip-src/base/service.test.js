@@ -16,12 +16,11 @@ define(
         });
 
         test( "create a service type", function() {
-          expect( 5 );
+          expect( 4 );
 
           var schedulerApi = this.schedulerApi;
           var schedulerMock = this.schedulerMock;
 
-          var name = "TestService";
           var schedules = {
               "foo": {
                 "tags": ["foo"]
@@ -30,7 +29,7 @@ define(
           var testService;
 
           var TestService = function( scheduler ) {
-            Service.call( this, scheduler, name, schedules );
+            Service.call( this, scheduler, schedules );
           };
           TestService.prototype = new Service();
           TestService.prototype.constructor = TestService;
@@ -39,7 +38,6 @@ define(
           };
 
           testService = new TestService( schedulerApi );
-          equal( testService.name, name, "name is correct" );
           equal( testService._schedules, schedules, "schedules is correct" );
           deepEqual( testService.dependsOn, [], "depends on is empty list" );
           ok( testService._tasks.hasOwnProperty( "foo" ), "task exists" );
@@ -48,12 +46,11 @@ define(
 
         test( "create a service type with missing scheduler target",
             function() {
-          expect( 0 );
+          expect( 1 );
           
           var schedulerApi = this.schedulerApi;
           var schedulerMock = this.schedulerMock;
 
-          var name = "TestService";
           var schedules = {
               "foo": {
                 "tags": ["foo"]
@@ -62,7 +59,7 @@ define(
           var testService;
 
           var TestService = function( scheduler ) {
-            Service.call( this, scheduler, name, schedules );
+            Service.call( this, scheduler, schedules );
           };
           TestService.prototype = new Service();
           TestService.prototype.constructor = TestService;
