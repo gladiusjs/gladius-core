@@ -12,10 +12,22 @@ define(
           teardown: function() {}
         });
         
-        test( "construct an empty extension", function() {
-          expect( 6 );
+        test( "construct an extension without a name", function() {
+          expect( 1 );
           
-          var myExtension = new Extension();
+          raises( function() {
+            new Extension();
+          }, Error, "exception raised for missing name" );
+        });
+        
+        test( "construct an empty extension", function() {
+          expect( 7 );
+          
+          var extensionName = "testExtension";
+          
+          var myExtension = new Extension( extensionName );
+          
+          equal( myExtension.name, extensionName, "extension has a name" );
           
           ok( myExtension.hasOwnProperty( "services" ), 
           "has services" );
@@ -34,7 +46,7 @@ define(
         test( "construct a new extension", function() {
           expect( 18 );
 
-          var myExtension = new Extension({
+          var myExtension = new Extension( "myExtension", {
             services: {
               "Service1": this.MyService,
               "Service2": this.MyService

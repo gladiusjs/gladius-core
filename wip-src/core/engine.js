@@ -102,15 +102,18 @@ define( function ( require ) {
     return this._loop.isStarted();
   }
   
-  function registerExtension( Extension, options ) {
-    var extension = new Extension( this, options );
+  function registerExtension( extension, options ) {
     this._extensions[extension.name] = extension;
     
     return this;
   }
   
   function unregisterExtension( extension ) {
-    throw Error( "not implemented" );
+    if( this._extensions.hasOwnProperty( extension.name ) ) {
+      delete this._extensions[extension.name];
+    }
+    
+    return this;
   }
   
   function findExtension( name ) {

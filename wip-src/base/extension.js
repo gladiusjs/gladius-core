@@ -4,7 +4,13 @@ if ( typeof define !== "function" ) {
 
 define( function ( require ) {
 
-  var Extension = function( options ) {
+  var Extension = function( name, options ) {
+    if( !typeof name === "string" || !name.length > 0 ) {
+      throw new Error( "extension needs a non-trivial name" );
+    }
+    
+    this.name = name;
+    
     options = options || {};
     if( options.hasOwnProperty( "services" ) ) {
       this.services = options.services;

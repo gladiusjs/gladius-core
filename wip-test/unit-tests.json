@@ -23,6 +23,8 @@
   "base/extension.test",
 
   // Engine
-  "core/engine.test"
+  "core/engine.test",
+  
+  "../wip-test/core/engine-extension"
 
 ]
