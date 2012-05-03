@@ -15,7 +15,7 @@ define( function( require ) {
     this._timeScale = 1.0;
     this._idealFrameInterval = 1.0/30.0;
     
-    this._clockState;
+    this._clockState = undefined;
     this.signal = new MulticastDelegate();
     this._delegate = delegate || null;
     
