@@ -5,7 +5,7 @@ if ( typeof define !== "function" ) {
 define( function ( require ) {
 
   var Extension = function( name, options ) {
-    if( !typeof name === "string" || !name.length > 0 ) {
+    if( typeof name !== "string" || name.length === 0 ) {
       throw new Error( "extension needs a non-trivial name" );
     }
     
