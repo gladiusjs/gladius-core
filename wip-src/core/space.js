@@ -5,8 +5,8 @@ if ( typeof define !== "function" ) {
 define( function( require ) {
 
   var guid = require( "common/guid" );
-  var Entity = require( "entity" );
-  var Clock = require( "clock" );
+  var Entity = require( "core/entity" );
+  var Clock = require( "core/clock" );
 
   // Removes value from array and returns the array
   function removeFromArray( array, value ) {

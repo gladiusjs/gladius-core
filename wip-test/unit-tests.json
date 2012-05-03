@@ -16,6 +16,8 @@
   "core/dependency-scheduler.test",
   "core/timer.test",
   "core/event.test",
+  "core/entity.test",
+  "core/space.test",
    
   // Base         
   "base/component.test",
