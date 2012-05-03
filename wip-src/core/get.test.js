@@ -172,6 +172,30 @@ define(
         });
       });
 
+      asyncTest( 'get duplicate resources', function() {
+        expect(3);
+
+        function oncomplete() {
+          ok( true, 'oncomplete is invoked' );
+          start();
+        }
+
+        var resourceToLoad = {
+          type: this.MyCustomResource,
+          url: "assets/test-loadfile1.json",
+          onsuccess: function( result ) {
+            ok( true, 'onsuccess is invoked' );
+          },
+          onfailure: function( error ) {
+            ok( false, 'onfailure should not be invoked' );
+          }
+        };
+
+        get( [resourceToLoad, resourceToLoad], {
+          oncomplete: oncomplete
+        });
+      });
+
     };
   }
 );
