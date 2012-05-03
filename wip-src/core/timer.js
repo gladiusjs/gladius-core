@@ -13,7 +13,7 @@ define( function( require ) {
     this._data = data;
     this._delay = delay;
     this.elapsed = 0;
-    this._timerState;
+    this._timerState = undefined;
     
     this.start();
   };

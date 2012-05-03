@@ -18,6 +18,8 @@
   "core/event.test",
   "core/entity.test",
   "core/space.test",
+  "core/get.test",
+  "core/resources/script.test",
    
   // Base         
   "base/component.test",
