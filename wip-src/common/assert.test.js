@@ -19,7 +19,7 @@ define(
         });
 
         test( "assert with false expression", function() {
-          expect( 0 );
+          expect( 1 );
 
           raises( function() {
             assert( false, "false" );

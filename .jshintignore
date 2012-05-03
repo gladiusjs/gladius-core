@@ -1,8 +1,8 @@
-examples/sprites/sprite-viking-blitr.js
-examples\\sprites\\sprite-viking-blitr.js
+examples
 tools
+node_modules
 external
 dist
 .git
+wip-src/extensions/cubicvr/lib
 lib
-wip-src/extensions

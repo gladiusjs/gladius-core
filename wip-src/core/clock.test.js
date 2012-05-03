@@ -124,7 +124,7 @@ define(
         });
         
         test( "signal", function() {
-          expect( 0 );
+          expect( 5 );
           
           var clock = new Clock();
           var delta = 0;

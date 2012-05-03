@@ -107,7 +107,7 @@ define(
 
         test( "complete a task", function() {
           expect( 2 );
-          stop( 10000 );
+          stop();
           
           // Simple scheduler
           var scheduler = {

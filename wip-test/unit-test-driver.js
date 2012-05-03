@@ -5,13 +5,12 @@ require.config({
   paths: {
     // Test path
     "test": "../wip-test",
-    "external": "../external",
     "lib": "../lib",
    
     // RequireJS plugins, used to load tests
-    "text": "../external/requirejs-plugins/lib/text",
-    "json": "../external/requirejs-plugins/src/json",
-    "json-minify": "../external/JSON.minify/minify.json"
+    "text": "../lib/requirejs-plugins/lib/text",
+    "json": "../lib/requirejs-plugins/src/json",
+    "json-minify": "../lib/JSON.minify/minify.json"
   }
 });
 
