@@ -18,6 +18,7 @@
   "core/event.test",
   "core/entity.test",
   "core/space.test",
+  "core/get.test",
    
   // Base         
   "base/component.test",
