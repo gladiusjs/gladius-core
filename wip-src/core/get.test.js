@@ -10,18 +10,13 @@ define(
             return JSON.parse( data );
           };
 
-          // Make a text resource type
-          this.MyTextResource = function( data ) {
-            return data;
-          };
-
           this.makeGetRequest = function makeGetRequest ( url, expectedObj ) {
             var resourceConstructor = this.MyCustomResource;
             var request = {
               type: resourceConstructor,
               url: url,
               onsuccess: function(instance) {
-                deepEqual(instance.value, expectedObj,
+                deepEqual(instance, expectedObj,
                   "object expected for this resource was loaded");
               },
               onfailure: function(error) {
@@ -70,6 +65,113 @@ define(
 
         get( [resourceToLoad] );
       });
+
+      asyncTest( 'get a single resource', function() {
+        expect(5);
+
+        var onsuccessCalled = false;
+
+        function oncomplete() {
+          equal( arguments.length, 0, 'oncomplete passes no arguments' );
+          ok( true, "get completed");
+          equal( onsuccessCalled, true, 'oncomplete called after onsuccess' );
+          start();
+        }
+
+        var resourceToLoad = {
+          type: this.MyCustomResource,
+          url: "assets/test-loadfile1.json",
+          onsuccess: function( instance ) {
+            deepEqual(instance, {value: 1},
+              "expected simple JSON object was loaded");
+            onsuccessCalled = true;
+          },
+          onfailure: function( error ) {
+            ok(false, "failed to load minimal JSON file: " + error);
+          }
+        };
+
+        var result = get( [resourceToLoad], {
+          oncomplete: oncomplete
+        });
+
+        equal( result, undefined, 'result is undefined' );
+      });
+
+      asyncTest( 'default loader can be overridden in get request', function() {
+        expect( 2 );
+
+        function oncomplete() {
+          ok( true, "get completed");
+          start();
+        }
+
+        var resourceToLoad = {
+          type: String,
+          url: "custom-url",
+          load: function( url, onsuccess, onfailure ) {
+            onsuccess( url );
+          },
+          onsuccess: function( instance ) {
+            deepEqual(instance, "custom-url", "instance.value is set by custom loader");
+          },
+          onfailure: function( error ) {
+            ok(false, "failed to invoke custom loader");
+          }
+        };
+
+        get( [resourceToLoad], {
+          oncomplete: oncomplete
+        });
+      });
+
+      asyncTest( 'get a single non-existent resource', function() {
+        expect(3);
+
+        var onfailureCalled = false;
+
+        function oncomplete () {
+          ok( true, "single non-existent get completed");
+          equal( onfailureCalled, true, "onfailure called before oncomplete");
+          start();
+        }
+
+        var resourceToLoad = {
+          type: this.MyCustomResource,
+          url: "no-such-url-exists",
+          onsuccess: function( result ) {
+            ok(false, "non-existent data should not have loaded successfully");
+          },
+          onfailure: function( error ) {
+            ok(true, "failed to get non-existent data: " + error);
+            onfailureCalled = true;
+          }
+        };
+
+        get( [resourceToLoad], {
+          oncomplete: oncomplete
+        });
+      });
+
+      asyncTest( 'get three resources', function() {
+        expect(4);
+
+        function oncomplete () {
+          ok( true, "get completed");
+          start();
+        }
+
+        var resourcesToLoad = [
+          this.makeGetRequest("assets/test-loadfile1.json", {value: 1}),
+          this.makeGetRequest("assets/test-loadfile2.json", {value: 2}),
+          this.makeGetRequest("assets/test-loadfile3.json", {value: 3})
+        ];
+
+        get( resourcesToLoad, {
+          oncomplete: oncomplete
+        });
+      });
+
     };
   }
 );
