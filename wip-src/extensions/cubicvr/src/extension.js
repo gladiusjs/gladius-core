@@ -9,7 +9,7 @@ define( function ( require ) {
   return new Extension({
       
       services: {
-        "render": require( "services/render" )
+        "renderer": require( "services/renderer" )
       },
       
       components: {

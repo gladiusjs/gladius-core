@@ -7,7 +7,7 @@ define( function( require ) {
   var guid = require( "common/guid" );
   var Event = require( "core/event" );
 
-  var Entity = function( name, components, parent ) {
+  var Entity = function( name, components, tags, parent ) {
     this.id = guid();
     this.name = name || "";
     this.active = false;
@@ -16,6 +16,7 @@ define( function( require ) {
     this.manager = null;
     this.size = 0;
     this._components = {};
+    this.tags = tags || [];
 
     // Add components from the constructor list
     if( components ) {
@@ -25,14 +26,39 @@ define( function( require ) {
         // Make sure all dependencies are satisfied
         // Note: Components with dependencies must appear after the components
         // they depend on in the list
-        if( !this.contains( component.dependsOn ) ) {
+        if( !this.hasComponent( component.dependsOn ) ) {
           throw new Error( "required component missing" );
         } else {
-          this.addComponent( component );
+          this.addComponent.call( this, component );
         }
       }
-    }    
+    }
   };
+  
+  function addComponent( component ) {
+    var previous = this.removeComponent( component.type );
+    component.setOwner( this );
+    this._components[component.type] = component;
+    ++ this.size;
+    
+    var event = new Event( "EntityComponentAdded", component );
+    event( this );
+    return previous;
+  }
+  
+  function removeComponent( type ) {
+    var previous = null;
+    if( this.hasComponent( type ) ) {
+      previous = this._components[type];
+      delete this._components[type];
+      previous.setOwner( null );
+      -- this.size;
+      
+      var event = new Event( "EntityComponentRemoved", previous );
+      event( this );
+    }
+    return previous;
+  }
 
   function setParent( parent ) {
     var event;
@@ -80,12 +106,32 @@ define( function( require ) {
     
     return this;
   }
+  
+  function hasComponent( args ) {
+    var i, l;
+    var componentTypes = Object.keys( this._components );
+    if( Array.isArray( args ) ) {
+      if( args.length === 0 ) {
+        return true;
+      }
+      for( i = 0, l = args.length; i < l; ++ i ) {
+        if( componentTypes.indexOf( args[i] ) < 0 ) {
+          return false;
+        }
+      }
+    } else {
+      if( componentTypes.indexOf( args ) < 0 ) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   function handleEvent( event ) {
     var componentTypes = Object.keys( this._components );
     var i, l;
 
-    if( "on" + event.type in this ) {
+    if( this["on" + event.type] ) {
       var handler = this["on" + event.type];
       try {
         handler.call( this, event );
@@ -97,7 +143,9 @@ define( function( require ) {
     for( i = 0, l = componentTypes.length; i < l; ++ i ) {
       var componentType = componentTypes[i];
       var component = this._components[componentType];
-      component.handleEvent.call( component, event );
+      if( component.handleEvent ) {
+        component.handleEvent.call( component, event );
+      }
     }
   }
   
@@ -115,6 +163,9 @@ define( function( require ) {
       setParent: setParent,
       setManager: setManager,
       setActive: setActive,
+      hasComponent: hasComponent,
+      addComponent: addComponent,
+      removeComponent: removeComponent,
       handleEvent: handleEvent,
       onChildEntityAdded: onChildEntityAdded,
       onChildEntityRemoved: onChildEntityRemoved
