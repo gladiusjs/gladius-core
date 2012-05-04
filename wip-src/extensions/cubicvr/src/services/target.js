@@ -4,8 +4,8 @@ if ( typeof define !== "function" ) {
 
 define( function ( require ) {
 
-  var guid = require( "common/guid" );
-  require( "extensions/cubicvr/lib/CubicVR" );
+  var guid = require( "../../../../common/guid" );
+  require( "../lib/CubicVR" );
 
   var Target = function(element){
     this.element = element;

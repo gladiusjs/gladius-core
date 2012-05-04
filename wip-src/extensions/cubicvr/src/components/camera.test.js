@@ -3,11 +3,11 @@ if ( typeof define !== "function" ) {
 }
 
 define(
-  [ "services/target" ],
-  function( Target ) {
+  [ "components/camera" ],
+  function( Camera ) {
     return function() {
 
-      module( "Target", {
+      module( "Camera", {
         setup: function() {},
         teardown: function() {}
       });
