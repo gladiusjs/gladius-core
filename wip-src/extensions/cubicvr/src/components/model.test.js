@@ -3,11 +3,11 @@ if ( typeof define !== "function" ) {
 }
 
 define(
-  [ "services/target" ],
-  function( Target ) {
+  [ "components/model" ],
+  function( Model ) {
     return function() {
 
-      module( "Target", {
+      module( "Model", {
         setup: function() {},
         teardown: function() {}
       });
