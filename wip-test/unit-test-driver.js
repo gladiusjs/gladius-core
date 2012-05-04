@@ -3,7 +3,6 @@ QUnit.config.autostart = false;
 require.config({
   baseUrl: "../wip-src",
   paths: {
-    // Test path
     "core-lib": "../lib",
     "base": "base",
     "common": "common",

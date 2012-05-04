@@ -3,14 +3,16 @@ QUnit.config.autostart = false;
 require.config({
   baseUrl: "../src",
   paths: {
-    // Test path
+    "core-lib": "../../../../lib",
+    "extension-lib": "../lib",
+    "base": "../../../base",
+    "common": "../../../common",
+    "core": "../../../core",
     "test": "../tests",
-    "lib": "../lib",
    
     // RequireJS plugins, used to load tests
     "text": "../../../../lib/requirejs-plugins/lib/text",
     "json": "../../../../lib/requirejs-plugins/src/json",
-    "json-minify": "../../../../lib/JSON.minify/minify.json"
   }
 });
 

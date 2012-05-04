@@ -4,8 +4,8 @@ if ( typeof define !== "function" ) {
 
 define( function ( require ) {
 
-  var guid = require( "../../../../common/guid" );
-  require( "../lib/CubicVR" );
+  var guid = require( "common/guid" );
+  require( "extension-lib/CubicVR" );
 
   var Target = function(element){
     this.element = element;
@@ -13,7 +13,7 @@ define( function ( require ) {
       context: guid(),
       canvas: this.element
     });
-  }
+  };
 
   return Target;
 
