@@ -9,7 +9,10 @@ define( function( require ) {
       var i, l;
       for( i = 0, l = arguments.length; i < l; ++ i ) {
         try {
-          arguments[i].handleEvent( dispatcher );
+          var handler = arguments[i];
+          if( handler.handleEvent ) {
+            handler.handleEvent( dispatcher );
+          }
         } catch( error ) {
           console.log( error );
         }

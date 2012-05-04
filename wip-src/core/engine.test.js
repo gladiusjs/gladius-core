@@ -9,7 +9,7 @@ define(
         });
 
         asyncTest( "create a new engine", function() {
-          expect( 6 );
+          expect( 10 );
 
           var frameCounter = 0;
           function monitor( engine ) {
@@ -28,6 +28,10 @@ define(
           ok( !engine.isRunning(), "engine is not running" );
           engine.resume();
           ok( engine.isRunning(), "engine is running" );
+          ok( engine.get, "get is exported" );
+          ok( engine.loaders, "loaders are exposed" );
+          ok( engine.loaders.text, "text loader is available" );
+          ok( engine.loaders.procedural, "procedural loader is available" );
         });
 
       };

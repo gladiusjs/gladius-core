@@ -13,6 +13,11 @@ define( function ( require ) {
   var FunctionTask = require( "core/function-task" );
   var Timer = require( "core/timer" );
   var Event = require( "core/event" );
+  var get = require( "core/get" );
+  var loaders = {
+      text: require( "core/loaders/default" ),
+      procedural: require( "core/loaders/procedural" )
+  };
   
   var Component = require( "base/component" );
   var Service = require( "base/service" );
@@ -166,7 +171,9 @@ define( function ( require ) {
       registerExtension: registerExtension,
       unregisterExtension: unregisterExtension,
       findExtension: findExtension,
-      hasExtension: hasExtension
+      hasExtension: hasExtension,
+      get: get,
+      loaders: loaders
   };
   
   return Engine;
