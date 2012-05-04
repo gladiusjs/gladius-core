@@ -8,17 +8,48 @@ define( function ( require ) {
   require( "extensions/cubicvr/lib/CubicVR" );
   var Target = require( "extensions/cubicvr/src/services/target" );
 
-  var Renderer = function( scheduler ) {
+  var Renderer = function( engine, scheduler, canvas ) {
     var schedules = {
-      "render": {
-        tags: ["graphics"],
-        dependsOn: ["@render"]
-      }
+        "render": {
+          tags: ["graphics"],
+          dependsOn: ["@render"]
+        }
     };
     Service.call( this, scheduler, "Renderer", schedules );
+
+    this.engine = engine;
+    this.target = new Target( canvas );
   };
 
-  function render( blah ) {
+  function render() {
+    var gl = this.target.context.GLCore.gl;
+    var spaces = {};
+    var sIndex, sLength;
+
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // TD: This is quick and dirty and not the most efficient
+    var cameraOwnerIds = Object.keys( this.registeredComponents["Camera"] || {} );
+    cameraOwnerIds.forEach( function( id ) {
+      var ownerSpace = this.registeredComponents["Camera"][id].owner.space;
+      if( !spaces.hasOwnProperty( ownerSpace.id ) ) {
+        spaces[ownerSpace.id] = ownerSpace;
+      }
+    });
+    var spaceIds = Object.keys( spaces );
+
+    for( sIndex = 0, sLength = spaces.length; sIndex < sLength; ++ sIndex ) {
+      var space = spaces[sIndex];
+      var i, l;
+      var cameraEntities = space.findAllWith( "Camera" );
+      var modelEntities = space.findAllWith( "Model" );
+      var lightEntities = space.findAllWith( "Light" );
+      
+      // Handle lights for the current space
+      
+    }
+
+    /*
     var scenes = {},
       scene,
       cameras,
@@ -79,6 +110,8 @@ define( function ( require ) {
     } //for scenes
 
     ++_renderedFrames;
+
+     */
 
   }
 

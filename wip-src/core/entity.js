@@ -13,7 +13,7 @@ define( function( require ) {
     this.active = false;
     this.parent = parent || null;
     this._children = {};
-    this.manager = null;
+    this.space = null;
     this.size = 0;
     this._components = {};
     this.tags = tags || [];
@@ -82,20 +82,20 @@ define( function( require ) {
     }
   }
   
-  function setManager( manager ) {
-    if( manager !== this.manager ) {
-      var previous = this.manager;
-      this.manager = manager;
+  function setSpace( space ) {
+    if( space !== this.space ) {
+      var previous = this.space;
+      this.space = space;
       
-      var event = new Event( "EntityManagerChanged",
-          { previous: previous, current: manager } );
+      var event = new Event( "EntitySpaceChanged",
+          { previous: previous, current: space } );
       event( this );
     }
   }
   
   function setActive( value ) {
     var event;
-    if( value && this.manager ) {
+    if( value && this.space ) {
       this.active = true;
       event = new Event( "ActivateComponent" );
     } else {
@@ -161,7 +161,7 @@ define( function( require ) {
 
   Entity.prototype = {
       setParent: setParent,
-      setManager: setManager,
+      setSpace: setSpace,
       setActive: setActive,
       hasComponent: hasComponent,
       addComponent: addComponent,
