@@ -5,7 +5,7 @@ if ( typeof define !== "function" ) {
 define( function ( require ) {
 
   var guid = require( "common/guid" );
-  var when = require( "lib/when" );
+  var when = require( "core-lib/when" );
 
   var Complete = function( value ) {
     if( !( this instanceof Complete ) ) {

@@ -4,7 +4,7 @@ if ( typeof define !== "function" ) {
 
 define( function ( require ) {
   
-  var _Math = require( "lib/_math" );
+  var _Math = require( "core-lib/_math" );
   
   var MulticastDelegate = require( "common/multicast-delegate" );
   var Loop = require( "core/request-animation-frame-loop" );

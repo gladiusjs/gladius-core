@@ -4,13 +4,15 @@ require.config({
   baseUrl: "../wip-src",
   paths: {
     // Test path
+    "core-lib": "../lib",
+    "base": "base",
+    "common": "common",
+    "core": "core",
     "test": "../wip-test",
-    "lib": "../lib",
    
     // RequireJS plugins, used to load tests
     "text": "../lib/requirejs-plugins/lib/text",
-    "json": "../lib/requirejs-plugins/src/json",
-    "json-minify": "../lib/JSON.minify/minify.json"
+    "json": "../lib/requirejs-plugins/src/json"
   }
 });
 
