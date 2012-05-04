@@ -131,7 +131,7 @@ define( function( require ) {
     var componentTypes = Object.keys( this._components );
     var i, l;
 
-    if( "on" + event.type in this ) {
+    if( this["on" + event.type] ) {
       var handler = this["on" + event.type];
       try {
         handler.call( this, event );
@@ -143,7 +143,9 @@ define( function( require ) {
     for( i = 0, l = componentTypes.length; i < l; ++ i ) {
       var componentType = componentTypes[i];
       var component = this._components[componentType];
-      component.handleEvent.call( component, event );
+      if( component.handleEvent ) {
+        component.handleEvent.call( component, event );
+      }
     }
   }
   
