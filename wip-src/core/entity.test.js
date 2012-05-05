@@ -9,13 +9,14 @@ define(
         });
 
         test( "create a new entity without parameters", function() {
-          expect( 4 );
+          expect( 5 );
 
           var entity = new Entity();
           ok( entity.hasOwnProperty( "id" ), "has an id" );
           equal( entity.size, 0, "no components" );
           equal( entity.tags.length, 0, "no tags" );
           equal( entity.parent, null, "no parent" );
+          equal( entity.space, null, "no space" );
         });
 
         test( "create a new entity with a name", function() {
