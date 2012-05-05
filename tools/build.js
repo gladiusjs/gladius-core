@@ -11,7 +11,11 @@
   // This setup assumes CubicVR.js is the built output,
   // so this build file assumes make has already run in CubicVR.js
   paths: {
-    "lib": "../lib"
+    "core-lib": "../lib",
+    "base": "base",
+    "common": "common",
+    "core": "core",
+    "test": "../wip-test"
   },
 
   // Do not minify with the requirejs optimizer, to allow shipping
