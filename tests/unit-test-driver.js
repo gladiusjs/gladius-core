@@ -1,13 +1,13 @@
 QUnit.config.autostart = false;
 
 require.config({
-  baseUrl: "../wip-src",
+  baseUrl: "../src",
   paths: {
     "core-lib": "../lib",
     "base": "base",
     "common": "common",
     "core": "core",
-    "test": "../wip-test",
+    "tests": "../tests",
    
     // RequireJS plugins, used to load tests
     "text": "../lib/requirejs-plugins/lib/text",
@@ -15,7 +15,7 @@ require.config({
   }
 });
 
-require( ["json!test/unit-tests.json"], function( testNames ) {
+require( ["json!tests/unit-tests.json"], function( testNames ) {
   require( testNames, function() {
     QUnit.start();
     var testModules = Array.prototype.slice.call( arguments );

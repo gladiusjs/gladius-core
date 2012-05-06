@@ -1,4 +1,5 @@
 node_modules/jake
+wip-src/extensions
 .*.swp
 *~
 /dist/

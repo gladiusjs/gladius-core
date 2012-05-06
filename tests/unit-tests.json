@@ -29,6 +29,6 @@
   // Engine
   "core/engine.test",
   
-  "../wip-test/core/engine-extension"
+  "tests/core/engine-extension"
 
 ]

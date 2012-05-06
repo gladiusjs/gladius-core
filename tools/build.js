@@ -5,7 +5,7 @@
  */
 ({
   // Where to find the module names listed below.
-  baseUrl: '../wip-src',
+  baseUrl: '../src',
 
   // Where to find modules that are outside of src.
   // This setup assumes CubicVR.js is the built output,
@@ -15,7 +15,7 @@
     "base": "base",
     "common": "common",
     "core": "core",
-    "test": "../wip-test"
+    "tests": "../tests"
   },
 
   // Do not minify with the requirejs optimizer, to allow shipping
