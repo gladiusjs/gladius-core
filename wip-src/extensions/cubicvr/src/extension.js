@@ -21,8 +21,7 @@ define( function ( require ) {
       resources: {
         "MaterialDefinition": require( "resources/material-definition" ),
         "Mesh": require( "resources/mesh" ),
-        "LightDefinition": require( "resources/light-definition" ),
-        "Texture": require( "resources/texture" )
+        "LightDefinition": require( "resources/light-definition" )
       }
       
   });
