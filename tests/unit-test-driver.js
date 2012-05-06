@@ -15,7 +15,7 @@ require.config({
   }
 });
 
-require( ["json!tests/unit-tests.json"], function( testNames ) {
+require( ["tests/unit-tests"], function( testNames ) {
   require( testNames, function() {
     QUnit.start();
     var testModules = Array.prototype.slice.call( arguments );

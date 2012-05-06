@@ -8,7 +8,7 @@ define( function ( require ) {
   require( "extension-lib/CubicVR" );
   var Target = require( "services/target" );
 
-  var Renderer = function( engine, scheduler, canvas ) {
+  var Renderer = function( scheduler, canvas ) {
     var schedules = {
         "render": {
           tags: ["graphics"],
@@ -17,18 +17,17 @@ define( function ( require ) {
     };
     Service.call( this, scheduler, "Renderer", schedules );
 
-    this.engine = engine;
     this.target = new Target( canvas );
   };
 
   function render() {
-    var gl = this.target.context.GLCore.gl;
+    var context = this.target.context;
+    var gl = context.GLCore.gl;
     var spaces = {};
     var sIndex, sLength;
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // TD: This is quick and dirty and not the most efficient
     var cameraOwnerIds = Object.keys( this.registeredComponents["Camera"] || {} );
     cameraOwnerIds.forEach( function( id ) {
       var ownerSpace = this.registeredComponents["Camera"][id].owner.space;
@@ -44,38 +43,32 @@ define( function ( require ) {
       var cameraEntities = space.findAllWith( "Camera" );
       var modelEntities = space.findAllWith( "Model" );
       var lightEntities = space.findAllWith( "Light" );
-      
-      // Handle lights for the current space
 
+      // Handle lights for the current space
       var cvrLights = [];
-      for( var li = 0, ll = lights.length; li < ll; ++li ) {
-        var lightComponent = lights[ li ].find( 'Light' );
+      for( i = 0, l = lightEntities.length; i < l; ++ i ) {
+        var lightComponent = lightEntities[i].find( "Light" );
         lightComponent.prepareForRender();
         cvrLights.push( lightComponent._cvr.light );
-      } //for lights
+      }
 
-      for( var ci = 0, cl = cameras.length; ci < cl; ++ci ) {
-        camera = cameras[ ci ].find( 'Camera' );
+      // Render the space for each camera
+      for( i = 0, l = cameraEntities.length; i < l; ++ i ) {
+        var cameraComponent = cameras[ i ].find( "Camera" );
 
-        if( camera.active ) {
-          for( var mi = 0, ml = models.length; mi < ml; ++mi ) {
+        for( var mi = 0, ml = models.length; mi < ml; ++mi ) {
+          model = models[ mi ].find( 'Model' );
+          transform = models[ mi ].find( 'Transform' );
+          camera.prepareForRender();
 
-            model = models[ mi ].find( 'Model' );
-            transform = models[ mi ].find( 'Transform' );
-            camera.prepareForRender();
-
-            _target.context.renderObject(
+          context.renderObject(
               model.mesh._cvr.mesh,
               camera._cvr.camera,
               transform.absolute,
               cvrLights
-            );
-
-          } //for models
-        } //if
-
-      } //for cameras
-
+          );
+        }
+      }
     }
 
     /*
