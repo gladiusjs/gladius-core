@@ -7,11 +7,7 @@ require.config({
     "base": "base",
     "common": "common",
     "core": "core",
-    "tests": "../tests",
-   
-    // RequireJS plugins, used to load tests
-    "text": "../lib/requirejs-plugins/lib/text",
-    "json": "../lib/requirejs-plugins/src/json"
+    "tests": "../tests",   
   }
 });
 
