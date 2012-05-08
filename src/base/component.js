@@ -1,119 +1,73 @@
-/*jshint white: false, strict: false, plusplus: false, onevar: false,
-  nomen: false */
-/*global define: false, console: false, window: false, setTimeout: false */
+if ( typeof define !== "function" ) {
+  var define = require( "amdefine" )( module );
+}
 
-define( function ( require ) {
+define( function( require ) {
 
-    var lang = require( 'lang' );
-    var Delegate = require( 'common/delegate' );
-    var Event = require( 'core/event' );
-    
-    var IComponent = function( options ) {
+  var Event = require( "core/event" );
 
-        options = options || {};
+  var Component = function( type, provider, dependsOn ) {
+    this.type = type; // String identifying the type of this component
+    this.provider = provider; // Reference to the object instance that provides
+                              // this component
+    this.dependsOn = dependsOn || []; // List of component types that this
+                                      // component depends on
+    this.owner = null; // Reference to the entity instance that owns this
+    this._queuedEvents = []; // List of queued events
+  };
 
-        var _type = options.type || undefined;
-        Object.defineProperty( this, 'type', {
-            get: function() {
-                return _type;
-            }
-        });
+  function setOwner( owner ) {
+    if( owner !== this.owner ) {
+      var previous = this.owner;
+      this.owner = owner;
+      var event = new Event(
+        'ComponentOwnerChanged',
+        {
+          current: owner,
+          previous: previous
+        },
+        false
+      );
+      event( this );
+    }
+  }
 
-        var _depends = options.depends || [];
-        Object.defineProperty( this, 'depends', {
-            get: function() {
-                return _depends;
-            }
-        });
-        
-    };
+  function handleEvent( event ) {
+    if( "on" + event.type in this ) {
+      if( event.queue ) {
+        this._queuedEvents.push( event );
+      } else {
+        var handler = this["on" + event.type];
+        try {
+          handler.call( this, event );
+        } catch( error ) {
+          console.log( error );
+        }
+      }
+    }
+  }
 
-    var Component = function( options, c ) {
+  function handleQueuedEvent() {
+    if( this._queuedEvents.length > 0 ) {
+      var event = this._queuedEvents.shift();
+      if( "on" + event.type in this ) {
+        var handler = this["on" + event.type];
+        try {
+          handler.call( this, event );
+        } catch( error ) {
+          console.log( error );
+        }
+      }
+    }
+    return this._queuedEvents.length;
+  }
 
-        options = options || {};        
+  Component.prototype = {
+      setOwner: setOwner,
+      handleEvent: handleEvent,
+      handleQueuedEvent: handleQueuedEvent
+  };
 
-        var r = function( options ) {
-
-            options = options || {};
-            var that = this;
-
-            var _owner = null;
-            Object.defineProperty( this, 'owner', {
-                get: function() {
-                    return _owner;
-                },
-                set: function( value ) {
-                    if( value != _owner ) {
-                        var previous = _owner;
-                        _owner = value;
-                        _handleEvent( new Event({
-                            type: 'ComponentOwnerChanged',
-                            queue: false,
-                            data: {
-                                current: value,
-                                previous: previous
-                            }
-                        }));
-                    }
-                }
-            });
-            
-            var _queuedEvents = [];
-            Object.defineProperty( this, 'queuedEvents', {
-                get: function() {
-                    return _queuedEvents;
-                }
-            });
-            
-            var _handleEvent = function( event ) {
-                if( that.hasOwnProperty( 'on' + event.type ) ) {
-                    if( event.queue ) {
-                        _queuedEvents.push( event );            // Queue the event to be handled later
-                    } else {
-                        var handler = that['on' + event.type];  // Find the handler
-                        try{
-                            handler.call( that, event );            // Invoke the handler with the event
-                        } catch( e ) {
-                            console.log( e );
-                        }
-                    }
-                }
-            };
-            Object.defineProperty( this, 'handleEvent', {
-                get: function() {
-                    return _handleEvent;
-                }
-            });
-            
-            // Handle the next queued event; Returns the size of the remainder
-            var _handleQueuedEvent = function() {
-                if( _queuedEvents.length > 0 ) {
-                    var event = _queuedEvents.shift();
-                    var handler = that['on' + event.type];  // Find the handler
-                    try{
-                        handler.call( that, event );            // Invoke the handler with the event
-                    } catch( e ) {
-                        console.log( e );
-                    }
-                }
-                return _queuedEvents.lenght;
-            };
-            Object.defineProperty( this, 'handleQueuedEvent', {
-                get: function() {
-                    return _handleQueuedEvent;
-                }
-            });
-
-            c.call( this, options );
-            
-        };
-        r.prototype = new IComponent( options );
-        r.prototype.constructor = r;
-
-        return r;
-
-    };
-
-    return Component;
+  return Component;
 
 });

@@ -1,0 +1,87 @@
+/*jshint white: false, strict: false, plusplus: false, onevar: false,
+  nomen: false */
+/*global define: false, console: false, window: false, setTimeout: false */
+
+define( function ( require ) {
+    
+    var lang = require( 'lang' );
+    
+    return function( options ) {
+        
+        options = options || {};
+        var _defaultTick = options.tick;
+        
+        var Timer = function( options ) {
+            
+            options = options || {};
+            
+            var _id = options.id || lang.guid();
+            var _tick = options.tick || _defaultTick || null;
+            
+            var _time = options.start || 0;
+            Object.defineProperty( this, 'time', {
+                get: function() {
+                    return _time;
+                }
+            });
+            
+            var _delta = 0;
+            Object.defineProperty( this, 'delta', {
+                get: function() {
+                    return _delta;
+                }
+            });
+            
+            var handleTick = function( delta ) {
+                if( _active ) {
+                    _delta = delta;
+                    _time += delta;                    
+                } else {
+                    _delta = 0;
+                    _tick.unsubscribe( handleTick );
+                }
+            };
+            
+            this.update = function( delta ) {
+                if( _active ) {
+                    _delta = delta;
+                    _time = _time + delta;
+                }
+            };
+            
+            var _active = false;
+            Object.defineProperty( this, 'active', {
+                get: function() {
+                    return _active;
+                }            
+            });
+            
+            this.suspend = function() {
+                if( _active ) {
+                    _active = false;
+                    if( _tick ) {
+                        _tick.unsubscribe( handleTick );
+                    }
+                }
+            };
+            
+            this.resume = function() {
+                if( !_active ) {
+                    _active = true;
+                    if( _tick ) {
+                        _tick.subscribe( handleTick );
+                    }
+                }
+            };
+            
+            if( options.hasOwnProperty( 'active' ) ? options.active : true ) {
+                this.resume();
+            }
+            
+        };
+        
+        return Timer;
+        
+    };
+    
+});

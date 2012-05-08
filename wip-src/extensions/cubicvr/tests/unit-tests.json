@@ -1,9 +1,0 @@
-[
-
-  "components/camera.test",
-  "components/light.test",
-  "components/model.test",
-  "services/renderer.test",
-  "services/target.test"
-
-]
