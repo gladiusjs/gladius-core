@@ -7,7 +7,7 @@ require.config({
     "base": "base",
     "common": "common",
     "core": "core",
-    "tests": "../tests",   
+    "tests": "../tests"
   }
 });
 
