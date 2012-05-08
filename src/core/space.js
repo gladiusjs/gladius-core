@@ -1,245 +1,179 @@
-/*jshint white: false, strict: false, plusplus: false, onevar: false,
-  nomen: false */
-/*global define: false, console: false, window: false, setTimeout: false */
+if ( typeof define !== "function" ) {
+  var define = require( "amdefine" )( module );
+}
 
-define( function ( require ) {
+define( function( require ) {
 
-    var lang = require( 'lang' );
-    var Delegate = require( 'common/delegate' );
+  var guid = require( "common/guid" );
+  var Entity = require( "core/entity" );
+  var Clock = require( "core/clock" );
 
-    /* Scene
-     *
-     * A Scene is a collection of Entities (and their Components). It also provides
-     * a mechanism to make new Entities
-     */
+  // Removes value from array and returns the array
+  function removeFromArray( array, value ) {
+    var index = array.indexOf( value );
+    if( index > 0 ) {
+      array.splice( index, 1 );
+    }
+    return this;
+  }
 
-    return function( engine ) {
+  var Space = function( clock ) {
+    // This will normally be the system simulation clock, but for a UI space
+    // it might be the realtime clock instead.
+    this.clock = new Clock( clock.signal ); // This clock controls updates for
+                                            // all entities in this space
+    this.id = guid();
+    this.size = 0; // The number of entities in this space
 
-        var Space = function( options ) {
+    this._entities = {}; // Maps entity ID to object
+    this._nameIndex = {}; // Maps name to entity ID
+    this._tagIndex = {}; // Maps tag to entity ID
+  };
 
-            var that = this;
-            options = options || {};
+  function add( entity ) {
+    var i, l;
 
-            var _engine = engine;
-            Object.defineProperty( this, 'engine', {
-                get: function() {
-                    return _engine;
-                }
-            });
-            
-            var _id = lang.guid();
-            Object.defineProperty( this, 'id', {
-                get: function() {
-                    return _id;
-                }
-            });
+    this._entities[entity.id] = entity;
+    ++ this.size;
 
-            var _size = 0;
-            Object.defineProperty( this, 'size', {
-                get: function() {
-                    return _size;
-                }
-            });
+    if( entity.name ) {
+      if( !this._nameIndex.hasOwnProperty( entity.name ) ) {
+        this._nameIndex[entity.name] = [];
+      }
+      this._nameIndex[entity.name].push( entity.id );
+    }
 
-            var _entitiesById = {};
-            var _entitiesByName = {};
+    if( entity.tags ) {
+      for( i = 0, l = entity.tags.length; i < l; ++ i ) {
+        var tag = entity.tags[i];
+        if( !this._tagIndex.hasOwnProperty( tag ) ) {
+          this._tagIndex[tag] = [];
+        }
+        this._tagIndex[tag].push( entity.id );
+      }
+    }
 
-            this.Entity = function( options ) {
-                options = options || {};
-                options.manager = that;
+    // Recursively add child entities to the space
+    if( entity.children ) {
+      for( i = 0, l = entity.children.length; i < l; ++ i ) {
+        this.add( entity.children[i] );
+      }
+    }
+  }
 
-                var entity = new engine.core.Entity( options );
+  function remove( entity ) {
+    var i, l;
 
-                that.add( entity );
+    if( this._entities.hasOwnProperty( entity.id ) ) {
+      delete this._entities[entity.id];
+      -- this.size;
 
-                return entity;
-            };
-            
-            // Remove an entity by id from the id index. Return the removed entity, or null.
-            var _removeById = function( id ) {
-                if( _entitiesById.hasOwnProperty( id ) ) {
-                    var entity = _entitiesById[id];
-                    delete _entitiesById[id];
-                    -- _size;
-                    
-                    entity.manager = null;
-                    
-                    return entity;
-                } else {
-                    return null;
-                }
-            };
+      if( entity.name ) {
+        if( this._nameIndex.hasOwnProperty( entity.name ) ) {
+          delete this._nameIndex[entity.name];
+        }
+      }
 
-            // Remove the first entity with the given name from the name index. Return the removed entity, or null.
-            var _removeByName = function( name ) {
-                if( _entitiesByName.hasOwnProperty( name ) ) {
-                    var entity = _entitiesByName[name][0];
-                    _entitiesByName[name].remove( 0 );
-                    if( 0 === _entitiesByName[name].length )
-                        delete _entitiesByName[name];
-                    return entity;
-                }
-            };
-            
-            this.add = function( entity ) {
-                if( entity ) {                    
-                    // Index by id            
-                    _entitiesById[entity.id] = entity;
+      if( entity.tags ) {
+        for( i = 0, l = entity.tags.length; i < l; ++ i ) {
+          var tag = entity.tags[i];
+          removeFromArray( this._tagIndex, entity.id );
+        }
+      }
 
-                    // Index by name
-                    if( entity.name ) {
-                        if( !_entitiesByName.hasOwnProperty( entity.name ) )
-                            _entitiesByName[entity.name] = [];
-                        _entitiesByName[entity.name].push( entity );
-                    }
+      // Recursively remove child entities from the space
+      if( entity.children ) {
+        for( i = 0, l = entity.children.length; i < l; ++ i ) {
+          this.remove( entity.children[i] );
+        }
+      }
+    }
+  }
+  
+  function findNamed( name ) {
+    if( this._nameIndex.hasOwnProperty( name ) ) {
+      var id = this._nameIndex[name][0];
+      return this._entities[id];
+    }
+    
+    return null;
+  }
+  
+  function findAllNamed( name ) {
+    var i, l;
+    if( this._nameIndex.hasOwnProperty( name ) ) {
+      var ids = this._nameIndex[name];
+      var result = [];
+      for( i = 0, l = ids.length; i < l; ++ i ) {
+        var id = ids[i];
+        result.push( this._entities[id] );
+      }
+      return result;
+    }
+    
+    return [];
+  }
+  
+  function findTagged( tag ) {
+    if( this._tagIndex.hasOwnProperty( tag ) ) {
+      var id = this._tagIndex[tag][0];
+      return this._entities[id];
+    }
+    
+    return null;
+  }
+  
+  function findAllTagged( tag ) {
+    var i, l;
+    if( this._tagIndex.hasOwnProperty( tag ) ) {
+      var ids = this._tagIndex[tag];
+      var result = [];
+      for( i = 0, l = ids.length; i < l; ++ i ) {
+        var id = ids[i];
+        result.push( this._entities[id] );
+      }
+      return result;
+    }
+    
+    return [];
+  }
+  
+  function findWith( type ) {
+    var i, l;
+    for( i = 0, l = this._entities.length; i < l; ++ i ) {
+      var entity = this._entities[i];
+      if( entity.contains( type ) ) {
+        return entity;
+      }
+    }
+    
+    return null;
+  }
+  
+  function findAllWith( type ) {
+    var i, l;
+    var result = [];
+    for( i = 0, l = this._entities.length; i < l; ++ i ) {
+      var entity = this._entities[i];
+      if( entity.contains( type ) ) {
+        result.push( entity );
+      }
+    }
+    
+    return result;
+  }
 
-                    ++ _size;
-                    
-                    entity.manager = that;
+  Space.prototype = {
+      add: add,
+      remove: remove,
+      findNamed: findNamed,
+      findAllNamed: findAllNamed,
+      findTagged: findTagged,
+      findAllTagged: findAllTagged,
+      findWith: findWith,
+      findAllWith: findAllWith
+  };
 
-                    var children = entity.children;
-                    for( var i = 0, l = children.length; i < l; ++ i ) {
-                        that.add( children[i] );
-                    }
-                }
-            };
-
-            // Remove the given entity
-            this.remove = function( entity ) {
-                if( entity ) {
-                    _removeById( entity.id );
-                    var i;
-
-                    if( entity.name && _entitiesByName.hasOwnProperty( entity.name ) ) {
-                        i = _entitiesByName[entity.name].indexOf( entity );
-                        if( -1 != i ) {
-                            _entitiesByName[entity.name].remove( i );
-                            if( 0 === _entitiesByName[entity.name].length ) {
-                                delete _entitiesByName[entity.name];
-                            }
-                        }
-                    }
-                    
-                    var children = entity.children;
-                    var l;
-                    for( i = 0, l = children.length; i < l; ++ i ) {
-                        that.remove( children[i] );
-                    }
-                }
-            };
-
-            // Remove the first entity with the given name
-            this.removeNamed = function( name ) {
-                if( name ) {
-                    var entity = _entitiesByName[name];
-
-                    if( entity )
-                        that.remove( entity );
-                }
-            };
-
-            // Remove all entities with the given name
-            this.removeAllNamed = function( name ) {
-                if( name && _entitiesByName.hasOwnProperty( name ) ) {
-                    while( _entitiesByName[name].length > 0 ) {
-                        var entity = _entitiesByName[name];
-                        that.remove( entity );
-                    }
-                }
-            };
-
-            // Find the first entity with the given name and return it, or null.
-            this.find = function( name ) {
-                if( name && _entitiesByName.hasOwnProperty( name ) ) {
-                    return _entitiesByName[name][0];
-                }
-
-                return null;
-            };
-            
-            // Find all entities with the given name and return a (possibly empty) list of entities.
-            this.findAll = function( name ) {
-                if( name && _entitiesByName.hasOwnProperty( name ) ) {
-                    return _entitiesByName[name].slice( 0 );
-                }
-                
-                return [];
-            };
-
-            // Find the first entity that has a component with the given type and return it, or null.
-            this.findWith = function( type ) {
-                if( type ) {
-                    var entity;
-                    for( var entityId in _entitiesById ) {
-                        entity = _entitiesById[ entityId ];
-                        if( entity.contains( type ) )
-                            return entity;
-                    }
-                }
-
-                return null;
-            };
-
-            // Find all entities with the given component and return a (possibly empty) list of entities.
-            this.findAllWith = function( type ) {
-                if( type ) {
-                    var result = [],
-                        entity;
-                    for( var entityId in _entitiesById ) {
-                        entity = _entitiesById[ entityId ];
-                        if( entity.contains( type ) )
-                            result.push( entity );
-                    }
-                    return result;
-                }
-
-                return [];
-            };
-
-            // Find the first entity with the given name that has a component of the given type and return the
-            // component, or null.
-            this.findComponent = function( name, type ) {
-                if( name && type ) {
-                    if( _entitiesByName.hasOwnProperty( name ) ) {
-                        for( var i = 0; i < _entitiesByName[name]; ++ i ) {
-                            if( _entitiesByName[name][i].contains( type ) )
-                                return _entitiesByName[name][i];
-                        }
-                    }
-                }
-
-                return null;
-            };
-
-            // Delegates
-            var _entityAdded = new Delegate();
-            Object.defineProperty( this, 'entityAdded', {
-                get: function() {
-                    return _entityAdded;
-                }
-            });
-            var onEntityAdded = function( options ) {
-                if( _entityAdded ) {
-                    _entityAdded( options );
-                }
-            };
-
-            var _entityRemoved = new Delegate();
-            Object.defineProperty( this, 'entityRemoved', {
-                get: function() {
-                    return _entityRemoved;
-                }
-            });
-            var onEntityRemoved = function( options ) {
-                if( _entityRemoved ) {
-                    _entityRemoved( options );
-                }
-            };
-
-        };
-
-        return Space;
-
-    };
+  return Space;
 
 });

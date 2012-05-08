@@ -4,6 +4,6 @@ node_modules
 external
 dist
 .git
-wip-src/extensions/cubicvr/lib
+src/extensions
 lib
-src/order.js
+old-src/order.js

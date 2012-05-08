@@ -5,7 +5,7 @@
  */
 ({
   // Where to find the module names listed below.
-  baseUrl: '../src',
+  baseUrl: '../wip-src',
 
   // Where to find modules that are outside of src.
   // This setup assumes CubicVR.js is the built output,
@@ -15,7 +15,7 @@
     "base": "base",
     "common": "common",
     "core": "core",
-    "tests": "../tests"
+    "test": "../wip-test"
   },
 
   // Do not minify with the requirejs optimizer, to allow shipping
@@ -35,7 +35,7 @@
   // gladius.js references gladius-src in a document.write string, so it will
   // not be found by the AST analysis done in the optimizer.
   include: [
-            'core/gladius',
+            'src/extension',
            ],
 
   // Wraps the built file in a closure and exports gladius as a global.
@@ -45,5 +45,5 @@
   },
 
   // The built gladius.js file for use by web sites.
-  out: '../dist/gladius.js'
+  out: '../dist/gladius-cubicvr.js'
 })
