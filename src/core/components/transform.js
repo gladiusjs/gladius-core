@@ -37,14 +37,14 @@ define( function( require ) {
     return this;
   }
 
-  function setRotation(rotation) {
+  function setRotation( rotation ) {
     math.vector3.set( this.rotation, rotation );
     this._cachedIsValid = false;
 
     return this;
   }
 
-  function setScale(scale) {
+  function setScale( scale ) {
     math.vector3.set( this.scale, scale );
     this._cachedIsValid = false;
 
