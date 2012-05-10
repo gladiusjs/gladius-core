@@ -14,6 +14,7 @@ define( function( require ) {
     this.scale = scale ? new math.Vector2( scale ) : math.vector2.one;
     this._cachedMatrix = math.matrix4.identity;
     this._cachedIsValid = false;
+    this._cachedAbsolute = math.matrix4.identity;
   };
   Transform.prototype = new Component();
   Transform.prototype.constructor = Transform;
@@ -28,17 +29,47 @@ define( function( require ) {
       return this._cachedMatrix;
     }
   }
-  
-  function setPosition() {
-    
+
+  function setPosition( position ) {
+    math.vector3.set( this.position, position );
+    this._cachedIsValid = false;
+
+    return this;
   }
-  
+
   function setRotation() {
-    
+    math.vector3.set( this.rotation, rotation );
+    this._cachedIsValid = false;
+
+    return this;
+  }
+
+  function setScale() {
+    math.vector3.set( this.rotation, rotation );
+    this._cachedIsValid = false;
+
+    return this;
+  }
+
+  function absolute() {
+    if( this.owner.parent && this.owner.parent.hasComponent( this.type ) ) {
+      var parentTransform = this.owner.parent.findComponent( this.type );                            
+      math.matrix4.multiply( [matrix(), parentTransform.absolute()], 
+          this._absolute );
+    } else {      
+      this._absolute = matrix();
+    }
+    return this._absolute;
+  }
+
+  function relative() {
+    throw new Error( "not implemented" );
   }
 
   var prototype = {
-
+      setPosition: setPosition,
+      setRotation: setRotation,
+      setScale: setScale
   };
   extend( Transform.prototype, prototype );
 

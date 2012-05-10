@@ -6,6 +6,7 @@ define( function ( require ) {
   
   var _Math = require( "core-lib/_math" );
   
+  var Extension = require( "base/extension" );
   var MulticastDelegate = require( "common/multicast-delegate" );
   var Loop = require( "core/request-animation-frame-loop" );
   var Clock = require( "core/clock" );
@@ -108,31 +109,58 @@ define( function ( require ) {
   }
   
   function registerExtension( extension, options ) {
+    if( !extension instanceof Extension ) {
+      throw new Error( "argument is not an extension" );
+    }
     var i, l;
+    var j, m;
     var extensionInstance = {};
     
     var services = extension.services;
     var serviceNames = Object.keys( services );
+    var serviceName, service;
+    var components, componentNames, componentName, ComponentConstructor;
+    var resources, resourceNames, resourceName, ResourceConstructor;
     for( i = 0, l = serviceNames.length; i < l; ++ i ) {
-      var serviceName = serviceNames[i];
-      var ServiceConstructor = services[serviceName];
-      extensionInstance[serviceName] = new ServiceConstructor( 
-          this._scheduler );
+      serviceName = serviceNames[i];
+      if( typeof services[serviceName] === "function" ) {
+        extensionInstance[serviceName] = new services[serviceName]( 
+            this._scheduler );
+      } else if( typeof services[serviceName] === "object" ) {
+        service = new services[serviceName].service();
+        extensionInstance[serviceName] = service;
+
+        components = services[serviceName].components;
+        componentNames = Object.keys( components );
+        for( j = 0, m = componentNames.length; j < m; ++ j ) {
+          componentName = componentNames[j];
+          ComponentConstructor = components[componentName].bind( null, service );
+          extensionInstance[componentName] = ComponentConstructor;
+        }
+
+        resources = services[serviceName].resources;
+        resourceNames = Object.keys( resources );
+        for( j = 0, m = resourceNames.length; j < m; ++ j ) {
+          resourceName = resourceNames[j];
+          ResourceConstructor = resources[resourceName].bind( null, service );
+          extensionInstance[resourceName] = ResourceConstructor;
+        }
+      }
     }
     
-    var components = extension.components;
-    var componentNames = Object.keys( components );
+    components = extension.components;
+    componentNames = Object.keys( components );
     for( i = 0, l = componentNames.length; i < l; ++ i ) {
-      var componentName = componentNames[i];
-      var ComponentConstructor = components[componentName];
+      componentName = componentNames[i];
+      ComponentConstructor = components[componentName];
       extensionInstance[componentName] = ComponentConstructor;
     }
     
-    var resources = extension.resources;
-    var resourceNames = Object.keys( resources );
+    resources = extension.resources;
+    resourceNames = Object.keys( resources );
     for( i = 0, l = resourceNames.length; i < l; ++ i ) {
-      var resourceName = resourceNames[i];
-      var ResourceConstructor = resources[resourceName];
+      resourceName = resourceNames[i];
+      ResourceConstructor = resources[resourceName];
       extensionInstance[resourceName] = ResourceConstructor;
     }
     
