@@ -3,21 +3,27 @@ if ( typeof define !== "function" ) {
 }
 
 define(
-  [ "components/light", "resources/light-definition" ],
-  function( Light, LightDefinition ) {
+  [ "components/light", "resources/light-definition", "services/target" ],
+  function( Light, LightDefinition, Target ) {
     return function() {
 
       module( "Light", {
-        setup: function() {},
+        setup: function() {
+          var canvasElement = document.getElementById("test-canvas");
+          this.target = new Target( canvasElement );
+          this.service = {
+            target: this.target
+          }
+        },
         teardown: function() {}
       });
 
       test( "create a light component without a definition", function() {
         expect( 11 );
 
-        var light = new Light();
+        var light = new Light(this.service);
 
-        equal(light.type, LightDefinition.LightTypes.POINT, "default light type is correct");
+        equal(light.light_type, LightDefinition.LightTypes.POINT, "default light type is correct");
         deepEqual(light.diffuse, [ 1, 1, 1 ], "default diffuse value is correct");
         deepEqual(light.specular, [ 1.0, 1.0, 1.0 ], "default specular value is correct");
         equal(light.intensity, 1.0, "default intensity value is correct");
@@ -35,7 +41,7 @@ define(
         expect( 11 );
 
         var data = {
-          "type" : LightDefinition.LightTypes.DIRECTIONAL,
+          "light_type" : LightDefinition.LightTypes.DIRECTIONAL,
           "diffuse" : [ 2, 3, 4 ],
           "specular" : [ 4.0, 3.0, 2.0 ],
           "intensity" : 2.7,
@@ -49,9 +55,9 @@ define(
         };
 
         var lightDefinition = new LightDefinition(data);
-        var light = new Light(lightDefinition);
+        var light = new Light(this.service, lightDefinition);
 
-        equal(light.type, lightDefinition.type, "assigned light type is correct");
+        equal(light.light_type, lightDefinition.light_type, "assigned light type is correct");
         deepEqual(light.diffuse, lightDefinition.diffuse, "assigned diffuse value is correct");
         deepEqual(light.specular, lightDefinition.specular, "assigned specular value is correct");
         equal(light.intensity, lightDefinition.intensity, "assigned intensity value is correct");
@@ -68,9 +74,9 @@ define(
       test( "set properties through setters", function() {
         expect( 11 );
 
-        var light = new Light();
+        var light = new Light(this.service);
 
-        light.type = LightDefinition.LightTypes.SPOT;
+        light.light_type = LightDefinition.LightTypes.SPOT;
         light.diffuse = [ 9, 7, 1 ];
         light.specular = [ 12.0, 21.0, 53.0 ] ;
         light.intensity = 9.7;
@@ -82,7 +88,7 @@ define(
         light.areaFloor = 1234;
         light.areaAxis = [ 123, 234, 345 ];
 
-        equal(light.type, LightDefinition.LightTypes.SPOT, "set light type is correct");
+        equal(light.light_type, LightDefinition.LightTypes.SPOT, "set light type is correct");
         deepEqual(light.diffuse, [ 9, 7, 1 ], "set diffuse value is correct");
         deepEqual(light.specular, [ 12.0, 21.0, 53.0 ], "set specular value is correct");
         equal(light.intensity, 9.7, "set intensity value is correct");
@@ -97,13 +103,13 @@ define(
 
       test("functionality of onUpdate", function() {
         expect(1);
-        var light = new Light();
+        var light = new Light(this.service);
         ok(light.hasOwnProperty("onUpdate"), "light has update handler");
       });
 
       test("cubicVR light exists", function(){
         expect(1);
-        var light = new Light();
+        var light = new Light(this.service);
         ok(light.hasOwnProperty("_cubicVRLight"), "light is wrapping a cubic VR light");
       });
 
