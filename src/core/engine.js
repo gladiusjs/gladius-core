@@ -23,7 +23,7 @@ define( function ( require ) {
     Component: require( "base/component" ),
     Service: require( "base/service" ),
     Extension: require( "base/extension" )
-  }
+  };
   
   function simulationLoop() {
     // Increment frame counter
