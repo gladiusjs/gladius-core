@@ -6,7 +6,6 @@ define( function ( require ) {
   
   var _Math = require( "core-lib/_math" );
   
-  var Extension = require( "base/extension" );
   var MulticastDelegate = require( "common/multicast-delegate" );
   var Loop = require( "core/request-animation-frame-loop" );
   var Clock = require( "core/clock" );
@@ -19,9 +18,12 @@ define( function ( require ) {
       text: require( "core/loaders/default" ),
       procedural: require( "core/loaders/procedural" )
   };
-  
-  var Component = require( "base/component" );
-  var Service = require( "base/service" );
+
+  var base = {
+    Component: require( "base/component" ),
+    Service: require( "base/service" ),
+    Extension: require( "base/extension" )
+  };
   
   function simulationLoop() {
     // Increment frame counter
@@ -70,10 +72,7 @@ define( function ( require ) {
     this.SimulationTimer = Timer.bind( this, this.simulationClock.signal );
     
     // Base prototypes, useful for extending the engine at runtime
-    this.base = {
-        Component: Component,
-        Service: Service
-    };
+    this.base = base;
     
     // Registered extensions go in here; They are also exposed as properties
     // on the engine instance
@@ -109,7 +108,7 @@ define( function ( require ) {
   }
   
   function registerExtension( extension, options ) {
-    if( !extension instanceof Extension ) {
+    if( !extension instanceof base.Extension ) {
       throw new Error( "argument is not an extension" );
     }
     var i, l;
@@ -165,17 +164,15 @@ define( function ( require ) {
     }
     
     this._extensions[extension.name] = extensionInstance;
+    if( !this.hasOwnProperty( name ) ) {
+      this[extension.name] = extensionInstance;
+    }
     
     return this;
   }
   
   function unregisterExtension( extension ) {
-    if( this._extensions.hasOwnProperty( extension.name ) ) {
-      // TD: we should shut everything down first
-      delete this._extensions[extension.name];
-    }
-    
-    return this;
+    throw new Error( "not implemented" );
   }
   
   function findExtension( name ) {

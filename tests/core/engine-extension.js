@@ -10,7 +10,7 @@ define(
         });
         
         test( "register an extension", function() {
-          expect( 5 );
+          expect( 6 );
           
           var extensionName = "testExtension";
           
@@ -47,6 +47,8 @@ define(
               "component constructor is correct" );
           equal( extension.MyResource, MyResource, 
               "resource constructor is correct" );
+          equal( engine[extensionName], extension, 
+            "extension added as engine property" );
         });
         
         test( "check for missing extension", function() {
