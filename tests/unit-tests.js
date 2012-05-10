@@ -26,6 +26,7 @@ define( function( require ) {
           "core/space.test",
           "core/get.test",
           "core/resources/script.test",
+          "core/components/transform.test",
 
           // Base         
           "base/component.test",

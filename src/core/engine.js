@@ -173,7 +173,8 @@ define( function ( require ) {
       findExtension: findExtension,
       hasExtension: hasExtension,
       get: get,
-      loaders: loaders
+      loaders: loaders,
+      math: _Math
   };
   
   return Engine;

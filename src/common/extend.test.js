@@ -31,6 +31,22 @@ define(
           equal( object2["z"], object1["z"], "source object is intact" );
         });
         
+        test( "extend with duplicate properties", function() {
+          expect( 1 );
+          
+          var object1 = {
+              x: 0,
+              y: 1
+          };
+          var object2 = {
+              y: 2,
+              z: 3
+          };
+          
+          extend( object1, object2 );
+          equal( object1["y"], 1, "duplicate value is correct" );
+        });
+        
       };
     }
 );
