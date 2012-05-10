@@ -1,0 +1,8 @@
+{
+  "name": "gladius"
+  {
+    "volo": {
+      "url": "https://github.com/downloads/gladiusjs/gladius-core/gladius-{version}.js"
+    }
+  }
+}
