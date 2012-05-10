@@ -21,7 +21,7 @@ define( function( require ) {
 
   function matrix() {
     if( this._cachedIsValid ) {
-      return _cachedMatrix;
+      return this._cachedMatrix;
     } else {
       math.transform.fixed( this.position, this.rotation, this.scale, 
           this._cachedMatrix );
@@ -37,15 +37,15 @@ define( function( require ) {
     return this;
   }
 
-  function setRotation() {
+  function setRotation(rotation) {
     math.vector3.set( this.rotation, rotation );
     this._cachedIsValid = false;
 
     return this;
   }
 
-  function setScale() {
-    math.vector3.set( this.rotation, rotation );
+  function setScale(scale) {
+    math.vector3.set( this.scale, scale );
     this._cachedIsValid = false;
 
     return this;
