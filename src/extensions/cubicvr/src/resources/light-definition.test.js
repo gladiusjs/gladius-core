@@ -29,7 +29,7 @@ define(
         expect( 11 );
         
         var lightDefinition = new LightDefinition();
-        equal(lightDefinition.type, LightDefinition.LightTypes.POINT, "default light type is correct");
+        equal(lightDefinition.light_type, LightDefinition.LightTypes.POINT, "default light type is correct");
         deepEqual(lightDefinition.diffuse, [ 1, 1, 1 ], "default diffuse value is correct");
         deepEqual(lightDefinition.specular, [ 1.0, 1.0, 1.0 ], "default specular value is correct");
         equal(lightDefinition.intensity, 1.0, "default intensity value is correct");
@@ -46,7 +46,7 @@ define(
         expect(11);
 
         var data = {
-          "type" : LightDefinition.LightTypes.DIRECTIONAL,
+          "light_type" : LightDefinition.LightTypes.DIRECTIONAL,
           "diffuse" : [ 2, 3, 4 ],
           "specular" : [ 4.0, 3.0, 2.0 ],
           "intensity" : 2.7,
@@ -61,7 +61,7 @@ define(
 
         var lightDefinition = new LightDefinition(data);
 
-        equal(lightDefinition.type, LightDefinition.LightTypes.DIRECTIONAL, "assigned light type is correct");
+        equal(lightDefinition.light_type, LightDefinition.LightTypes.DIRECTIONAL, "assigned light type is correct");
         deepEqual(lightDefinition.diffuse, [ 2, 3, 4 ], "assigned diffuse value is correct");
         deepEqual(lightDefinition.specular, [ 4.0, 3.0, 2.0 ], "assigned specular value is correct");
         equal(lightDefinition.intensity, 2.7, "assigned intensity value is correct");
