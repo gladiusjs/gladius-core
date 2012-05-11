@@ -9,9 +9,9 @@ define( function( require ) {
   var Component = require( "base/component" );
 
   var Transform = function( position, rotation, scale ) {
-    this.position = position ? new math.Vector2( position ) : math.vector2.zero;
-    this.rotation = rotation ? new math.Vector2( rotation ) : math.vector2.zero;
-    this.scale = scale ? new math.Vector2( scale ) : math.vector2.one;
+    this.position = position ? new math.Vector3( position ) : math.vector3.zero;
+    this.rotation = rotation ? new math.Vector3( rotation ) : math.vector3.zero;
+    this.scale = scale ? new math.Vector3( scale ) : math.vector3.one;
     this._cachedMatrix = math.matrix4.identity;
     this._cachedIsValid = false;
     this._cachedAbsolute = math.matrix4.identity;
@@ -23,41 +23,43 @@ define( function( require ) {
     if( this._cachedIsValid ) {
       return this._cachedMatrix;
     } else {
-      math.transform.fixed( this.position, this.rotation, this.scale, 
-          this._cachedMatrix );
+      // debugger;
+      this._cachedMatrix = math.transform.fixed( this.position, this.rotation, 
+        this.scale );
       this._cachedIsValid = true;
       return this._cachedMatrix;
     }
   }
 
   function setPosition( position ) {
-    math.vector3.set( this.position, position );
+    math.vector3.set( this.position, position[0], position[1], position[2] );
     this._cachedIsValid = false;
 
     return this;
   }
 
   function setRotation( rotation ) {
-    math.vector3.set( this.rotation, rotation );
+    math.vector3.set( this.rotation, rotation[0], rotation[1], rotation[2] );
     this._cachedIsValid = false;
 
     return this;
   }
 
   function setScale( scale ) {
-    math.vector3.set( this.scale, scale );
+    math.vector3.set( this.scale, scale[0], scale[1], scale[2] );
     this._cachedIsValid = false;
 
     return this;
   }
 
   function absolute() {
-    if( this.owner.parent && this.owner.parent.hasComponent( this.type ) ) {
+    if( this.owner && this.owner.parent && 
+        this.owner.parent.hasComponent( this.type ) ) {
       var parentTransform = this.owner.parent.findComponent( this.type );                            
-      math.matrix4.multiply( [matrix(), parentTransform.absolute()], 
+      math.matrix4.multiply( [matrix.call( this ), parentTransform.absolute()], 
           this._absolute );
-    } else {      
-      this._absolute = matrix();
+    } else {
+      this._absolute = matrix.call( this );
     }
     return this._absolute;
   }
@@ -69,7 +71,9 @@ define( function( require ) {
   var prototype = {
       setPosition: setPosition,
       setRotation: setRotation,
-      setScale: setScale
+      setScale: setScale,
+      absolute: absolute,
+      relative: relative
   };
   extend( Transform.prototype, prototype );
 
