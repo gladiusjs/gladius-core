@@ -28,6 +28,9 @@ define( function ( require ) {
   var core = new base.Extension( "core", {
     components: {
       Transform: require( "core/components/transform" )
+    },
+    resources: {
+      Script: require( "core/resources/script" )
     }
   });
   

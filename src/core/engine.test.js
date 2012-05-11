@@ -9,7 +9,7 @@ define(
         });
 
         asyncTest( "create a new engine", function() {
-          expect( 13 );
+          expect( 14 );
 
           var frameCounter = 0;
           function monitor( engine ) {
@@ -35,6 +35,7 @@ define(
           ok( engine.core, "core extension is available" );
           ok( engine.findExtension( "core" ), "core extension is findable" );
           ok( engine.core.Transform, "transform is available" );
+          ok( engine.core.Script, "script is available" );
         });
 
       };
