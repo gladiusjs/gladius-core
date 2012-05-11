@@ -24,6 +24,12 @@ define( function ( require ) {
     Service: require( "base/service" ),
     Extension: require( "base/extension" )
   };
+
+  var core = new base.Extension( "core", {
+    components: {
+      Transform: require( "core/components/transform" )
+    }
+  });
   
   function simulationLoop() {
     // Increment frame counter
@@ -77,6 +83,9 @@ define( function ( require ) {
     // Registered extensions go in here; They are also exposed as properties
     // on the engine instance
     this._extensions = {};
+
+    // Register core extension
+    this.registerExtension( core );
   };
   
   function suspend() {
