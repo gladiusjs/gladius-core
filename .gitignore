@@ -1,5 +1,5 @@
 node_modules/jake
-wip-src/extensions
+src/extensions/cubicvr/dist
 .*.swp
 *~
 /dist/
