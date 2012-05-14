@@ -15,7 +15,7 @@ define( function ( require ) {
           dependsOn: ["@render"]
         }
     };
-    Service.call( this, scheduler, "Renderer", schedules );
+    Service.call( this, scheduler, schedules );
 
     this.target = new Target( canvas );
   };
@@ -75,5 +75,7 @@ define( function ( require ) {
   Renderer.prototype = new Service();
   Renderer.prototype.constructor = Renderer;
   Renderer.prototype.render = render;
+
+  return Renderer;
 
 });

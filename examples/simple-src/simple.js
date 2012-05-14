@@ -7,7 +7,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
     }
   });
   
-  require( ["core/gladius"], function( Gladius ) {
+  require( ["core/gladius", "extensions/cubicvr/src/gladius-cubicvr"], function( Gladius ) {
     var engine = new Gladius();
     console.log( "engine loaded" );
   });

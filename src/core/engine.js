@@ -138,7 +138,7 @@ define( function ( require ) {
         extensionInstance[serviceName] = new services[serviceName]( 
             this._scheduler );
       } else if( typeof services[serviceName] === "object" ) {
-        service = new services[serviceName].service();
+        service = new services[serviceName].service( this._scheduler );
         extensionInstance[serviceName] = service;
 
         components = services[serviceName].components;
