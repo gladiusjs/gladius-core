@@ -1,9 +1,9 @@
 document.addEventListener( "DOMContentLoaded", function( e ){
 
   require.config({
-    baseUrl: "../../wip-src",
+    baseUrl: "../../src",
     paths: {
-      "lib": "../lib"
+      "core-lib": "../lib"
     }
   });
   

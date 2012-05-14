@@ -21,9 +21,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
   } else if (typeof define === "function" && define.amd) {
     // AMD. Register as an anonymous module.
     define( factory );
-  } else if( !root.Gladius ) {
+  } else if( root.Gladius ) {
     // Browser globals
-    root.Gladius = factory();
+    root.Gladius["gladius-cubicvr"] = factory();
+  } else {
+    throw new Error( "failed to load gladius-cubicvr; depends on Gladius" );
   }
 
 }( this, function() {

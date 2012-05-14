@@ -6,7 +6,7 @@ define( function ( require ) {
 
   var Extension = require( "base/extension" );
 
-  return new Extension({
+  return new Extension( "gladius-cubicvr", {
       
       services: {
         "renderer": {
