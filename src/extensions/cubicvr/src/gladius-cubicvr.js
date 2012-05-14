@@ -9,18 +9,24 @@ define( function ( require ) {
   return new Extension({
       
       services: {
-        "renderer": require( "services/renderer" )
+        "renderer": {
+          service: require( "services/renderer" ),
+          components: {
+            "Camera": require( "components/camera" ),
+            "Light": require( "components/light" )
+          },
+          resources: {
+            "Mesh": require( "resources/mesh" ),
+            "MaterialDefinition": require( "resources/material-definition" )
+          }
+        }
       },
       
       components: {
-        "Model": require( "components/model" ),
-        "Camera": require( "components/camera" ),
-        "Light": require( "components/light" )
+        "Model": require( "components/model" )
       },
       
       resources: {
-        "MaterialDefinition": require( "resources/material-definition" ),
-        "Mesh": require( "resources/mesh" ),
         "LightDefinition": require( "resources/light-definition" )
       }
       

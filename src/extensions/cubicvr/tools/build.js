@@ -5,17 +5,18 @@
  */
 ({
   // Where to find the module names listed below.
-  baseUrl: '../wip-src',
+  baseUrl: '../src',
 
   // Where to find modules that are outside of src.
   // This setup assumes CubicVR.js is the built output,
   // so this build file assumes make has already run in CubicVR.js
   paths: {
-    "core-lib": "../lib",
-    "base": "base",
-    "common": "common",
-    "core": "core",
-    "test": "../wip-test"
+    "core-lib": "../../../../lib",
+    "extension-lib": "../lib",
+    "base": "../../../base",
+    "common": "../../../common",
+    "core": "../../../core",
+    "test": "../tests"
   },
 
   // Do not minify with the requirejs optimizer, to allow shipping
@@ -35,7 +36,7 @@
   // gladius.js references gladius-src in a document.write string, so it will
   // not be found by the AST analysis done in the optimizer.
   include: [
-            'src/extension',
+            'gladius-cubicvr',
            ],
 
   // Wraps the built file in a closure and exports gladius as a global.
