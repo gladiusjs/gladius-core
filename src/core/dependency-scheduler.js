@@ -6,11 +6,27 @@ define( function ( require ) {
 
   var Graph = require( "common/graph" );
 
-  var DependencyScheduler = function() {
+  var defaultPhases = [
+    "@input",
+    "@update",
+    "@render"
+  ];
+
+  var DependencyScheduler = function( phases ) {
     this.current = null;
     this._tasks = {};
     this._graph = new Graph();
     this._schedule = null;
+
+    // Set up scheduler phases
+    var i;
+    phases = phases || defaultPhases;
+    for( i = 0; i < phases.length; ++ i ) {
+      this._graph.insert( phases[i] );
+      if( i > 0 ) {
+        this._graph.link( phases[i-1], phases[i] );
+      }
+    }
   };
   
   function update() {
@@ -39,14 +55,19 @@ define( function ( require ) {
       if( schedule.tags ) {
         var tags = schedule.tags;
         for( i = 0, l = schedule.tags.length; i < l; ++ i ) {
-          this._graph.link( task.id, tags[i] );
+          var tag = tags[i];
+          if( tag[0] === '@' ) {
+            this._graph.link( task.id, tag );
+          } else {
+            this._graph.link( tag, task.id );
+          }
         }
       }
       
       if( schedule.dependsOn ) {
         var dependsOn = schedule.dependsOn;
         for( i = 0, l = dependsOn.length; i < l; ++ i ) {
-          this._graph.link( dependsOn[i], task.id );
+          this._graph.link( task.id, dependsOn[i] );
         }
       }
     }

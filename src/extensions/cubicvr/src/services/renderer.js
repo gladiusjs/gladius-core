@@ -8,16 +8,18 @@ define( function ( require ) {
   require( "extension-lib/CubicVR" );
   var Target = require( "services/target" );
 
-  var Renderer = function( scheduler, canvas ) {
+  var Renderer = function( scheduler, options ) {
+    options = options || {};
+    
     var schedules = {
         "render": {
-          tags: ["graphics"],
-          dependsOn: ["@render"]
+          tags: ["@render", "graphics"],
+          dependsOn: []
         }
     };
     Service.call( this, scheduler, schedules );
 
-    this.target = new Target( canvas );
+    this.target = new Target( options.canvas );
   };
 
   function render() {
