@@ -1,15 +1,24 @@
 document.addEventListener( "DOMContentLoaded", function( e ){
 
   require.config({
-    baseUrl: "../../src",
+    baseUrl: "../../lib",
     paths: {
-      "core-lib": "../lib"
+      "src": "../src",
+      "base": "../src/base",
+      "common": "../src/common",
+      "core": "../src/core",
+      "extensions": "../src/extensions",
     }
   });
   
-  require( ["core/gladius", "extensions/cubicvr/src/gladius-cubicvr"], function( Gladius ) {
+  require( 
+    [ "core/gladius", 
+      "extensions/gladius-cubicvr" ], 
+    function( Gladius, cubicvrExtension ) {
     var engine = new Gladius();
+
     console.log( "engine loaded" );
+    console.log( cubicvrExtension );
   });
   
 });
