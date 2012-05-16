@@ -34,6 +34,7 @@ define( function( require ) {
     var i, l;
 
     this._entities[entity.id] = entity;
+    entity.space = this;
     ++ this.size;
 
     if( entity.name ) {
@@ -66,6 +67,7 @@ define( function( require ) {
 
     if( this._entities.hasOwnProperty( entity.id ) ) {
       delete this._entities[entity.id];
+      entity.space = null;
       -- this.size;
 
       if( entity.name ) {

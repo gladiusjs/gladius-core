@@ -1,7 +1,5 @@
 document.addEventListener( "DOMContentLoaded", function( e ) {
 
-  var canvas = document.getElementById( "test-canvas" );    
-
   require.config({
     baseUrl: "../../lib",
     paths: {
@@ -18,14 +16,30 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
       "extensions/gladius-cubicvr" ], 
     function( Gladius, cubicvrExtension ) {
 
-        var engine = new Gladius();
-        engine.registerExtension( cubicvrExtension );
-        
-        game( engine );        
+      var engine = new Gladius();
+      
+      var cubicvrOptions = {
+        renderer: {
+          canvas: document.getElementById( "test-canvas" )
+        }
+      };
+      engine.registerExtension( cubicvrExtension, cubicvrOptions );
+
+      game( engine );
 
   });
 
   function game( engine ) {
+
+    var space = new engine.simulation.Space();
+    space.add( new engine.simulation.Entity( "cube",
+      [
+        new engine.core.Transform()
+      ]
+    ));
+    var entity = space.findNamed( "cube" );
+
+    debugger;
 
   }
 

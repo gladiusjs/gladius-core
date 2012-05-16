@@ -25,13 +25,18 @@ define( function ( require ) {
     Extension: require( "base/extension" )
   };
 
+  var simulation = {
+    Space: require( "core/space" ),
+    Entity: require( "core/entity" )
+  };
+
   var core = new base.Extension( "core", {
     components: {
       Transform: require( "core/components/transform" )
     },
     resources: {
       Script: require( "core/resources/script" )
-    }
+    }    
   });
   
   function simulationLoop() {
@@ -82,7 +87,12 @@ define( function ( require ) {
     
     // Base prototypes, useful for extending the engine at runtime
     this.base = base;
-    
+
+    this.simulation = {
+      Space: simulation.Space.bind( null, this.simulationClock ),
+      Entity: simulation.Entity
+    };
+  
     // Registered extensions go in here; They are also exposed as properties
     // on the engine instance
     this._extensions = {};
@@ -129,16 +139,18 @@ define( function ( require ) {
     
     var services = extension.services;
     var serviceNames = Object.keys( services );
-    var serviceName, service;
+    var serviceName, serviceOptions, service;
     var components, componentNames, componentName, ComponentConstructor;
     var resources, resourceNames, resourceName, ResourceConstructor;
     for( i = 0, l = serviceNames.length; i < l; ++ i ) {
       serviceName = serviceNames[i];
+      serviceOptions = options[serviceName] || {};
       if( typeof services[serviceName] === "function" ) {
         extensionInstance[serviceName] = new services[serviceName]( 
-            this._scheduler );
+            this._scheduler, serviceOptions );
       } else if( typeof services[serviceName] === "object" ) {
-        service = new services[serviceName].service( this._scheduler );
+        service = new services[serviceName].service( this._scheduler, 
+          serviceOptions );
         extensionInstance[serviceName] = service;
 
         components = services[serviceName].components;
