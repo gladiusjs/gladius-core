@@ -4,9 +4,8 @@ if ( typeof define !== "function" ) {
 
 define( function ( require ) {
   
-  var _Math = require( "core-lib/_math" );
+  var _Math = require( "_math" );
   
-  var Extension = require( "base/extension" );
   var MulticastDelegate = require( "common/multicast-delegate" );
   var Loop = require( "core/request-animation-frame-loop" );
   var Clock = require( "core/clock" );
@@ -19,9 +18,26 @@ define( function ( require ) {
       text: require( "core/loaders/default" ),
       procedural: require( "core/loaders/procedural" )
   };
-  
-  var Component = require( "base/component" );
-  var Service = require( "base/service" );
+
+  var base = {
+    Component: require( "base/component" ),
+    Service: require( "base/service" ),
+    Extension: require( "base/extension" )
+  };
+
+  var simulation = {
+    Space: require( "core/space" ),
+    Entity: require( "core/entity" )
+  };
+
+  var core = new base.Extension( "core", {
+    components: {
+      Transform: require( "core/components/transform" )
+    },
+    resources: {
+      Script: require( "core/resources/script" )
+    }    
+  });
   
   function simulationLoop() {
     // Increment frame counter
@@ -70,14 +86,19 @@ define( function ( require ) {
     this.SimulationTimer = Timer.bind( this, this.simulationClock.signal );
     
     // Base prototypes, useful for extending the engine at runtime
-    this.base = {
-        Component: Component,
-        Service: Service
+    this.base = base;
+
+    this.simulation = {
+      Space: simulation.Space.bind( null, this.simulationClock ),
+      Entity: simulation.Entity
     };
-    
+  
     // Registered extensions go in here; They are also exposed as properties
     // on the engine instance
     this._extensions = {};
+
+    // Register core extension
+    this.registerExtension( core );
   };
   
   function suspend() {
@@ -109,25 +130,30 @@ define( function ( require ) {
   }
   
   function registerExtension( extension, options ) {
-    if( !extension instanceof Extension ) {
+    if( !extension instanceof base.Extension ) {
       throw new Error( "argument is not an extension" );
     }
+
+    options = options || {};
+
     var i, l;
     var j, m;
     var extensionInstance = {};
     
     var services = extension.services;
     var serviceNames = Object.keys( services );
-    var serviceName, service;
+    var serviceName, serviceOptions, service;
     var components, componentNames, componentName, ComponentConstructor;
     var resources, resourceNames, resourceName, ResourceConstructor;
     for( i = 0, l = serviceNames.length; i < l; ++ i ) {
       serviceName = serviceNames[i];
+      serviceOptions = options[serviceName] || {};
       if( typeof services[serviceName] === "function" ) {
         extensionInstance[serviceName] = new services[serviceName]( 
-            this._scheduler );
+            this._scheduler, serviceOptions );
       } else if( typeof services[serviceName] === "object" ) {
-        service = new services[serviceName].service();
+        service = new services[serviceName].service( this._scheduler, 
+          serviceOptions );
         extensionInstance[serviceName] = service;
 
         components = services[serviceName].components;
@@ -165,17 +191,15 @@ define( function ( require ) {
     }
     
     this._extensions[extension.name] = extensionInstance;
+    if( !this.hasOwnProperty( name ) ) {
+      this[extension.name] = extensionInstance;
+    }
     
     return this;
   }
   
   function unregisterExtension( extension ) {
-    if( this._extensions.hasOwnProperty( extension.name ) ) {
-      // TD: we should shut everything down first
-      delete this._extensions[extension.name];
-    }
-    
-    return this;
+    throw new Error( "not implemented" );
   }
   
   function findExtension( name ) {
