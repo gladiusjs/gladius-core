@@ -1,8 +1,0 @@
-{
-    "box": {
-        "Transform": {},
-        "Model": {
-            "Mesh": "/assets/test-mesh.json"
-        }
-    }
-}
