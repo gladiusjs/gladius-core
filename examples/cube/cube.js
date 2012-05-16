@@ -7,7 +7,7 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
       "base": "../src/base",
       "common": "../src/common",
       "core": "../src/core",
-      "extensions": "../src/extensions",
+      "extensions": "../src/extensions"
     }
   });
   
@@ -60,15 +60,18 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
   function game( engine, resources ) {
 
     var space = new engine.simulation.Space();
+    space.add( new engine.simulation.Entity( "camera",
+      [
+        new engine.core.Transform()
+      ]
+    ));
     space.add( new engine.simulation.Entity( "cube",
       [
         new engine.core.Transform()
       ]
     ));
-    var entity = space.findNamed( "cube" );
 
-    debugger;
-
+    engine.resume();
   }
 
 });

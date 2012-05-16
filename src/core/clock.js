@@ -25,14 +25,14 @@ define( function( require ) {
   function pause() {
     this._clockState = C_PAUSED;
     if( this._delegate ) {
-      this._delegate.unsubscribe( this.update );
+      this._delegate.unsubscribe( this.update.bind( this ) );
     }
   }
   
   function start() {
     this._clockState = C_STARTED;
     if( this._delegate ) {
-      this._delegate.subscribe( this.update );
+      this._delegate.subscribe( this.update.bind( this ) );
     }
   }
   
