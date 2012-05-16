@@ -18,19 +18,19 @@ define( function ( require ) {
     this._graph = new Graph();
     this._schedule = null;
 
-    // Set up scheduler phases
-    var i;
-    phases = phases || defaultPhases;
-    for( i = 0; i < phases.length; ++ i ) {
-      this._graph.insert( phases[i] );
-      if( i > 0 ) {
-        this._graph.link( phases[i-1], phases[i] );
-      }
-    }
+    this._phases = phases || defaultPhases;
+    this.clear();
   };
   
   function update() {
-    this._schedule = this._graph.sort();
+    var i, l;
+    var sortedGraph = this._graph.sort();
+    this._schedule = [];
+    for( i = 0, l = sortedGraph.length; i < l; ++ i ) {
+      if( this._tasks.hasOwnProperty( sortedGraph[i] ) ) {
+        this._schedule.push( sortedGraph[i] )
+      }
+    }
     return this;
   }
   
@@ -92,6 +92,15 @@ define( function ( require ) {
   function clear() {
     this._schedule = null;
     this._graph.clear();
+
+    // Set up scheduler phases
+    var i;
+    for( i = 0; i < this._phases.length; ++ i ) {
+      this._graph.insert( this._phases[i] );
+      if( i > 0 ) {
+        this._graph.link( this._phases[i-1], this._phases[i] );
+      }
+    }
   }
 
   DependencyScheduler.prototype = {

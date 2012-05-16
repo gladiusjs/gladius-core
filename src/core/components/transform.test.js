@@ -1,5 +1,5 @@
 define(
-    [ "core/components/transform", "core-lib/_math" ],
+    [ "core/components/transform", "lib/_math" ],
     function( Transform, math ) {
       return function() {
 

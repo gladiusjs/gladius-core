@@ -11,7 +11,7 @@
   // This setup assumes CubicVR.js is the built output,
   // so this build file assumes make has already run in CubicVR.js
   paths: {
-    "core-lib": "../lib",
+    "lib": "../lib",
     "base": "base",
     "common": "common",
     "core": "core",
