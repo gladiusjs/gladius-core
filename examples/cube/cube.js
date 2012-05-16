@@ -17,7 +17,7 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
     function( Gladius, cubicvrExtension ) {
 
       var engine = new Gladius();
-      
+
       var cubicvrOptions = {
         renderer: {
           canvas: document.getElementById( "test-canvas" )
@@ -25,11 +25,39 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
       };
       engine.registerExtension( cubicvrExtension, cubicvrOptions );
 
-      game( engine );
+      var resources = {};
+
+      engine.get(
+        [
+          {
+            type: engine["gladius-cubicvr"].Mesh,
+            url: 'procedural-mesh.js',
+            load: engine.loaders.proceduralLoad,
+            onsuccess: function( mesh ) {
+              resources.mesh = mesh;
+            },
+            onfailure: function( error ) {
+            }
+          },
+          {
+            type: engine["gladius-cubicvr"].MaterialDefinition,
+            url: 'procedural-material.js',
+            load: engine.loaders.proceduralLoad,
+            onsuccess: function( material ) {
+              resources.material = material;
+            },
+            onfailure: function( error ) {
+            }
+          }
+        ],
+        {
+          oncomplete: game.bind( null, engine, resources )
+        }
+      );
 
   });
 
-  function game( engine ) {
+  function game( engine, resources ) {
 
     var space = new engine.simulation.Space();
     space.add( new engine.simulation.Entity( "cube",

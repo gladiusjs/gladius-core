@@ -97,10 +97,10 @@ define( function( require ) {
     var event;
     if( value && this.space ) {
       this.active = true;
-      event = new Event( "ActivateComponent" );
+      event = new Event( "EntityActivationChanged", true );
     } else {
       this.active = false;
-      event = new Event( "DeactivateComponent" );
+      event = new Event( "EntityActivationChanged", false );
     }
     event( this );
     

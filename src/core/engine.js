@@ -133,6 +133,9 @@ define( function ( require ) {
     if( !extension instanceof base.Extension ) {
       throw new Error( "argument is not an extension" );
     }
+
+    options = options || {};
+
     var i, l;
     var j, m;
     var extensionInstance = {};
