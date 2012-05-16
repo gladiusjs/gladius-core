@@ -4,7 +4,7 @@ if ( typeof define !== "function" ) {
 
 define( function( require ) {
 
-  var math = require( "lib/_math" );
+  var math = require( "_math" );
   var extend = require( "common/extend" );
   var Component = require( "base/component" );
 

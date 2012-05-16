@@ -5,16 +5,16 @@
  */
 ({
   // Where to find the module names listed below.
-  baseUrl: '../src',
+  baseUrl: '../lib',
 
   // Where to find modules that are outside of src.
   // This setup assumes CubicVR.js is the built output,
   // so this build file assumes make has already run in CubicVR.js
   paths: {
-    "lib": "../lib",
-    "base": "base",
-    "common": "common",
-    "core": "core",
+    "src": "../src",
+    "base": "../src/base",
+    "common": "../src/common",
+    "core": "../src/core",
     "tests": "../tests"
   },
 
