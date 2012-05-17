@@ -67,14 +67,14 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
     var cubicvr = engine.findExtension( "gladius-cubicvr" );
     space.add( new engine.simulation.Entity( "camera",
       [
-        new engine.core.Transform( [0, 0, 3] ),
+        new engine.core.Transform( [0, 0, 0] ),
         new cubicvr.Camera(),
         new cubicvr.Light()
       ]
     ));
     space.add( new engine.simulation.Entity( "cube",
       [
-        new engine.core.Transform( [0, 0, 0], [0, engine.math.TAU/2, engine.math.TAU/2] ),
+        new engine.core.Transform( [0, 0, 5], [engine.math.TAU/3, engine.math.TAU/3, 0] ),
         new cubicvr.Model( resources.mesh, resources.material )
       ]
     ));
