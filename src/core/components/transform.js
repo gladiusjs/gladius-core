@@ -9,6 +9,8 @@ define( function( require ) {
   var Component = require( "base/component" );
 
   var Transform = function( position, rotation, scale ) {
+    Component.call( this, "Transform", null, [] );
+
     this.position = position ? new math.Vector3( position ) : math.vector3.zero;
     this.rotation = rotation ? new math.Vector3( rotation ) : math.vector3.zero;
     this.scale = scale ? new math.Vector3( scale ) : math.vector3.one;

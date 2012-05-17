@@ -106,6 +106,14 @@ define( function( require ) {
     
     return this;
   }
+
+  function findComponent( type ) {
+    if( this._components.hasOwnProperty( type ) ) {
+      return this._components[type];
+    }
+
+    return null;
+  }
   
   function hasComponent( args ) {
     var i, l;
@@ -163,6 +171,7 @@ define( function( require ) {
       setParent: setParent,
       setSpace: setSpace,
       setActive: setActive,
+      findComponent: findComponent,
       hasComponent: hasComponent,
       addComponent: addComponent,
       removeComponent: removeComponent,

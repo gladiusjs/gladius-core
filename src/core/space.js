@@ -144,7 +144,7 @@ define( function( require ) {
     var i, l;
     for( i = 0, l = this._entities.length; i < l; ++ i ) {
       var entity = this._entities[i];
-      if( entity.contains( type ) ) {
+      if( entity.hasComponent( type ) ) {
         return entity;
       }
     }
@@ -157,7 +157,7 @@ define( function( require ) {
     var result = [];
     for( i = 0, l = this._entities.length; i < l; ++ i ) {
       var entity = this._entities[i];
-      if( entity.contains( type ) ) {
+      if( entity.hasComponent( type ) ) {
         result.push( entity );
       }
     }

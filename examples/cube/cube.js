@@ -18,6 +18,11 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
 
       var engine = new Gladius();
 
+      function monitor( engine ) {
+        console.log( engine.frame );
+      }
+      engine.attach( monitor );
+
       var cubicvrOptions = {
         renderer: {
           canvas: document.getElementById( "test-canvas" )
@@ -58,16 +63,18 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
   });
 
   function game( engine, resources ) {
-
     var space = new engine.simulation.Space();
+    var cubicvr = engine.findExtension( "gladius-cubicvr" );
     space.add( new engine.simulation.Entity( "camera",
       [
-        new engine.core.Transform()
+        new engine.core.Transform( [0, 0, -2] ),
+        new cubicvr.Camera()
       ]
     ));
     space.add( new engine.simulation.Entity( "cube",
       [
-        new engine.core.Transform()
+        new engine.core.Transform(),
+        new cubicvr.Model( resources.mesh, resources.material )
       ]
     ));
 
