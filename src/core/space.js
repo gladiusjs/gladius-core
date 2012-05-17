@@ -142,8 +142,10 @@ define( function( require ) {
   
   function findWith( type ) {
     var i, l;
-    for( i = 0, l = this._entities.length; i < l; ++ i ) {
-      var entity = this._entities[i];
+    var entityIds = Object.keys( this._entities );
+    for( i = 0, l = entityIds.length; i < l; ++ i ) {
+      var id = entityIds[i];
+      var entity = this._entities[id];
       if( entity.hasComponent( type ) ) {
         return entity;
       }
@@ -155,8 +157,10 @@ define( function( require ) {
   function findAllWith( type ) {
     var i, l;
     var result = [];
-    for( i = 0, l = this._entities.length; i < l; ++ i ) {
-      var entity = this._entities[i];
+    var entityIds = Object.keys( this._entities );
+    for( i = 0, l = entityIds.length; i < l; ++ i ) {
+      var id = entityIds[i];
+      var entity = this._entities[id];
       if( entity.hasComponent( type ) ) {
         result.push( entity );
       }
