@@ -1,6 +1,7 @@
 {
   "name": "gladius",
   "volo": {
+    "baseUrl": "lib",
     "url": "https://github.com/downloads/gladiusjs/gladius-core/gladius-{version}.js"
   }
 }
