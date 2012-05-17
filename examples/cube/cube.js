@@ -37,7 +37,7 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
           {
             type: engine["gladius-cubicvr"].Mesh,
             url: 'procedural-mesh.js',
-            load: engine.loaders.proceduralLoad,
+            load: engine.loaders.procedural,
             onsuccess: function( mesh ) {
               resources.mesh = mesh;
             },
@@ -47,7 +47,7 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
           {
             type: engine["gladius-cubicvr"].MaterialDefinition,
             url: 'procedural-material.js',
-            load: engine.loaders.proceduralLoad,
+            load: engine.loaders.procedural,
             onsuccess: function( material ) {
               resources.material = material;
             },
@@ -67,18 +67,17 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
     var cubicvr = engine.findExtension( "gladius-cubicvr" );
     space.add( new engine.simulation.Entity( "camera",
       [
-        new engine.core.Transform( [0, 0, 0] ),
+        new engine.core.Transform( [0, 0, 3] ),
         new cubicvr.Camera(),
         new cubicvr.Light()
       ]
     ));
     space.add( new engine.simulation.Entity( "cube",
       [
-        new engine.core.Transform( [0, 0, 1], [0, engine.math.TAU/2, engine.math.TAU/2] ),
+        new engine.core.Transform( [0, 0, 0], [0, engine.math.TAU/2, engine.math.TAU/2] ),
         new cubicvr.Model( resources.mesh, resources.material )
       ]
     ));
-    space.findNamed( "camera" ).findComponent( "Camera" ).setTarget( new engine.math.Vector3( 0, 0, 1 ) );
 
     engine.resume();
   }
