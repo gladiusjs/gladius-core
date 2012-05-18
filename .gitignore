@@ -1,10 +1,10 @@
 node_modules/jake
-src/extensions
 .*.swp
 *~
 /dist/
 .DS_Store
 .project
+lib/gladius-cubicvr.js
 
 .idea/codeStyleSettings.xml
 .idea/.name

@@ -35,7 +35,7 @@
   // gladius.js references gladius-src in a document.write string, so it will
   // not be found by the AST analysis done in the optimizer.
   include: [
-            'core/gladius',
+            'core/gladius-core',
            ],
 
   // Wraps the built file in a closure and exports gladius as a global.
@@ -45,5 +45,5 @@
   },
 
   // The built gladius.js file for use by web sites.
-  out: '../dist/gladius.js'
+  out: '../dist/gladius-core.js'
 })

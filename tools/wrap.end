@@ -1,5 +1,5 @@
 
-  var Gladius = require( "core/gladius" );
+  var Gladius = require( "core/gladius-core" );
 
   return Gladius;
   
