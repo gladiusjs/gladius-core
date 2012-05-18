@@ -82,29 +82,45 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
     space.add( new engine.simulation.Entity( "camera",
       [
         new engine.core.Transform( [0, 0, 0] ),
+
+        new cubicvr.Light( lightDefinition ),
         new cubicvr.Camera()
       ]
     ));
     space.add( new engine.simulation.Entity( "light-center",
       [
-        new engine.core.Transform( [0, 0, 5] )
+        new engine.core.Transform( [0, 0, 6] )
       ]
     ));
     space.add( new engine.simulation.Entity( "light-source",
       [
-        new engine.core.Transform( [2, 0, 0], [0, 0, 0] ),
-        new cubicvr.Light( lightDefinition )
+        new engine.core.Transform( [2, 0, 0], [0, 0, 0], [ 0.4, 0.4, 0.4 ] ),
+
+//        new cubicvr.Light( lightDefinition ),
+        new cubicvr.Model( resources.mesh, resources.material )
       ]
     ));
-    space.add( new engine.simulation.Entity( "cube",
+    var childCube = new engine.simulation.Entity( "childCube",
       [
         new engine.core.Transform( [0, 0, 5], [engine.math.TAU/8, engine.math.TAU/8, engine.math.TAU/8] ),
         new cubicvr.Model( resources.mesh, resources.material )
       ]
-    ));
+    );
+    var parentCube = new engine.simulation.Entity( "cube",
+      [
+        new engine.core.Transform( [0, 0, 6], [0, -engine.math.TAU/8, engine.math.TAU/8] ),
+        new cubicvr.Model( resources.mesh, resources.material )
+      ]
+    );
+    childCube.setParent(parentCube);
+    space.add( parentCube);
     space.findNamed( "light-source" ).setParent( space.findNamed( "light-center" ) );
-
+    space.findNamed( "light-source" ).setParent( space.findNamed( "light-center" ) );
     var task = new engine.FunctionTask( function() {
+      var cubeRotation = new engine.math.Vector3( space.findNamed( "cube" ).findComponent( "Transform" ).rotation );
+      cubeRotation = engine.math.vector3.add( cubeRotation, [space.clock.delta * 0.003, space.clock.delta * 0.001, space.clock.delta * 0.0007] );
+      space.findNamed( "cube" ).findComponent( "Transform" ).setRotation( cubeRotation );
+
       var lightRotation = new engine.math.Vector3( space.findNamed( "light-center" ).findComponent( "Transform" ).rotation );
       lightRotation = engine.math.vector3.add( lightRotation, [0, space.clock.delta * 0.001, 0] );
       space.findNamed( "light-center" ).findComponent( "Transform" ).setRotation( lightRotation );
