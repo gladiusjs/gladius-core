@@ -82,22 +82,25 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
     space.add( new engine.simulation.Entity( "camera",
       [
         new engine.core.Transform( [0, 0, 0] ),
-
         new cubicvr.Light( lightDefinition ),
         new cubicvr.Camera()
       ]
     ));
     space.add( new engine.simulation.Entity( "light-center",
       [
-        new engine.core.Transform( [0, 0, 6] )
+        new engine.core.Transform( [0, 0, 5] )
+      ]
+    ));
+    space.add( new engine.simulation.Entity( "light-marker",
+      [
+        new engine.core.Transform( [3, 0, 0], null, [0.4, 0.4, 0.4] ),
+        new cubicvr.Model( resources.mesh, resources.material )
       ]
     ));
     space.add( new engine.simulation.Entity( "light-source",
       [
-        new engine.core.Transform( [2, 0, 0], [0, 0, 0], [ 0.4, 0.4, 0.4 ] ),
-
-//        new cubicvr.Light( lightDefinition ),
-        new cubicvr.Model( resources.mesh, resources.material )
+        new engine.core.Transform( [2, 0, 0] ),
+        new cubicvr.Light( lightDefinition )
       ]
     ));
     var childCube = new engine.simulation.Entity( "childCube",
@@ -115,7 +118,9 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
     childCube.setParent(parentCube);
     space.add( parentCube);
     space.findNamed( "light-source" ).setParent( space.findNamed( "light-center" ) );
-    space.findNamed( "light-source" ).setParent( space.findNamed( "light-center" ) );
+    space.findNamed( "light-marker" ).setParent( space.findNamed( "light-center" ) );
+    space.findNamed( "light-source" ).findComponent( "Light" ).intensity = 20;
+
     var task = new engine.FunctionTask( function() {
       var cubeRotation = new engine.math.Vector3( space.findNamed( "cube" ).findComponent( "Transform" ).rotation );
       cubeRotation = engine.math.vector3.add( cubeRotation, [space.clock.delta * 0.003, space.clock.delta * 0.001, space.clock.delta * 0.0007] );
