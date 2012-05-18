@@ -55,9 +55,9 @@ define( function( require ) {
     }
 
     // Recursively add child entities to the space
-    if( entity.children ) {
-      for( i = 0, l = entity.children.length; i < l; ++ i ) {
-        this.add( entity.children[i] );
+    if( entity._children ) {
+      for( var childId in entity._children ){
+        this.add.call( this, entity._children[childId] );
       }
     }
   }
@@ -84,9 +84,9 @@ define( function( require ) {
       }
 
       // Recursively remove child entities from the space
-      if( entity.children ) {
-        for( i = 0, l = entity.children.length; i < l; ++ i ) {
-          this.remove( entity.children[i] );
+      if( entity._children ) {
+        for( var childId in entity._children ){
+          this.remove.call( this, entity._children[childId] );
         }
       }
     }
