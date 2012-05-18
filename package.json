@@ -2,6 +2,9 @@
   "name": "gladius",
   "volo": {
     "baseUrl": "lib",
-    "url": "https://github.com/downloads/gladiusjs/gladius-core/gladius-{version}.js"
+    "url": "https://github.com/downloads/gladiusjs/gladius-core/gladius-{version}.js",
+    "dependencies": {
+      "gladius-cubicvr": "github:gladiusjs/gladius-cubicvr/v0.1.0"
+    }
   }
 }

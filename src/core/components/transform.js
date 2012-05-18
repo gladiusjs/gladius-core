@@ -59,11 +59,11 @@ define( function( require ) {
         this.owner.parent.hasComponent( this.type ) ) {
       var parentTransform = this.owner.parent.findComponent( this.type );                            
       math.matrix4.multiply( [matrix.call( this ), parentTransform.absolute()], 
-          this._absolute );
+          this._cachedAbsolute );
     } else {
-      this._absolute = matrix.call( this );
+      this._cachedAbsolute = matrix.call( this );
     }
-    return this._absolute;
+    return this._cachedAbsolute;
   }
 
   function relative() {

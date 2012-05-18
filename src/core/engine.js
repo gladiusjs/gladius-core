@@ -45,6 +45,7 @@ define( function ( require ) {
     
     // Update internal timestamp
     var timestamp = Date.now();
+    this.cachedTimestamp = this.cachedTimestamp || timestamp; // This is a hack for the first frame
     var delta = timestamp - this.cachedTimestamp;
     this.cachedTimestamp = timestamp;
     

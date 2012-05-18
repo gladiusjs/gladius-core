@@ -11,7 +11,7 @@ define( function( require ) {
     this.id = guid();
     this.name = name || "";
     this.active = false;
-    this.parent = parent || null;
+    this.parent = null;
     this._children = {};
     this.space = null;
     this.size = 0;
@@ -32,6 +32,10 @@ define( function( require ) {
           this.addComponent.call( this, component );
         }
       }
+    }
+
+    if( parent ) {
+      this.setParent( parent );
     }
   };
   
