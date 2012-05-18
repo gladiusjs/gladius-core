@@ -91,7 +91,7 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
     ));
     space.add( new engine.simulation.Entity( "cube",
       [
-        new engine.core.Transform( [0, 0, 5], [0, engine.math.TAU/8, engine.math.TAU/8] ),
+        new engine.core.Transform( [0, 0, 5], [engine.math.TAU/8, engine.math.TAU/8, engine.math.TAU/8] ),
         new cubicvr.Model( resources.mesh, resources.material )
       ]
     ));
