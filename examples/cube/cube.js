@@ -18,10 +18,17 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
 
       var engine = new Gladius();
 
+      // Engine monitor setup
       function monitor( engine ) {
-        console.log( engine.frame );
+        debugger;
+        engine.detach( monitor );
       }
-      // engine.attach( monitor );
+      document.addEventListener( "keydown", function( event ) {
+        var code = event.which || event.keyCode;
+        if( code === 0x4D && event.ctrlKey && event.altKey ) {
+          engine.attach( monitor );
+        }
+      });
 
       var cubicvrOptions = {
         renderer: {
