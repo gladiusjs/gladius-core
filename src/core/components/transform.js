@@ -56,10 +56,9 @@ define( function( require ) {
 
   function absolute() {
     if( this.owner && this.owner.parent && 
-        this.owner.parent.hasComponent( this.type ) ) {
+        this.owner.parent.hasComponent( "Transform" ) ) {
       var parentTransform = this.owner.parent.findComponent( this.type );                            
-      math.matrix4.multiply( [matrix.call( this ), parentTransform.absolute()], 
-          this._cachedAbsolute );
+      this._cachedAbsolute = math.matrix4.multiply( [matrix.call( this ), parentTransform.absolute()] );
     } else {
       this._cachedAbsolute = matrix.call( this );
     }
