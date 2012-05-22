@@ -80,6 +80,30 @@ define(
           }, Error, "exception thrown for broken dependency" );
         });
 
+        test("addComponent adds a component successfully", function(){
+          expect( 4 );
+
+          var entity = new Entity( "MyEntity", [] );
+          entity.addComponent(
+          {
+            type: "Component1",
+            dependsOn: [],
+            setOwner: function() {ok(true, "setOwner was called");}
+          });
+          ok("Component1" in entity._components, "component was added");
+          equals(entity.size, 1, "size was incremented");
+
+          //check that an event was sent
+        });
+
+//        function onChildEntityRemoved( event )
+//        onChildEntityAdded
+//        handleEvent
+//        hasComponent
+//        setActive
+//        setSpace
+//        setParent
+//        findComponent
       };
     }
 );
