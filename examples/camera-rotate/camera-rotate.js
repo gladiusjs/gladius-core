@@ -83,7 +83,9 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
       [
         new engine.core.Transform( [0, 0, 0] ),
         new cubicvr.Light( lightDefinition ),
-        new cubicvr.Camera()
+        new cubicvr.Camera( {
+          targeted:false
+        } )
       ]
     ));
 
@@ -109,11 +111,11 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
 
     var task = new engine.FunctionTask( function() {
       var cubeRotation = new engine.math.Vector3( space.findNamed( "cube" ).findComponent( "Transform" ).rotation );
-      cubeRotation = engine.math.vector3.add( cubeRotation, [0, space.clock.delta * 0.001, 0] );
+      cubeRotation = engine.math.vector3.add( cubeRotation, [0, space.clock.delta * 0.0003, 0] );
       space.findNamed( "cube" ).findComponent( "Transform" ).setRotation( cubeRotation );
 
       var cameraRotation = new engine.math.Vector3( space.findNamed( "camera" ).findComponent( "Transform" ).rotation );
-      cameraRotation = engine.math.vector3.add( cameraRotation, [0, space.clock.delta * 0.001, 0] );
+      cameraRotation = engine.math.vector3.add( cameraRotation, [0, space.clock.delta * 0.0003, 0] );
       space.findNamed( "camera" ).findComponent( "Transform" ).setRotation( cameraRotation );
     }, {
       tags: ["@update"]
