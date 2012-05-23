@@ -18,12 +18,6 @@ define( function( require ) {
     this._components = {};
     this.tags = tags || [];
 
-    // Try to add each component in the order provided
-    // If none of them get added then required components are missing
-    // If one or more of them get added then loop through again until
-    //we either run out components or fail to add any, in which case
-    //dependencies are missing
-
     // Add components from the constructor list
     if( components && components.length > 0) {
       if (this.validateDependencies.call(this, components)){
