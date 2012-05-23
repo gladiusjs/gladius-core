@@ -38,18 +38,18 @@ define( function( require ) {
       this.setParent( parent );
     }
   };
-  
+
   function addComponent( component ) {
     var previous = this.removeComponent( component.type );
     component.setOwner( this );
     this._components[component.type] = component;
     ++ this.size;
-    
+
     var event = new Event( "EntityComponentAdded", component );
     event( this );
     return previous;
   }
-  
+
   function removeComponent( type ) {
     var previous = null;
     if( this.hasComponent( type ) ) {
@@ -57,7 +57,7 @@ define( function( require ) {
       delete this._components[type];
       previous.setOwner( null );
       -- this.size;
-      
+
       var event = new Event( "EntityComponentRemoved", previous );
       event( this );
     }
@@ -71,43 +71,56 @@ define( function( require ) {
         event = new Event( "ChildEntityRemoved", this );
         event( this.parent );
       }
-      
+
       var previous = this.parent;
       this.parent = parent;
-      
+
       event = new Event( "EntityParentChanged",
-          { previous: previous, current: parent } );
+        { previous: previous, current: parent } );
       event( this );
-      
+
       if( this.parent ) {
         event = new Event( "ChildEntityAdded", this );
         event( this.parent );
       }
     }
   }
-  
+
   function setSpace( space ) {
     if( space !== this.space ) {
       var previous = this.space;
       this.space = space;
-      
+
+      if (!this.space && this.active){
+        setActive(false);
+      }
+
       var event = new Event( "EntitySpaceChanged",
-          { previous: previous, current: space } );
+        { previous: previous, current: space } );
       event( this );
     }
   }
-  
+
   function setActive( value ) {
     var event;
-    if( value && this.space ) {
-      this.active = true;
-      event = new Event( "EntityActivationChanged", true );
+
+    if (this.space){
+      if( value) {
+        this.active = true;
+        event = new Event( "EntityActivationChanged", true );
+      } else {
+        this.active = false;
+        event = new Event( "EntityActivationChanged", false );
+      }
+      event( this );
     } else {
-      this.active = false;
-      event = new Event( "EntityActivationChanged", false );
+      if (value){
+        //TODO: Figure out what to do in this case. Exception?
+      } else {
+        this.active = false;
+        event = new Event( "EntityActivationChanged", false);
+      }
     }
-    event( this );
-    
     return this;
   }
 
@@ -118,7 +131,7 @@ define( function( require ) {
 
     return null;
   }
-  
+
   function hasComponent( args ) {
     var i, l;
     var componentTypes = Object.keys( this._components );
@@ -160,28 +173,28 @@ define( function( require ) {
       }
     }
   }
-  
+
   function onChildEntityAdded( event ) {
     var child = event.data;
     this._children[child.id] = child;
   }
-  
+
   function onChildEntityRemoved( event ) {
     var child = event.data;
     delete this._children[child.id];
   }
 
   Entity.prototype = {
-      setParent: setParent,
-      setSpace: setSpace,
-      setActive: setActive,
-      findComponent: findComponent,
-      hasComponent: hasComponent,
-      addComponent: addComponent,
-      removeComponent: removeComponent,
-      handleEvent: handleEvent,
-      onChildEntityAdded: onChildEntityAdded,
-      onChildEntityRemoved: onChildEntityRemoved
+    setParent: setParent,
+    setSpace: setSpace,
+    setActive: setActive,
+    findComponent: findComponent,
+    hasComponent: hasComponent,
+    addComponent: addComponent,
+    removeComponent: removeComponent,
+    handleEvent: handleEvent,
+    onChildEntityAdded: onChildEntityAdded,
+    onChildEntityRemoved: onChildEntityRemoved
   };
 
   return Entity;
