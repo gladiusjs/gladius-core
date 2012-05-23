@@ -59,7 +59,7 @@ define(
           var entity = new Entity( "MyEntity", [component1, component2] );
           ok( entity.hasComponent( "Component1" ), "has component" );
           ok( entity.hasComponent( "Component2" ), "has component" );
-          equal(entity.size, 2, "entity size is 2")
+          equal(entity.size, 2, "entity size is 2");
         });
 
         test( "create with or add broken dependencies", function() {
@@ -67,12 +67,12 @@ define(
 
           var component1 = {
               type: "Component1",
-              dependsOn: [],
+              dependsOn: ["Component2"],
               setOwner: function() {}
           };
           var component2 = {
               type: "Component2",
-              dependsOn: ["Component1"],
+              dependsOn: ["Component3"],
               setOwner: function() {}
           };
 
@@ -83,7 +83,7 @@ define(
           var entity = new Entity( "MyEntity", []);
           raises( function() {
             entity.addComponent(component2);
-          }, Error, "exception thrown for adding broken dependency")
+          }, Error, "exception thrown for adding broken dependency");
         });
 
         test( "breaking dependencies in existing object", function() {
@@ -134,7 +134,9 @@ define(
               //This will get called twice- once when the component is added, and once when it is removed
               setOwner: function() {ok(true, "setOwner was called");}
             });
-          entity.onEntityComponentRemoved = function(){ok(true, "entity component removed event handler was called")};
+          entity.onEntityComponentRemoved = function(){
+            ok(true, "entity component removed event handler was called");
+          };
           entity.removeComponent("Component1");
           ok(!("Component1" in entity._components), "component was removed");
           equal(entity.size, 0, "size was decremented");
@@ -153,20 +155,20 @@ define(
           };
           firstParentEntity.onChildEntityAdded = function(event){
             equal(event.data, childEntity,
-              "first parent's onChildEntityAdded handler called with the child")
+              "first parent's onChildEntityAdded handler called with the child");
           };
 
           var secondParentEntity = new Entity("secondParentEntity", []);
           secondParentEntity.onChildEntityAdded = function(event){
             equal(event.data, childEntity,
-              "second parent's onChildEntityAdded handler called with the child")
+              "second parent's onChildEntityAdded handler called with the child");
           };
 
           childEntity.onEntityParentChanged = function(event){
             equal(event.data.previous, undefined,
               "child's onEntityParentChanged handler called, previous parent is undefined");
             equal(event.data.current, firstParentEntity,
-              "child's onEntityParentChanged handler called, current parent is correct")
+              "child's onEntityParentChanged handler called, current parent is correct");
           };
 
           //This should trigger the changed parent handler on the child and the
@@ -180,7 +182,7 @@ define(
             equal(event.data.previous, firstParentEntity,
               "child's onEntityParentChanged handler called, previous parent is correct");
             equal(event.data.current, secondParentEntity,
-              "child's onEntityParentChanged handler called, current parent is correct")
+              "child's onEntityParentChanged handler called, current parent is correct");
           };
 
           //This should trigger the removed child handler on the first parent,
@@ -239,14 +241,14 @@ define(
           entity.onEntityActivationChanged = function(event){
             equal(event.data, true,
               "entity's activation changed handler called with correct value of true");
-          }
+          };
           entity.setActive(true);
           equal(entity.active, true, "entity.active set to true");
 
           entity.onEntityActivationChanged = function(event){
             equal(event.data, false,
               "entity's activation changed handler called with correct value of false");
-          }
+          };
           entity.setActive(false);
           equal(entity.active, false, "entity.active set to false");
 
@@ -255,7 +257,7 @@ define(
           entity.onEntityActivationChanged = function(event){
             equal(event.data, false,
               "entity's activation changed handler called with correct value of true");
-          }
+          };
           entity.setActive(false);
           equal(entity.active, false, "entity.active set to false");
 

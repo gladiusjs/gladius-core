@@ -19,18 +19,14 @@ define( function( require ) {
     this.tags = tags || [];
 
     // Add components from the constructor list
-    if( components ) {
-      var i, l;
-      for( i = 0, l = components.length; i < l; ++ i ) {
-        var component = components[i];
-        // Make sure all dependencies are satisfied
-        // Note: Components with dependencies must appear after the components
-        // they depend on in the list
-        if( !this.hasComponent( component.dependsOn ) ) {
-          throw new Error( "required component missing" );
-        } else {
-          this.addComponent.call( this, component );
+    if( components && components.length > 0) {
+      if (this.validateDependencies.call(this, components)){
+        var i, l;
+        for ( i = 0, l = components.length; i < l; ++ i){
+          this.addComponent.call(this, components[i]);
         }
+      }else{
+        throw new Error( "required component missing" );
       }
     }
 
@@ -38,18 +34,22 @@ define( function( require ) {
       this.setParent( parent );
     }
   };
-  
+
   function addComponent( component ) {
-    var previous = this.removeComponent( component.type );
-    component.setOwner( this );
-    this._components[component.type] = component;
-    ++ this.size;
-    
-    var event = new Event( "EntityComponentAdded", component );
-    event.dispatch( this );
-    return previous;
+    if (this.validateDependencies.call(this, component)){
+      var previous = this.removeComponent( component.type );
+      component.setOwner( this );
+      this._components[component.type] = component;
+      ++ this.size;
+
+      var event = new Event( "EntityComponentAdded", component );
+      event.dispatch( this );
+      return previous;
+    } else {
+      throw new Error( "required component missing");
+    }
   }
-  
+
   function removeComponent( type ) {
     var previous = null;
     if( this.hasComponent( type ) ) {
@@ -60,6 +60,19 @@ define( function( require ) {
       
       var event = new Event( "EntityComponentRemoved", previous );
       event.dispatch( this );
+
+      //We need to re-pack the internal components into an array so that
+      //validate dependencies knows what to do with it
+      var componentArray = [];
+      var componentTypes = Object.keys(this._components);
+      for(var comIndex = 0; comIndex < componentTypes.length; comIndex++){
+        componentArray.push(this._components[componentTypes[comIndex]]);
+      }
+      //What we've done here is cause all of the existing components to be re-validated
+      //now that one of them has been removed
+      if (!this.validateDependencies.call({_components: []}, componentArray)){
+        throw new Error( "required component removed from entity- component dependency missing");
+      }
     }
     return previous;
   }
@@ -152,6 +165,35 @@ define( function( require ) {
     } else {
       return true;
     }
+    return true;
+  }
+
+  //Check a list of components that we're going to add and make sure
+  //that all components that they are dependent on either already exist in
+  //this entity or are being added
+  function validateDependencies(componentsToValidate){
+    var componentTypes = Object.keys(this._components);
+    if (Array.isArray(componentsToValidate)){
+      componentsToValidate.forEach(
+        function (component){
+          componentTypes.push(component.type);
+        }
+      );
+    }else{
+      componentTypes.push(componentsToValidate.type);
+      componentsToValidate = [componentsToValidate];
+    }
+
+    var component;
+    for (var comIndex = 0; comIndex < componentsToValidate.length; comIndex++){
+      component = componentsToValidate[comIndex];
+      for (var depIndex = 0; depIndex < component.dependsOn.length; depIndex++){
+        if (componentTypes.indexOf(component.dependsOn[depIndex]) < 0){
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   function handleEvent( event ) {
@@ -194,6 +236,7 @@ define( function( require ) {
       hasComponent: hasComponent,
       addComponent: addComponent,
       removeComponent: removeComponent,
+      validateDependencies: validateDependencies,
       handleEvent: handleEvent,
       onChildEntityAdded: onChildEntityAdded,
       onChildEntityRemoved: onChildEntityRemoved
