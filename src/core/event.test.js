@@ -25,8 +25,8 @@ define(
           var event = new Event( eventType, eventData );
           equal( event.type, eventType, "event type is correct" );
           equal( event.data, eventData, "event data is correct" );
-          event( handler );
-          event( handler, handler );
+          event.dispatch( handler );
+          event.dispatch( handler, handler );
         });
 
       };

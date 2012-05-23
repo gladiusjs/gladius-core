@@ -38,18 +38,18 @@ define( function( require ) {
       this.setParent( parent );
     }
   };
-
+  
   function addComponent( component ) {
     var previous = this.removeComponent( component.type );
     component.setOwner( this );
     this._components[component.type] = component;
     ++ this.size;
-
+    
     var event = new Event( "EntityComponentAdded", component );
-    event( this );
+    event.dispatch( this );
     return previous;
   }
-
+  
   function removeComponent( type ) {
     var previous = null;
     if( this.hasComponent( type ) ) {
@@ -57,9 +57,9 @@ define( function( require ) {
       delete this._components[type];
       previous.setOwner( null );
       -- this.size;
-
+      
       var event = new Event( "EntityComponentRemoved", previous );
-      event( this );
+      event.dispatch( this );
     }
     return previous;
   }
@@ -69,23 +69,23 @@ define( function( require ) {
     if( parent !== this.parent ) {
       if( this.parent ) {
         event = new Event( "ChildEntityRemoved", this );
-        event( this.parent );
+        event.dispatch( this.parent );
       }
-
+      
       var previous = this.parent;
       this.parent = parent;
-
+      
       event = new Event( "EntityParentChanged",
-        { previous: previous, current: parent } );
-      event( this );
-
+          { previous: previous, current: parent } );
+      event.dispatch( this );
+      
       if( this.parent ) {
         event = new Event( "ChildEntityAdded", this );
-        event( this.parent );
+        event.dispatch( this.parent );
       }
     }
   }
-
+  
   function setSpace( space ) {
     if( space !== this.space ) {
       var previous = this.space;
@@ -96,11 +96,11 @@ define( function( require ) {
       }
 
       var event = new Event( "EntitySpaceChanged",
-        { previous: previous, current: space } );
-      event( this );
+          { previous: previous, current: space } );
+      event.dispatch( this );
     }
   }
-
+  
   function setActive( value ) {
     var event;
 
@@ -120,7 +120,8 @@ define( function( require ) {
         event = new Event( "EntityActivationChanged", false);
       }
     }
-    event( this );
+    event.dispatch( this );
+    
     return this;
   }
 
@@ -131,7 +132,7 @@ define( function( require ) {
 
     return null;
   }
-
+  
   function hasComponent( args ) {
     var i, l;
     var componentTypes = Object.keys( this._components );
@@ -174,28 +175,28 @@ define( function( require ) {
       }
     }
   }
-
+  
   function onChildEntityAdded( event ) {
     var child = event.data;
     this._children[child.id] = child;
   }
-
+  
   function onChildEntityRemoved( event ) {
     var child = event.data;
     delete this._children[child.id];
   }
 
   Entity.prototype = {
-    setParent: setParent,
-    setSpace: setSpace,
-    setActive: setActive,
-    findComponent: findComponent,
-    hasComponent: hasComponent,
-    addComponent: addComponent,
-    removeComponent: removeComponent,
-    handleEvent: handleEvent,
-    onChildEntityAdded: onChildEntityAdded,
-    onChildEntityRemoved: onChildEntityRemoved
+      setParent: setParent,
+      setSpace: setSpace,
+      setActive: setActive,
+      findComponent: findComponent,
+      hasComponent: hasComponent,
+      addComponent: addComponent,
+      removeComponent: removeComponent,
+      handleEvent: handleEvent,
+      onChildEntityAdded: onChildEntityAdded,
+      onChildEntityRemoved: onChildEntityRemoved
   };
 
   return Entity;
