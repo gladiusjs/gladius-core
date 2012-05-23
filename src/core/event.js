@@ -28,7 +28,7 @@ define( function( require ) {
       throw new Error( "event must have a non-trivial type" );
     }
     this.type = type;
-    this.data = data || null;
+    this.data = data;
     if( undefined === queue ) {
       queue = true;
     }
