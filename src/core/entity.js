@@ -46,7 +46,7 @@ define( function( require ) {
     ++ this.size;
     
     var event = new Event( "EntityComponentAdded", component );
-    event( this );
+    event.dispatch( this );
     return previous;
   }
   
@@ -59,7 +59,7 @@ define( function( require ) {
       -- this.size;
       
       var event = new Event( "EntityComponentRemoved", previous );
-      event( this );
+      event.dispatch( this );
     }
     return previous;
   }
@@ -69,7 +69,7 @@ define( function( require ) {
     if( parent !== this.parent ) {
       if( this.parent ) {
         event = new Event( "ChildEntityRemoved", this );
-        event( this.parent );
+        event.dispatch( this.parent );
       }
       
       var previous = this.parent;
@@ -77,11 +77,11 @@ define( function( require ) {
       
       event = new Event( "EntityParentChanged",
           { previous: previous, current: parent } );
-      event( this );
+      event.dispatch( this );
       
       if( this.parent ) {
         event = new Event( "ChildEntityAdded", this );
-        event( this.parent );
+        event.dispatch( this.parent );
       }
     }
   }
@@ -93,7 +93,7 @@ define( function( require ) {
       
       var event = new Event( "EntitySpaceChanged",
           { previous: previous, current: space } );
-      event( this );
+      event.dispatch( this );
     }
   }
   
@@ -106,7 +106,7 @@ define( function( require ) {
       this.active = false;
       event = new Event( "EntityActivationChanged", false );
     }
-    event( this );
+    event.dispatch( this );
     
     return this;
   }

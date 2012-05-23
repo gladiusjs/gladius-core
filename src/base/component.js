@@ -28,7 +28,7 @@ define( function( require ) {
         },
         false
       );
-      event( this );
+      event.dispatch( this );
     }
   }
 

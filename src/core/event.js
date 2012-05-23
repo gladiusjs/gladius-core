@@ -4,27 +4,36 @@ if ( typeof define !== "function" ) {
 
 define( function( require ) {
 
-  var Event = function( type, data, queue ) {
-    function dispatcher() {
-      var i, l;
-      for( i = 0, l = arguments.length; i < l; ++ i ) {
-        try {
-          var handler = arguments[i];
-          if( handler.handleEvent ) {
-            handler.handleEvent( dispatcher );
-          }
-        } catch( error ) {
-          console.log( error );
+  function dispatch() {
+    var dispatchList = Array.prototype.slice.call( arguments, 0 );
+    var i, l;
+
+    if( dispatchList.length > 0 && Array.isArray( dispatchList[0] ) ) {
+      dispatchList = dispatchList[0];
+    } 
+    for( i = 0, l = dispatchList.length; i < l; ++ i ) {
+      try {
+        var handler = dispatchList[i];
+        if( handler.handleEvent ) {
+          handler.handleEvent.call( handler, this );
         }
+      } catch( error ) {
+        console.log( error );
       }
     }
+  }
 
-    dispatcher.type = type;
-    dispatcher.data = data;
-    dispatcher.queue = undefined !== queue ? queue : true;
-
-    return dispatcher;
-
+  var Event = function( type, data, queue ) {
+    if( undefined === type || type.length < 1 ) {
+      throw new Error( "event must have a non-trivial type" );
+    }
+    this.type = type;
+    this.data = data || null;
+    if( undefined === queue ) {
+      queue = true;
+    }
+    this.queue = queue;
+    this.dispatch = dispatch.bind( this );
   };
 
   return Event;
