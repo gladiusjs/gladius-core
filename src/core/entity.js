@@ -92,7 +92,7 @@ define( function( require ) {
       this.space = space;
 
       if (!this.space && this.active){
-        setActive(false);
+        setActive.call(this, false);
       }
 
       var event = new Event( "EntitySpaceChanged",
@@ -112,15 +112,15 @@ define( function( require ) {
         this.active = false;
         event = new Event( "EntityActivationChanged", false );
       }
-      event( this );
     } else {
       if (value){
-        //TODO: Figure out what to do in this case. Exception?
+        throw new Error( "Cannot set active to true on an entity that isn't in a space" );
       } else {
         this.active = false;
         event = new Event( "EntityActivationChanged", false);
       }
     }
+    event( this );
     return this;
   }
 
@@ -144,12 +144,13 @@ define( function( require ) {
           return false;
         }
       }
-    } else {
+    } else if (args){
       if( componentTypes.indexOf( args ) < 0 ) {
         return false;
       }
+    } else {
+      return true;
     }
-    return true;
   }
 
   function handleEvent( event ) {

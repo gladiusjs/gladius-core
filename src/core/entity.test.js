@@ -110,7 +110,9 @@ define(
           expect( 4 );
 
           var entity = new Entity( "MyEntity", [] );
-          entity.onEntityComponentAdded = function(){ok(true, "entity component added event handler was called")};
+          entity.onEntityComponentAdded = function(){
+            ok(true, "entity component added event handler was called");
+          };
           entity.addComponent(
           {
             type: "Component1",
@@ -145,25 +147,25 @@ define(
 
 
           var firstParentEntity = new Entity("firstParentEntity", []);
-          firstParentEntity.onChildEntityRemoved = function(child){
-            equal(child, childEntity,
+          firstParentEntity.onChildEntityRemoved = function(event){
+            equal(event.data, childEntity,
               "first parent's onChildEntityRemoved handler called with the child");
           };
-          firstParentEntity.onChildEntityAdded = function(child){
-            equal(child, childEntity,
+          firstParentEntity.onChildEntityAdded = function(event){
+            equal(event.data, childEntity,
               "first parent's onChildEntityAdded handler called with the child")
           };
 
           var secondParentEntity = new Entity("secondParentEntity", []);
-          secondParentEntity.onChildEntityAdded = function(child){
-            equal(child, childEntity,
+          secondParentEntity.onChildEntityAdded = function(event){
+            equal(event.data, childEntity,
               "second parent's onChildEntityAdded handler called with the child")
           };
 
-          childEntity.onEntityParentChanged = function(previous, current){
-            equal(previous, undefined,
+          childEntity.onEntityParentChanged = function(event){
+            equal(event.data.previous, undefined,
               "child's onEntityParentChanged handler called, previous parent is undefined");
-            equal(current, firstParentEntity,
+            equal(event.data.current, firstParentEntity,
               "child's onEntityParentChanged handler called, current parent is correct")
           };
 
@@ -174,10 +176,10 @@ define(
             firstParentEntity,
             "child's parent is set to the first entity");
 
-          childEntity.onEntityParentChanged = function(previous, current){
-            equal(previous, firstParentEntity,
+          childEntity.onEntityParentChanged = function(event){
+            equal(event.data.previous, firstParentEntity,
               "child's onEntityParentChanged handler called, previous parent is correct");
-            equal(current, secondParentEntity,
+            equal(event.data.current, secondParentEntity,
               "child's onEntityParentChanged handler called, current parent is correct")
           };
 
@@ -190,35 +192,120 @@ define(
         });
 
         test("setSpace sets the space successfully", function(){
-          expect(2);
+          expect(7);
 
           var entity = new Entity("entity", []);
-          entity.onEntitySpaceChanged = new function(){ok(true, "entity's onEntitySpaceChanged handler called")};
 
           var space = {name:"SomeSpace"};
+          var space2 = {name:"SomeOtherSpace"};
+
+          entity.onEntitySpaceChanged = function(event){
+            equal(event.data.previous, undefined,
+              "entity's space changed handler called, previous space is correct");
+            equal(event.data.current, space,
+              "entity's space changed handler called, previous space is correct");
+          };
 
           entity.setSpace(space);
           equal(entity.space, space, "entity's space was set correctly");
+
+          entity.onEntitySpaceChanged = function(event){
+            equal(event.data.previous, space,
+              "entity's space changed handler called, previous space is correct");
+            equal(event.data.current, space2,
+              "entity's space changed handler called, previous space is correct");
+          };
+
+          entity.setSpace(space2);
+          equal(entity.space, space2, "entity's space was re-set correctly");
+
+          entity.onEntitySpaceChanged = null;
+          entity.active = true;
+
+          entity.setSpace();
+
+          equal(entity.active, false, "removing an entity's space sets active to false");
+
         });
 
-        test("setActive sets the entity to be active properly", function(){
-          expect(2);
+        test("setActive sets the entity's active status properly", function(){
+          expect(7);
 
           var entity = new Entity("entity", []);
-          entity.onEntityActivationChanged = new function(){ok(true, "entity's onEntitySpaceChanged handler called")};
-
           var space = {name:"SomeSpace"};
 
           entity.setSpace(space);
-          equal(entity.space, space, "entity's space was set correctly");
+
+          entity.onEntityActivationChanged = function(event){
+            equal(event.data, true,
+              "entity's activation changed handler called with correct value of true");
+          }
+          entity.setActive(true);
+          equal(entity.active, true, "entity.active set to true");
+
+          entity.onEntityActivationChanged = function(event){
+            equal(event.data, false,
+              "entity's activation changed handler called with correct value of false");
+          }
+          entity.setActive(false);
+          equal(entity.active, false, "entity.active set to false");
+
+          entity.setSpace();
+
+          entity.onEntityActivationChanged = function(event){
+            equal(event.data, false,
+              "entity's activation changed handler called with correct value of true");
+          }
+          entity.setActive(false);
+          equal(entity.active, false, "entity.active set to false");
+
+          raises(function(){
+            entity.setActive(true);
+          }, Error, "exception raised for trying to set a space-less entity to be active");
+
         });
 
-//        function onChildEntityRemoved( event )
-//        onChildEntityAdded
-//        handleEvent
-//        hasComponent
-//        setActive
-//        findComponent
+        test("find component works properly", function(){
+          expect(2);
+          var component = {
+            type: "Component",
+            dependsOn: [],
+            setOwner: function(){}
+          };
+          var entity = new Entity("entity", [component]);
+          equal(entity.findComponent("NonExistent"), null,
+            "find component returns null for nonexistent components");
+          equal(entity.findComponent("Component"), component,
+            "find component returns found component properly");
+        });
+
+        test("has component works properly", function(){
+          expect(6);
+          var component = {
+            type: "Component",
+            dependsOn: [],
+            setOwner: function(){}
+          };
+          var component2 = {
+            type: "Component2",
+            dependsOn: [],
+            setOwner: function(){}
+          };
+          var entity = new Entity("entity", [component, component2]);
+
+          equal(entity.hasComponent(), true,
+            "has component returns true when no argument is given");
+          equal(entity.hasComponent([]), true,
+            "has component returns true when an empty array is given");
+          equal(entity.hasComponent("Component"), true,
+            "has component returns true when given component exists");
+          equal(entity.hasComponent("Nonexistent"), false,
+            "has component returns false when given component does not exist");
+          equal(entity.hasComponent(["Component2", "Component"]), true,
+            "has component returns true when all given components exist");
+          equal(entity.hasComponent(["Component2", "Component", "Nonexistent"]), false,"" +
+            "has component returns false when any of the given components don't exist");
+        });
       };
     }
 );
