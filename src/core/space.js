@@ -8,28 +8,6 @@ define( function( require ) {
   var Entity = require( "core/entity" );
   var Clock = require( "core/clock" );
 
-  // Removes value from array and returns the array
-  function removeFromArray( array, value ) {
-    var index = array.indexOf( value );
-    if( index > 0 ) {
-      array.splice( index, 1 );
-    }
-    return this;
-  }
-
-  var Space = function( clock ) {
-    // This will normally be the system simulation clock, but for a UI space
-    // it might be the realtime clock instead.
-    this.clock = new Clock( clock.signal ); // This clock controls updates for
-                                            // all entities in this space
-    this.id = guid();
-    this.size = 0; // The number of entities in this space
-
-    this._entities = {}; // Maps entity ID to object
-    this._nameIndex = {}; // Maps name to entity ID
-    this._tagIndex = {}; // Maps tag to entity ID
-  };
-
   function add( entity ) {
     var i, l;
 
@@ -79,7 +57,7 @@ define( function( require ) {
       if( entity.tags ) {
         for( i = 0, l = entity.tags.length; i < l; ++ i ) {
           var tag = entity.tags[i];
-          removeFromArray( this._tagIndex, entity.id );
+          delete this._tagIndex[entity.id];
         }
       }
 
@@ -167,6 +145,19 @@ define( function( require ) {
     }
     
     return result;
+  }
+
+  function Space( clock ) {
+    // This will normally be the system simulation clock, but for a UI space
+    // it might be the realtime clock instead.
+    this.clock = new Clock( clock.signal ); // This clock controls updates for
+                                            // all entities in this space
+    this.id = guid();
+    this.size = 0; // The number of entities in this space
+
+    this._entities = {}; // Maps entity ID to object
+    this._nameIndex = {}; // Maps name to entity ID
+    this._tagIndex = {}; // Maps tag to entity ID
   }
 
   Space.prototype = {
