@@ -28,7 +28,7 @@ define( function ( require ) {
     this._schedule = [];
     for( i = 0, l = sortedGraph.length; i < l; ++ i ) {
       if( this._tasks.hasOwnProperty( sortedGraph[i] ) ) {
-        this._schedule.push( sortedGraph[i] )
+        this._schedule.push( sortedGraph[i] );
       }
     }
     return this;
