@@ -168,7 +168,7 @@ define( function( require ) {
     this._entities = {}; // Maps entity ID to object
     this._nameIndex = {}; // Maps name to entity ID
     this._tagIndex = {}; // Maps tag to entity ID
-  };
+  }
 
   Space.prototype = {
       add: add,
