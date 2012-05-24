@@ -23,6 +23,7 @@
     "expect",
     "notEqual",
     "ok",
+    "okay",
     "deepEqual",
     
     // HTML5 browser APIs that jshint will learn about someday
