@@ -17,19 +17,6 @@ define( function( require ) {
     return this;
   }
 
-  var Space = function( clock ) {
-    // This will normally be the system simulation clock, but for a UI space
-    // it might be the realtime clock instead.
-    this.clock = new Clock( clock.signal ); // This clock controls updates for
-                                            // all entities in this space
-    this.id = guid();
-    this.size = 0; // The number of entities in this space
-
-    this._entities = {}; // Maps entity ID to object
-    this._nameIndex = {}; // Maps name to entity ID
-    this._tagIndex = {}; // Maps tag to entity ID
-  };
-
   function add( entity ) {
     var i, l;
 
@@ -168,6 +155,20 @@ define( function( require ) {
     
     return result;
   }
+
+  function Space( clock ) {
+    // This will normally be the system simulation clock, but for a UI space
+    // it might be the realtime clock instead.
+    console.log("in space");
+    this.clock = new Clock( clock.signal ); // This clock controls updates for
+                                            // all entities in this space
+    this.id = guid();
+    this.size = 0; // The number of entities in this space
+
+    this._entities = {}; // Maps entity ID to object
+    this._nameIndex = {}; // Maps name to entity ID
+    this._tagIndex = {}; // Maps tag to entity ID
+  };
 
   Space.prototype = {
       add: add,
