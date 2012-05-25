@@ -51,8 +51,10 @@ define(
           equal(mySpace.size, 0,
             "removing all added entities results in empty space");
 
-          mySpace.remove(uniqueNameEntity); // already removed
-          ok(true, "removing an entity that is not in a space does not throw");
+          raises(function() {
+            mySpace.remove(uniqueNameEntity); // already removed
+          }, "removing an entity that is not in a space should throw");
+          
         });
 
         

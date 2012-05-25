@@ -80,6 +80,9 @@ define( function( require ) {
           this.remove.call( this, entity._children[childId] );
         }
       }
+    } else {
+      throw new Error("attempted to remove unavailable entity " +
+        entity.toString());
     }
   }
   
