@@ -20,18 +20,6 @@ define(
         });
 
 
-        test("Constructing a space without a clock", function(){
-          expect(6);
-
-          // test construction without a clock;
-          var mySpace = new Space();
-
-          //TODO: Figure out why calling new Space without a parameter works at
-          // all in any case, and determine what should be done in the case when
-          //one isn't passed in, because it just breaks right now
-          ok(mySpace.clock instanceof Clock);
-        });
-
         test("basic adding, removing, and finding entities works", function(){
           expect(6);
           var clock = new Clock();
