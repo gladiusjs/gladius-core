@@ -82,7 +82,10 @@ document.addEventListener( "DOMContentLoaded", function( e ) {
     space.add( new engine.simulation.Entity( "camera",
       [
         new engine.core.Transform( [0, 0, 0] ),
-        new cubicvr.Camera()
+        new cubicvr.Camera({
+          targeted: true
+        }),
+        new cubicvr.Light()
       ]
     ));
     space.add( new engine.simulation.Entity( "light-center",
