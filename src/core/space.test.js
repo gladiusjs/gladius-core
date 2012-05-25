@@ -10,15 +10,12 @@ define(
  
         
         test("Constructing a space with new clock", function(){
-          expect(6);
+          expect(3);
           var clock = new Clock();
           var mySpace = new Space(clock);
           
           ok(mySpace.id, "space has an id");
           equal(mySpace.size, 0, "space has no entities");
-          deepEqual(mySpace._entities, {}, "entity object is empty");
-          deepEqual(mySpace._nameIndex, {}, "nameIndex object is empty");
-          deepEqual(mySpace._tagIndex, {}, "tagIndex object is empty");
           ok(mySpace.clock instanceof Clock);
         });
 
@@ -35,8 +32,6 @@ define(
           ok(mySpace.clock instanceof Clock);
         });
 
-
-        // XXX split up into add/remove test & tagged test
         test("basic adding, removing, and finding entities works", function(){
           expect(6);
           var clock = new Clock();
