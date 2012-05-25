@@ -10,33 +10,16 @@ define(
  
         
         test("Constructing a space with new clock", function(){
-          expect(6);
+          expect(3);
           var clock = new Clock();
           var mySpace = new Space(clock);
           
           ok(mySpace.id, "space has an id");
           equal(mySpace.size, 0, "space has no entities");
-          deepEqual(mySpace._entities, {}, "entity object is empty");
-          deepEqual(mySpace._nameIndex, {}, "nameIndex object is empty");
-          deepEqual(mySpace._tagIndex, {}, "tagIndex object is empty");
           ok(mySpace.clock instanceof Clock);
         });
 
 
-        test("Constructing a space without a clock", function(){
-          expect(6);
-
-          // test construction without a clock;
-          var mySpace = new Space();
-
-          //TODO: Figure out why calling new Space without a parameter works at
-          // all in any case, and determine what should be done in the case when
-          //one isn't passed in, because it just breaks right now
-          ok(mySpace.clock instanceof Clock);
-        });
-
-
-        // XXX split up into add/remove test & tagged test
         test("basic adding, removing, and finding entities works", function(){
           expect(6);
           var clock = new Clock();
@@ -68,8 +51,10 @@ define(
           equal(mySpace.size, 0,
             "removing all added entities results in empty space");
 
-          mySpace.remove(uniqueNameEntity); // already removed
-          ok(true, "removing an entity that is not in a space does not throw");
+          raises(function() {
+            mySpace.remove(uniqueNameEntity); // already removed
+          }, "removing an entity that is not in a space should throw");
+          
         });
 
         

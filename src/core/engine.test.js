@@ -9,7 +9,7 @@ define(
         });
 
         asyncTest( "create a new engine", function() {
-          expect( 14 );
+          expect( 15 );
 
           var frameCounter = 0;
           function monitor( engine ) {
@@ -36,6 +36,12 @@ define(
           ok( engine.findExtension( "core" ), "core extension is findable" );
           ok( engine.core.Transform, "transform is available" );
           ok( engine.core.Script, "script is available" );
+
+          // TD we should really be testing that the clock that gets created
+          // is the simulation clock or something like that.  Really, this needs
+          // this probably needs the sorting out from issue #205 to happen        
+          var mySpace = new engine.simulation.Space();
+          ok(true, "creating an engine.simation.Space with no args doesn't throw");
         });
 
       };
