@@ -21,7 +21,7 @@ define(
 
 
         test("basic adding, removing, and finding entities works", function(){
-          expect(6);
+          expect(8);
           var clock = new Clock();
           var mySpace = new Space(clock);
 
@@ -29,9 +29,11 @@ define(
           var entityDupe2 = new Entity("duplicate", [], []);
           var uniqueNameEntity = new Entity("unique", [], []);
           var emptyEntity = new Entity();
+          var result = null;
 
-          mySpace.add(emptyEntity);
+          result = mySpace.add(emptyEntity);
           equal(mySpace.size, 1, "empty entity added properly");
+          equal(result, mySpace, "add returns space instance");
 
           mySpace.add(uniqueNameEntity);
           equal(mySpace.findNamed("unique"), uniqueNameEntity,
@@ -44,7 +46,8 @@ define(
           equal(mySpace.findNamed("duplicate").tags[0], "uniqueTag1",
             "make sure that findNamed returns the first of duplicate names");
 
-          mySpace.remove(uniqueNameEntity);            
+          result = mySpace.remove(uniqueNameEntity);
+          equal(result, mySpace, "remove returns space instance");
           mySpace.remove(emptyEntity);
           mySpace.remove(entityDupe1);
           mySpace.remove(entityDupe2);

@@ -51,6 +51,8 @@ define( function( require ) {
         this.add.call( this, entity._children[childId] );
       }
     }
+
+    return this;
   }
 
   function remove( entity ) {
@@ -84,6 +86,8 @@ define( function( require ) {
       throw new Error("attempted to remove unavailable entity " +
         entity.toString());
     }
+
+    return this;
   }
   
   function findNamed( name ) {
