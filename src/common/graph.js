@@ -1,153 +1,187 @@
-/*jshint white: false, strict: false, plusplus: false, onevar: false,
-  nomen: false */
-/*global define: false, console: false, window: false, setTimeout: false */
+if ( typeof define !== "function" ) {
+  var define = require( "amdefine" )( module );
+}
 
 define( function( require ) {
-    
-    var Graph = function() {
 
-        var _nodes = {};
-        var _adjacencies = {};
-        var _descendants = {};
-        var _roots = {};
-        var _cache = null;
-        var _cacheIsValid = false;
-        var that = this;
-        
-        Object.defineProperty( this, 'size', {
-            get: function() {
-                return Object.keys( _nodes ).length;
-            }
-        });
+  /* Graph
+   * 
+   * Stores a set of nodes and a set of directed edges connecting them.
+   * Supports inserting, removing, linking and unlinking nodes. Nodes are
+   * assumed to be strings.
+   * 
+   */
 
-        this.link = function( src, snk ) {
+  var Graph = function() {
+    this._nodes = {};        // Nodes in the graph
+    this._adjacencies = {};  // Adjacency list; Sink maps to sources
+    this._descendants = {};  // Number of descendants for each node
+    this._roots = {};        // List of nodes that have no ancestors
+    this._cachedSort = null; // Cached copy of the sorted nodes
+    this._cachedSize = 0;    // Cached size of the graph
+  };
 
-            if( !_nodes[src] ) { 
-                _nodes[src] = true;
-                _descendants[src] = 0;
-            }
-            if( !_nodes[snk] ) { 
-                _nodes[snk] = true; 
-                _descendants[snk] = 0;
-                _roots[snk] = true;
-            }            
+  function link( source, sink ) {
+    if( !this._nodes[source] ) { 
+      this._nodes[source] = true;
+      this._descendants[source] = 0;
+    }
+    if( !this._nodes[sink] ) { 
+      this._nodes[sink] = true; 
+      this._descendants[sink] = 0;
+      this._roots[sink] = true;
+    }            
 
-            if( !_adjacencies[snk] ) {
-                _adjacencies[snk] = {};
-            }
+    if( !this._adjacencies[sink] ) {
+      this._adjacencies[sink] = {};
+    }
 
-            _adjacencies[snk][src] = true;
-            ++ _descendants[src];
-            if( _roots[src] ) {
-                delete _roots[src];
-            }
-            
-            _cacheIsValid = false;
-        };
+    this._adjacencies[sink][source] = true;
+    ++ this._descendants[source];
+    if( this._roots[source] ) {
+      delete this._roots[source];
+    }
 
-        this.unlink = function( src, snk ) {
+    this._cachedSort = null;
 
-            if( _adjacencies[snk] && _adjacencies[snk][src] ) {
-                delete _adjacencies[snk][src];
-                -- _descendants[src];
-                if( !Object.keys( _adjacencies[snk] ).length ) {
-                    delete _adjacencies[snk];
-                }
-                if( !_descendants[src] ) {
-                    _roots[src] = true;
-                }
-            }
-            
-            _cacheIsValid = false;
+    return this;
+  }
 
-        };
+  function unlink( source, sink ) {
+    if( this._adjacencies[sink] && this._adjacencies[sink][source] ) {
+      delete this._adjacencies[sink][source];
+      -- this._descendants[source];
+      if( !Object.keys( this._adjacencies[sink] ).length ) {
+        delete this._adjacencies[sink];
+      }
+      if( !this._descendants[source] ) {
+        this._roots[source] = true;
+      }
+    } else {
+      throw new Error( "no such link: ", source, "->", sink );
+    }
 
-        this.insert = function( node ) {
+    this._cachedSort = null;
 
-            if( !_nodes[node] ) {
-                _nodes[node] = true;
-                _descendants[node] = 0;
-                _roots[node] = true;
-            }
-            
-            _cacheIsValid = false;
+    return this;
+  }
 
-        };
+  function insert( node ) {
+    if( !this._nodes[node] ) {
+      this._nodes[node] = true;
+      this._descendants[node] = 0;
+      this._roots[node] = true;
 
-        this.remove = function( node ) {
+      ++ this._cachedSize;
+      this._cachedSort = null;
+    }
 
-            var edges = _adjacencies[node] || {};
+    return this;
+  }
 
-            for( var src in edges ) {
-                that.unlink( src, node );
-            }
+  function remove( node ) {
+    var edges = this._adjacencies[node] || {};    
 
-            if( _nodes[node] ) {
-                delete _nodes[node];
-                delete _descendants[node];
-            }
-            
-            _cacheIsValid = false;
+    if( this._nodes[node] ) {
+      for( var source in edges ) {
+        this.unlink( source, node );
+      }
 
-        };
-        
-        this.clear = function() {
-            _nodes = {};
-            _adjacencies = {};
-            _descendants = {};
-            _roots = {};
-            _cache = [];
-            _cacheIsValid = true;
-        };
+      delete this._nodes[node];
+      delete this._descendants[node];
 
-        this.sort = function() {
-            
-            if( _cacheIsValid ) {
-                return _cache.slice();
-            }
+      -- this._cachedSize;
+      this._cachedSort = null;
+    } else {
+      throw new Error( "no such node: ", node );
+    }
 
-            var L = [],
-            S = Object.keys( _roots ),
-            V = {},
-            visited = {};            
-            
-            var visit = function( snk ) {
-                if( V[snk] ) {
-                    throw 'directed cycle detected';
-                }
-                V[snk] = true;
+    return this;
+  }
 
-                if( !visited[snk] ) {
-                    visited[snk] = true;
-                    var edges = _adjacencies[snk];
-                    for( var src in edges ) {
-                        if( !_nodes[src] ) {  // This might be a dangling edge
-                            delete edges[src];
-                        } else {
-                            visit( src );
-                        }
-                    }
-                    L.push( snk );
-                }                
-            };
+  function size() {
+    return this._cachedSize;
+  }
 
-            for( var i = 0, l = S.length; i < l; ++ i ) {
-                visit( S[i] );
-                V = {};
-            }                                
-           
-            if( L.length < Object.keys( _nodes ).length ) {
-                throw 'directed cycle detected';
-            }
-            
-            _cache = L;
-            _cacheIsValid = true;
-            return _cache.slice();
+  function clear() {    
+    this._nodes = {};
+    this._adjacencies = {};
+    this._descendants = {};
+    this._roots = {};    
+    this._cachedSort = null;
+    this._cachedSize = 0;
 
-        };
+    return this;
+  }
 
-    };
-    
-    return Graph;
+  function sort() {
+    var graph = this;
+    var sorted = [],
+    roots = Object.keys( this._roots ),
+    visited = [];
+
+    function visit( sink, visitedStack ) {
+      if( -1 !== visitedStack.indexOf( sink ) ) {
+        throw new Error( "directed cycle detected" );
+      }
+      visitedStack.push( sink );
+
+      if( -1 === visited.indexOf( sink ) ) {
+        visited.push( sink );
+        var edges = graph._adjacencies[sink];
+        for( var source in edges ) {
+          if( !graph._nodes[source] ) {  // This might be a dangling edge
+            delete edges[source];
+          } else {
+            visit( source, visitedStack );              
+          }
+        }
+        sorted.push( sink );
+      }
+      visitedStack.pop();
+    }
+
+    if( null === this._cachedSort ) {
+      for( var i = 0, l = roots.length; i < l; ++ i ) {
+        visit( roots[i], [] );
+      }             
+
+      if( sorted.length < Object.keys( this._nodes ).length ) {
+        throw new Error( "directed cycle detected" );
+      }
+
+      this._cachedSort = sorted;
+    }
+
+    return this._cachedSort.slice();
+
+  }
+
+  function hasNode( node ) {
+    return this._nodes.hasOwnProperty( node );
+  }
+
+  function hasLink( source, sink ) {
+    if( !this.hasNode( source ) ) { // This might be a dangling edge
+      this.unlink( source, sink );
+      return false;
+    }
+    return this._adjacencies.hasOwnProperty( sink ) &&
+    this._adjacencies[sink].hasOwnProperty( source );
+  }
+
+  Graph.prototype = {
+      link: link,    
+      unlink: unlink,    
+      insert: insert,
+      remove: remove,
+      size: size,
+      clear: clear,
+      sort: sort,
+      hasNode: hasNode,
+      hasLink: hasLink
+  };
+
+  return Graph;
 
 });

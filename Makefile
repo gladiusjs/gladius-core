@@ -9,37 +9,27 @@
 #############################################################################################
 
 GLADIUS := gladius
-SRC_DIR := ./src
-TEST_DIR := ./test
+SRC_DIR := ./wip-src
+TEST_DIR := ./wip-test
 DIST_DIR := ./dist
-EXTERNAL_DIR := ./external
-EXAMPLE_DIR := ./example
-GLADIUS_SRC := $(SRC_DIR)/$(GLADIUS).js
+EXTERNAL_DIR := ./lib
+EXAMPLE_DIR := ./examples
+GLADIUS_SRC := $(SRC_DIR)/core/$(GLADIUS).js
 GLADIUS_DIST := $(DIST_DIR)/$(GLADIUS).js
 GLADIUS_MIN := $(DIST_DIR)/$(GLADIUS).min.js
 TOOLS_DIR := ./tools
-DIST_TEST_DIR := $(DIST_DIR)/test
-DIST_TOOLS_DIR := $(DIST_DIR)/tools
-JSHINT := $(TOOLS_DIR)/node_modules/.bin/jshint
+JSHINT := node_modules/.bin/jshint
 
-CUBICVR_LIB := $(EXTERNAL_DIR)/CubicVR.js/dist/CubicVR.js
-
-compile = node $(TOOLS_DIR)/node_modules/uglify-js/bin/uglifyjs --output $(1) $(GLADIUS_DIST)
-
-complete = cat $(GLADIUS_MIN) > $(1)
+compile = node node_modules/uglify-js/bin/uglifyjs --output $(1) $(GLADIUS_DIST)
 
 .PHONY: check-lint
 
-all: $(DIST_DIR) $(GLADIUS_DIST) $(CUBICVR_LIB)
+all: $(DIST_DIR) $(GLADIUS_DIST) $(GLADIUS_MIN)
 	@@echo "Finished, see $(DIST_DIR)"
 
 $(DIST_DIR):
 	@@echo "Creating $(DIST_DIR)"
 	@@mkdir $(DIST_DIR)
-
-$(CUBICVR_LIB):
-	@@echo "Creating $(CUBICVR_LIB)"
-	@@cd $(EXTERNAL_DIR)/CubicVR.js && make
 
 $(GLADIUS_DIST): $(DIST_DIR) $(GLADIUS_SRC) $(CUBICVR_LIB)
 	@@echo "Building $(GLADIUS_DIST)"
@@ -71,8 +61,6 @@ check-lint:
 
 clean:
 	@@rm -fr $(DIST_DIR)
-
-setup: submodule install-precommit
 
 # TD: this will fail in a Windows environment, since symlinks don't work there.
 install-precommit:

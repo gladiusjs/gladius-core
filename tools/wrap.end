@@ -1,2 +1,7 @@
 
-}());
+  var Gladius = require( "core/gladius-core" );
+
+  return Gladius;
+  
+}));
+

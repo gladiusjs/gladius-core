@@ -1,87 +1,61 @@
-/*jshint white: false, strict: false, plusplus: false, onevar: false,
-  nomen: false */
-/*global define: false, console: false, window: false, setTimeout: false */
+if ( typeof define !== "function" ) {
+  var define = require( "amdefine" )( module );
+}
 
-define( function ( require ) {
+define( function( require ) {
+
+  var T_STARTED = 0,
+  T_PAUSED = 1;
+
+  var Timer = function( delegate, delay, callback, data ) {
+    this._delegate = delegate;
+    this._callback = callback;
+    this._data = data;
+    this._delay = delay;
+    this.elapsed = 0;
+    this._timerState = undefined;
     
-    var lang = require( 'lang' );
-    
-    return function( options ) {
-        
-        options = options || {};
-        var _defaultTick = options.tick;
-        
-        var Timer = function( options ) {
-            
-            options = options || {};
-            
-            var _id = options.id || lang.guid();
-            var _tick = options.tick || _defaultTick || null;
-            
-            var _time = options.start || 0;
-            Object.defineProperty( this, 'time', {
-                get: function() {
-                    return _time;
-                }
-            });
-            
-            var _delta = 0;
-            Object.defineProperty( this, 'delta', {
-                get: function() {
-                    return _delta;
-                }
-            });
-            
-            var handleTick = function( delta ) {
-                if( _active ) {
-                    _delta = delta;
-                    _time += delta;                    
-                } else {
-                    _delta = 0;
-                    _tick.unsubscribe( handleTick );
-                }
-            };
-            
-            this.update = function( delta ) {
-                if( _active ) {
-                    _delta = delta;
-                    _time = _time + delta;
-                }
-            };
-            
-            var _active = false;
-            Object.defineProperty( this, 'active', {
-                get: function() {
-                    return _active;
-                }            
-            });
-            
-            this.suspend = function() {
-                if( _active ) {
-                    _active = false;
-                    if( _tick ) {
-                        _tick.unsubscribe( handleTick );
-                    }
-                }
-            };
-            
-            this.resume = function() {
-                if( !_active ) {
-                    _active = true;
-                    if( _tick ) {
-                        _tick.subscribe( handleTick );
-                    }
-                }
-            };
-            
-            if( options.hasOwnProperty( 'active' ) ? options.active : true ) {
-                this.resume();
-            }
-            
-        };
-        
-        return Timer;
-        
-    };
-    
+    this.start();
+  };
+  
+  function update( delta ) {
+    if( T_PAUSED !== this._timerState ) {
+      this.elapsed += delta;
+      
+      if( this.elapsed >= this._delay ) {
+        this._callback( this._data );
+        this.pause();
+      }
+    }
+  }
+  
+  function start() {
+    this._timerState = T_STARTED;
+    this._delegate.subscribe( this.update );
+  }
+  
+  function pause() {
+    this._timerState = T_PAUSED;
+    this._delegate.unsubscribe( this.update );
+  }
+  
+  function isStarted() {
+    return this._timerState === T_STARTED;
+  }
+  
+  function reset() {
+    this.elapsed = 0;
+    this.start();
+  }
+  
+  Timer.prototype = {
+      start: start,
+      pause: pause,
+      update: update,
+      isStarted: isStarted,
+      reset: reset
+  };
+  
+  return Timer;
+
 });

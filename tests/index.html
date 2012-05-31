@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Gladius Unit Tests</title>
+	<link rel="stylesheet" href="../tools/qunit/qunit.css" type="text/css" media="screen">
+	<script src="../tools/qunit/qunit.js"></script>
+	<!-- sinon must be imported before require, otherwise
+	     it will search for missing libraries -->    
+    <script src="../tools/sinon.js"></script>
+    <script src="../tools/sinon-qunit.js"></script>
+    <!-- some of our test use setTimeout, so we can't use sinon's fake
+         timers or the tests don't finish -->
+    <script>
+      sinon.config.useFakeTimers=false;
+    </script>
+    
+    <script src="../lib/require.js"></script>
+    <script src="unit-test-driver.js"></script>
+
+    <style>
+      #test-canvas {
+        width: 300px;
+        height: 300px;
+        display: none;
+        position: static;
+        padding: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="qunit-header">Gladius Test Suite</h1>
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+    <canvas id="test-canvas"></canvas>
+  </body>
+</html>
