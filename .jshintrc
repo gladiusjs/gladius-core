@@ -6,8 +6,12 @@
     // require.js
     "require",
     "define",
+
+    // sinon
+    "sinon",
     
     // qunit
+    "QUnit",
     "equal",
     "asyncTest",
     "test",
@@ -15,13 +19,18 @@
     "stop",
     "raises",
     "same",
+    "module",
+    "expect",
+    "notEqual",
+    "ok",
+    "deepEqual",
     
     // HTML5 browser APIs that jshint will learn about someday
     "requestAnimationFrame",
     "BlobBuilder",
     
     // misc
-    "gladius"
+    "Gladius"
   ],
   
   // want to toggle these and eliminate the bugs they catch, one by one
@@ -31,5 +40,6 @@
   "noarg": false,    // don't want to inadvertently fall out of optimizer
   "forin": false,    // require hasInProperty in for..in
   "newcap": false,   // require constructors to be Capitalized
-  "esnext": false    // we're not in a world where can count on let/const
+  "esnext": false,    // we're not in a world where can count on let/const
+  "sub": true        //  want to be able to use the someobject["someproperty"] syntax
 }

@@ -1,104 +1,96 @@
-/*jshint white: false, strict: false, plusplus: false, onevar: false,
-  nomen: false */
-/*global define: false, console: false, window: false, setTimeout: false */
+if ( typeof define !== "function" ) {
+  var define = require( "amdefine" )( module );
+}
 
-define( function ( require ) {
+define( function( require ) {
 
-    var lang = require( 'lang' ),
-    defaultSchedules = require( 'base/default-schedules' );
+  var Task = require( "core/function-task" );
 
-    return function( engine ) {
+  var Service = function( scheduler, schedules, dependsOn ) {
+    this._schedules = schedules || {};
+    this.dependsOn = dependsOn || [];
+    this._tasks = {};
+    this._registeredComponents = {};
 
-        var IService = function( options ) {
+    if( scheduler ) {
+      var i, l;
+      var callbackNames = Object.keys( this._schedules );
+      for( i = 0, l = callbackNames.length; i < l; ++ i ) {
+        var callbackName = callbackNames[i];
+        if( !this[callbackName] ) {
+          throw new Error( "missing scheduler target: " + callbackName );
+        }
+        var schedule = this._schedules[callbackName] || {};
+        // Create a new task to run this callback
+        this._tasks[callbackName] = new Task( scheduler, this[callbackName],
+            schedule, this );
+        this._tasks[callbackName].start();
+      }
+    }
+  };
+  
+  function registerComponent( id, component ) {
+    if( !this._registeredComponents.hasOwnProperty( component.type ) ) {
+      this._registeredComponents[component.type] = {};
+    }
+    this._registeredComponents[component.type][id] = component;
+    
+    return this;
+  }
+  
+  function unregisterComponent( id, component ) {
+    if( this._registeredComponents.hasOwnProperty( component.type ) &&
+        this._registeredComponents[component.type].hasOwnProperty( id ) ) {
+      delete this._registeredComponents[component.type][id];
+    }
+    
+    return this;
+  }
+  
+  function suspend() {
+    var i, l;
+    var taskNames = Object.keys( this._tasks );
+    for( i = 0, l = taskNames.length; i < l; ++ i ) {
+      var taskName = taskNames[i];
+      this._tasks[taskName].pause();
+    }
+    
+    return this;
+  }
+  
+  function resume() {
+    var i, l;
+    var taskNames = Object.keys( this._tasks );
+    for( i = 0, l = taskNames.length; i < l; ++ i ) {
+      var taskName = taskNames[i];
+      var schedule = this._schedules[taskName] || {};
+      this._tasks[taskName].start( schedule );
+    }
+    
+    return this;
+  }
+  
+  function handleEvent( event ) {
+    var i, l;
 
-            options = options || {};
+    if( "on" + event.type in this ) {
+      var handler = this["on" + event.type];
+      try {
+        handler.call( this, event );
+      } catch( error ) {
+        console.log( error );
+      }
+    }
+  }
 
-            var _type = options.type || undefined;
-            Object.defineProperty( this, 'type', {
-                get: function() {
-                    return _type;
-                }
-            });
+  Service.prototype = {
+      registerComponent: registerComponent,
+      unregisterComponent: unregisterComponent,
+      suspend: suspend,
+      resume: resume,
+      handleEvent: handleEvent
+  };
 
-            var _depends = options.depends || [];
-            Object.defineProperty( this, 'depends', {
-                get: function() {
-                    return _depends;
-                }
-            });
-
-            var _schedule = options.schedule || defaultSchedules[_type];
-            if( !_schedule ) {
-                throw 'no schedule defined, and no default schedule for type ' + _type;
-            }
-            Object.defineProperty( this, 'schedule', {
-                get: function() {
-                    return _schedule;
-                }
-            });
-
-            this.time = options.time || engine.scheduler.simulationTime;
-        };
-
-        var Service = function( options, c ) {
-
-            options = options || {};
-
-            var r = function( options ) {
-
-                options = options || {};
-                
-                var _components = {};
-                Object.defineProperty( this, 'components', {
-                    get: function() {
-                        return _components;
-                    }
-                });
-                
-                this.registerComponent = function( id, component ) {
-                    if( !_components.hasOwnProperty( component.type ) ) {
-                        _components[component.type] = {};
-                    }
-                    _components[component.type][id] = component;
-                };
-                
-                this.unregisterComponent = function( id, component ) {
-                    if( _components.hasOwnProperty( component.type ) && 
-                            _components[component.type].hasOwnProperty( id ) ) {
-                        delete _components[component.type][id];
-                    }
-                };
-                
-                c.call( this, options );
-
-                var callbackNames = Object.keys( this.schedule );
-                var _tasks = {};
-                for( var i = 0, l = callbackNames.length; i < l; ++ i ) {
-                    var name = callbackNames[i];
-                    _tasks[callbackNames[i]] = new engine.scheduler.Task({
-                        schedule: this.schedule[name],
-                        callback: this[name],
-                        group: this.type,
-                        depends: this.depends
-                    });
-                }
-                
-                Object.defineProperty( this, 'tasks', {
-                    get: function() {
-                        return _tasks;
-                    }
-                });
-
-            };
-            r.prototype = new IService( options );
-            r.prototype.constructor = r;
-
-            return r;
-
-        };
-
-        return Service;
-
-    };
+  return Service;
 
 });

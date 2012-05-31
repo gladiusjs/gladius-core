@@ -1,5 +1,17 @@
+node_modules/jake
 .*.swp
 *~
 /dist/
 .DS_Store
 .project
+lib/gladius-cubicvr.js
+
+.idea/codeStyleSettings.xml
+.idea/.name
+.idea/encodings.xml
+.idea/gladius-core.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/scopes/scope_settings.xml
+.idea/vcs.xml
+.idea/workspace.xml

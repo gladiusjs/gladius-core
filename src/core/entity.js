@@ -1,222 +1,247 @@
-/*jshint white: false, strict: false, plusplus: false, onevar: false,
-  nomen: false */
-/*global define: false, console: false, window: false, setTimeout: false */
+if ( typeof define !== "function" ) {
+  var define = require( "amdefine" )( module );
+}
 
-define( function ( require ) {
+define( function( require ) {
 
-    var lang = require( 'lang' );
-    var Delegate = require( 'common/delegate' );
+  var guid = require( "common/guid" );
+  var Event = require( "core/event" );
 
-    /* Entity
-     *
-     * An entity is a collection of entity components under a single globally unique identifier.
-     */
+  var Entity = function( name, components, tags, parent ) {
+    this.id = guid();
+    this.name = name || "";
+    this.active = false;
+    this.parent = null;
+    this._children = {};
+    this.space = null;
+    this.size = 0;
+    this._components = {};
+    this.tags = tags || [];
 
-    return function( engine ) {
+    // Add components from the constructor list
+    if( components && components.length > 0) {
+      if (this.validateDependencies.call(this, components)){
+        var i, l;
+        for ( i = 0, l = components.length; i < l; ++ i){
+          this.addComponent.call(this, components[i]);
+        }
+      }else{
+        throw new Error( "required component missing" );
+      }
+    }
 
-        var Entity = function( options ) {               
+    if( parent ) {
+      this.setParent( parent );
+    }
+  };
 
-            options = options || {};
-            var that = this;
+  function addComponent( component ) {
+    if (this.validateDependencies.call(this, component)){
+      var previous = this.removeComponent( component.type );
+      component.setOwner( this );
+      this._components[component.type] = component;
+      ++ this.size;
 
-            // Members
+      var event = new Event( "EntityComponentAdded", component );
+      event.dispatch( this );
+      return previous;
+    } else {
+      throw new Error( "required component missing");
+    }
+  }
 
-            var _guid = lang.guid();                 // Globally-unique ID
-            Object.defineProperty( this, 'id', {
-                get: function() {
-                    return _guid;
-                }
-            });
+  function removeComponent( type ) {
+    var previous = null;
+    if( this.hasComponent( type ) ) {
+      previous = this._components[type];
+      delete this._components[type];
+      previous.setOwner( null );
+      -- this.size;
+      
+      var event = new Event( "EntityComponentRemoved", previous );
+      event.dispatch( this );
 
-            var _name = options.name || null;           // Name string
-            Object.defineProperty( this, 'name', {
-                get: function() {
-                    return _name;
-                }
-            });
-            
-            var _active = options.active || true;
-            Object.defineProperty( this, 'active', {
-                get: function() {
-                    return _active;
-                },
-                set: function( value ) {
-                    _active = value;
-                }
-            });
+      //We need to re-pack the internal components into an array so that
+      //validate dependencies knows what to do with it
+      var componentArray = [];
+      var componentTypes = Object.keys(this._components);
+      for(var comIndex = 0; comIndex < componentTypes.length; comIndex++){
+        componentArray.push(this._components[componentTypes[comIndex]]);
+      }
+      //What we've done here is cause all of the existing components to be re-validated
+      //now that one of them has been removed
+      if (!this.validateDependencies.call({_components: []}, componentArray)){
+        throw new Error( "required component removed from entity- component dependency missing");
+      }
+    }
+    return previous;
+  }
 
-            var _parent = options.parent || null;       // Parent entity, or null if no parent
-            Object.defineProperty( this, 'parent', {
-                get: function() {
-                    return _parent;
-                },
-                set: function( value ) {
-                    if( value != this && value != _parent ) {
-                        if( _parent ) {
-                            _parent.childRemoved( this );
-                        }
+  function setParent( parent ) {
+    var event;
+    if( parent !== this.parent ) {
+      if( this.parent ) {
+        event = new Event( "ChildEntityRemoved", this );
+        event.dispatch( this.parent );
+      }
+      
+      var previous = this.parent;
+      this.parent = parent;
+      
+      event = new Event( "EntityParentChanged",
+          { previous: previous, current: parent } );
+      event.dispatch( this );
+      
+      if( this.parent ) {
+        event = new Event( "ChildEntityAdded", this );
+        event.dispatch( this.parent );
+      }
+    }
+  }
+  
+  function setSpace( space ) {
+    if( space !== this.space ) {
+      var previous = this.space;
+      this.space = space;
 
-                        var previous = _parent;
-                        _parent = value;
-                        _handleEvent( new engine.core.Event({
-                            type: 'EntityParentChanged',
-                            queue: false,
-                            data: {
-                                previous: previous,
-                                current: value
-                            }
-                        }));
+      if (!this.space && this.active){
+        setActive.call(this, false);
+      }
 
-                        if( _parent ) {
-                            _parent.childAdded( this );
-                        }
-                    }
-                }
-            });
+      var event = new Event( "EntitySpaceChanged",
+          { previous: previous, current: space } );
+      event.dispatch( this );
+    }
+  }
+  
+  function setActive( value ) {
+    var event;
 
-            var _children = {};
-            Object.defineProperty( this, 'children', {
-                get: function() {
-                    return lang.clone( _children );
-                }
-            });
+    if (this.space){
+      if( value) {
+        this.active = true;
+        event = new Event( "EntityActivationChanged", true );
+      } else {
+        this.active = false;
+        event = new Event( "EntityActivationChanged", false );
+      }
+    } else {
+      if (value){
+        throw new Error( "Cannot set active to true on an entity that isn't in a space" );
+      } else {
+        this.active = false;
+        event = new Event( "EntityActivationChanged", false);
+      }
+    }
+    event.dispatch( this );
+    
+    return this;
+  }
 
-            var _manager = options.manager || null;     // Component manager
-            Object.defineProperty( this, 'manager', {
-                get: function() {
-                    return _manager;
-                },
-                set: function( value ) {
-                    if( value !== _manager ) {
-                        var previous = _manager;
-                        _manager = value;
-                        new engine.core.Event({
-                            type: 'EntityManagerChanged',
-                            queue: false,
-                            data: {
-                                previous: previous,
-                                current: value
-                            }
-                        }).dispatch( that );
-                    }
-                }
-            });
+  function findComponent( type ) {
+    if( this._components.hasOwnProperty( type ) ) {
+      return this._components[type];
+    }
 
-            var _size = 0;
-            Object.defineProperty( this, 'size', {
-                get: function() {
-                    return _size;
-                }
-            });
+    return null;
+  }
+  
+  function hasComponent( args ) {
+    var i, l;
+    var componentTypes = Object.keys( this._components );
+    if( Array.isArray( args ) ) {
+      if( args.length === 0 ) {
+        return true;
+      }
+      for( i = 0, l = args.length; i < l; ++ i ) {
+        if( componentTypes.indexOf( args[i] ) < 0 ) {
+          return false;
+        }
+      }
+    } else if (args){
+      if( componentTypes.indexOf( args ) < 0 ) {
+        return false;
+      }
+    } else {
+      return true;
+    }
+    return true;
+  }
 
-            var _components = {};       // Dictionary of components, indexed by component type
+  //Check a list of components that we're going to add and make sure
+  //that all components that they are dependent on either already exist in
+  //this entity or are being added
+  function validateDependencies(componentsToValidate){
+    var componentTypes = Object.keys(this._components);
+    if (Array.isArray(componentsToValidate)){
+      componentsToValidate.forEach(
+        function (component){
+          componentTypes.push(component.type);
+        }
+      );
+    }else{
+      componentTypes.push(componentsToValidate.type);
+      componentsToValidate = [componentsToValidate];
+    }
 
-            // Methods
+    var component;
+    for (var comIndex = 0; comIndex < componentsToValidate.length; comIndex++){
+      component = componentsToValidate[comIndex];
+      for (var depIndex = 0; depIndex < component.dependsOn.length; depIndex++){
+        if (componentTypes.indexOf(component.dependsOn[depIndex]) < 0){
+          return false;
+        }
+      }
+    }
+    return true;
+  }
 
-            // Add a component and return the previous component of the same type, or null.
-            this.add = function( component ) {            
-                var previousComponent = that.remove( component.type );
-                component.owner = that;
-                _components[component.type] = component;
-                ++ _size;                
-                _handleEvent( new engine.core.Event({
-                    type: 'EntityComponentAdded',
-                    queue: false,
-                    data: {
-                        component: component
-                    }
-                }));
-                return previousComponent || null;
-            };
+  function handleEvent( event ) {
+    var componentTypes = Object.keys( this._components );
+    var i, l;
 
-            // Remove a component and return it, or null.
-            this.remove = function( type ) {
-                var previousComponent;
-                if( _components.hasOwnProperty( type ) ) {
-                    previousComponent = _components[type];
-                    delete _components[type];
-                    previousComponent.owner = null;
-                    -- _size;
-                    _handleEvent( new engine.core.Event({
-                        type: 'EntityComponentRemoved',
-                        queue: false,
-                        data: {
-                            component: previousComponent
-                        }
-                    }));
-                }
-                return previousComponent || null;
-            };
+    if( this["on" + event.type] ) {
+      var handler = this["on" + event.type];
+      try {
+        handler.call( this, event );
+      } catch( error ) {
+        console.log( error );
+      }
+    }
 
-            // Find the first occurrence of a component with a given type and return it, or null.
-            this.find = function( type ) {
-                if( !_components.hasOwnProperty( type ) )
-                    return null;
+    for( i = 0, l = componentTypes.length; i < l; ++ i ) {
+      var componentType = componentTypes[i];
+      var component = this._components[componentType];
+      if( component.handleEvent ) {
+        component.handleEvent.call( component, event );
+      }
+    }
+  }
+  
+  function onChildEntityAdded( event ) {
+    var child = event.data;
+    this._children[child.id] = child;
+  }
+  
+  function onChildEntityRemoved( event ) {
+    var child = event.data;
+    delete this._children[child.id];
+  }
 
-                return _components[type];
-            };
+  Entity.prototype = {
+      setParent: setParent,
+      setSpace: setSpace,
+      setActive: setActive,
+      findComponent: findComponent,
+      hasComponent: hasComponent,
+      addComponent: addComponent,
+      removeComponent: removeComponent,
+      validateDependencies: validateDependencies,
+      handleEvent: handleEvent,
+      onChildEntityAdded: onChildEntityAdded,
+      onChildEntityRemoved: onChildEntityRemoved
+  };
 
-            // Return true if this entity has a component with a given type, or false.
-            this.contains = function( type ) {
-                return _components.hasOwnProperty( type );
-            };
-            
-            this.childAdded = function( child ) {
-                _children[child.id] = child;
-                _handleEvent( new engine.core.Event({
-                    type: 'EntityChildAdded',
-                    queue: false,
-                    data: {
-                        entity: child
-                    }
-                }));
-                
-            };
-            
-            this.childRemoved = function( child ) {
-                delete _children[child.id];
-                _handleEvent( new engine.core.Event({
-                    type: 'EntityChildRemoved',
-                    queue: false,
-                    data: {
-                        entity: child
-                    }
-                }));
-            };
-
-            // Generic event handler; Pass event to each component;
-            var _handleEvent = function( event ) {
-                var componentTypes = Object.keys( _components );
-                for( var i = 0, l = componentTypes.length; i < l; ++ i ) {
-                    var component = _components[componentTypes[i]];
-                    component.handleEvent.call( component, event );
-                }
-            };
-            Object.defineProperty( this, 'handleEvent', {
-                get: function() {
-                    return _handleEvent;
-                }
-            });
-            
-            // Add each component
-            if( options.components ) {
-                options.components.forEach( function( component ) {
-                    /*
-                    // Verify that all dependencies for new component are present
-                    component.depends.forEach( function( depend ) {
-                        if( !this.contains( depend ) ) {
-                            throw 'required component \'' + depend + '\' missing';
-                        }
-                    });
-                    */
-                    that.add( component );
-                });
-            }
-
-        };
-
-        return Entity;
-
-    };
+  return Entity;
 
 });
