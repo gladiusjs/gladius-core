@@ -1,45 +1,43 @@
-Gladius
-=======
-
-* [FAQ](https://github.com/gladiusjs/gladius-core/wiki/Faq)
-* [IRC](irc://irc.mozilla.org/#games)
-* [Mailing List](https://lists.mozilla.org/listinfo/community-games)
-* [Twitter](https://twitter.com/#!/gladiusjs)
-* [Contributors](https://github.com/gladiusjs/gladius-core/contributors)
-
-# Gladius is a 3D game engine
-
-Gladius is a 3D game engine, written entirely in JavaScript, and designed to run in the browser. We leverage existing web technologies whenever possible and where gaps exist in support for games, we develop new solutions.
-
-The engine consists of a core set of functionality that is common to all games and simulations like the game loop, messaging, tasks and timers. Common components like the spatial transform are also provided by the core. More specialized funcionality, like graphics or physics, is encapsulated into engine extensions that are designed to run on top of the core. A common set of extensions is maintained as part of this project, and support for third-party extensions is a strong design objective.
-
-An engine instance is comprised of the engine core plus a set of extensions.
-
-# Related projects
-
-We are also building a set of tools and libraries for building games. They are designed to be generally useful and reusable in other projects as well.
-
-<b>Check out our [roadmap](https://github.com/gladiusjs/gladius-core/wiki/Roadmap) for more details.<b>
+Development repository for Gladius engine core.
+If you're looking to get started with using Gladius, please checkout the main repository [here](https://github.com/gladiusjs/gladius).
 
 # Getting Started
 
-After cloning, be sure to execute `make setup` in the project directory to 
-ensure that all the submodules are checked out, and the pre-commit hook is
-installed.
+Before you can build and test, you'll need to set up your development environment:
 
-## Build and Test
+1. Make sure you have a recent version of `node` installed (>=0.6). See [here](http://nodejs.org/) for details on how to do this for your platform.
+2. Install `jake` globally.
 
-No building is needed for development workflows.
+            npm install -g jake
 
-To build the engine for distribution, run make in the top-level
-project directory. The build process produces a javascript file containing the entire engine and its dependencies
-and also a minified version of that file.
+3. Clone the repository.
 
-Run unit tests by opening test/ directory in a web browser. Tests run automatically and failures are marked in red.
+            git clone git://github.com/gladiusjs/gladius-core.git
 
-## Examples and tutorial
+4. Link `jake` into the project directory. Do this from inside the new working copy you just cloned. Note that on some platforms you may need to do this as superuser.
 
-A short tutorial is provided [here](https://github.com/gladiusjs/gladius-core/wiki/Tutorial). Examples are available from the top-level project directory.
+            npm link jake
+
+5. Run `jake` in the project directory. You should see the following output:
+
+            jake lint       # lint code  
+            jake build      # compile code  
+            jake clean      # remove compiled code  
+
+## Running the tests
+
+Before you can run the tests, you will need to install a web server on your machine.
+Make sure it can serve files from the project directory.
+You can run the unit tests by opening opening a web browser and pointing it to:
+
+    http://localhost/<path-to-project-directory>/tests
+
+You can also run lint tests using `jake lint`.
+
+## Building the module
+
+You can build both the minified and unminified versions of the modules by running `jake build`.
+Build output is stored in the `dist` directory.
 
 # License and Notes
 
