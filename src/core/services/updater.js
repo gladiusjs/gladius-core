@@ -29,7 +29,7 @@ define( function ( require ) {
       for( var entityId in registeredComponents[componentType] ) {
         component = registeredComponents[componentType][entityId];
         while( component.handleQueuedEvent() ) {}
-        updateEvent( component );
+        updateEvent.dispatch( component );
       }
     }
   }

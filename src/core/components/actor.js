@@ -7,12 +7,16 @@ define( function( require ) {
   var Component = require( "base/component" );
   var extend = require( "common/extend" );
 
-  var Actor = function( eventMap ) {
-    Component.call( this, "Logic", null, [] );
+  var Actor = function( service, eventMap ) {
+    Component.call( this, "Logic", service, [] );
+
+    eventMap = eventMap || {};
 
     // Set up event handlers
+    var i, l;
     var eventNames = Object.keys( eventMap );
-    for( var eventName in eventNames ) {
+    for( i = 0, l = eventNames.length; i < l; ++ i ) {
+      var eventName = eventNames[i];
       this["on" + eventName] = eventMap[eventName];
     }
   };

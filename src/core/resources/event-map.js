@@ -11,17 +11,21 @@ define( function( require ) {
     var eventNames = Object.keys( data );
 
     for( var eventName in eventNames ) {
-      getRequests.push({
-        type: Script,
-        url: data[eventName],
-        onsuccess: function( script ) {
-          map[eventName] = script;
-        },
-        onfailure: function( error ) {
-          console.log( "error loading script: " + data[eventName] );
-          throw error;
-        }
-      });
+      if( "string" === typeof data[eventName] ) {
+        getRequests.push({
+          type: Script,
+          url: data[eventName],
+          onsuccess: function( script ) {
+            map[eventName] = script;
+          },
+          onfailure: function( error ) {
+            console.log( "error loading script: " + data[eventName] );
+            throw error;
+          }
+        });
+      } else if( "function" === typeof data[eventName] ) {
+        map[eventName] = data[eventName];
+      }
     }
     get( getRequests );
 
