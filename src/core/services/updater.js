@@ -22,7 +22,7 @@ define( function ( require ) {
   function update() {
     var registeredComponents = this._registeredComponents;
 
-    // Update all graphics components
+    // Update all logic components
     var component;
     var updateEvent = new Event( 'Update', false );
     for( var componentType in registeredComponents ) {
