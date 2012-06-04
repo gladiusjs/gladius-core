@@ -22,15 +22,22 @@ Before you can build and test, you'll need to set up your development environmen
 
             jake lint       # lint code  
             jake build      # compile code  
-            jake clean      # remove compiled code  
+            jake clean      # remove compiled code
+            jake serve      # start web server in project directory
 
 ## Running the tests
 
-Before you can run the tests, you will need to install a web server on your machine.
-Make sure it can serve files from the project directory.
-You can run the unit tests by opening opening a web browser and pointing it to:
+You will need a web server that can serve files from the project directory.
+Follow these instructions if you would like to use the server that comes with Gladius.
 
-    http://localhost/<path-to-project-directory>/tests
+1. Run the web server.
+
+            jake serve
+
+2. Go to the following URL in your browser to view the tests. Be sure to use a recent version of Firefox or Chrome.
+
+            http://localhost:8080/tests
+
 
 You can also run lint tests using `jake lint`.
 
