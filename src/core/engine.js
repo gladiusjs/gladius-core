@@ -32,11 +32,26 @@ define( function ( require ) {
 
   var core = new base.Extension( "core", {
     components: {
-      Transform: require( "core/components/transform" )
+      "Transform": require( "core/components/transform" )
     },
     resources: {
-      Script: require( "core/resources/script" )
+      "Script": require( "core/resources/script" )
     }    
+  });
+
+  var logic = new base.Extension( "logic", {
+    services: {
+      "updater": {
+        service: require( "core/services/updater" ),
+        components: {
+          "Actor": require( "core/components/actor" )
+        },
+        resources: {}
+      }
+    },
+    resources: {
+      "EventMap": require( "core/resources/event-map" )
+    }
   });
   
   function simulationLoop() {
@@ -100,6 +115,9 @@ define( function ( require ) {
 
     // Register core extension
     this.registerExtension( core );
+
+    // Register logic extension
+    this.registerExtension( logic );
   };
   
   function suspend() {
