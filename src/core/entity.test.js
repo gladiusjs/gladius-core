@@ -86,6 +86,25 @@ define(
           }, Error, "exception thrown for adding broken dependency");
         });
 
+        test( "create with dependencies out of order", function() {
+          expect( 1 );
+
+          var component1 = {
+            type: "Component1",
+            dependsOn: ["Component2"],
+            setOwner: function() {}
+          };
+          var component2 = {
+            type: "Component2",
+            dependsOn: [],
+            setOwner: function() {}
+          };
+
+          var entity = new Entity( "MyEntity", [component1, component2] );
+
+          ok(entity, "entity created properly")
+        });
+
         test( "breaking dependencies in existing object", function() {
           expect( 1 );
 
