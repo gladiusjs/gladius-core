@@ -23,7 +23,7 @@ define( function( require ) {
       if (this.validateDependencies.call(this, components)){
         var i, l;
         for ( i = 0, l = components.length; i < l; ++ i){
-          this.addComponent.call(this, components[i]);
+          this.addComponent.call(this, components[i], true);
         }
       }else{
         throw new Error( "required component missing" );
@@ -35,8 +35,8 @@ define( function( require ) {
     }
   };
 
-  function addComponent( component ) {
-    if (this.validateDependencies.call(this, component)){
+  function addComponent( component, force ) {
+    if (force || this.validateDependencies.call(this, component)){
       var previous = this.removeComponent( component.type );
       component.setOwner( this );
       this._components[component.type] = component;
