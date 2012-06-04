@@ -18,3 +18,6 @@ task( "build", ["clean", "dist"], require( "./tools/jake-tasks/build" ) );
 
 desc( "remove compiled code" );
 task( "clean", [], require( "./tools/jake-tasks/clean" ) );
+
+desc( "start web server in project directory" );
+task( "serve", [], require( "./tools/jake-tasks/serve" ) );
