@@ -1,6 +1,7 @@
 define(
-    [ "core/engine" ],
-    function( Engine ) {
+    [ "core/engine",
+      "base/extension"],
+    function( Engine, Extension ) {
       return function() {
 
         module( "Engine", {
@@ -42,6 +43,16 @@ define(
           // this probably needs the sorting out from issue #205 to happen        
           var mySpace = new engine.simulation.Space();
           ok(true, "creating an engine.simation.Space with no args doesn't throw");
+        });
+
+        test("register extension retains any properties of the original object",function(){
+          var engine = new Engine();
+          var extension = new Extension("testExtension");
+          extension.someProperty = {bla:"BLA!"};
+          engine.registerExtension(extension);
+          var foundExtension = engine.findExtension("testExtension");
+          ok(foundExtension.hasOwnProperty("someProperty"), "registered extensions " +
+            "retain properties of the original object");
         });
 
       };
