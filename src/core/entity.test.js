@@ -102,7 +102,7 @@ define(
 
           var entity = new Entity( "MyEntity", [component1, component2] );
 
-          ok(entity, "entity created properly")
+          ok(entity, "entity created properly");
         });
 
         test( "breaking dependencies in existing object", function() {
@@ -184,7 +184,7 @@ define(
           };
 
           childEntity.onEntityParentChanged = function(event){
-            equal(event.data.previous, undefined,
+            equal(event.data.previous, null,
               "child's onEntityParentChanged handler called, previous parent is undefined");
             equal(event.data.current, firstParentEntity,
               "child's onEntityParentChanged handler called, current parent is correct");
@@ -221,7 +221,7 @@ define(
           var space2 = {name:"SomeOtherSpace"};
 
           entity.onEntitySpaceChanged = function(event){
-            equal(event.data.previous, undefined,
+            equal(event.data.previous, null,
               "entity's space changed handler called, previous space is correct");
             equal(event.data.current, space,
               "entity's space changed handler called, previous space is correct");
