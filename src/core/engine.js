@@ -194,7 +194,7 @@ define( function ( require ) {
           ResourceConstructor = resources[resourceName].bind( null, service );
           var resourceProperties = Object.keys(resources[resourceName]);
           for (i = 0, l = resourceProperties.length; i < l; ++ i) {
-            ComponentConstructor[resourceProperties[i]] = resources[resourceName][resourceProperties[i]];
+            ResourceConstructor[resourceProperties[i]] = resources[resourceName][resourceProperties[i]];
           }
           extensionInstance[resourceName] = ResourceConstructor;
         }
