@@ -18,38 +18,39 @@ define( function( require ) {
     this._clockState = undefined;
     this.signal = new MulticastDelegate();
     this._delegate = delegate || null;
+
+    this._delegateHandler = this.update.bind( this );
+    if( this._delegate ) {
+      this._delegate.subscribe( this._delegateHandler );
+    }
+
+    this._stepCount = 0;
     
     this.start();
   };
   
   function pause() {
     this._clockState = C_PAUSED;
-    if( this._delegate ) {
-      this._delegate.unsubscribe( this.update.bind( this ) );
-    }
   }
   
   function start() {
     this._clockState = C_STARTED;
-    if( this._delegate ) {
-      this._delegate.subscribe( this.update.bind( this ) );
-    }
   }
   
   function update( delta ) {
     if( C_PAUSED !== this._clockState ) {
       this.delta = delta * this._timeScale;
-      this.time += this.delta;
-      this.signal( this.delta ); // Dispatch time signal
+    } else {
+      this.delta = this._stepCount * this._idealFrameInterval * this._timeScale;
+      this._stepCount = 0;
     }
+    this.time += this.delta;
+    this.signal( this.delta ); // Dispatch time signal
   }
   
   function step( count ) {
-    count = undefined === count ? 1 : count;
     if( C_PAUSED === this._clockState ) {
-      this.delta = count * this._idealFrameInterval * this._timeScale;
-      this.time += this.delta;
-      this.signal( this.delta );  // Dispatch time signal
+      this._stepCount += (undefined === count) ? 1 : count;
     }
   }
   
@@ -57,9 +58,14 @@ define( function( require ) {
     return this._clockState === C_STARTED;
   }
   
-  function reset() {
+  function reset( delegate ) {
+    if( delegate && delegate != this._delegate ) {
+      this._delegate.unsubscribe( this._delegateHandler );  
+      this._delegate = delegate || null;
+      this._delegate.subscribe( this._delegateHandler );
+    }
     this.time = 0;
-    this.delta = 0;
+    this.delta = 0;    
   }
   
   function setTimeScale( scale ) {
