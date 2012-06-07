@@ -102,7 +102,7 @@ define(
 
           var entity = new Entity( "MyEntity", [component1, component2] );
 
-          ok(entity, "entity created properly")
+          ok(entity, "entity created properly");
         });
 
         test( "breaking dependencies in existing object", function() {
