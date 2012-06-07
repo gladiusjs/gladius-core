@@ -9,7 +9,7 @@ define(
         });
 
         asyncTest( "create a new engine", function() {
-          expect( 15 );
+          expect( 16 );
 
           var frameCounter = 0;
           function monitor( engine ) {
@@ -40,8 +40,11 @@ define(
           // TD we should really be testing that the clock that gets created
           // is the simulation clock or something like that.  Really, this needs
           // this probably needs the sorting out from issue #205 to happen        
-          var mySpace = new engine.simulation.Space();
-          ok(true, "creating an engine.simation.Space with no args doesn't throw");
+          var simulationSpace = new engine.SimulationSpace();
+          deepEqual( simulationSpace.clock._delegate, engine.simulationClock.signal, "simulation space uses simulation clock" );
+
+          var realSpace = new engine.RealSpace();
+          equal( realSpace.clock._delegate, engine.realClock.signal, "real space uses realtime clock" );
         });
 
       };
