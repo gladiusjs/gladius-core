@@ -215,23 +215,10 @@ define( function ( require ) {
       extensionInstance[resourceName] = ResourceConstructor;
     }
 
-    //Loop through extension, add any unrecognized properties to extensionInstance
-    var extensionProperties = Object.keys(extension);
-    for (i = 0, l = extensionProperties.length; i < l; ++ i) {
-      if (extensionProperties[i] != "resources"
-        && extensionProperties[i] != "services"
-        && extensionProperties[i] != "components"
-        && extensionProperties[i] != "name"){
-        extensionInstance[extensionProperties[i]] = extension[extensionProperties[i]];
-      }
-    }
-    
     this._extensions[extension.name] = extensionInstance;
     if( !this.hasOwnProperty( name ) ) {
       this[extension.name] = extensionInstance;
     }
-
-    //
     
     return this;
   }
