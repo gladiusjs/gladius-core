@@ -48,16 +48,6 @@ define(
           equal( realSpace.clock._delegate, engine.realClock.signal, "real space uses realtime clock" );
         });
 
-        test("register extension retains any properties of the original object",function(){
-          var engine = new Engine();
-          var extension = new Extension("testExtension");
-          extension.someProperty = {bla:"BLA!"};
-          engine.registerExtension(extension);
-          var foundExtension = engine.findExtension("testExtension");
-          ok(foundExtension.hasOwnProperty("someProperty"), "registered extensions " +
-            "retain properties of the original object");
-        });
-
       };
     }
 );
