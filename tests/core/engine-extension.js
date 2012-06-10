@@ -58,12 +58,12 @@ define(
           ok( !engine.hasExtension( "FakeExtension" ), 
               "missing extension is not found" );
         });
-        
+
         test( "register an extension with nested elements", function() {
           expect( 5 );
-          
+
           var extensionName = "testExtension";
-          
+
           var MyService = function() {
             ok( true, "service constructor invoked" );
           };
@@ -73,7 +73,7 @@ define(
           var MyNestedResource = function( service ) {
             ok( service instanceof MyService, "service is correct" );
           };
-          
+
           var myExtension = new Extension( extensionName, {
             services: {
               "myService": {
@@ -87,7 +87,7 @@ define(
               }
             }
           });
-          
+
           var engine = new Engine();
           engine.registerExtension( myExtension );
           var testExtension = engine.findExtension( "testExtension" );
@@ -98,6 +98,51 @@ define(
           var myComponent = new testExtension.MyComponent();
           var myResource = new testExtension.MyResource();
         });
+        
+        test( "additional properties of nested components and resources get " +
+          "preserved when they are registered", function() {
+          expect( 4 );
+          
+          var extensionName = "testExtension";
+          
+          var MyService = function() {
+          };
+          var MyNestedComponent = function( service ) {
+          };
+          MyNestedComponent.anExtraProperty = {name:"test"};
+          MyNestedComponent.anExtraProperty2 = {name:"test2"};
+          var MyNestedResource = function( service ) {
+          };
+          MyNestedResource.anExtraProperty = {name:"test"};
+          MyNestedResource.anExtraProperty2 = {name:"test2"};
+          var MyComponent = function( service ) {
+          };
+          
+          var myExtension = new Extension( extensionName, {
+            services: {
+              "myService": {
+                service: MyService,
+                components: {
+                  "MyNestedComponent": MyNestedComponent
+                },
+                resources: {
+                  "MyNestedResource": MyNestedResource
+                }
+              }
+            }
+          });
+          
+          var engine = new Engine();
+          engine.registerExtension( myExtension );
+          var testExtension = engine.findExtension( "testExtension" );
+
+          ok( testExtension.MyNestedComponent.hasOwnProperty( "anExtraProperty" ), "has first extra property" );
+          ok( testExtension.MyNestedComponent.hasOwnProperty( "anExtraProperty2" ), "has second extra property" );
+          ok( testExtension.MyNestedResource.hasOwnProperty( "anExtraProperty" ), "has first extra property" );
+          ok( testExtension.MyNestedResource.hasOwnProperty( "anExtraProperty2" ), "has second extra property" );
+        });
+
+
         
       };
     }
