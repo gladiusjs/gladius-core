@@ -1,5 +1,3 @@
-var jake = require( "jake" );
-
 module.exports = function() {
   var cmds = [
               "rm -rf dist"

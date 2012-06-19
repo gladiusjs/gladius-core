@@ -14,11 +14,7 @@ Before you can build and test, you'll need to set up your development environmen
 
             git clone git://github.com/gladiusjs/gladius-core.git
 
-4. Link `jake` into the project directory. Do this from inside the new working copy you just cloned. Note that on some platforms you may need to do this as superuser.
-
-            npm link jake
-
-5. Run `jake` in the project directory. You should see the following output:
+4. Run `jake` in the project directory. You should see the following output:
 
             jake lint       # lint code  
             jake build      # compile code  
