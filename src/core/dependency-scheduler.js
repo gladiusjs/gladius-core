@@ -39,7 +39,9 @@ define( function ( require ) {
       return undefined;
     }
     var taskId = this._schedule.shift();
-    return this._tasks[taskId];
+    var task = this._tasks[taskId];
+    this.remove( taskId );
+    return task;
   }
   
   function hasNext() {
