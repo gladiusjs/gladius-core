@@ -14,9 +14,9 @@ define( function( require ) {
     // Local position
     this._position = position ? new math.Vector3( position ) : new math.Vector3( math.vector3.zero );
     this.__defineGetter__( "position", function() {
-      if( this._cachedPosition.modified ) {
+      if( this._position.modified ) {
         // Update local position
-        this._cachedPosition.modified = false;
+        this._position.modified = false;
       }
       return this._position;
     });
@@ -63,9 +63,9 @@ define( function( require ) {
     if( this._cachedLocalMatrixIsValid ) {
       return this._cachedLocalMatrix;
     } else {
-      math.transform.fixed( this.position, this.rotation, this.scale, this._cachedLocalMatrix );
+      math.transform.fixed( this.position.buffer, this.rotation.buffer, this.scale.buffer, this._cachedLocalMatrix.buffer );
       this._cachedLocalMatrixIsValid = true;
-      return this._cachedMatrix;
+      return this._cachedLocalMatrix;
     }
   }
 
@@ -74,10 +74,10 @@ define( function( require ) {
     if( this.owner && this.owner.parent && 
         this.owner.parent.hasComponent( "Transform" ) ) {
       var parentTransform = this.owner.parent.findComponent( "Transform" );                            
-      math.matrix4.multiply( computeLocalMatrix.call( this ), parentTransform.worldMatrix(), 
-        this._cachedWorldMatrix );
+      math.matrix4.multiply( computeLocalMatrix.call( this).buffer, parentTransform.worldMatrix().buffer,
+        this._cachedWorldMatrix.buffer );
     } else {
-      math.matrix4.set( this._cachedWorldMatrix, computeLocalMatrix.call( this ) );
+      math.matrix4.set( this._cachedWorldMatrix.buffer, computeLocalMatrix.call( this).buffer );
     }
     return this._cachedWorldMatrix;
   }
