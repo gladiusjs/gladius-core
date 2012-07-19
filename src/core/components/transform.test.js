@@ -151,7 +151,7 @@ define(
           var scale = [7,8,9];
           var transform = new Transform( position, rotation, scale );
 
-          var expectedMatrix = math.transform.fixed(position, rotation, scale);
+          var expectedMatrix = math.transform.compound(position, rotation, scale);
           ok(math.matrix4.equal( transform.localMatrix().buffer, expectedMatrix), "local matrix is correct");
           ok(math.matrix4.equal( transform.worldMatrix().buffer, expectedMatrix), "world matrix is correct");
         });
@@ -176,9 +176,9 @@ define(
           var entity2 = new Entity("entity2", [transform2], [], entity1);
           var entity3 = new Entity("entity3", [transform3], [], entity2);
 
-          var expected1 = math.transform.fixed( position1, rotation1, scale1 );
-          var expected2 = math.transform.fixed( position2, rotation2, scale2 );
-          var expected3 = math.transform.fixed( position3, rotation3, scale3 );
+          var expected1 = math.transform.compound( position1, rotation1, scale1 );
+          var expected2 = math.transform.compound( position2, rotation2, scale2 );
+          var expected3 = math.transform.compound( position3, rotation3, scale3 );
 
           var worldMatrix2 = math.matrix4.multiply(expected2, transform1.worldMatrix().buffer);
           var worldMatrix3 = math.matrix4.multiply(expected3, transform2.worldMatrix().buffer);
