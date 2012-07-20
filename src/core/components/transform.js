@@ -50,9 +50,9 @@ define( function( require ) {
       this._cachedWorldMatrixIsvalid = false;
     });
 
-    this._cachedLocalMatrix = new math.Matrix4( math.matrix4.identity );
+    this._cachedLocalMatrix = new math.t();
     this._cachedLocalMatrixIsValid = false;
-    this._cachedWorldMatrix = new math.Matrix4( math.matrix4.identity );
+    this._cachedWorldMatrix = new math.t();
     this._cachedWorldMatrixIsvalid = false;
   };
   Transform.prototype = new Component();
@@ -63,7 +63,7 @@ define( function( require ) {
     if( this._cachedLocalMatrixIsValid ) {
       return this._cachedLocalMatrix;
     } else {
-      math.transform.compound( this.position.buffer, this.rotation.buffer, this.scale.buffer, this._cachedLocalMatrix.buffer);
+      math.transform.set(this._cachedLocalMatrix.buffer, this.position.buffer, this.rotation.buffer, this.scale.buffer);
       this._cachedLocalMatrixIsValid = true;
       return this._cachedLocalMatrix;
     }
