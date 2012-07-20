@@ -50,9 +50,9 @@ define( function( require ) {
       this._cachedWorldMatrixIsvalid = false;
     });
 
-    this._cachedLocalMatrix = new math.t();
+    this._cachedLocalMatrix = new math.T();
     this._cachedLocalMatrixIsValid = false;
-    this._cachedWorldMatrix = new math.t();
+    this._cachedWorldMatrix = new math.T();
     this._cachedWorldMatrixIsvalid = false;
   };
   Transform.prototype = new Component();
