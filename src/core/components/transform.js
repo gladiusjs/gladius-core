@@ -11,70 +11,92 @@ define( function( require ) {
   var Transform = function( position, rotation, scale ) {
     Component.call( this, "Transform", null, [] );
 
-    this.position = position ? new math.Vector3( position ) : math.vector3.zero;
-    this.rotation = rotation ? new math.Vector3( rotation ) : math.vector3.zero;
-    this.scale = scale ? new math.Vector3( scale ) : math.vector3.one;
-    this._cachedMatrix = math.matrix4.identity;
-    this._cachedIsValid = false;
-    this._cachedAbsolute = math.matrix4.identity;
+    // Local position
+    this._position = position ? new math.Vector3( position ) : new math.Vector3( math.vector3.zero );
+    this.__defineGetter__( "position", function() {
+      return this._position;
+    });
+    this.__defineSetter__( "position", function( value ) {
+      this._position.set( value );
+      this._cachedLocalMatrixIsValid = false;
+      this._cachedWorldMatrixIsvalid = false;
+    });
+
+    // Local rotation
+    this._rotation = rotation ? new math.Vector3( rotation ) : new math.Vector3( math.vector3.zero );
+    this.__defineGetter__( "rotation", function() {
+      return this._rotation;
+    });
+    this.__defineSetter__( "rotation", function( value ) {
+      this._rotation.set( value );
+      this._cachedLocalMatrixIsValid = false;
+      this._cachedWorldMatrixIsvalid = false;
+    });
+    this._rotationMatrix = new math.transform.rotate( this._rotation );
+    this._rotationMatrixIsValid = true;
+
+    // Local scale
+    this._scale = scale ? new math.Vector3( scale ) : new math.Vector3( math.vector3.one );
+    this.__defineGetter__( "scale", function() {
+      return this._scale;
+    });
+    this.__defineSetter__( "scale", function( value ) {
+      this._scale.set( value );
+      this._cachedLocalMatrixIsValid = false;
+      this._cachedWorldMatrixIsvalid = false;
+    });
+
+    this._cachedLocalMatrix = new math.T();
+    this._cachedLocalMatrixIsValid = false;
+    this._cachedWorldMatrix = new math.T();
+    this._cachedWorldMatrixIsvalid = false;
   };
   Transform.prototype = new Component();
   Transform.prototype.constructor = Transform;
 
-  function matrix() {
-    if( this._cachedIsValid ) {
-      return this._cachedMatrix;
+  // Return the relative transform
+  function computeLocalMatrix() {
+    if( this._cachedLocalMatrixIsValid && !this.position.modified && !this.rotation.modified && !this.scale.modified) {
+      return this._cachedLocalMatrix;
     } else {
-      // debugger;
-      this._cachedMatrix = math.transform.fixed( this.position, this.rotation, 
-        this.scale );
-      this._cachedIsValid = true;
-      return this._cachedMatrix;
+      math.transform.set(this._cachedLocalMatrix, this.position.buffer, this.rotation.buffer, this.scale.buffer);
+      this._cachedLocalMatrixIsValid = true;
+      this.position.modified = false;
+      this.rotation.modified = false;
+      this.scale.modified = false;
+      return this._cachedLocalMatrix;
     }
   }
 
-  function setPosition( position ) {
-    math.vector3.set( this.position, position[0], position[1], position[2] );
-    this._cachedIsValid = false;
-
-    return this;
-  }
-
-  function setRotation( rotation ) {
-    math.vector3.set( this.rotation, rotation[0], rotation[1], rotation[2] );
-    this._cachedIsValid = false;
-
-    return this;
-  }
-
-  function setScale( scale ) {
-    math.vector3.set( this.scale, scale[0], scale[1], scale[2] );
-    this._cachedIsValid = false;
-
-    return this;
-  }
-
-  function absolute() {
+  // Return the world transform
+  function computeWorldMatrix() {
     if( this.owner && this.owner.parent && 
         this.owner.parent.hasComponent( "Transform" ) ) {
-      var parentTransform = this.owner.parent.findComponent( this.type );                            
-      this._cachedAbsolute = math.matrix4.multiply( [matrix.call( this ), parentTransform.absolute()] );
+      var parentTransform = this.owner.parent.findComponent( "Transform" );                            
+      math.matrix4.multiply( parentTransform.worldMatrix(), computeLocalMatrix.call( this),
+        this._cachedWorldMatrix );
     } else {
-      this._cachedAbsolute = matrix.call( this );
+      math.matrix4.set( this._cachedWorldMatrix, computeLocalMatrix.call( this) );
     }
-    return this._cachedAbsolute;
-  }
-
-  function relative() {
-    throw new Error( "not implemented" );
+    return this._cachedWorldMatrix;
   }
 
   var prototype = {
-      setPosition: setPosition,
-      setRotation: setRotation,
-      setScale: setScale,
-      absolute: absolute,
-      relative: relative
+      worldMatrix: computeWorldMatrix,
+      localMatrix: computeLocalMatrix,
+      toWorldDirection: undefined,
+      toLocalDirection: undefined,
+      toWorldPoint: undefined,
+      toLocalPoint: undefined,
+      lookAt: undefined,
+      target: undefined,
+      // Direction constants
+      forward: new math.Vector3( 0, 0, 1 ),
+      backward: new math.Vector3( 0, 0, -1 ),
+      left: new math.Vector3( -1, 0, 0 ),
+      right: new math.Vector3( 1, 0, 0 ),
+      up: new math.Vector3( 0, 1, 0 ),
+      down: new math.Vector3( 0, -1, 0 )
   };
   extend( Transform.prototype, prototype );
 
