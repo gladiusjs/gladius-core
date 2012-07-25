@@ -156,6 +156,72 @@ define(
           ok(math.matrix4.equal( transform.worldMatrix(), expectedMatrix), "world matrix is correct");
         });
 
+        test( "local transform of a direction", function() {
+          expect( 1 );
+
+          var position = [1,2,3];
+          var rotation = [4,5,6];
+          var scale = [7,8,9];
+          var transform = new Transform( position, rotation, scale );
+          var direction = [0.5, 0.9, 28];
+
+          var resultingDirection = transform.directionToLocal(direction);
+          var expectedDirection = math.matrix4.multiply(math.transform.rotate(transform.rotation.buffer), math.transform.translate(direction));
+          expectedDirection = [expectedDirection[3], expectedDirection[7], expectedDirection[11]];
+          ok(math.vector3.equal( resultingDirection, expectedDirection), "Direction is correct");
+        });
+
+        test( "world transform of a direction", function() {
+          expect( 1 );
+
+          var position1 = [1,2,3];
+          var rotation1 = [4,5,6];
+          var scale1 = [7,8,9];
+          var position2 = [10,11,12];
+          var rotation2 = [13,14,15];
+          var scale2 = [16,17,18];
+          var transform1 = new Transform( position1, rotation1, scale1 );
+          var transform2 = new Transform( position2, rotation2, scale2 );
+
+          var entity1 = new Entity("entity1", [transform1]);
+          var entity2 = new Entity("entity2", [transform2], [], entity1);
+          var direction = [0.5, 0.9, 28];
+
+          var resultingDirection = transform2.directionToWorld(direction);
+          var expectedDirection = math.matrix4.multiply(transform2.worldRotation(),
+                                                        math.transform.translate(direction));
+          expectedDirection = [expectedDirection[3], expectedDirection[7], expectedDirection[11]];
+          ok(math.vector3.equal( resultingDirection, expectedDirection), "Direction is correct");
+        });
+
+        test( "world rotation", function() {
+          expect(1);
+          var position1 = [1,2,3];
+          var rotation1 = [4,5,6];
+          var scale1 = [7,8,9];
+          var position2 = [10,11,12];
+          var rotation2 = [13,14,15];
+          var scale2 = [16,17,18];
+          var position3 = [19,20,21];
+          var rotation3 = [22,23,24];
+          var scale3 = [25,26,27];
+          var transform1 = new Transform( position1, rotation1, scale1 );
+          var transform2 = new Transform( position2, rotation2, scale2 );
+          var transform3 = new Transform( position3, rotation3, scale3 );
+
+          var entity1 = new Entity("entity1", [transform1]);
+          var entity2 = new Entity("entity2", [transform2], [], entity1);
+          var entity3 = new Entity("entity3", [transform3], [], entity2);
+
+          var expectedWorldRotation = math.matrix4.multiply(math.transform.rotate(rotation1),
+                                                            math.transform.rotate(rotation2));
+          var expectedWorldRotation = math.matrix4.multiply(expectedWorldRotation,
+                                                            math.transform.rotate(rotation3));
+          var actualWorldRotation = transform3.worldRotation();
+
+          ok(math.matrix4.equal(expectedWorldRotation, actualWorldRotation), "world rotation is correct");
+        });
+
         test( "create a transform tree", function() {
           expect( 6 );
 
