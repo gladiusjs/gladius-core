@@ -63,8 +63,8 @@ define(
           ok( transform.position.equal( [1, 2, 3] ), "position is correct" );
           var expectedLocalMatrix = expectedWorldMatrix = new math.transform.translate( [1, 2, 3] );
 
-          ok( math.matrix4.equal( transform.localMatrix().buffer, expectedLocalMatrix ), "local matrix is correct" );
-          ok( math.matrix4.equal( transform.worldMatrix().buffer, expectedWorldMatrix ), "world matrix is correct" );
+          ok( math.matrix4.equal( transform.localMatrix(), expectedLocalMatrix ), "local matrix is correct" );
+          ok( math.matrix4.equal( transform.worldMatrix(), expectedWorldMatrix ), "world matrix is correct" );
         });
 
         test( "set rotation using assignment", function(){
@@ -77,8 +77,8 @@ define(
           ok( transform.rotation.equal( [1, 2, 3] ), "rotation is correct" );
           var expectedLocalMatrix = expectedWorldMatrix = new math.transform.rotate( [1, 2, 3] );
 
-          ok( math.matrix4.equal( transform.localMatrix().buffer, expectedLocalMatrix ), "local matrix is correct" );
-          ok( math.matrix4.equal( transform.worldMatrix().buffer, expectedWorldMatrix ), "world matrix is correct" );
+          ok( math.matrix4.equal( transform.localMatrix(), expectedLocalMatrix ), "local matrix is correct" );
+          ok( math.matrix4.equal( transform.worldMatrix(), expectedWorldMatrix ), "world matrix is correct" );
         });
 
         test( "set scale using assignment", function(){
@@ -91,8 +91,8 @@ define(
           ok( transform.scale.equal( [1, 2, 3] ), "position is correct" );
           var expectedLocalMatrix = expectedWorldMatrix = new math.transform.scale( [1, 2, 3] );
 
-          ok( math.matrix4.equal( transform.localMatrix().buffer, expectedLocalMatrix ), "local matrix is correct" );
-          ok( math.matrix4.equal( transform.worldMatrix().buffer, expectedWorldMatrix ), "world matrix is correct" );
+          ok( math.matrix4.equal( transform.localMatrix(), expectedLocalMatrix ), "local matrix is correct" );
+          ok( math.matrix4.equal( transform.worldMatrix(), expectedWorldMatrix ), "world matrix is correct" );
         });
 
         test( "set position using component assignment", function() {
@@ -107,8 +107,8 @@ define(
           ok( transform.position.equal( [1, 2, 3] ), "position is correct" );
           var expectedLocalMatrix = expectedWorldMatrix = new math.transform.translate( [1, 2, 3] );
 
-          ok( math.matrix4.equal( transform.localMatrix().buffer, expectedLocalMatrix ), "local matrix is correct" );
-          ok( math.matrix4.equal( transform.worldMatrix().buffer, expectedWorldMatrix ), "world matrix is correct" );
+          ok( math.matrix4.equal( transform.localMatrix(), expectedLocalMatrix ), "local matrix is correct" );
+          ok( math.matrix4.equal( transform.worldMatrix(), expectedWorldMatrix ), "world matrix is correct" );
         });
 
         test( "set rotation using component assignment", function() {
@@ -123,8 +123,8 @@ define(
           ok( transform.rotation.equal( [1, 2, 3] ), "rotation is correct" );
           var expectedLocalMatrix = expectedWorldMatrix = new math.transform.rotate( [1, 2, 3] );
 
-          ok( math.matrix4.equal( transform.localMatrix().buffer, expectedLocalMatrix ), "local matrix is correct" );
-          ok( math.matrix4.equal( transform.worldMatrix().buffer, expectedWorldMatrix ), "world matrix is correct" );
+          ok( math.matrix4.equal( transform.localMatrix(), expectedLocalMatrix ), "local matrix is correct" );
+          ok( math.matrix4.equal( transform.worldMatrix(), expectedWorldMatrix ), "world matrix is correct" );
         });
 
         test( "set scale using component assignment", function() {
@@ -139,8 +139,8 @@ define(
           ok( transform.scale.equal( [1, 2, 3] ), "scale is correct" );
           var expectedLocalMatrix = expectedWorldMatrix = new math.transform.scale( [1, 2, 3] );
 
-          ok( math.matrix4.equal( transform.localMatrix().buffer, expectedLocalMatrix ), "local matrix is correct" );
-          ok( math.matrix4.equal( transform.worldMatrix().buffer, expectedWorldMatrix ), "world matrix is correct" );
+          ok( math.matrix4.equal( transform.localMatrix(), expectedLocalMatrix ), "local matrix is correct" );
+          ok( math.matrix4.equal( transform.worldMatrix(), expectedWorldMatrix ), "world matrix is correct" );
         });
 
         test( "create a compound transform (position, rotation, scale)", function() {
@@ -151,9 +151,9 @@ define(
           var scale = [7,8,9];
           var transform = new Transform( position, rotation, scale );
 
-          var expectedMatrix = math.transform.compound(position, rotation, scale);
-          ok(math.matrix4.equal( transform.localMatrix().buffer, expectedMatrix), "local matrix is correct");
-          ok(math.matrix4.equal( transform.worldMatrix().buffer, expectedMatrix), "world matrix is correct");
+          var expectedMatrix = math.transform.compound(undefined, position, rotation, scale);
+          ok(math.matrix4.equal( transform.localMatrix(), expectedMatrix), "local matrix is correct");
+          ok(math.matrix4.equal( transform.worldMatrix(), expectedMatrix), "world matrix is correct");
         });
 
         test( "local transform of a direction", function() {
@@ -206,25 +206,25 @@ define(
           var entity2 = new Entity("entity2", [transform2], [], entity1);
           var entity3 = new Entity("entity3", [transform3], [], entity2);
 
-          var expected1 = math.transform.compound( position1, rotation1, scale1 );
-          var expected2 = math.transform.compound( position2, rotation2, scale2 );
-          var expected3 = math.transform.compound( position3, rotation3, scale3 );
+          var expected1 = math.transform.compound( undefined, position1, rotation1, scale1 );
+          var expected2 = math.transform.compound( undefined, position2, rotation2, scale2 );
+          var expected3 = math.transform.compound( undefined, position3, rotation3, scale3 );
 
-          var worldMatrix2 = math.matrix4.multiply(expected2, transform1.worldMatrix().buffer);
-          var worldMatrix3 = math.matrix4.multiply(expected3, transform2.worldMatrix().buffer);
+          var worldMatrix2 = math.matrix4.multiply(transform1.worldMatrix(), expected2);
+          var worldMatrix3 = math.matrix4.multiply(transform2.worldMatrix(), expected3);
 
-          ok(math.matrix4.equal(transform1.worldMatrix().buffer, expected1),
+          ok(math.matrix4.equal(transform1.worldMatrix(), expected1),
             "first world matrix is correct");
-          ok(math.matrix4.equal(transform2.worldMatrix().buffer, worldMatrix2),
+          ok(math.matrix4.equal(transform2.worldMatrix(), worldMatrix2),
             "second world matrix is correct");
-          ok(math.matrix4.equal(transform3.worldMatrix().buffer, worldMatrix3),
+          ok(math.matrix4.equal(transform3.worldMatrix(), worldMatrix3),
             "third world matrix is correct");
 
-          ok(math.matrix4.equal(transform1.localMatrix().buffer, expected1),
+          ok(math.matrix4.equal(transform1.localMatrix(), expected1),
             "first local matrix is correct");
-          ok(math.matrix4.equal(transform2.localMatrix().buffer, expected2),
+          ok(math.matrix4.equal(transform2.localMatrix(), expected2),
             "second local matrix is correct");
-          ok(math.matrix4.equal(transform3.localMatrix().buffer, expected3),
+          ok(math.matrix4.equal(transform3.localMatrix(), expected3),
             "third local matrix is correct");
         });
       };
