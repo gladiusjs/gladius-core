@@ -61,7 +61,10 @@ define(
 
           ok( transform.position instanceof math.Vector3, "position is a Vector3" );
           ok( transform.position.equal( [1, 2, 3] ), "position is correct" );
-          var expectedLocalMatrix = expectedWorldMatrix = new math.transform.translate( [1, 2, 3] );
+          var expectedLocalMatrix;
+          var expectedWorldMatrix;
+          expectedLocalMatrix = new math.transform.translate( [1, 2, 3] );
+          expectedWorldMatrix = expectedLocalMatrix;
 
           ok( math.matrix4.equal( transform.localMatrix(), expectedLocalMatrix ), "local matrix is correct" );
           ok( math.matrix4.equal( transform.worldMatrix(), expectedWorldMatrix ), "world matrix is correct" );
@@ -75,8 +78,10 @@ define(
 
           ok( transform.rotation instanceof math.Vector3, "rotation is a Vector3" );
           ok( transform.rotation.equal( [1, 2, 3] ), "rotation is correct" );
-          var expectedLocalMatrix = expectedWorldMatrix = new math.transform.rotate( [1, 2, 3] );
-
+          var expectedLocalMatrix;
+          var expectedWorldMatrix;
+          expectedLocalMatrix = new math.transform.rotate( [1, 2, 3] );
+          expectedWorldMatrix = expectedLocalMatrix;
           ok( math.matrix4.equal( transform.localMatrix(), expectedLocalMatrix ), "local matrix is correct" );
           ok( math.matrix4.equal( transform.worldMatrix(), expectedWorldMatrix ), "world matrix is correct" );
         });
@@ -89,7 +94,10 @@ define(
 
           ok( transform.scale instanceof math.Vector3, "position is a Vector3" );
           ok( transform.scale.equal( [1, 2, 3] ), "position is correct" );
-          var expectedLocalMatrix = expectedWorldMatrix = new math.transform.scale( [1, 2, 3] );
+          var expectedLocalMatrix;
+          var expectedWorldMatrix;
+          expectedLocalMatrix = new math.transform.scale( [1, 2, 3] );
+          expectedWorldMatrix = expectedLocalMatrix;
 
           ok( math.matrix4.equal( transform.localMatrix(), expectedLocalMatrix ), "local matrix is correct" );
           ok( math.matrix4.equal( transform.worldMatrix(), expectedWorldMatrix ), "world matrix is correct" );
@@ -105,7 +113,10 @@ define(
 
           ok( transform.position instanceof math.Vector3, "position is a Vector3" );
           ok( transform.position.equal( [1, 2, 3] ), "position is correct" );
-          var expectedLocalMatrix = expectedWorldMatrix = new math.transform.translate( [1, 2, 3] );
+          var expectedLocalMatrix;
+          var expectedWorldMatrix;
+          expectedLocalMatrix = new math.transform.translate( [1, 2, 3] );
+          expectedWorldMatrix = expectedLocalMatrix;
 
           ok( math.matrix4.equal( transform.localMatrix(), expectedLocalMatrix ), "local matrix is correct" );
           ok( math.matrix4.equal( transform.worldMatrix(), expectedWorldMatrix ), "world matrix is correct" );
@@ -121,7 +132,10 @@ define(
 
           ok( transform.rotation instanceof math.Vector3, "rotation is a Vector3" );
           ok( transform.rotation.equal( [1, 2, 3] ), "rotation is correct" );
-          var expectedLocalMatrix = expectedWorldMatrix = new math.transform.rotate( [1, 2, 3] );
+          var expectedLocalMatrix;
+          var expectedWorldMatrix;
+          expectedLocalMatrix = new math.transform.rotate( [1, 2, 3] );
+          expectedWorldMatrix = expectedLocalMatrix;
 
           ok( math.matrix4.equal( transform.localMatrix(), expectedLocalMatrix ), "local matrix is correct" );
           ok( math.matrix4.equal( transform.worldMatrix(), expectedWorldMatrix ), "world matrix is correct" );
@@ -137,7 +151,10 @@ define(
 
           ok( transform.scale instanceof math.Vector3, "scale is a Vector3" );
           ok( transform.scale.equal( [1, 2, 3] ), "scale is correct" );
-          var expectedLocalMatrix = expectedWorldMatrix = new math.transform.scale( [1, 2, 3] );
+          var expectedLocalMatrix;
+          var expectedWorldMatrix;
+          expectedLocalMatrix = new math.transform.scale( [1, 2, 3] );
+          expectedWorldMatrix = expectedLocalMatrix;
 
           ok( math.matrix4.equal( transform.localMatrix(), expectedLocalMatrix ), "local matrix is correct" );
           ok( math.matrix4.equal( transform.worldMatrix(), expectedWorldMatrix ), "world matrix is correct" );
@@ -215,7 +232,7 @@ define(
 
           var expectedWorldRotation = math.matrix4.multiply(math.transform.rotate(rotation1),
                                                             math.transform.rotate(rotation2));
-          var expectedWorldRotation = math.matrix4.multiply(expectedWorldRotation,
+          expectedWorldRotation = math.matrix4.multiply(expectedWorldRotation,
                                                             math.transform.rotate(rotation3));
           var actualWorldRotation = transform3.worldRotation();
 
