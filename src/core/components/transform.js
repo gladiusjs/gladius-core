@@ -81,22 +81,40 @@ define( function( require ) {
     return this._cachedWorldMatrix;
   }
 
+  function directionToWorld(direction, result) {
+    result = result || new math.V3();
+    var transformedDirection = math.matrix4.multiply(
+      computeWorldMatrix.call(this),
+      math.transform.translate( direction ));
+    math.vector3.set(result, transformedDirection[3], transformedDirection[7], transformedDirection[11]);
+    return result;
+  }
+
+  function directionToLocal(direction, result) {
+    result = result || new math.V3();
+    var transformedDirection = math.matrix4.multiply(
+      computeLocalMatrix.call(this),
+      math.transform.translate( direction ));
+    math.vector3.set(result, transformedDirection[3], transformedDirection[7], transformedDirection[11]);
+    return result;
+  }
+
   var prototype = {
-      worldMatrix: computeWorldMatrix,
-      localMatrix: computeLocalMatrix,
-      toWorldDirection: undefined,
-      toLocalDirection: undefined,
-      toWorldPoint: undefined,
-      toLocalPoint: undefined,
-      lookAt: undefined,
-      target: undefined,
-      // Direction constants
-      forward: new math.Vector3( 0, 0, 1 ),
-      backward: new math.Vector3( 0, 0, -1 ),
-      left: new math.Vector3( -1, 0, 0 ),
-      right: new math.Vector3( 1, 0, 0 ),
-      up: new math.Vector3( 0, 1, 0 ),
-      down: new math.Vector3( 0, -1, 0 )
+    worldMatrix: computeWorldMatrix,
+    localMatrix: computeLocalMatrix,
+    directionToLocal: directionToLocal,
+    directionToWorld: directionToWorld,
+    toWorldPoint: undefined,
+    toLocalPoint: undefined,
+    lookAt: undefined,
+    target: undefined,
+    // Direction constants
+    forward: new math.Vector3( 0, 0, 1 ),
+    backward: new math.Vector3( 0, 0, -1 ),
+    left: new math.Vector3( -1, 0, 0 ),
+    right: new math.Vector3( 1, 0, 0 ),
+    up: new math.Vector3( 0, 1, 0 ),
+    down: new math.Vector3( 0, -1, 0 )
   };
   extend( Transform.prototype, prototype );
 

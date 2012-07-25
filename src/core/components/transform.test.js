@@ -156,6 +156,36 @@ define(
           ok(math.matrix4.equal( transform.worldMatrix().buffer, expectedMatrix), "world matrix is correct");
         });
 
+        test( "local transform of a direction", function() {
+          expect( 1 );
+
+          var position = [1,2,3];
+          var rotation = [4,5,6];
+          var scale = [7,8,9];
+          var transform = new Transform( position, rotation, scale );
+          var direction = [0.5, 0.9, 28];
+
+          var resultingDirection = transform.directionToLocal(direction);
+          var expectedDirection = math.matrix4.multiply(transform.localMatrix(), math.transform.translate(direction));
+          expectedDirection = [expectedDirection[3], expectedDirection[7], expectedDirection[11]];
+          ok(math.vector3.equal( resultingDirection, expectedDirection), "Direction is correct");
+        });
+
+        test( "world transform of a direction", function() {
+          expect( 1 );
+
+          var position = [1,2,3];
+          var rotation = [4,5,6];
+          var scale = [7,8,9];
+          var transform = new Transform( position, rotation, scale );
+          var direction = [0.5, 0.9, 28];
+
+          var resultingDirection = transform.directionToWorld(direction);
+          var expectedDirection = math.matrix4.multiply(transform.worldMatrix(), math.transform.translate(direction));
+          expectedDirection = [expectedDirection[3], expectedDirection[7], expectedDirection[11]];
+          ok(math.vector3.equal( resultingDirection, expectedDirection), "Direction is correct");
+        });
+
         test( "create a transform tree", function() {
           expect( 6 );
 
