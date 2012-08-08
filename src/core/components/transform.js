@@ -110,7 +110,7 @@ define( function( require ) {
   }
 
   function toWorldPoint() {
-    worldMatrix = computeWorldMatrix.call(this);
+    var worldMatrix = computeWorldMatrix.call(this);
     return [worldMatrix[3], worldMatrix[7], worldMatrix[11]];
   }
 
