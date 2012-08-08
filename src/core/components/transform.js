@@ -109,13 +109,18 @@ define( function( require ) {
     return result;
   }
 
+  function toWorldPoint() {
+    worldMatrix = computeWorldMatrix.call(this);
+    return [worldMatrix[3], worldMatrix[7], worldMatrix[11]];
+  }
+
   var prototype = {
     worldMatrix: computeWorldMatrix,
     localMatrix: computeLocalMatrix,
     directionToLocal: directionToLocal,
     directionToWorld: directionToWorld,
     worldRotation: computeWorldRotation,
-    toWorldPoint: undefined,
+    toWorldPoint: toWorldPoint,
     toLocalPoint: undefined,
     lookAt: undefined,
     target: undefined,
