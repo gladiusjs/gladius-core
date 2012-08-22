@@ -96,7 +96,6 @@ define( function( require ) {
   }
 
   //This calculates the rotation of world space relative to the object
-  //It is wrong!
   function computeLocalRotation(){
     //TODO: Add caching of results in here once we have a way of detecting changes in the parents
     if( this.owner && this.owner.parent &&
@@ -124,9 +123,9 @@ define( function( require ) {
       this.owner.parent.hasComponent( "Transform" ) ) {
       var thisParentWorldMatrix = this.owner.parent.findComponent( "Transform").worldMatrix();
       //Multiply the inverse of the parent's world matrix by the other transform's world matrix,
-      // putting the result in thisWorldPositionMatrix
+      // putting the result in the temp matrix
       //Solution grabbed from http://www.macaronikazoo.com/?p=419
-      math.matrix4.multiply(math.matrix4.inverse(thisParentWorldMatrix,this._tempMatrix), math.matrix4.translate(direction), this._tempMatrix);
+      math.matrix4.multiply(math.matrix4.inverse(thisParentWorldMatrix,this._tempMatrix), math.transform.translate(direction), this._tempMatrix);
       //Subtract this turret's position so that everything is offset properly
       math.vector3.set(result, this._tempMatrix[3] - this._position.buffer[0], this._tempMatrix[7] - this._position.buffer[1], this._tempMatrix[11] - this._position.buffer[2]);
     }
@@ -149,7 +148,7 @@ define( function( require ) {
       this.owner.parent.hasComponent( "Transform" ) ) {
       var thisParentWorldMatrix = this.owner.parent.findComponent( "Transform").worldMatrix();
       //Multiply the inverse of the parent's world matrix by the other transform's world matrix,
-      // putting the result in thisWorldPositionMatrix
+      // putting the result in the temp matrix
       // Solution grabbed from http://www.macaronikazoo.com/?p=419
       math.matrix4.multiply(math.matrix4.inverse(thisParentWorldMatrix,this._tempMatrix), otherWorldMatrix, this._tempMatrix);
       //Subtract this turret's position so that everything is offset properly

@@ -173,21 +173,6 @@ define(
           ok(math.matrix4.equal( transform.worldMatrix(), expectedMatrix), "world matrix is correct");
         });
 
-        test( "local transform of a direction", function() {
-          expect( 1 );
-
-          var position = [1,2,3];
-          var rotation = [4,5,6];
-          var scale = [7,8,9];
-          var transform = new Transform( position, rotation, scale );
-          var direction = [0.5, 0.9, 28];
-
-          var resultingDirection = transform.directionToLocal(direction);
-          var expectedDirection = math.matrix4.multiply(math.transform.rotate(transform.rotation.buffer), math.transform.translate(direction));
-          expectedDirection = [expectedDirection[3], expectedDirection[7], expectedDirection[11]];
-          ok(math.vector3.equal( resultingDirection, expectedDirection), "Direction is correct");
-        });
-
         test( "world transform of a direction", function() {
           expect( 1 );
 
@@ -280,6 +265,94 @@ define(
           ok(math.matrix4.equal(transform3.localMatrix(), expected3),
             "third local matrix is correct");
         });
+
+        test( "direction to world", function(){
+          expect(1);
+          var position1 = [1,1,1];
+          var rotation1 = [0,0,0];
+          var scale1 = [1,1,1];
+          var position2 = [2,2,2];
+          var rotation2 = [math.TAU/4,math.TAU/4,math.TAU/4];
+          var scale2 = [1,1,1];
+          var position3 = [3,3,3];
+          var rotation3 = [0,0,0];
+          var scale3 = [1,1,1];
+          var transform1 = new Transform( position1, rotation1, scale1 );
+          var transform2 = new Transform( position2, rotation2, scale2 );
+          var transform3 = new Transform( position3, rotation3, scale3 );
+
+          var entity1 = new Entity("entity1", [transform1]);
+          var entity2 = new Entity("entity2", [transform2], [], entity1);
+          var entity3 = new Entity("entity3", [transform3], [], entity2);
+
+          var result = transform3.directionToWorld([1,2,3]);
+          var expected = [3,2,-1];
+          ok(math.vector3.equal(result,expected), "direction to world produces expected result");
+
+        });
+
+        test( "direction to local", function(){
+          var position1 = [1,1,1];
+          var rotation1 = [0,0,0];
+          var scale1 = [1,1,1];
+          var position2 = [2,2,2];
+          var rotation2 = [math.TAU/4,math.TAU/4,math.TAU/4];
+          var scale2 = [1,1,1];
+          var position3 = [3,3,3];
+          var rotation3 = [0,0,0];
+          var scale3 = [1,1,1];
+          var transform1 = new Transform( position1, rotation1, scale1 );
+          var transform2 = new Transform( position2, rotation2, scale2 );
+          var transform3 = new Transform( position3, rotation3, scale3 );
+
+          var entity1 = new Entity("entity1", [transform1]);
+          var entity2 = new Entity("entity2", [transform2], [], entity1);
+          var entity3 = new Entity("entity3", [transform3], [], entity2);
+
+          var result = transform3.directionToLocal([1,2,3]);
+          var expected = [-3,-4,-5];
+          ok(math.vector3.equal(result,expected), "direction to local produces expected result");
+        });
+
+        test( "transform to local", function(){
+          var position1 = [1,2,3];
+          var rotation1 = [-math.TAU/4,-math.TAU/4,-math.TAU/4];
+          var scale1 = [1,1,1];
+          var position2 = [4,4,4];
+          var rotation2 = [0,0,0];
+          var scale2 = [1,1,1];
+          var position3 = [5,5,5];
+          var rotation3 = [0,0,0];
+          var scale3 = [1,1,1];
+          var transform1 = new Transform( position1, rotation1, scale1 );
+          var transform2 = new Transform( position2, rotation2, scale2 );
+          var transform3 = new Transform( position3, rotation3, scale3 );
+
+          var entity1 = new Entity("entity1", [transform1]);
+          var entity2 = new Entity("entity2", [transform2], [], entity1);
+          var entity3 = new Entity("entity3", [transform3], [], entity2);
+
+          var position4 = [1,1,1];
+          var rotation4 = [0,0,0];
+          var scale4 = [1,1,1];
+          var position5 = [2,2,2];
+          var rotation5 = [math.TAU/4,math.TAU/4,math.TAU/4];
+          var scale5 = [1,1,1];
+          var position6 = [3,3,3];
+          var rotation6 = [0,0,0];
+          var scale6 = [1,1,1];
+          var transform4 = new Transform( position4, rotation4, scale4 );
+          var transform5 = new Transform( position5, rotation5, scale5 );
+          var transform6 = new Transform( position6, rotation6, scale6 );
+
+          var entity4 = new Entity("entity4", [transform4]);
+          var entity5 = new Entity("entity5", [transform5], [], entity4);
+          var entity6 = new Entity("entity6", [transform6], [], entity5);
+          var result = transform6.transformToLocal(transform3);
+          var expected = [-12, -13, 4];
+          ok(math.vector3.equal(result,expected), "transform to local produces expected result");
+        });
+
       };
     }
 );
