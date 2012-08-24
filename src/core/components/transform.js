@@ -95,20 +95,9 @@ define( function( require ) {
     }
   }
 
-  //This calculates the rotation of world space relative to the object
-  function computeLocalRotation(){
-    //TODO: Add caching of results in here once we have a way of detecting changes in the parents
-    if( this.owner && this.owner.parent &&
-      this.owner.parent.hasComponent( "Transform" ) ) {
-      return math.matrix4.multiply(math.transform.rotate(this._rotation.buffer),
-                                   this.owner.parent.findComponent( "Transform").localRotation());
-    }else{
-      return math.transform.rotate(this._rotation.buffer);
-    }
-  }
-
-  function directionToWorld(direction, result) {
+  function pointToWorld(direction, result) {
     result = result || new math.V3();
+    direction = direction || new math.V3();
     math.matrix4.multiply(
       computeWorldRotation.call(this),
       math.transform.translate( direction ),
@@ -117,7 +106,7 @@ define( function( require ) {
     return result;
   }
 
-  function directionToLocal(direction, result) {
+  function pointToLocal(direction, result) {
     result = result || new math.V3();
     if( this.owner && this.owner.parent &&
       this.owner.parent.hasComponent( "Transform" ) ) {
@@ -140,7 +129,7 @@ define( function( require ) {
     return [worldMatrix[3], worldMatrix[7], worldMatrix[11]];
   }
 
-  function transformToLocal(otherTransform, result)
+  function relativeTo(otherTransform, result)
   {
     result = result || new math.V3();
     var otherWorldMatrix = otherTransform.worldMatrix();
@@ -164,13 +153,12 @@ define( function( require ) {
     //TODO: worldMatrix and localMatrix look like property accessors from the outside but are actually methods. This should be changed, either so that they are accessed like properties or look like methods
     worldMatrix: computeWorldMatrix,
     localMatrix: computeLocalMatrix,
-    directionToLocal: directionToLocal,
-    directionToWorld: directionToWorld,
+    pointToLocal: pointToLocal,
+    pointToWorld: pointToWorld,
     //Same thing goes for this one.
     worldRotation: computeWorldRotation,
-    localRotation: computeLocalRotation,
+    relativeTo: relativeTo,
     toWorldPoint: toWorldPoint,
-    transformToLocal: transformToLocal,
     lookAt: undefined,
     target: undefined,
     // Direction constants
