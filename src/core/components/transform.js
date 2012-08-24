@@ -95,6 +95,11 @@ define( function( require ) {
     }
   }
 
+  //TODO: Should produce a unit vector showing the orientation of things in world space
+  function directionToWorld(){
+
+  }
+
   function pointToWorld(direction, result) {
     result = result || new math.V3();
     direction = direction || new math.V3();
@@ -155,6 +160,7 @@ define( function( require ) {
     localMatrix: computeLocalMatrix,
     pointToLocal: pointToLocal,
     pointToWorld: pointToWorld,
+    directionToWorld: undefined,
     //Same thing goes for this one.
     worldRotation: computeWorldRotation,
     relativeTo: relativeTo,
