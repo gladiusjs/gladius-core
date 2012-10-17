@@ -19,7 +19,7 @@ define( function( require ) {
     this.__defineSetter__( "position", function( value ) {
       this._position.set( value );
       this._cachedLocalMatrixIsValid = false;
-      this._cachedWorldMatrixIsvalid = false;
+      this._cachedWorldMatrixIsValid = false;
     });
 
     // Local rotation
@@ -30,7 +30,7 @@ define( function( require ) {
     this.__defineSetter__( "rotation", function( value ) {
       this._rotation.set( value );
       this._cachedLocalMatrixIsValid = false;
-      this._cachedWorldMatrixIsvalid = false;
+      this._cachedWorldMatrixIsValid = false;
     });
     this._rotationMatrix = new math.transform.rotate( this._rotation );
     this._rotationMatrixIsValid = true;
@@ -43,13 +43,15 @@ define( function( require ) {
     this.__defineSetter__( "scale", function( value ) {
       this._scale.set( value );
       this._cachedLocalMatrixIsValid = false;
-      this._cachedWorldMatrixIsvalid = false;
+      this._cachedWorldMatrixIsValid = false;
     });
 
     this._cachedLocalMatrix = new math.T();
     this._cachedLocalMatrixIsValid = false;
     this._cachedWorldMatrix = new math.T();
-    this._cachedWorldMatrixIsvalid = false;
+    //TODO: Make the world matrix caching actually do something
+    this._cachedWorldMatrixIsValid = false;
+    this._tempMatrix = new math.T();
   };
   Transform.prototype = new Component();
   Transform.prototype.constructor = Transform;
@@ -81,7 +83,9 @@ define( function( require ) {
     return this._cachedWorldMatrix;
   }
 
+  //This calculates the rotation of the object relative to world space
   function computeWorldRotation(){
+    //TODO: Add caching of results in here once we have a way of detecting changes in the parents
     if( this.owner && this.owner.parent &&
       this.owner.parent.hasComponent( "Transform" ) ) {
       return math.matrix4.multiply(this.owner.parent.findComponent( "Transform").worldRotation(),
@@ -91,21 +95,37 @@ define( function( require ) {
     }
   }
 
-  function directionToWorld(direction, result) {
+  //TODO: Should produce a unit vector showing the orientation of things in world space
+  function directionToWorld(){
+
+  }
+
+  function pointToWorld(direction, result) {
     result = result || new math.V3();
-    var transformedDirection = math.matrix4.multiply(
+    direction = direction || new math.V3();
+    math.matrix4.multiply(
       computeWorldRotation.call(this),
-      math.transform.translate( direction ));
-    math.vector3.set(result, transformedDirection[3], transformedDirection[7], transformedDirection[11]);
+      math.transform.translate( direction ),
+      this._tempMatrix);
+    math.vector3.set(result, this._tempMatrix[3], this._tempMatrix[7], this._tempMatrix[11]);
     return result;
   }
 
-  function directionToLocal(direction, result) {
+  function pointToLocal(direction, result) {
     result = result || new math.V3();
-    var transformedDirection = math.matrix4.multiply(
-      math.transform.rotate(this._rotation.buffer),
-      math.transform.translate( direction ));
-    math.vector3.set(result, transformedDirection[3], transformedDirection[7], transformedDirection[11]);
+    if( this.owner && this.owner.parent &&
+      this.owner.parent.hasComponent( "Transform" ) ) {
+      var thisParentWorldMatrix = this.owner.parent.findComponent( "Transform").worldMatrix();
+      //Multiply the inverse of the parent's world matrix by the other transform's world matrix,
+      // putting the result in the temp matrix
+      //Solution grabbed from http://www.macaronikazoo.com/?p=419
+      math.matrix4.multiply(math.matrix4.inverse(thisParentWorldMatrix,this._tempMatrix), math.transform.translate(direction), this._tempMatrix);
+      //Subtract this turret's position so that everything is offset properly
+      math.vector3.set(result, this._tempMatrix[3] - this._position.buffer[0], this._tempMatrix[7] - this._position.buffer[1], this._tempMatrix[11] - this._position.buffer[2]);
+    }
+    else{
+      math.vector3.set(result, direction[0], direction[1], direction[2]);
+    }
     return result;
   }
 
@@ -114,14 +134,37 @@ define( function( require ) {
     return [worldMatrix[3], worldMatrix[7], worldMatrix[11]];
   }
 
+  function relativeTo(otherTransform, result)
+  {
+    result = result || new math.V3();
+    var otherWorldMatrix = otherTransform.worldMatrix();
+    if( this.owner && this.owner.parent &&
+      this.owner.parent.hasComponent( "Transform" ) ) {
+      var thisParentWorldMatrix = this.owner.parent.findComponent( "Transform").worldMatrix();
+      //Multiply the inverse of the parent's world matrix by the other transform's world matrix,
+      // putting the result in the temp matrix
+      // Solution grabbed from http://www.macaronikazoo.com/?p=419
+      math.matrix4.multiply(math.matrix4.inverse(thisParentWorldMatrix,this._tempMatrix), otherWorldMatrix, this._tempMatrix);
+      //Subtract this turret's position so that everything is offset properly
+      math.vector3.set(result, this._tempMatrix[3] - this._position.buffer[0], this._tempMatrix[7] - this._position.buffer[1], this._tempMatrix[11] - this._position.buffer[2]);
+    }
+    else{
+      math.vector3.set(result, otherWorldMatrix[3], otherWorldMatrix[7], otherWorldMatrix[11]);
+    }
+    return result;
+  }
+
   var prototype = {
+    //TODO: worldMatrix and localMatrix look like property accessors from the outside but are actually methods. This should be changed, either so that they are accessed like properties or look like methods
     worldMatrix: computeWorldMatrix,
     localMatrix: computeLocalMatrix,
-    directionToLocal: directionToLocal,
-    directionToWorld: directionToWorld,
+    pointToLocal: pointToLocal,
+    pointToWorld: pointToWorld,
+    directionToWorld: undefined,
+    //Same thing goes for this one.
     worldRotation: computeWorldRotation,
+    relativeTo: relativeTo,
     toWorldPoint: toWorldPoint,
-    toLocalPoint: undefined,
     lookAt: undefined,
     target: undefined,
     // Direction constants
